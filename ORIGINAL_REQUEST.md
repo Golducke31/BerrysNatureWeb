@@ -13,10 +13,10 @@ Logo real disponible en: `c:\Users\emanu\Desktop\berrys web\logo_berrys_nature.j
 ## Requirements
 
 ### R1. Landing page y navegación completa
-La página debe tener un header sticky con el logo real de la marca (archivo: `logo_berrys_nature.jpg`) y menú de navegación (Inicio, Catálogo, Berry's Calculator, Sobre Nosotros, Contacto). Incluir íconos funcionales de búsqueda y carrito. La sección Hero debe ser a pantalla completa con transiciones suaves y un botón de llamada a la acción "Explorar el Catálogo". Todo el sitio debe ser responsive (mobile-first).
+La página debe tener un header sticky con el logo real de la marca (archivo: `logo_berrys_nature.jpg`) y menú de navegación (Inicio, Catálogo, Berry's Calculator, Sobre Nosotros, Contacto). Incluir íconos funcionales de búsqueda. La sección Hero debe ser a pantalla completa con transiciones suaves y un botón de llamada a la acción "Explorar el Catálogo". Todo el sitio debe ser responsive (mobile-first).
 
 ### R2. Catálogo Interactivo (e-Catalog)
-Implementar un visor de catálogo interactivo estilo flipbook/slider donde el usuario puede navegar entre colecciones de productos. Los productos deben tener hotspots (puntos interactivos) que al hacer clic o hover muestren un tooltip/modal con: nombre del producto, descripción de activos naturales, precio y botón "Añadir al carrito". Los datos de productos deben ser representativos de una marca de cosmética natural (cremas, serums, aceites, etc.). El catálogo debe estar basado en un array de datos fácilmente extensible para agregar más productos en el futuro.
+Implementar un visor de catálogo interactivo estilo flipbook/slider donde el usuario puede navegar entre colecciones de productos. Los productos deben tener hotspots (puntos interactivos) que al hacer clic o hover muestren un tooltip/modal con: nombre del producto, descripción de activos naturales y precio. Los datos de productos deben ser representativos de una marca de cosmética natural (cremas, serums, aceites, etc.). El catálogo debe estar basado en un array de datos fácilmente extensible para agregar más productos en el futuro.
 
 ### R3. Berry's Calculator (Herramienta de formulación cosmética)
 Implementar la calculadora con los siguientes campos funcionales:
@@ -56,7 +56,7 @@ Implementar la siguiente paleta y tipografía exactas:
 ### Catálogo Interactivo
 - [ ] El catálogo muestra al menos 4 productos en un slider/flipbook navegable
 - [ ] Al menos 2 productos tienen hotspots que abren un modal/tooltip functional
-- [ ] El modal muestra nombre, descripción, precio y botón "Añadir al carrito"
+- [ ] El modal muestra nombre, descripción y precio
 - [ ] Las transiciones del catálogo son suaves
 - [ ] Los datos del catálogo están en un array extensible, no hardcodeados en el HTML
 

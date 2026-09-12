@@ -1,12 +1,12 @@
 # Berry's Nature Web
 
-Prototipo de alta fidelidad para la tienda multimarca de cosmética natural, deportes de acción y moda urbana de **Berry's Nature**. Es un sitio estático (HTML5 + CSS3 + JavaScript vanilla) con catálogo interactivo, calculadora de formulación, comunidad y una suite de pruebas E2E.
+Prototipo de alta fidelidad para la marca de cosmética natural **Berry's Nature**. Es un sitio estático (HTML5 + CSS3 + JavaScript vanilla) con catálogo interactivo, calculadora de formulación, comunidad y una suite de pruebas E2E.
 
 > La web **no vende productos**: el modelo es contenido + comunidad + desbloqueo de la calculadora con un pago único. Ver el plan de migración en `ARQUITECTURA-TECNICA.md`.
 
 ## Estado actual
 
-- **Landing, navegación, catálogo, calculadora y carrito:** implementados en el prototipo estático.
+- **Landing, navegación, catálogo y calculadora:** implementados en el prototipo estático.
 - **Suite E2E (Playwright):** 60 pruebas listas (ver `TEST_READY.md`).
 - **Documentación:** arquitectura, brief y plan de migración a WordPress disponibles en los `.md` del repo.
 

@@ -35,7 +35,7 @@ Este documento está diseñado para ser procesado por un agente de desarrollo (c
 ### 3.1. Header y Navegación
 - Menú sticky (siempre visible).
 - Enlaces: Inicio, Catálogo Interactivo (e-Catalog), Berry's Calculator, Sobre Nosotros, Contacto.
-- Iconos funcionales: Buscador integrado (`🔍`), Carrito de compras (`🛍️`) y Menú hamburguesa para versión móvil.
+- Iconos funcionales: Buscador integrado (`🔍`) y Menú hamburguesa para versión móvil.
 
 ### 3.2. Sección Hero (Inicio)
 - Banner a pantalla completa o dividida promocionando el último lanzamiento o la esencia de la marca.
@@ -46,7 +46,7 @@ Este documento está diseñado para ser procesado por un agente de desarrollo (c
 - **Hotspots (Puntos interactivos):** Al hacer clic o pasar el cursor sobre un producto en una imagen de estilo de vida, debe desplegarse un *Tooltip* o *Modal* con:
   - Nombre del producto.
   - Breve descripción de sus activos naturales.
-  - Precio y Botón directo de "Añadir al carrito".
+  - Precio.
 
 ### 3.4. Herramienta Especial: "Berry's Calculator"
 - **Descripción:** Integración de la herramienta de formulación cosmética mostrada en los mockups.
