@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Berry's Academy — Hub de aprendizaje de cosmética natural: guías por nivel, fórmulas descargables, proveedores y calculadora de costo por lote.">
+  <meta name="keywords" content="academia cosmética natural, guías formulación, fórmulas cosméticas, proveedores cosmética, curso cosmética argentina">
+  <meta property="og:title" content="Berry's Academy | Aprendé a formular cosmética natural">
+  <meta property="og:description" content="De entusiasta a formulador profesional: rutas de aprendizaje, fórmulas y proveedores en un solo hub.">
+  <title>Berry's Academy | Aprendé a formular cosmética natural</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/academia.css">
+  <link rel="stylesheet" href="css/niko-widget.css">
+</head>
+<body class="page-academy">
+
+  <!-- ============================
+       STICKY HEADER (mismo de index)
+  ============================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+
+      <!-- Logo and Brand -->
+      <a href="index.html" class="logo-area" aria-label="Volver al inicio">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav>
+        <ul class="nav-menu-desktop">
+          <li><a href="index.html" class="nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Icons -->
+      <div class="header-actions">
+        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Login / usuario + acceso a la tienda -->
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="index.html" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================
+       MAIN CONTENT
+  ============================== -->
+  <main>
+
+    <!-- HERO DE ACADEMIA -->
+    <section class="academy-hero" id="academia-top" tabindex="-1">
+      <div class="academy-hero__bg" aria-hidden="true"></div>
+      <div class="academy-hero__overlay" aria-hidden="true"></div>
+    </section>
+
+    <!-- CARRUSEL DE RUTAS -->
+    <section id="rutas" class="rutas-section" tabindex="-1">
+      <div class="rutas-head">
+        <span class="section-label-tag">Tu camino</span>
+        <h2>Elegí tu ruta de aprendizaje</h2>
+        <p>Cada ruta filtra las guías según tu nivel. Hacé clic en una para empezar.</p>
+      </div>
+      <div class="rutas-carousel" id="rutasCarousel"></div>
+    </section>
+
+    <!-- GUÍAS + SIDEBAR -->
+    <section id="guias-acad" class="academy-content" tabindex="-1">
+      <div class="academy-layout">
+
+        <div class="academy-main">
+          <div class="section-header-wrapper" style="margin-bottom:18px">
+            <span class="section-label-tag">Hub de aprendizaje</span>
+            <h2 class="section-title">Guías para emprendedores</h2>
+            <p class="section-subtitle">Contenido práctico para formular, producir y vender cosmética natural</p>
+          </div>
+
+          <div class="guias-toolbar" id="catFilters"></div>
+
+          <div class="guias-grid-acad" id="guiasGridAcad"></div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside class="acad-sidebar">
+
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="chart"></i> Tu progreso</h3>
+            <div class="progress-ring-wrap">
+              <div class="progress-ring" id="progressRing"><span id="progressPct">0%</span></div>
+              <div class="progress-stats" id="progressStat"></div>
+            </div>
+            <div class="progress-bar"><i id="progressBarFill"></i></div>
+          </div>
+
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="flame"></i> Más populares</h3>
+            <ul class="popular-list" id="popularList"></ul>
+          </div>
+
+          <div class="side-panel side-panel--pro">
+            <h3 class="side-panel__title"><i data-icon="lock"></i> Contenido PRO</h3>
+            <div id="proList"></div>
+            <button class="cta-button" type="button" id="unlockProBtn">
+              <i data-icon="lock"></i> Desbloquear PRO
+            </button>
+          </div>
+
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- FÓRMULAS DESCARGABLES -->
+    <section id="formulas-acad" class="academy-section" tabindex="-1">
+      <div class="academy-section__head">
+        <span class="section-label-tag">Paso a paso</span>
+        <h2>Fórmulas descargables</h2>
+        <p>Cada fórmula se carga directo en la Berry's Calculator con los campos precargados.</p>
+      </div>
+      <div class="formulas-grid-acad" id="formulasGridAcad"></div>
+    </section>
+
+    <!-- PROVEEDORES + TRUCOS + CALC COSTO POR LOTE -->
+    <section id="proveedores-acad" class="providers-section" tabindex="-1">
+      <div class="academy-section__head">
+        <span class="section-label-tag">Para arrancar</span>
+        <h2>Proveedores + Trucos</h2>
+        <p>Dónde comprar, qué pedir y cuánto presupuestar. Con calculadora de costo por lote integrada.</p>
+      </div>
+
+      <div class="providers-acad-grid" id="providersGridAcad"></div>
+
+      <div class="batch-calc">
+        <div>
+          <h3 class="batch-calc__title"><i data-icon="calculator"></i> Calculadora de costo por lote</h3>
+          <p class="batch-calc__desc">Estimá tu costo unitario y el precio de venta sugerido según el margen que buscás.</p>
+          <form class="batch-calc__form" id="batchCalcForm">
+            <div class="batch-calc__field">
+              <label for="bcMp">Materia prima ($)</label>
+              <input id="bcMp" name="mp" type="number" min="0" placeholder="8000" value="8000">
+            </div>
+            <div class="batch-calc__field">
+              <label for="bcEnv">Envases ($)</label>
+              <input id="bcEnv" name="env" type="number" min="0" placeholder="4000" value="4000">
+            </div>
+            <div class="batch-calc__field">
+              <label for="bcEtq">Etiquetas ($)</label>
+              <input id="bcEtq" name="etq" type="number" min="0" placeholder="2000" value="2000">
+            </div>
+            <div class="batch-calc__field">
+              <label for="bcUnits">Unidades del lote</label>
+              <input id="bcUnits" name="units" type="number" min="1" placeholder="100" value="100">
+            </div>
+            <div class="batch-calc__field" style="grid-column:1/-1">
+              <label for="bcMargin">Margen de ganancia deseado (%)</label>
+              <input id="bcMargin" name="margin" type="number" min="0" placeholder="120" value="120">
+            </div>
+          </form>
+        </div>
+        <div class="batch-calc__result">
+          <div class="batch-calc__row"><span>Costo unitario</span><strong id="bcUnit">$0</strong></div>
+          <div class="batch-calc__row"><span>Precio de venta sugerido</span><span class="batch-calc__price" id="bcSale">$0</span></div>
+          <div>
+            <div class="batch-calc__row" style="margin-bottom:8px"><span>Margen aplicado</span></div>
+            <div class="progress-bar"><i id="bcBar"></i></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================
+         COMUNIDAD / FORO EN LA ACADEMIA
+    ============================== -->
+    <section id="comunidad-acad" class="academy-section" tabindex="-1">
+      <div class="academy-section__head">
+        <span class="section-label-tag">Comunidad</span>
+        <h2>Foro de formuladores</h2>
+        <p>Compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo.</p>
+      </div>
+      <div class="community-acad-layout">
+        <div class="community-acad-main" id="comunidadAcadMain"></div>
+        <aside class="community-acad-side">
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="chat"></i> Publicá tu consulta</h3>
+            <p style="font-size:13.5px;color:var(--color-text-muted);line-height:1.65;margin-bottom:16px;">
+              La comunidad es para miembros. Ingresá para participar, compartir fórmulas y guardar tus favoritos.
+            </p>
+            <a class="cta-button cta-outline" href="index.html#comunidad" style="width:100%;justify-content:center;">
+              <i data-icon="chat"></i> Ir al foro completo
+            </a>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================
+       MODAL "LEER MÁS"
+  ============================== -->
+  <div class="guide-modal-overlay" id="guideModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="guide-modal">
+      <button class="guide-modal__close" id="guideModalClose" aria-label="Cerrar"><i data-icon="close"></i></button>
+      <div class="guide-modal__media" id="guideModalMedia"></div>
+      <div class="guide-modal__body">
+        <div class="guide-modal__cat" id="guideModalCat"></div>
+        <h2 class="guide-modal__title" id="guideModalTitle"></h2>
+        <div class="guide-modal__meta" id="guideModalMeta"></div>
+        <div class="guide-modal__text" id="guideModalText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================
+       AUTH MODAL (login / registro) — replicado de index
+  ============================== -->
+  <div class="auth-modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" aria-hidden="true">
+    <div class="auth-modal">
+      <button class="auth-close-btn" id="authCloseBtn" aria-label="Cerrar"><i data-icon="close"></i></button>
+
+      <div class="auth-tabs">
+        <button class="auth-tab is-active" type="button" data-tab="login">Ingresar</button>
+        <button class="auth-tab" type="button" data-tab="register">Crear cuenta</button>
+      </div>
+
+      <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
+      <p class="auth-sub">Guardá tus fórmulas, participá del foro y desbloqueá la calculadora PRO.</p>
+
+      <button class="google-btn" id="googleSignInBtn" type="button">
+        <svg class="google-g" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/>
+          <path fill="#FBBC05" d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84Z"/>
+          <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 6.68 9.14 4.75 12 4.75Z"/>
+        </svg>
+        Continuar con Google
+      </button>
+
+      <div class="auth-divider"><span>o</span></div>
+
+      <form class="auth-form" id="authForm" novalidate>
+        <div class="form-group" id="authNameField" hidden>
+          <label for="authName">Nombre</label>
+          <input type="text" id="authName" placeholder="¿Cómo te llamás?" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="authEmail">Email</label>
+          <input type="email" id="authEmail" placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="authPass">Contraseña</label>
+          <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button class="cta-button auth-submit" id="authSubmit" type="submit">Ingresar</button>
+      </form>
+
+      <p class="auth-legal">
+        Demo en local: la sesión se guarda en tu navegador. En producción la gestiona WordPress + BuddyBoss.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================
+       TOAST NOTIFICATION
+  ============================== -->
+  <div id="toastNotification" role="status" aria-live="polite"></div>
+
+  <!-- ============================
+       FOOTER
+  ============================== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo">
+      <p class="footer-text">
+        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
+        Hecho con rigor científico y amor natural en la Patagonia Argentina.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ============================
+       JAVASCRIPT MODULES
+  ============================== -->
+  <script src="js/icons.js"></script>
+  <script src="js/content-data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/community.js"></script>
+  <script src="js/academia.js"></script>
+
+  <!-- Niko — asistente conversacional de Berry's Nature -->
+  <script>
+    window.NIKO_CONFIG = {
+      api: 'http://localhost:8000',
+      tenant: 'berry_natural'
+    };
+  </script>
+  <script src="js/niko-widget.js"></script>
+
+</body>
+</html>

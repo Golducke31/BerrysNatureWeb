@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Glosario de Ingredientes de Berry's Nature — Diccionario botánico y químico de cosmética natural: SCI, BTMS-50, Rosa Mosqueta, Karité, Ácido Hialurónico y más.">
+  <meta name="keywords" content="glosario ingredientes cosmética natural, diccionario botánico, SCI, BTMS-50, rosa mosqueta, ácido hialurónico, niacinamida, cosmética natural argentina">
+  <meta property="og:title" content="Glosario de Ingredientes | Berry's Nature">
+  <meta property="og:description" content="Explorá insumos, descubrí qué problemas solucionan y aprendé a dosificarlos.">
+  <title>Glosario de Ingredientes | Berry's Nature</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/glossary.css">
+  <link rel="stylesheet" href="css/niko-widget.css">
+</head>
+<body class="page-glossary">
+
+  <!-- ============================
+       STICKY HEADER
+  ============================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+
+      <!-- Logo and Brand -->
+      <a href="index.html" class="logo-area" aria-label="Volver al inicio">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav>
+        <ul class="nav-menu-desktop">
+          <li><a href="index.html" class="nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Icons -->
+      <div class="header-actions">
+        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Login / usuario + acceso a la tienda -->
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="index.html" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================
+       MAIN CONTENT
+  ============================== -->
+  <main>
+
+    <!-- Hero del Glosario -->
+    <section class="glossary-hero" id="glosario-top" tabindex="-1">
+      <div class="glossary-hero__bg" aria-hidden="true"></div>
+      <div class="glossary-hero__overlay" aria-hidden="true"></div>
+      <div class="glossary-hero__particles" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </section>
+
+    <!-- Sección del Glosario -->
+    <section id="glosario" class="glossary-section" tabindex="-1">
+      <div class="section-header-wrapper text-center reveal">
+        <span class="section-label-tag">Diccionario Botánico & Químico</span>
+        <h2 class="section-title">Glosario de Ingredientes</h2>
+        <p class="section-subtitle">
+          Explorá insumos, descubrí qué problemas solucionan y aprendé a dosificarlos.
+        </p>
+      </div>
+
+      <!-- Filtros dinámicos -->
+      <div class="glossary-filters reveal">
+        <button class="glossary-filter-btn active" data-filter="all">Todos</button>
+        <button class="glossary-filter-btn" data-filter="Limpieza Suave">Limpieza Suave</button>
+        <button class="glossary-filter-btn" data-filter="Frizz / Capilar">Frizz / Capilar</button>
+        <button class="glossary-filter-btn" data-filter="Piel Seca">Piel Seca</button>
+        <button class="glossary-filter-btn" data-filter="Anti-aging">Anti-aging</button>
+        <button class="glossary-filter-btn" data-filter="Acné / Rojeces">Acné / Rojeces</button>
+        <button class="glossary-filter-btn" data-filter="Conservantes">Conservantes</button>
+      </div>
+
+      <!-- Nuevo carrusel: tarjeta principal + miniaturas laterales -->
+      <div class="glossary-showcase reveal" id="glossaryShowcase">
+        <!-- Miniaturas izquierda (desktop) -->
+        <div class="glossary-thumbs glossary-thumbs--left" id="glossaryThumbsLeft"></div>
+
+        <!-- Tarjeta principal -->
+        <div class="glossary-main-card" id="glossaryMainCard">
+          <button class="glossary-main-nav glossary-main-nav--prev" id="glossaryPrevBtn" aria-label="Ingrediente Anterior">
+            <i data-icon="arrowLeft"></i>
+          </button>
+
+          <div class="glossary-card-stage" id="glossaryCardStage">
+            <!-- Renderizado dinámico -->
+          </div>
+
+          <button class="glossary-main-nav glossary-main-nav--next" id="glossaryNextBtn" aria-label="Siguiente Ingrediente">
+            <i data-icon="arrowRight"></i>
+          </button>
+        </div>
+
+        <!-- Miniaturas derecha (desktop) -->
+        <div class="glossary-thumbs glossary-thumbs--right" id="glossaryThumbsRight"></div>
+      </div>
+
+      <!-- Indicadores inferiores (Dots) -->
+      <div class="glossary-dots" id="glossaryDots"></div>
+      <div class="glossary-counter" id="glossaryCounter">1 / 12</div>
+    </section>
+
+  </main>
+
+  <!-- ============================
+       FOOTER
+  ============================== -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-left">
+        <p class="footer-tagline">Hecho a mano con ingredientes de la Patagonia</p>
+        <p class="footer-copy">&copy; 2025 Berry's Nature. Todos los derechos reservados.</p>
+      </div>
+      <div class="footer-social">
+        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================
+       JAVASCRIPT MODULES
+  ============================== -->
+  <script src="js/icons.js"></script>
+  <script src="js/content-data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/glossary-carousel.js"></script>
+
+  <!-- Niko — asistente conversacional de Berry's Nature -->
+  <script>
+    window.NIKO_CONFIG = {
+      api: 'http://localhost:8000',
+      tenant: 'berry_natural'
+    };
+  </script>
+  <script src="js/niko-widget.js"></script>
+
+</body>
+</html>

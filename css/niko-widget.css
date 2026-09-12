@@ -1,0 +1,364 @@
+/* ==========================================================================
+   Niko Widget — asistente de Berry's Nature
+   Paleta tomada de css/styles.css ("Tierra Cremosa")
+   ========================================================================== */
+
+:root {
+  --niko-bg: #FFFCF9;
+  --niko-bg-soft: #F7F0EB;
+  --niko-cta: #EAB8A3;
+  --niko-cta-hover: #dfa993;
+  --niko-text: #4A3F35;
+  --niko-muted: #6e5d4f;
+  --niko-terracota: #b9705a;
+  --niko-line: rgba(74, 63, 53, 0.12);
+  --niko-title: 'Playfair Display', Georgia, serif;
+  --niko-body: 'Nunito', Helvetica, Arial, sans-serif;
+  --niko-radius: 18px;
+}
+
+/* ---------- Burbuja ---------- */
+.niko-launcher {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 9998;
+  width: 62px;
+  height: 62px;
+  border: none;
+  border-radius: 50%;
+  background: var(--niko-cta);
+  color: var(--niko-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 22px rgba(74, 63, 53, 0.24);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+.niko-launcher:hover {
+  background: var(--niko-cta-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(74, 63, 53, 0.3);
+}
+.niko-launcher:focus-visible {
+  outline: 3px solid var(--niko-terracota);
+  outline-offset: 3px;
+}
+.niko-launcher svg { width: 28px; height: 28px; }
+.niko-launcher__icon--close { display: none; }
+.niko-launcher.is-open .niko-launcher__icon--chat { display: none; }
+.niko-launcher.is-open .niko-launcher__icon--close { display: block; }
+
+/* Indicador de "Niko escribiendo" sobre la burbuja */
+.niko-launcher__pulse {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--niko-terracota);
+  border: 2px solid var(--niko-bg);
+  display: none;
+}
+.niko-launcher.is-busy .niko-launcher__pulse { display: block; }
+
+/* ---------- Panel ---------- */
+.niko-panel {
+  position: fixed;
+  right: 22px;
+  bottom: 100px;
+  z-index: 9999;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  height: 560px;
+  max-height: calc(100vh - 140px);
+  background: var(--niko-bg);
+  border-radius: var(--niko-radius);
+  box-shadow: 0 18px 48px rgba(74, 63, 53, 0.26);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--niko-body);
+  color: var(--niko-text);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px) scale(0.98);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+}
+.niko-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* Header */
+.niko-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--niko-bg-soft);
+  border-bottom: 1px solid var(--niko-line);
+  flex: 0 0 auto;
+}
+.niko-panel__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--niko-cta);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.niko-panel__avatar svg { width: 20px; height: 20px; }
+.niko-panel__titles { flex: 1 1 auto; min-width: 0; }
+.niko-panel__name {
+  font-family: var(--niko-title);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0;
+}
+.niko-panel__status {
+  font-size: 12px;
+  color: var(--niko-muted);
+  margin: 2px 0 0;
+}
+.niko-panel__status.is-offline { color: var(--niko-terracota); }
+.niko-panel__close {
+  background: none;
+  border: none;
+  color: var(--niko-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  line-height: 0;
+}
+.niko-panel__close:hover { background: rgba(74, 63, 53, 0.08); color: var(--niko-text); }
+
+/* Mensajes */
+.niko-panel__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+.niko-msg {
+  max-width: 86%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  word-wrap: break-word;
+}
+.niko-msg--niko {
+  align-self: flex-start;
+  background: var(--niko-bg-soft);
+  border-bottom-left-radius: 5px;
+}
+.niko-msg--user {
+  align-self: flex-end;
+  background: var(--niko-cta);
+  border-bottom-right-radius: 5px;
+}
+.niko-msg--error {
+  align-self: center;
+  background: transparent;
+  border: 1px dashed var(--niko-terracota);
+  color: var(--niko-terracota);
+  font-size: 13px;
+  text-align: center;
+  max-width: 94%;
+}
+.niko-msg p { margin: 0 0 8px; }
+.niko-msg p:last-child { margin-bottom: 0; }
+.niko-msg ul, .niko-msg ol { margin: 6px 0; padding-left: 20px; }
+.niko-msg li { margin: 3px 0; }
+.niko-msg strong { font-weight: 700; }
+.niko-msg table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 13px;
+}
+.niko-msg th, .niko-msg td {
+  border: 1px solid var(--niko-line);
+  padding: 5px 7px;
+  text-align: left;
+}
+.niko-msg th { background: rgba(234, 184, 163, 0.28); font-weight: 700; }
+.niko-msg code {
+  background: rgba(74, 63, 53, 0.08);
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+/* Botón "Usar esta fórmula en la calculadora" */
+.niko-formula-action {
+  margin-top: 8px;
+}
+.niko-formula-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--niko-terracota);
+  background: var(--niko-bg);
+  color: var(--niko-terracota);
+  font-family: var(--niko-body);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+.niko-formula-btn svg { width: 16px; height: 16px; }
+.niko-formula-btn:hover {
+  background: var(--niko-terracota);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.niko-formula-btn:disabled {
+  opacity: .7;
+  cursor: default;
+  background: var(--niko-cta);
+  color: var(--niko-text);
+  border-color: var(--niko-cta);
+  transform: none;
+}
+
+
+/* Herramienta en ejecución */
+.niko-tool {
+  align-self: flex-start;
+  font-size: 12px;
+  color: var(--niko-muted);
+  font-style: italic;
+  padding: 2px 4px;
+}
+
+/* Tipeando */
+.niko-typing {
+  align-self: flex-start;
+  background: var(--niko-bg-soft);
+  border-radius: 16px;
+  border-bottom-left-radius: 5px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 4px;
+}
+.niko-typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--niko-muted);
+  animation: niko-bounce 1.2s infinite ease-in-out;
+}
+.niko-typing span:nth-child(2) { animation-delay: 0.15s; }
+.niko-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes niko-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Sugerencias */
+.niko-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 12px;
+  flex: 0 0 auto;
+}
+.niko-suggestion {
+  background: transparent;
+  border: 1px solid var(--niko-cta);
+  color: var(--niko-text);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 13px;
+  font-family: var(--niko-body);
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+.niko-suggestion:hover { background: rgba(234, 184, 163, 0.35); }
+.niko-suggestion:focus-visible { outline: 2px solid var(--niko-terracota); outline-offset: 2px; }
+
+/* Composer */
+.niko-composer {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--niko-line);
+  background: var(--niko-bg);
+}
+.niko-composer__input {
+  flex: 1 1 auto;
+  border: 1px solid var(--niko-line);
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-size: 14px;
+  font-family: var(--niko-body);
+  color: var(--niko-text);
+  background: var(--niko-bg-soft);
+  resize: none;
+  outline: none;
+  max-height: 90px;
+}
+.niko-composer__input:focus { border-color: var(--niko-cta); background: var(--niko-bg); }
+.niko-composer__input::placeholder { color: rgba(110, 93, 79, 0.7); }
+.niko-composer__send {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--niko-cta);
+  color: var(--niko-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, opacity 0.18s ease;
+}
+.niko-composer__send:hover:not(:disabled) { background: var(--niko-cta-hover); }
+.niko-composer__send:disabled { opacity: 0.45; cursor: not-allowed; }
+.niko-composer__send svg { width: 19px; height: 19px; }
+
+/* Footer */
+.niko-panel__foot {
+  flex: 0 0 auto;
+  padding: 0 16px 10px;
+  font-size: 11px;
+  color: rgba(110, 93, 79, 0.75);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 560px) {
+  .niko-panel {
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+  .niko-launcher { right: 16px; bottom: 16px; }
+  .niko-panel.is-open ~ .niko-launcher { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .niko-panel, .niko-launcher { transition: none; }
+  .niko-typing span { animation: none; opacity: 0.6; }
+}

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Berry's Nature — Cosmética natural argentina. Cremas, sérums y aceites botánicos de la Patagonia. Catálogo interactivo y calculadora de formulación profesional.">
+  <meta name="keywords" content="cosmética natural, argentina, patagonia, cremas orgánicas, sérum, aceite argán, formulación cosmética">
+  <meta property="og:title" content="Berry's Nature | Cosmética Natural Argentina">
+  <meta property="og:description" content="Fórmulas cosméticas de base natural inspiradas en la pureza de la Patagonia.">
+  <title>Berry's Nature | Cosmética Natural Argentina</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/catalog-calc.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/niko-widget.css">
+</head>
+<body>
+
+  <!-- ============================
+       STICKY HEADER
+  ============================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+
+      <!-- Logo and Brand -->
+      <a href="#inicio" class="logo-area">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav>
+        <ul class="nav-menu-desktop">
+          <li><a href="#inicio"       class="nav-link active">Inicio</a></li>
+          <li><a href="academia.html" class="nav-link">Academia</a></li>
+          <li><a href="glosario.html" class="nav-link">Glosario</a></li>
+          <li><a href="#calculadora"  class="nav-link">Berry's Calculator</a></li>
+          <li><a href="#sobre-nosotros" class="nav-link">Sobre Nosotros</a></li>
+          <li><a href="#contacto"     class="nav-link">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Icons -->
+      <div class="header-actions">
+        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Login / usuario + acceso a la tienda de la marca personal -->
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="#inicio" class="mobile-nav-link active">Inicio</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileAcademia">
+          Academia
+          <i data-icon="arrowRight" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileAcademia">
+          <li><a href="academia.html" class="mobile-nav-link">Ver la Academia</a></li>
+          <li><a href="academia.html#formulas-acad" class="mobile-nav-link">Fórmulas</a></li>
+          <li><a href="academia.html#proveedores-acad" class="mobile-nav-link">Proveedores</a></li>
+        </ul>
+      </li>
+      <li><a href="glosario.html" class="mobile-nav-link">Glosario</a></li>
+      <li><a href="#calculadora" class="mobile-nav-link">Calculadora</a></li>
+      <li><a href="#sobre-nosotros" class="mobile-nav-link">Sobre Nosotros</a></li>
+      <li><a href="#contacto" class="mobile-nav-link">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================
+       MAIN CONTENT
+  ============================== -->
+  <main>
+
+    <!-- HERO SECTION -->
+    <section id="inicio" class="hero-section" tabindex="-1">
+
+      <!-- Video de fondo (autoplay silenciado + overlay cálido) -->
+      <div class="hero-video-layer" data-parallax="0.12" aria-hidden="true">
+        <video class="hero-video" autoplay muted loop playsinline preload="metadata"
+               poster="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1200&amp;q=80&amp;auto=format&amp;fit=crop">
+          <source src="assets/hero-cream-pour.mp4" type="video/mp4">
+        </video>
+        <div class="hero-video-overlay"></div>
+        <!-- Botón de play: aparece si el autoplay es bloqueado por el navegador/iframe -->
+        <button class="hero-play-btn" type="button" aria-label="Reproducir video del hero">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="7,4 21,12 7,20"/></svg>
+        </button>
+      </div>
+
+      <div class="hero-container">
+
+        <!-- Left: Copy & CTA -->
+        <div class="hero-content" data-mouse-shift="10">
+          <span class="hero-tagline">Academia + Comunidad de Cosmética Natural</span>
+          <h1 class="hero-title">
+            Aprendé a formular, <br><span class="accent-text">y viví de tu cosmética natural</span>
+          </h1>
+          <p class="hero-description">
+            Guías, proveedores, fórmulas probadas y una comunidad de formuladores.
+            De tu primera crema al primer lote de 100 unidades — con la Berry's Calculator como centro de todo.
+          </p>
+          <div class="hero-actions-row">
+            <a href="academia.html" class="cta-button" data-magnetic="5"><i data-icon="leaf"></i> Explorar la Academia</a>
+            <a href="#calculadora" class="cta-button cta-outline" data-magnetic="5"><i data-icon="balance"></i> Probar Calculadora</a>
+          </div>
+          <div class="hero-actions-row" style="margin-top:10px">
+            <a href="glosario.html" class="cta-button cta-outline" data-magnetic="5" style="--color-primary:#6a7c55"><i data-icon="book"></i> Glosario de Ingredientes</a>
+          </div>
+          <ul class="hero-trust-row">
+            <li><i data-icon="seedling"></i> +40 fórmulas documentadas</li>
+            <li><i data-icon="flask"></i> Calculadora profesional</li>
+            <li><i data-icon="chat"></i> Comunidad activa</li>
+          </ul>
+        </div>
+
+        <!-- Right: Visual showcase -->
+        <div class="hero-visual">
+          <div class="hero-float-wrap animate-float">
+            <div class="hero-card-showcase" data-tilt="10">
+              <div class="card-details">
+                <span class="card-eyebrow"><i data-icon="leaf"></i> Botánica real</span>
+                <span class="card-title">Fórmulas Orgánicas</span>
+                <p class="card-text">Libre de parabenos, siliconas y crueldad animal.</p>
+                <div class="badge-organic">99.9% Natural</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         GUÍAS / PROVEEDORES / FÓRMULAS
+         Se mudaron a la página interna "Berry's Academy"
+         (academia.html) para descongestionar la home.
+         El menú apunta allí con anclas internas.
+    ============================================================= -->
+
+    <!-- ============================
+         CATALOG SECTION
+    ============================== -->
+    <!-- ============================
+         CALCULATOR SECTION
+    ============================== -->
+    <section id="calculadora" class="calculator-section" tabindex="-1">
+      <!-- Video de fondo de la calculadora -->
+      <div class="calc-video-layer" aria-hidden="true">
+        <video class="calc-video" autoplay muted loop playsinline preload="metadata">
+          <source src="assets/calc-oil-pour.mp4" type="video/mp4">
+        </video>
+        <div class="calc-video-overlay"></div>
+      </div>
+
+      <div class="section-header-wrapper reveal" data-parallax="0.05">
+        <span class="section-label-tag">Herramienta Profesional</span>
+        <h2 class="section-title">Berry's Calculator</h2>
+        <p class="section-subtitle">Calculadora de formulación cosmética para profesionales y entusiastas</p>
+      </div>
+
+      <div class="calculator-card reveal reveal-delay-1">
+
+        <!-- Nombre de la fórmula -->
+        <div class="calc-field-group">
+          <label class="calc-label" for="formulaName">Nombre de la fórmula</label>
+          <div class="calc-input-wrap">
+            <input
+              class="calc-input"
+              type="text"
+              id="formulaName"
+              placeholder="Ej. Crema base Berry"
+              autocomplete="off"
+              aria-describedby="formulaNameTip">
+            <!-- Tooltip flotante: aparece al enfocar el campo -->
+            <div class="calc-tooltip" id="formulaNameTip" role="tooltip">
+              Así llamarás a tu creación. Ej: <em>“Sérum de Noche Patagónico”</em>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toggle switch de modo -->
+        <div class="calc-toggle-row">
+          <span class="toggle-label" id="labelGramsToPercent">Gramos → %</span>
+          <div
+            class="toggle-switch"
+            id="calcModeToggle"
+            role="switch"
+            aria-checked="false"
+            tabindex="0"
+            aria-label="Cambiar modo de cálculo">
+            <div class="toggle-thumb"></div>
+          </div>
+          <span class="toggle-label" id="labelPercentToGrams">% → Gramos</span>
+        </div>
+
+        <!-- Cantidad total -->
+        <div class="calc-field-group">
+          <label class="calc-label" for="totalQuantity">
+            Cantidad total (<span id="totalUnit">gramos</span>)
+          </label>
+          <input
+            class="calc-input"
+            type="number"
+            id="totalQuantity"
+            min="0"
+            step="0.01"
+            placeholder="Ej. 100">
+        </div>
+
+        <!-- Cabecera de ingredientes -->
+        <div class="ingredients-header">
+          <span>Ingrediente</span>
+          <span id="ingredientColHeader">Porcentaje (%)</span>
+          <span></span>
+        </div>
+
+        <!-- Lista dinámica de ingredientes -->
+        <div class="ingredients-list" id="ingredientsList" role="list" aria-label="Lista de ingredientes"></div>
+
+        <!-- Botón agregar -->
+        <button class="add-ingredient-btn" id="addIngredientBtn" type="button">
+          ＋ Agregar ingrediente
+        </button>
+
+        <!-- Total acumulado -->
+        <div class="calc-total-bar">
+          <div class="total-label">Total acumulado</div>
+          <div class="total-display">
+            <span id="calcTotalValue">0.00</span>
+            <span id="calcTotalUnit">%</span>
+            <span class="total-status" id="totalStatus"></span>
+          </div>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div class="calc-progress-wrapper" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="calc-progress-bar" id="calcProgressBar" style="width:0%"></div>
+        </div>
+
+        <!-- Método de Pago — Próximamente -->
+        <div class="payment-coming-soon">
+          <div class="coming-soon-badge"><i data-icon="lock" class="icon-sm"></i> Próximamente</div>
+          <h3 class="payment-title">Integración de Método de Pago</h3>
+          <p class="payment-desc">
+            Sistema de pago con MercadoPago y Stripe en desarrollo.
+            Próximamente podrás adquirir tu fórmula lista para producción directamente desde aquí.
+          </p>
+          <div class="payment-preview">
+            <div class="payment-preview-item">
+              <span><i data-icon="card" class="icon-sm"></i> Tarjeta de crédito / débito</span>
+              <span class="coming-badge">Pronto</span>
+            </div>
+            <div class="payment-preview-item">
+              <span><i data-icon="phone" class="icon-sm"></i> MercadoPago</span>
+              <span class="coming-badge">Pronto</span>
+            </div>
+            <div class="payment-preview-item">
+              <span><i data-icon="bank" class="icon-sm"></i> Transferencia bancaria</span>
+              <span class="coming-badge">Pronto</span>
+            </div>
+          </div>
+          <button class="payment-btn-disabled" disabled type="button">
+            Proceder al pago — Próximamente
+          </button>
+        </div>
+
+        <!-- Desbloqueo PRO con pago único -->
+        <div class="calc-unlock">
+          <div class="unlock-copy">
+            <strong>Acceso PRO · Pago único</strong>
+            <span>Guardá fórmulas ilimitadas, exportalas a PDF y sumate a los cursos de formulación.</span>
+          </div>
+          <button class="cta-button" id="unlockCalcBtn" type="button" data-magnetic="5">
+            Desbloquear para siempre
+          </button>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="calc-disclaimer">
+          <p>
+            <i data-icon="warning" class="icon-sm"></i> <strong>Licencia de uso individual.</strong> Los cálculos son orientativos y no reemplazan
+            asesoramiento cosmetológico profesional certificado. Berry's Nature® reserva todos los derechos.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================
+         SOBRE NOSOTROS
+    ============================== -->
+    <section id="sobre-nosotros" class="about-section" tabindex="-1">
+      <div class="section-header-wrapper reveal" data-parallax="0.05">
+        <span class="section-label-tag">Nuestra Historia</span>
+        <h2 class="section-title">Sobre Berry's Nature</h2>
+        <p class="section-subtitle">Cosméticos con alma patagónica y rigor científico</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-text-col reveal">
+          <p class="about-lead">
+            Nacimos de la convicción de que la naturaleza argentina tiene todo lo necesario para cuidar tu piel.
+          </p>
+          <p class="about-body">
+            Desde la Patagonia, formulamos productos cosméticos de base natural que combinan la ciencia moderna con la riqueza botánica de nuestra tierra. Cada fórmula es desarrollada con activos cuidadosamente seleccionados, sin parabenos, sin siliconas sintéticas y sin crueldad animal. Creemos en la transparencia de ingredientes, en la trazabilidad de origen y en el poder transformador de la naturaleza cuando se aplica con conocimiento científico.
+          </p>
+          <div class="about-values">
+            <div class="value-card reveal reveal-delay-1"><i data-icon="leaf"></i> <span>100% Natural</span></div>
+            <div class="value-card reveal reveal-delay-2"><i data-icon="microscope"></i> <span>Base Científica</span></div>
+            <div class="value-card reveal reveal-delay-2"><i data-icon="pin"></i> <span>Made in Argentina</span></div>
+            <div class="value-card reveal reveal-delay-3"><i data-icon="heart"></i> <span>Cruelty Free</span></div>
+          </div>
+        </div>
+
+        <div class="about-visual-col reveal reveal-delay-2" data-parallax="0.06">
+          <div class="about-logo-card" data-tilt="8">
+            <div class="laurel-frame">
+              <!-- Corona de laurel SVG: enmarca el emblema sin repetir la misma foto plana -->
+              <svg class="laurel-svg" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                <defs>
+                  <linearGradient id="laurelGrad" x1="0" y1="1" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#B7C4A6"/>
+                    <stop offset="100%" stop-color="#82966B"/>
+                  </linearGradient>
+                </defs>
+                <path d="M82.9 163.8 A66.0 66.0 0 0 1 58.5 48.7" fill="none" stroke="url(#laurelGrad)" stroke-width="3" stroke-linecap="round"/>
+                <path d="M117.1 163.8 A66.0 66.0 0 0 0 141.5 48.7" fill="none" stroke="url(#laurelGrad)" stroke-width="3" stroke-linecap="round"/>
+                <g fill="url(#laurelGrad)">
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(82.9 163.8) rotate(250)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(64.1 155.4) rotate(268)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(48.7 141.5) rotate(286)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(38.4 123.7) rotate(304)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(34.1 103.5) rotate(322)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(36.2 82.9) rotate(340)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(44.6 64.1) rotate(358)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(58.5 48.7) rotate(376)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(117.1 163.8) rotate(110)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(135.9 155.4) rotate(92)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(151.3 141.5) rotate(74)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(161.6 123.7) rotate(56)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(165.9 103.5) rotate(38)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(163.8 82.9) rotate(20)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(155.4 64.1) rotate(2)"/>
+                  <path d="M0 0C-6.5-6.5-6.5-15 0-20C6.5-15 6.5-6.5 0 0Z" transform="translate(141.5 48.7) rotate(-16)"/>
+                </g>
+                <g fill="#C4795C">
+                  <circle cx="100" cy="177" r="4.5"/>
+                  <circle cx="90" cy="186" r="3.6"/>
+                  <circle cx="110" cy="186" r="3.6"/>
+                </g>
+              </svg>
+              <img src="assets/logo_berrys_nature.jpg" alt="Logo Berry's Nature" class="about-logo-img">
+            </div>
+            <div class="about-logo-caption">
+              <strong>Berry's Nature®</strong>
+              <span>Cosmética Natural Argentina</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================
+         CONTACTO
+    ============================== -->
+    <section id="contacto" class="contact-section" tabindex="-1">
+      <div class="section-header-wrapper reveal" data-parallax="0.05">
+        <span class="section-label-tag">Contacto</span>
+        <h2 class="section-title">Hablemos</h2>
+        <p class="section-subtitle">Consultas, distribución y formulaciones a medida</p>
+      </div>
+
+      <div class="contact-grid">
+
+        <form class="contact-form reveal" id="contactForm" novalidate>
+          <div class="form-group">
+            <label for="contactName">Nombre completo</label>
+            <input type="text" id="contactName" placeholder="Tu nombre completo" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="contactEmail">Correo electrónico</label>
+            <input type="email" id="contactEmail" placeholder="tu@email.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="contactMessage">Mensaje</label>
+            <textarea id="contactMessage" rows="5" placeholder="¿En qué podemos ayudarte?" required></textarea>
+          </div>
+          <button type="submit" class="cta-button form-submit-btn" id="contactSubmitBtn">
+            Enviar mensaje
+          </button>
+        </form>
+
+        <div class="contact-info reveal reveal-delay-1">
+          <div class="contact-channel">
+            <div class="channel-icon"><i data-icon="pin"></i></div>
+            <div>
+              <strong>Ubicación</strong>
+              <p>Patagonia Argentina</p>
+            </div>
+          </div>
+          <div class="contact-channel">
+            <div class="channel-icon"><i data-icon="instagram"></i></div>
+            <div>
+              <strong>Instagram</strong>
+              <p>@berrys.nature</p>
+            </div>
+          </div>
+          <div class="contact-channel">
+            <div class="channel-icon"><i data-icon="mail"></i></div>
+            <div>
+              <strong>Email</strong>
+              <p>contacto@berrysnature.com</p>
+            </div>
+          </div>
+          <div class="contact-channel">
+            <div class="channel-icon"><i data-icon="whatsapp"></i></div>
+            <div>
+              <strong>WhatsApp</strong>
+              <p>Consultas y distribución</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================
+       AUTH MODAL (login / registro)
+  ============================== -->
+  <div class="auth-modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" aria-hidden="true">
+    <div class="auth-modal">
+      <button class="auth-close-btn" id="authCloseBtn" aria-label="Cerrar"><i data-icon="close"></i></button>
+
+      <div class="auth-tabs">
+        <button class="auth-tab is-active" type="button" data-tab="login">Ingresar</button>
+        <button class="auth-tab" type="button" data-tab="register">Crear cuenta</button>
+      </div>
+
+      <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
+      <p class="auth-sub">Guardá tus fórmulas, participá del foro y desbloqueá la calculadora PRO.</p>
+
+      <button class="google-btn" id="googleSignInBtn" type="button">
+        <svg class="google-g" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/>
+          <path fill="#FBBC05" d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84Z"/>
+          <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 6.68 9.14 4.75 12 4.75Z"/>
+        </svg>
+        Continuar con Google
+      </button>
+
+      <div class="auth-divider"><span>o</span></div>
+
+      <form class="auth-form" id="authForm" novalidate>
+        <div class="form-group" id="authNameField" hidden>
+          <label for="authName">Nombre</label>
+          <input type="text" id="authName" placeholder="¿Cómo te llamás?" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="authEmail">Email</label>
+          <input type="email" id="authEmail" placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="authPass">Contraseña</label>
+          <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button class="cta-button auth-submit" id="authSubmit" type="submit">Ingresar</button>
+      </form>
+
+      <p class="auth-legal">
+        Demo en local: la sesión se guarda en tu navegador. En producción la gestiona WordPress + BuddyBoss.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================
+       TOAST NOTIFICATION
+  ============================== -->
+  <div id="toastNotification" role="status" aria-live="polite"></div>
+
+  <!-- ============================
+       FOOTER
+  ============================== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo">
+      <p class="footer-text">
+        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
+        Hecho con rigor científico y amor natural en la Patagonia Argentina.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ============================
+       JAVASCRIPT MODULES
+  ============================== -->
+  <script src="js/icons.js"></script>
+  <script src="js/content-data.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/motion.js"></script>
+  <script src="js/community.js"></script>
+  <script src="js/auth.js"></script>
+
+  <!-- Niko — asistente conversacional de Berry's Nature -->
+  <script>
+    window.NIKO_CONFIG = {
+      api: 'http://localhost:8000',
+      tenant: 'berry_natural'
+    };
+  </script>
+  <script src="js/niko-widget.js"></script>
+
+</body>
+</html>

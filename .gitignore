@@ -1,0 +1,32 @@
+# === Berrys Nature Web — .gitignore ===
+
+# Proyecto NO relacionado: "Niko IA" tiene su propio repositorio (.git),
+# por eso se excluye por completo de este repo.
+Niko IA/
+
+# Dependencias de Node (solo para la suite de pruebas)
+node_modules/
+
+# Internos de WorkBuddy (memoria, agentes, estado de sesión)
+.workbuddy-ai/
+.agents/
+
+# Artefactos generados por los tests E2E
+playwright-report/
+test-results/
+playwright/.cache/
+
+# Caches de Python / entornos virtuales
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+*.swp
+
+# Capturas de pantalla sueltas (no forman parte del sitio)
+Screenshot_*.jpg
+1781126614010.png
