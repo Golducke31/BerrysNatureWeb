@@ -34,6 +34,7 @@
       <nav>
         <ul class="nav-menu-desktop">
           <li><a href="index.html" class="nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+          <li><a href="foro.html" class="nav-link"><i data-icon="chat"></i> Foro</a></li>
         </ul>
       </nav>
 
@@ -58,6 +59,7 @@
   <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
     <ul class="nav-menu-mobile" id="navMenuMobile">
       <li><a href="index.html" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+      <li><a href="foro.html" class="mobile-nav-link"><i data-icon="chat"></i> Foro</a></li>
     </ul>
   </nav>
 
@@ -186,31 +188,6 @@
       </div>
     </section>
 
-    <!-- ============================
-         COMUNIDAD / FORO EN LA ACADEMIA
-    ============================== -->
-    <section id="comunidad-acad" class="academy-section" tabindex="-1">
-      <div class="academy-section__head">
-        <span class="section-label-tag">Comunidad</span>
-        <h2>Foro de formuladores</h2>
-        <p>Compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo.</p>
-      </div>
-      <div class="community-acad-layout">
-        <div class="community-acad-main" id="comunidadAcadMain"></div>
-        <aside class="community-acad-side">
-          <div class="side-panel">
-            <h3 class="side-panel__title"><i data-icon="chat"></i> Publicá tu consulta</h3>
-            <p style="font-size:13.5px;color:var(--color-text-muted);line-height:1.65;margin-bottom:16px;">
-              La comunidad es para miembros. Ingresá para participar, compartir fórmulas y guardar tus favoritos.
-            </p>
-            <a class="cta-button cta-outline" href="index.html#comunidad" style="width:100%;justify-content:center;">
-              <i data-icon="chat"></i> Ir al foro completo
-            </a>
-          </div>
-        </aside>
-      </div>
-    </section>
-
   </main>
 
   <!-- ============================
@@ -273,7 +250,7 @@
       </form>
 
       <p class="auth-legal">
-        Demo en local: la sesión se guarda en tu navegador. En producción la gestiona WordPress + BuddyBoss.
+        Tus datos se guardan de forma segura en nuestro servidor. Al crear una cuenta aceptás las reglas de la comunidad.
       </p>
     </div>
   </div>
@@ -293,6 +270,14 @@
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
         Hecho con rigor científico y amor natural en la Patagonia Argentina.
       </p>
+      <div class="footer-social">
+        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
     </div>
   </footer>
 
@@ -301,18 +286,16 @@
   ============================== -->
   <script src="js/icons.js"></script>
   <script src="js/content-data.js"></script>
+  <script src="js/api-client.js"></script>
   <script src="js/app.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/community.js"></script>
+  <script src="js/pro-unlock.js"></script>
+  <script src="js/mod-panel.js"></script>
   <script src="js/academia.js"></script>
 
   <!-- Niko — asistente conversacional de Berry's Nature -->
-  <script>
-    window.NIKO_CONFIG = {
-      api: 'http://localhost:8000',
-      tenant: 'berry_natural'
-    };
-  </script>
+  <script src="js/niko-config.js"></script>
   <script src="js/niko-widget.js"></script>
 
 </body>

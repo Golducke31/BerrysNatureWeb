@@ -687,6 +687,8 @@ const COMUNIDAD_HILOS = [
       'Arranqué con barras de shampoo y un distribuidor me dijo que al no tener agua no necesito conservante. ¿Es tan así o me está vendiendo humo? Hago secado de 48 h.',
     respuestas: 14,
     likes: 32,
+    vistas: 1240,
+    resuelto: true,
     destacado: true
   },
   {
@@ -700,7 +702,24 @@ const COMUNIDAD_HILOS = [
       'Mi costo me da $4.800 por frasco (con envase airless y etiqueta). Estoy vendiendo a $13.000 pero siento que me quedo corta con la distribución. ¿Cómo calculan ustedes?',
     respuestas: 27,
     likes: 58,
+    vistas: 2310,
+    resuelto: true,
     destacado: true
+  },
+  {
+    id: 'hilo-emulsion-cortada',
+    titulo: 'Se me cortó la emulsión a los 3 días, ¿por qué?',
+    autor: 'Vale Emulsiones',
+    icon: 'flask',
+    categoria: 'Formulación',
+    tiempo: 'hace 6 h',
+    cuerpo:
+      'Hice una crema con 70% de agua y a los tres días empezó a separar líquido en la superficie. ¿Es falta de emulsionante, exceso de aceite o temperatura? No sé por dónde empezar a revisar.',
+    respuestas: 0,
+    likes: 6,
+    vistas: 210,
+    resuelto: false,
+    destacado: false
   },
   {
     id: 'hilo-soda-caustica',
@@ -713,6 +732,23 @@ const COMUNIDAD_HILOS = [
       'Me aparece como un polvo blanco arriba de los panes después de curar. ¿Es soda sin reaccionar o es eflorescencia por la humedad?',
     respuestas: 9,
     likes: 21,
+    vistas: 640,
+    resuelto: false,
+    destacado: false
+  },
+  {
+    id: 'hilo-molde-silicona',
+    titulo: '¿Qué molde me conviene para arrancar con melt & pour?',
+    autor: 'Nacho Taller',
+    icon: 'soap',
+    categoria: 'Taller',
+    tiempo: 'hace 1 día',
+    cuerpo:
+      'Quiero empezar con bases de melt & pour y no sé si ir por molde de silicona individual o por una barra grande para cortar. ¿Qué les resultó más práctico al principio?',
+    respuestas: 5,
+    likes: 12,
+    vistas: 410,
+    resuelto: false,
     destacado: false
   },
   {
@@ -726,6 +762,8 @@ const COMUNIDAD_HILOS = [
       'Me pasaron tres presupuestos con diferencias enormes de precio para el mismo aceite. ¿Cómo validan ustedes que sea puro y no cortado?',
     respuestas: 18,
     likes: 44,
+    vistas: 980,
+    resuelto: false,
     destacado: false
   },
   {
@@ -739,6 +777,23 @@ const COMUNIDAD_HILOS = [
       'Tengo entendido que algunas claims están prohibidas para cosméticos. ¿Alguien tiene el listado de lo que sí y lo que no se puede declarar?',
     respuestas: 11,
     likes: 37,
+    vistas: 720,
+    resuelto: false,
+    destacado: false
+  },
+  {
+    id: 'hilo-habilitacion-cosmeticos',
+    titulo: '¿Hace falta habilitación municipal para vender a conocidos?',
+    autor: 'Cami Emprende',
+    icon: 'shield',
+    categoria: 'Legal',
+    tiempo: 'hace 4 días',
+    cuerpo:
+      'Estoy vendiendo por Instagram a gente de mi ciudad y me surge la duda de si necesito habilitación municipal o alcanza con estar inscripta como monotributista. ¿Cómo lo resolvieron ustedes?',
+    respuestas: 3,
+    likes: 9,
+    vistas: 330,
+    resuelto: false,
     destacado: false
   }
 ];

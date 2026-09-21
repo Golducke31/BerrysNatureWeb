@@ -116,6 +116,7 @@
   /* ------------------------- DOM ------------------------- */
 
   var launcher, panel, body, input, sendBtn, statusEl, suggBox;
+  var avatarEls = [];
   var history = [];
   var busy = false;
   var controller = null;
@@ -127,10 +128,27 @@
       paths + '</svg>';
   }
 
-  var ICON_CHAT = svg('<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>');
   var ICON_CLOSE = svg('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>');
   var ICON_LEAF = svg('<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>');
   var ICON_SEND = svg('<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>');
+
+  // Avatar ilustrado de Niko — personaje botánico.
+  // SVG inline (no <img>) para que CSS pueda animar los estados y para que
+  // funcione abriendo el sitio con file://, sin servidor.
+  // El grupo .niko-avatar__leaf es el que se mece mientras Niko "piensa".
+  function avatarSvg() {
+    return '<svg class="niko-avatar__svg" viewBox="0 0 48 48" aria-hidden="true" focusable="false">' +
+      '<circle cx="24" cy="24" r="24" fill="#F7F0EB"/>' +
+      '<g class="niko-avatar__leaf">' +
+        '<path d="M24 15c0-5-4-9-9-9 0 5 4 9 9 9z" fill="#82966b"/>' +
+        '<path d="M24 15c0-5 4-9 9-9 0 5-4 9-9 9z" fill="#9fb187"/>' +
+      '</g>' +
+      '<circle cx="24" cy="27" r="12" fill="#FFFCF9" stroke="#b9705a" stroke-width="1.8"/>' +
+      '<circle cx="19.5" cy="26" r="1.7" fill="#4A3F35"/>' +
+      '<circle cx="28.5" cy="26" r="1.7" fill="#4A3F35"/>' +
+      '<path d="M20 31q4 3.5 8 0" fill="none" stroke="#4A3F35" stroke-width="1.7" stroke-linecap="round"/>' +
+      '</svg>';
+  }
 
   function build() {
     launcher = document.createElement('button');
@@ -139,7 +157,7 @@
     launcher.setAttribute('aria-label', 'Abrir chat con Niko');
     launcher.setAttribute('aria-expanded', 'false');
     launcher.innerHTML =
-      ICON_CHAT.replace('<svg', '<svg class="niko-launcher__icon--chat"') +
+      '<span class="niko-launcher__avatar niko-avatar" data-niko-avatar>' + avatarSvg() + '</span>' +
       ICON_CLOSE.replace('<svg', '<svg class="niko-launcher__icon--close"') +
       '<span class="niko-launcher__pulse"></span>';
 
@@ -152,7 +170,7 @@
       // Ojo: se usa <div> y no <header> a proposito. Un <header> aqui rompia los tests
       // E2E del sitio, que buscan '.sticky-header, header' y fallaban por modo estricto.
       '<div class="niko-panel__head">' +
-        '<div class="niko-panel__avatar">' + ICON_LEAF + '</div>' +
+        '<div class="niko-avatar niko-panel__avatar" data-niko-avatar>' + avatarSvg() + '</div>' +
         '<div class="niko-panel__titles">' +
           '<p class="niko-panel__name">' + esc(CONFIG.name) + '</p>' +
           '<p class="niko-panel__status">Conectando…</p>' +
@@ -175,6 +193,7 @@
     sendBtn = panel.querySelector('.niko-composer__send');
     statusEl = panel.querySelector('.niko-panel__status');
     suggBox = panel.querySelector('.niko-suggestions');
+    avatarEls = Array.prototype.slice.call(document.querySelectorAll('[data-niko-avatar]'));
 
     launcher.addEventListener('click', toggle);
     panel.querySelector('.niko-panel__close').addEventListener('click', close);
@@ -346,10 +365,25 @@
 
   function scrollDown() { body.scrollTop = body.scrollHeight; }
 
+  // Estados del avatar: online | thinking | typing | offline.
+  // Se reflejan en el anillo de color, en el mecido de las hojas y en el
+  // desaturado del personaje cuando el backend no responde.
+  var AVATAR_STATES = ['is-online', 'is-thinking', 'is-typing', 'is-offline'];
+
+  function setAvatarState(state) {
+    avatarEls.forEach(function (el) {
+      AVATAR_STATES.forEach(function (c) { el.classList.remove(c); });
+      el.classList.add('is-' + state);
+      el.setAttribute('data-state', state);
+    });
+  }
+
   function setOnline(ok) {
     online = ok;
     statusEl.textContent = ok ? 'En línea' : 'No disponible ahora';
     statusEl.classList.toggle('is-offline', !ok);
+    // Si hay una consulta en curso, el estado del avatar lo gobierna send().
+    if (!busy) setAvatarState(ok ? 'online' : 'offline');
   }
 
   /* ------------------------- Envío y streaming ------------------------- */
@@ -369,6 +403,7 @@
     busy = true;
     sendBtn.disabled = true;
     launcher.classList.add('is-busy');
+    setAvatarState('thinking');
 
     var typing = showTyping();
     var answerEl = null;
@@ -418,6 +453,7 @@
 
         if (data.type === 'token') {
           if (typing) { typing.remove(); typing = null; }
+          setAvatarState('typing');
           full += data.content || '';
           if (!answerEl) answerEl = addMessage('niko', '');
           answerEl.innerHTML = render(full);
@@ -460,6 +496,7 @@
       sendBtn.disabled = false;
       launcher.classList.remove('is-busy');
       controller = null;
+      setAvatarState(online ? 'online' : 'offline');
       input.focus();
     }
   }

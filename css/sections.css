@@ -81,7 +81,7 @@
 }
 
 .post-visual {
-  background: linear-gradient(140deg, #EFE3DA 0%, #E6D6C9 55%, #DCC9BA 100%);
+  background: linear-gradient(140deg, #EFE3DA 0%, var(--color-line-warm) 55%, #DCC9BA 100%);
   min-height: 130px;
   display: flex;
   align-items: center;
@@ -103,7 +103,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: #B05B3A;
+  color: var(--color-accent-dark);
   background: rgba(234, 184, 163, 0.22);
   padding: 5px 12px;
   border-radius: 999px;
@@ -128,7 +128,7 @@
   flex-wrap: wrap;
   gap: 6px;
   font-size: 12px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   margin-top: auto;
 }
 
@@ -197,14 +197,14 @@
 .badge-esencial { background: rgba(154, 178, 122, 0.22); color: #5c7340; }
 .badge-crítico,
 .badge-critico  { background: rgba(196, 121, 92, 0.20); color: #a4492b; }
-.badge-escalar  { background: rgba(234, 184, 163, 0.28); color: #8c4a2f; }
+.badge-escalar  { background: rgba(234, 184, 163, 0.28); color: var(--color-terracota-deep); }
 
 .provider-category {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
 }
 
 .provider-name {
@@ -226,7 +226,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.4px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   margin-bottom: 2px;
 }
 
@@ -306,7 +306,7 @@
 
 .chip-level.level-fácil,
 .chip-level.level-facil     { background: rgba(154, 178, 122, 0.22); color: #5c7340; }
-.chip-level.level-intermedio { background: rgba(234, 184, 163, 0.28); color: #8c4a2f; }
+.chip-level.level-intermedio { background: rgba(234, 184, 163, 0.28); color: var(--color-terracota-deep); }
 .chip-level.level-avanzado   { background: rgba(196, 121, 92, 0.20); color: #a4492b; }
 
 .formula-summary {
@@ -330,7 +330,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   margin-bottom: 10px;
 }
 
@@ -357,7 +357,7 @@
 
 .fi-value {
   font-weight: 700;
-  color: #B05B3A;
+  color: var(--color-accent-dark);
   white-space: nowrap;
 }
 
@@ -394,7 +394,7 @@
   cursor: pointer;
   font-size: 12.5px;
   font-weight: 700;
-  color: #B05B3A;
+  color: var(--color-accent-dark);
   padding: 6px 0;
 }
 
@@ -444,161 +444,10 @@
 }
 
 /* ------------------------------------------------------------
-   5. COMUNIDAD
+   5. ESTADO VACÍO
+   Las tarjetas de hilo (.thread-*) se movieron a css/foro.css, que
+   es ahora la única fuente de verdad de esos estilos.
    ------------------------------------------------------------ */
-.community-layout {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.6fr 0.9fr;
-  gap: 32px;
-  align-items: start;
-}
-
-.community-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 22px;
-}
-
-.filter-chip {
-  font-family: var(--font-body);
-  font-size: 12.5px;
-  font-weight: 700;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(74, 63, 53, 0.14);
-  background: rgba(255, 252, 249, 0.7);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.filter-chip:hover {
-  border-color: var(--color-cta);
-  color: #8c4a2f;
-}
-
-.filter-chip.is-active {
-  background: var(--color-cta);
-  border-color: var(--color-cta);
-  color: #4A3F35;
-  box-shadow: 0 6px 14px rgba(234, 184, 163, 0.4);
-}
-
-.community-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.thread-card {
-  display: flex;
-  gap: 16px;
-  background: rgba(255, 252, 249, 0.75);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  border-radius: 20px;
-  padding: 20px 22px;
-  box-shadow: var(--shadow-card-flat);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.thread-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 30px rgba(120, 100, 88, 0.12);
-}
-
-.thread-avatar {
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: linear-gradient(140deg, #EFE3DA, #DCC9BA);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-}
-
-.thread-main { flex: 1; min-width: 0; }
-
-.thread-top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-
-.thread-category {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.6px;
-  color: #B05B3A;
-  background: rgba(234, 184, 163, 0.2);
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-
-.thread-time {
-  font-size: 11.5px;
-  color: #9e8b7e;
-}
-
-.thread-title {
-  font-family: var(--font-title);
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.35;
-  margin-bottom: 6px;
-}
-
-.thread-body {
-  font-size: 13.5px;
-  line-height: 1.65;
-  color: var(--color-text-muted);
-  margin-bottom: 12px;
-}
-
-.thread-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.thread-author { font-size: 12.5px; color: var(--color-text-muted); }
-.thread-author strong { color: var(--color-text); }
-
-.thread-actions { display: flex; gap: 8px; }
-
-.thread-action {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(74, 63, 53, 0.1);
-  border-radius: 999px;
-  padding: 6px 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.thread-action:hover { border-color: var(--color-cta); color: #8c4a2f; }
-
-.thread-action--static { cursor: default; }
-.thread-action--static:hover { border-color: rgba(74, 63, 53, 0.1); color: var(--color-text-muted); }
-
-.thread-action.is-liked {
-  background: rgba(154, 178, 122, 0.22);
-  border-color: rgba(154, 178, 122, 0.5);
-  color: #5c7340;
-}
 
 .community-empty {
   text-align: center;
@@ -608,48 +457,6 @@
   background: rgba(255, 252, 249, 0.6);
   border-radius: 18px;
 }
-
-/* Panel lateral */
-.community-side {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  position: sticky;
-  top: calc(var(--header-height) + 24px);
-}
-
-.community-panel {
-  background: rgba(255, 252, 249, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 22px;
-  padding: 24px 22px;
-  box-shadow: var(--shadow-card-flat);
-}
-
-.panel-title {
-  font-family: var(--font-title);
-  font-size: 19px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.community-gate p,
-.community-panel > p {
-  font-size: 13.5px;
-  line-height: 1.65;
-  color: var(--color-text-muted);
-  margin-bottom: 16px;
-}
-
-.community-panel--store {
-  background: linear-gradient(150deg, rgba(234, 184, 163, 0.24) 0%, rgba(255, 252, 249, 0.9) 100%);
-}
-
-.community-panel--store .cta-button { width: 100%; }
-
-.community-form { display: flex; flex-direction: column; gap: 14px; }
 
 /* ------------------------------------------------------------
    6. MODAL DE ACCESO
@@ -812,7 +619,7 @@
   margin-top: 18px;
   font-size: 11.5px;
   line-height: 1.55;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   text-align: center;
 }
 
@@ -824,11 +631,6 @@
   .post-card--featured { grid-column: span 2; }
   .providers-grid  { grid-template-columns: repeat(2, 1fr); }
   .formulas-grid   { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 1023px) {
-  .community-layout { grid-template-columns: 1fr; }
-  .community-side   { position: static; }
 }
 
 @media (max-width: 767px) {
@@ -854,8 +656,6 @@
   .calc-unlock { flex-direction: column; align-items: stretch; }
   .calc-unlock .cta-button { width: 100%; }
 
-  .thread-card { flex-direction: column; gap: 12px; }
-
   .auth-nav-slot { margin-left: 0; }
 }
 
@@ -872,21 +672,13 @@
 .guias-grid,
 .providers-grid,
 .formulas-grid,
-.community-layout,
 .about-grid,
 .contact-grid,
 .calculator-card { position: relative; z-index: 1; }
 
-.hero-orb,
-.section-orb {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(46px);
-  opacity: 0.55;
-  will-change: transform;
-}
+/* (Eliminado) .hero-orb y .section-orb: halos decorativos difusos del modelo
+   original de catálogo. Ninguna de las dos clases se usa en el HTML ni en el JS.
+   Los halos del hero que sí se usan están en styles.css como .hero-section::before/::after. */
 
 /* Hero */
 .hero-orb { z-index: 1; }

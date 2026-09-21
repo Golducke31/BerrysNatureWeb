@@ -15,9 +15,36 @@
   --color-white: #FFFFFF;
   --color-accent-terracota: #b9705a;
 
+  /* Colores promovidos — antes hardcodeados y repetidos en 4 archivos.
+     Los valores son idénticos a los originales: promoverlos no cambia nada visualmente. */
+  --color-accent-dark: #B05B3A;      /* títulos de acento, iconos destacados, tagline */
+  --color-muted-warm: #9e8b7e;       /* metadatos, placeholders, texto terciario */
+  --color-terracota-deep: #8c4a2f;   /* hover de enlaces y chips */
+  --color-surface-alt: #efe4db;      /* superficies alternas y fallback del hero */
+  --color-line-warm: #E6D6C9;        /* bordes y separadores cálidos */
+
+  /* Acento botánico — el Glosario lo usaba vía fallbacks (var(--color-primary, #82966b)),
+     es decir dependía de una variable que nunca estuvo definida. Se declara explícito
+     para que el color sea intencional y no un accidente de fallback. */
+  --color-accent-botanical: #82966b;
+
   /* Typography */
   --font-title: 'Playfair Display', Georgia, serif;
   --font-body: 'Nunito', Helvetica, Arial, sans-serif;
+
+  /* Type scale — antes cada tamaño se escribía suelto en cada archivo */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.8125rem;  /* 13px */
+  --text-base: 0.875rem; /* 14px */
+  --text-md: 1rem;       /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.375rem;   /* 22px */
+  --text-2xl: 1.75rem;   /* 28px */
+  --text-3xl: 2.25rem;   /* 36px */
+  --text-4xl: 3rem;      /* 48px */
+  --leading-tight: 1.16;
+  --leading-snug: 1.35;
+  --leading-body: 1.6;
 
   /* Shadows for Main BG (#F7F0EB) — luz cálida */
   --shadow-flat: 8px 8px 16px #e0d6cf, -8px -8px 16px #ffffff;
@@ -33,10 +60,42 @@
   --shadow-cta-flat: 4px 4px 10px #c89682, -4px -4px 10px #ffdacf;
   --shadow-cta-sunken: inset 4px 4px 10px #c89682, inset -4px -4px 10px #ffdacf;
 
+  /* Spacing scale — antes cada padding/gap se escribía a mano */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  /* Radius scale */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Anillo de foco único (accesibilidad) — reemplaza reglas :focus-visible dispersas */
+  --focus-ring: 0 0 0 3px rgba(185, 112, 90, 0.45);
+
   /* Dimensions */
   --header-height: 80px;
   --max-width: 1200px;
 }
+
+/* ------------------------------------------------------------------
+   Breakpoints canónicos del proyecto
+   Los 13 valores que había dispersos se consolidan en estos cuatro:
+     560 -> 520   (móvil grande / fin del layout de una columna)
+     640 -> 767   (móvil -> tablet)
+     900, 980 -> 1023
+     1080, 1180 -> 1279
+   Convención: mobile <=520 | tablet 521-767 | laptop 768-1023 | desktop >=1024
+   Al agregar media queries nuevas, usar SOLO estos valores.
+   ------------------------------------------------------------------ */
 
 /* 3. Global Resets & Base Styles */
 * {
@@ -64,8 +123,15 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-title);
   color: var(--color-text);
   font-weight: 700;
-  line-height: 1.25;
+  line-height: var(--leading-snug);
 }
+
+/* Los títulos grandes leen más elegantes con interlínea ajustada */
+h1, h2 { line-height: var(--leading-tight); }
+
+/* Evita que quede una sola palabra huérfana en la última línea.
+   Los navegadores que no lo soportan simplemente lo ignoran. */
+h1, h2, h3 { text-wrap: balance; }
 
 a {
   color: inherit;
@@ -77,6 +143,59 @@ img {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+/* Anillo de foco unificado para navegación por teclado.
+   Antes cada archivo definía su propio :focus-visible (o ninguno). */
+:focus-visible {
+  outline: 2px solid var(--color-accent-terracota);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   ENCABEZADO DE SECCIÓN (compartido por las 3 páginas)
+   Antes vivía en catalog-calc.css, que NO se carga en academia.html
+   ni en glosario.html: en esas páginas .section-title y
+   .section-subtitle quedaban sin estilo alguno. Al vivir en
+   styles.css —que sí carga en todas— el ritmo es idéntico en las 3.
+   ============================================================ */
+.section-header-wrapper {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.section-label-tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--color-accent-dark);
+  background: var(--bg-card);
+  padding: 5px var(--space-md);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card-flat);
+  margin-bottom: var(--space-md);
+}
+
+.section-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.section-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+  max-width: 540px;
+  margin: 0 auto;
 }
 
 /* 4. Sticky Header with Glassmorphism */
@@ -185,7 +304,7 @@ img {
 
 .nav-ghost-btn:hover {
   border-color: var(--color-cta);
-  color: #8c4a2f;
+  color: var(--color-terracota-deep);
   background: rgba(234, 184, 163, 0.14);
 }
 
@@ -252,7 +371,8 @@ img {
 }
 
 .nav-link:hover {
-  color: var(--color-cta);
+  color: var(--color-terracota-deep);
+  background: rgba(234, 184, 163, 0.22);
 }
 
 .nav-link.active {
@@ -339,9 +459,12 @@ img {
   overflow: hidden;
   pointer-events: none;
   will-change: transform;
-  /* Respaldo: si el video no carga, queda el macro botánico como fondo. */
-  background: #efe4db
-    url("https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1400&q=80&auto=format&fit=crop")
+  /* Respaldo: si el video no carga, queda la imagen local como fondo.
+     Antes apuntaba a una URL de Unsplash: dependía de internet y rompía
+     el funcionamiento offline / con file://. Ahora usa el mismo asset
+     que ya sirve de poster del video. */
+  background: var(--color-surface-alt)
+    url("../assets/academia-hero-crop.jpg")
     center / cover no-repeat;
 }
 
@@ -475,7 +598,7 @@ img {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2.5px;
-  color: #B05B3A;
+  color: var(--color-accent-dark);
   background-color: var(--bg-card);
   padding: 6px 18px;
   border-radius: 999px;
@@ -495,7 +618,7 @@ img {
 }
 
 .hero-title .accent-text {
-  color: #B05B3A;
+  color: var(--color-accent-dark);
   font-style: italic;
   text-shadow: 0 1px 2px rgba(247, 240, 235, 0.85), 0 2px 12px rgba(247, 240, 235, 0.45);
 }
@@ -551,7 +674,7 @@ img {
 
 .cta-button.cta-outline:hover {
   background: rgba(234, 184, 163, 0.22);
-  color: #8c4a2f;
+  color: var(--color-terracota-deep);
   box-shadow: 0 10px 24px rgba(234, 184, 163, 0.35);
 }
 
@@ -687,78 +810,11 @@ img {
   animation: float 6s ease-in-out infinite;
 }
 
-/* 6. Placeholder Sections for Future Milestones */
-.placeholder-section {
-  min-height: 80vh;
-  padding: 80px 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  position: relative;
-}
-
-.placeholder-section:nth-child(even) {
-  background-color: var(--bg-card);
-}
-
-.placeholder-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-}
-
-/* Styles inside placeholder section depending on background */
-.placeholder-section:nth-child(odd) .placeholder-container {
-  box-shadow: var(--shadow-flat);
-  background-color: var(--bg-main);
-}
-
-.placeholder-section:nth-child(even) .placeholder-container {
-  box-shadow: var(--shadow-card-flat);
-  background-color: var(--bg-card);
-}
-
-.section-icon-wrapper {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 24px;
-}
-
-.placeholder-section:nth-child(odd) .section-icon-wrapper {
-  box-shadow: var(--shadow-sunken);
-  background-color: var(--bg-main);
-}
-
-.placeholder-section:nth-child(even) .section-icon-wrapper {
-  box-shadow: var(--shadow-card-sunken);
-  background-color: var(--bg-card);
-}
-
-.section-icon {
-  width: 32px;
-  height: 32px;
-  color: var(--color-cta);
-}
-
-.placeholder-section h2 {
-  font-size: 36px;
-  margin-bottom: 16px;
-}
-
-.placeholder-section p {
-  font-size: 16px;
-  color: var(--color-text-muted);
-  max-width: 500px;
-  margin: 0 auto;
-}
+/* 6. (Eliminado) Secciones placeholder de hitos futuros
+   Aquí vivían .placeholder-section, .placeholder-container,
+   .section-icon-wrapper y .section-icon (≈70 líneas). Eran del modelo
+   original de catálogo por hitos, que ya no existe: ninguna de esas
+   clases se usa en el HTML ni en el JS. */
 
 /* 7. Footer */
 .main-footer {
@@ -785,8 +841,126 @@ img {
 }
 
 .footer-text {
-  font-size: 14px;
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
   color: var(--color-text-muted);
+  max-width: 560px;
+}
+
+/* Enlaces sociales del footer.
+   Vivían solo en glosario.html, donde no tenían ningún estilo porque
+   glossary.css nunca definió .footer-social. Ahora son compartidos. */
+.footer-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-top: var(--space-xs);
+}
+
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-main);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.footer-social a:hover {
+  transform: translateY(-2px);
+  color: var(--color-accent-terracota);
+}
+
+.footer-social a .icon {
+  width: 1.2em;
+  height: 1.2em;
+}
+
+/* ============================================================
+   TOAST — aviso flotante global
+   Estaba definido DOS veces con criterios opuestos:
+     catalog-calc.css usaba .toast-visible (pill oscuro)
+     academia.css    usaba .show + .toast-icon (tarjeta clara)
+   El JS siempre agrega .show. Como index.html carga catalog-calc.css
+   pero NO academia.css, allí el toast no tenía estilo ni forma de
+   mostrarse. Encima window.toast() no estaba definido en ningún lado,
+   así que los avisos de contacto y Google Sign-In nunca se disparaban.
+   Ahora vive en styles.css (carga en las 3 páginas) y app.js expone
+   window.toast().
+   ============================================================ */
+#toastNotification {
+  position: fixed;
+  bottom: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-card);
+  color: var(--color-text);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 40px rgba(74, 63, 53, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  z-index: 3000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  max-width: 90vw;
+}
+
+#toastNotification.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast-icon { display: inline-flex; color: var(--color-accent-dark); }
+.toast-icon .icon { width: 1.3em; height: 1.3em; }
+
+/* ============================================================
+   REVEAL — animación de entrada al hacer scroll
+   Vivía en catalog-calc.css, que glosario.html NO carga: allí los
+   elementos con .reveal nunca se animaban. Ahora está acá, que sí
+   carga en las 3 páginas.
+
+   Se unificó en .reveal + .is-visible (antes había dos sistemas:
+   .reveal/.revealed en catalog-calc.css y [data-reveal]/.is-visible
+   en academia.css). El observador que agrega .is-visible vive en
+   js/motion.js.
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* Con movimiento reducido el contenido se muestra ya visible: si no,
+   quedaría en opacity 0 esperando una animación que no va a correr. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* 8. Mobile-First Responsive Breakpoints */
@@ -848,12 +1022,12 @@ img {
 
   .mobile-nav-link:active {
     box-shadow: var(--shadow-soft-sunken);
-    color: var(--color-cta);
+    color: var(--color-accent-terracota);
   }
 
   .mobile-nav-link.active {
     box-shadow: var(--shadow-soft-sunken);
-    color: #EAB8A3;
+    color: var(--color-accent-terracota);
   }
 
   /* Grupo desplegable "Academia" en el menú móvil */
@@ -876,8 +1050,8 @@ img {
     cursor: pointer;
     transition: box-shadow 0.2s ease, color 0.2s ease;
   }
-  .mobile-nav-toggle:active { box-shadow: var(--shadow-soft-sunken); color: var(--color-cta); }
-  .mobile-nav-group.is-open .mobile-nav-toggle { color: var(--color-cta); }
+  .mobile-nav-toggle:active { box-shadow: var(--shadow-soft-sunken); color: var(--color-accent-terracota); }
+  .mobile-nav-group.is-open .mobile-nav-toggle { color: var(--color-accent-terracota); }
   .mobile-nav-caret {
     width: 0.9em; height: 0.9em;
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
@@ -895,7 +1069,7 @@ img {
   .mobile-nav-group.is-open .mobile-nav-sub { max-height: 220px; margin-top: 10px; }
   .mobile-nav-sub .mobile-nav-link { font-size: 16px; box-shadow: none; background: transparent; }
   .mobile-nav-sub .mobile-nav-link:active,
-  .mobile-nav-sub .mobile-nav-link.active { box-shadow: none; color: var(--color-cta); }
+  .mobile-nav-sub .mobile-nav-link.active { box-shadow: none; color: var(--color-accent-terracota); }
 
   /* Adjust Hero for Mobile stack */
   .hero-container {
@@ -962,6 +1136,18 @@ img {
   }
 }
 
+/* Móvil chico (<= 520px): el header no entra con logo + texto de marca +
+   los dos botones de acción. A 320px desbordaba 67px y a 375px 12px, lo que
+   generaba scroll horizontal en toda la página.
+   Se oculta el texto de marca: el logo circular ya contiene el nombre. */
+@media (max-width: 520px) {
+  .header-container { padding: 0 14px; }
+  .logo-text-wrapper { display: none; }
+  .header-logo { height: 46px; width: 46px; }
+  .auth-nav-slot { gap: 5px; margin-left: 0; }
+  .nav-store-btn { letter-spacing: 0.6px; padding: 8px 11px; }
+}
+
 /* Tablet View (768px - 1279px) */
 @media (min-width: 768px) and (max-width: 1279px) {
   .hero-title {
@@ -1015,4 +1201,212 @@ img {
 .coming-soon-badge .icon,
 .payment-preview-item .icon,
 .calc-disclaimer .icon { margin-right: 6px; }
+
+/* ============================================================
+   ACESO PRO — Bloque "Desbloquear para siempre" (index.html)
+   ============================================================ */
+.calc-unlock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding: 22px 26px;
+  background: var(--bg-main);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+}
+.unlock-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.unlock-copy strong {
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.unlock-copy span {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  max-width: 380px;
+}
+.calc-pro-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* Botones exclusivos PRO: ocultos hasta desbloquear (clase en <html>) */
+.pro-only { display: none; }
+html.pro-unlocked .pro-only { display: inline-flex; }
+
+/* Nota: .section-label-tag se define una sola vez, junto al resto del
+   encabezado de sección, más arriba en este archivo. Aquí había una
+   segunda definición en conflicto que ganaba o perdía según qué hoja
+   se cargara en cada página. */
+
+/* Panel lateral PRO (academia.html) */
+.side-panel--pro {
+  background: linear-gradient(180deg, rgba(185, 112, 90, 0.06), rgba(234, 184, 163, 0.12));
+  border: 1px solid rgba(185, 112, 90, 0.25);
+}
+.side-panel--pro .side-panel__title { color: var(--color-accent-terracota); }
+
+/* ============================================================
+   MODAL DE PAGO PRO (construido por js/pro-unlock.js)
+   ============================================================ */
+.berrys-pro-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(74, 63, 53, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+.berrys-pro-modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+.berrys-pro-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  padding: 38px 34px 34px;
+  background: var(--bg-card);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card-flat);
+  transform: translateY(18px) scale(0.98);
+  transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.berrys-pro-modal-overlay.open .berrys-pro-modal {
+  transform: translateY(0) scale(1);
+}
+.berrys-pro-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.berrys-pro-close:hover {
+  background: var(--bg-main);
+  color: var(--color-text);
+}
+.berrys-pro-title {
+  margin: 6px 0 8px;
+  font-family: var(--font-title);
+  font-size: 25px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.berrys-pro-desc {
+  margin-bottom: 20px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+.berrys-pro-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: var(--color-text);
+}
+.berrys-pro-amount strong { font-size: 28px; }
+.berrys-pro-amount span { font-size: 13px; color: var(--color-text-muted); }
+.berrys-pro-methods {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.berrys-pro-method {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--bg-main);
+  border: 1.5px solid rgba(74, 63, 53, 0.12);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.berrys-pro-method:hover {
+  border-color: var(--color-cta);
+  background: rgba(234, 184, 163, 0.18);
+}
+.berrys-pro-pay {
+  width: 100%;
+  margin-top: 4px;
+}
+.berrys-pro-note {
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+.berrys-pro-note code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--bg-main);
+  font-size: 11px;
+}
+
+@media (max-width: 520px) {
+  .berrys-pro-modal { padding: 32px 22px 26px; }
+  .berrys-pro-title { font-size: 22px; }
+  .calc-unlock { padding: 18px 20px; }
+  .unlock-copy span { max-width: none; }
+}
+
+/* ============================================================
+   ACCESIBILIDAD DE ICONOS — fallback si js/icons.js falla
+   Si el <svg> no se inyectó, reservamos el espacio y mostramos
+   un círculo punteado en lugar de dejar el hueco vacío.
+   ============================================================ */
+i[data-icon] { display: inline-block; position: relative; }
+i[data-icon]:not(:has(svg)) {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.18em;
+}
+i[data-icon]:not(:has(svg))::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px dashed currentColor;
+  opacity: 0.45;
+}
+i[data-icon].icon-sm:not(:has(svg)) { width: 1em; height: 1em; }
+i[data-icon].icon-lg:not(:has(svg)) { width: 1.6em; height: 1.6em; }
 

@@ -86,14 +86,15 @@
             <span class="g-card-label">Dosis sugerida:</span>
             <span class="g-card-dosis">${esc(item.dosis)}</span>
           </div>
-          <button class="g-card-action" type="button">
-            <i data-icon="book"></i> Ver en Fórmulas
-          </button>
         </div>
       `;
 
       this.stage.appendChild(card);
-      if (window.renderIcons) window.renderIcons();
+      // Pinta los <i data-icon> de la tarjeta. Antes llamaba a
+      // window.renderIcons(), que no existe en icons.js (la API real es
+      // paintIcons). Hoy la tarjeta no tiene iconos; se mantiene por si
+      // se agregan en el futuro.
+      if (window.paintIcons) window.paintIcons(card);
     }
 
     renderThumbs() {

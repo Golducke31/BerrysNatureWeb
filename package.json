@@ -1,13 +1,28 @@
 {
-  "name": "berrys-nature-web-tests",
-  "version": "1.0.0",
-  "description": "E2E Test Suite for Berry's Nature Web Application",
+  "name": "berrys-nature-web",
+  "version": "2.0.0",
+  "description": "Berry's Nature — sitio + comunidad (foro, academia) con backend serverless",
+  "private": true,
   "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "test": "playwright test",
-    "test:headed": "playwright test --headed",
+    "dev": "node scripts/dev-server.cjs",
+    "seed": "node scripts/seed.cjs",
+    "create-admin": "node scripts/create-admin.cjs",
+    "reset-password": "node scripts/reset-password.cjs",
+    "db:check": "node scripts/db-check.cjs",
+    "db:init": "node scripts/migrate.cjs",
+    "test": "playwright test -c tests/playwright.config.js",
+    "test:chromium": "playwright test -c tests/playwright.config.js --project=chromium",
+    "test:headed": "playwright test -c tests/playwright.config.js --headed",
+    "test:api": "playwright test -c tests/playwright.api.config.js",
     "test:report": "playwright show-report",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test -c tests/playwright.config.js --ui"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"
@@ -15,7 +30,8 @@
   "keywords": [
     "playwright",
     "e2e",
-    "testing"
+    "testing",
+    "berrys-nature"
   ],
   "author": "",
   "license": "ISC"

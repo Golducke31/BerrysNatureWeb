@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hilo del foro de formuladores de Berry's Nature: leé la conversación completa y sumá tu respuesta.">
+  <meta name="robots" content="noindex, follow">
+  <title>Hilo del foro | Berry's Nature</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/academia.css">
+  <link rel="stylesheet" href="css/foro.css">
+  <link rel="stylesheet" href="css/niko-widget.css">
+</head>
+<body class="page-forum">
+
+  <!-- ============================
+       STICKY HEADER
+  ============================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+
+      <a href="index.html" class="logo-area" aria-label="Volver al inicio">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu-desktop">
+          <li><a href="foro.html" class="nav-link"><i data-icon="arrowLeft"></i> Volver al Foro</a></li>
+          <li><a href="academia.html" class="nav-link">Academia</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
+    </div>
+  </header>
+
+  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="foro.html" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al Foro</a></li>
+      <li><a href="academia.html" class="mobile-nav-link">Academia</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================
+       MAIN
+  ============================== -->
+  <main>
+    <section class="hilo-section" id="hilo-top" tabindex="-1">
+      <div class="hilo-layout">
+
+        <p class="hilo-breadcrumb">
+          <a href="foro.html"><i data-icon="arrowLeft"></i> Volver al foro</a>
+        </p>
+
+        <div id="hiloDetalle" class="hilo-detalle">
+          <div class="hilo-loading">
+            <div class="admin-spinner" aria-hidden="true"></div>
+            <p>Cargando el hilo…</p>
+          </div>
+        </div>
+
+        <div id="hiloRespuestas" class="hilo-respuestas"></div>
+
+        <div class="side-panel hilo-responder" id="hiloResponder">
+          <h3 class="side-panel__title"><i data-icon="chat"></i> Tu respuesta</h3>
+          <p class="foro-side__copy" id="hiloResponderHint">
+            Ingresá para sumarte a la conversación.
+          </p>
+          <form id="respuestaForm" class="auth-form" novalidate hidden>
+            <div class="form-group">
+              <label for="respuestaCuerpo" class="visually-hidden">Tu respuesta</label>
+              <textarea id="respuestaCuerpo" rows="5" maxlength="4000"
+                        placeholder="Sumá tu experiencia, una fuente o una corrección."></textarea>
+            </div>
+            <button class="cta-button auth-submit" id="respuestaSubmit" type="submit">Responder</button>
+          </form>
+          <button class="cta-button" type="button" id="hiloLoginBtn">
+            <i data-icon="lock"></i> Ingresá para responder
+          </button>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================
+       AUTH MODAL (login / registro)
+  ============================== -->
+  <div class="auth-modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" aria-hidden="true">
+    <div class="auth-modal">
+      <button class="auth-close-btn" id="authCloseBtn" aria-label="Cerrar"><i data-icon="close"></i></button>
+
+      <div class="auth-tabs">
+        <button class="auth-tab is-active" type="button" data-tab="login">Ingresar</button>
+        <button class="auth-tab" type="button" data-tab="register">Crear cuenta</button>
+      </div>
+
+      <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
+      <p class="auth-sub">Guardá tus fórmulas, participá del foro y desbloqueá la calculadora PRO.</p>
+
+      <button class="google-btn" id="googleSignInBtn" type="button">
+        <svg class="google-g" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/>
+          <path fill="#FBBC05" d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84Z"/>
+          <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 6.68 9.14 4.75 12 4.75Z"/>
+        </svg>
+        Continuar con Google
+      </button>
+
+      <div class="auth-divider"><span>o</span></div>
+
+      <form class="auth-form" id="authForm" novalidate>
+        <div class="form-group" id="authNameField" hidden>
+          <label for="authName">Nombre</label>
+          <input type="text" id="authName" placeholder="¿Cómo te llamás?" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="authEmail">Email</label>
+          <input type="email" id="authEmail" placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="authPass">Contraseña</label>
+          <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button class="cta-button auth-submit" id="authSubmit" type="submit">Ingresar</button>
+      </form>
+
+      <p class="auth-legal">
+        Tus datos se guardan de forma segura en nuestro servidor. Al crear una cuenta aceptás las reglas de la comunidad.
+      </p>
+    </div>
+  </div>
+
+  <div id="toastNotification" role="status" aria-live="polite"></div>
+
+  <!-- ============================
+       FOOTER
+  ============================== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo">
+      <p class="footer-text">
+        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
+        Hecho con rigor científico y amor natural en la Patagonia Argentina.
+      </p>
+      <div class="footer-social">
+        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================
+       JAVASCRIPT MODULES
+  ============================== -->
+  <script src="js/icons.js"></script>
+  <script src="js/content-data.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/community.js"></script>
+  <script src="js/pro-unlock.js"></script>
+  <script src="js/mod-panel.js"></script>
+  <script src="js/hilo.js"></script>
+
+  <script src="js/niko-config.js"></script>
+  <script src="js/niko-widget.js"></script>
+
+</body>
+</html>

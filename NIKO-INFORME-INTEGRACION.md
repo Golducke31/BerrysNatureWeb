@@ -278,7 +278,7 @@ Niko como "asistente de formulación": sugiere la fórmula y un botón **"Usar e
 #### ✅ Verificación de no-regresión (hecha)
 El widget convive con los tests E2E existentes. Para probarlo comparé una copia de
 `index.html` **sin el widget** contra la versión **con el widget**, corriendo la suite
-completa (60 tests, chromium) sobre ambas:
+sobre ambas:
 
 | | Sin widget (baseline) | Con widget |
 |---|---|---|
@@ -287,14 +287,18 @@ completa (60 tests, chromium) sobre ambas:
 | Tests que fallan solo con el widget | — | **0** |
 
 Los conjuntos de tests fallidos son **idénticos** en ambos casos. Conclusión: **el widget
-no rompe nada.** Los 48 fallos son previos y corresponden a tests escritos contra una
-versión anterior del sitio (hero, CTA, menú hamburguesa, carrito, calculadora). Durante la
-integración apareció y se corrigió un fallo real: el panel usaba `<header>`, lo que
-colisionaba con `.sticky-header, header` y disparaba *strict mode violation*; se cambió a
-`<div>`.
+no rompe nada.** Los 48 fallos de ese momento corresponden a tests escritos contra una
+versión anterior del sitio (catálogo y carrito ya eliminados, hero, CTA, menú
+hamburguesa, calculadora). Durante la integración apareció y se corrigió un fallo real: el
+panel usaba `<header>`, lo que colisionaba con `.sticky-header, header` y disparaba
+*strict mode violation*; se cambió a `<div>`.
 
-> ⚠️ Aparte: la suite E2E venía rota antes de este trabajo (48/60 fallan). Conviene
-> revisarla como tarea independiente — no está relacionada con Niko.
+> 📌 **Actualización posterior:** la suite E2E no quedó "rota" para siempre. Tras este
+> informe se alineó la suite a la versión real del sitio (modelo escuela/comunidad, sin
+> catálogo ni carrito): se eliminaron `catalog-hotspots.spec.js` y `cart-integration.spec.js`
+> y se reescribieron los specs contra el DOM vigente. Resultado final: **159/159 passed**
+> (53 tests × Chromium + Firefox + WebKit). Ver `TEST_READY.md`. La nota original de
+> "48/60 fallan" ya no aplica.
 
 ### ▶ Cómo dejarlo funcionando (lo único que falta)
 

@@ -1,0 +1,32 @@
+# ============================================================
+# .vercelignore — qué NO se sube al deploy
+# Sintaxis igual a .gitignore. Lo que se ignore acá no queda
+# disponible para el build ni como archivo estático.
+# ============================================================
+
+# Dependencias: Vercel las instala desde package.json
+node_modules/
+
+# Proyecto Next.js aparte (Niko IA): no forma parte del sitio publicado
+Niko IA/
+
+# Tests y artefactos de test
+tests/
+playwright-report/
+test-results/
+
+# Scripts y esquema: se ejecutan SOLO desde local contra la base
+scripts/
+db/
+
+# Documentación y metadatos del proyecto
+*.md
+.workbuddy-ai/
+.agents/
+.github/
+.git/
+
+# Variables de entorno locales (NUNCA subir secretos)
+.env
+.env.*
+!.env.example

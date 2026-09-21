@@ -45,10 +45,59 @@
   outline: 3px solid var(--niko-terracota);
   outline-offset: 3px;
 }
-.niko-launcher svg { width: 28px; height: 28px; }
-.niko-launcher__icon--close { display: none; }
-.niko-launcher.is-open .niko-launcher__icon--chat { display: none; }
+.niko-launcher__icon--close { display: none; width: 28px; height: 28px; }
+.niko-launcher__avatar { width: 38px; height: 38px; }
+.niko-launcher.is-open .niko-launcher__avatar { display: none; }
 .niko-launcher.is-open .niko-launcher__icon--close { display: block; }
+
+/* ---------- Avatar ilustrado de Niko ----------
+   Personaje botánico: hojas como brote, cabeza crema con línea terracota.
+   El SVG es inline (no <img>) para poder animar estados por CSS y para
+   que funcione abriendo el sitio con file://. */
+.niko-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+.niko-avatar__svg { display: block; width: 100%; height: 100%; }
+
+/* Anillo de estado */
+.niko-avatar::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border-color 0.25s ease;
+  pointer-events: none;
+}
+.niko-avatar.is-online::after   { border-color: rgba(130, 150, 107, 0.55); }
+.niko-avatar.is-thinking::after,
+.niko-avatar.is-typing::after   { border-color: var(--niko-cta); }
+.niko-avatar.is-offline::after  { border-color: rgba(110, 93, 79, 0.35); }
+
+/* Las hojas se mecen mientras Niko piensa o escribe */
+.niko-avatar__leaf {
+  transform-box: view-box;
+  transform-origin: 24px 15px;
+}
+.niko-avatar.is-thinking .niko-avatar__leaf,
+.niko-avatar.is-typing .niko-avatar__leaf {
+  animation: niko-leaf-sway 1.6s ease-in-out infinite;
+}
+@keyframes niko-leaf-sway {
+  0%, 100% { transform: rotate(-7deg); }
+  50%      { transform: rotate(7deg); }
+}
+
+/* Sin conexión: el personaje se desatura */
+.niko-avatar.is-offline .niko-avatar__svg {
+  opacity: 0.55;
+  filter: grayscale(0.65);
+}
 
 /* Indicador de "Niko escribiendo" sobre la burbuja */
 .niko-launcher__pulse {
@@ -103,17 +152,7 @@
   border-bottom: 1px solid var(--niko-line);
   flex: 0 0 auto;
 }
-.niko-panel__avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--niko-cta);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-}
-.niko-panel__avatar svg { width: 20px; height: 20px; }
+.niko-panel__avatar { width: 38px; height: 38px; }
 .niko-panel__titles { flex: 1 1 auto; min-width: 0; }
 .niko-panel__name {
   font-family: var(--niko-title);
@@ -343,7 +382,7 @@
 }
 
 /* ---------- Mobile ---------- */
-@media (max-width: 560px) {
+@media (max-width: 520px) {
   .niko-panel {
     right: 0;
     left: 0;
@@ -361,4 +400,5 @@
 @media (prefers-reduced-motion: reduce) {
   .niko-panel, .niko-launcher { transition: none; }
   .niko-typing span { animation: none; opacity: 0.6; }
+  .niko-avatar__leaf { animation: none !important; }
 }

@@ -16,7 +16,7 @@
   align-items: center;
   padding: 90px 24px 70px;
   overflow: hidden;
-  background-color: #efe4db;
+  background-color: var(--color-surface-alt);
 }
 
 .academy-hero__bg {
@@ -189,7 +189,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
 }
 
 /* ------------------------------------------------------------
@@ -221,7 +221,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   margin-right: 4px;
 }
 
@@ -238,7 +238,7 @@
   transition: all 0.25s ease;
   white-space: nowrap;
 }
-.chip-filter:hover { border-color: var(--color-cta); color: #8c4a2f; }
+.chip-filter:hover { border-color: var(--color-cta); color: var(--color-terracota-deep); }
 .chip-filter.is-active {
   background: var(--color-cta);
   border-color: var(--color-cta);
@@ -274,7 +274,7 @@
   height: 168px;
   background-size: cover;
   background-position: center;
-  background-color: #E6D6C9;
+  background-color: var(--color-line-warm);
 }
 .guide-card__media::after {
   content: '';
@@ -344,7 +344,7 @@
   align-items: center;
   gap: 14px;
   font-size: 12px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   margin-top: auto;
   padding-top: 6px;
 }
@@ -478,7 +478,7 @@
   gap: 6px;
   font-size: 12.5px;
   font-weight: 700;
-  color: #8c4a2f;
+  color: var(--color-terracota-deep);
   margin-top: auto;
 }
 .provider-card--acad .provider-link:hover { text-decoration: underline; }
@@ -509,7 +509,7 @@
   align-items: center;
   gap: 10px;
 }
-.batch-calc__title .icon { width: 1.3em; height: 1.3em; color: #B05B3A; }
+.batch-calc__title .icon { width: 1.3em; height: 1.3em; color: var(--color-accent-dark); }
 
 .batch-calc__desc { font-size: 14px; color: var(--color-text-muted); margin-bottom: 20px; line-height: 1.6; }
 
@@ -524,7 +524,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.2px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
 }
 .batch-calc__field input {
   font-family: var(--font-body);
@@ -563,7 +563,7 @@
   font-family: var(--font-title);
   font-size: 30px;
   font-weight: 700;
-  color: #B05B3A;
+  color: var(--color-accent-dark);
 }
 .batch-calc__price small { font-size: 14px; color: var(--color-text-muted); font-weight: 400; }
 
@@ -597,7 +597,7 @@
   align-items: center;
   gap: 8px;
 }
-.side-panel__title .icon { width: 1.2em; height: 1.2em; color: #B05B3A; }
+.side-panel__title .icon { width: 1.2em; height: 1.2em; color: var(--color-accent-dark); }
 
 /* Progreso */
 .progress-ring-wrap {
@@ -674,7 +674,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.popular-item__v { font-size: 11px; color: #9e8b7e; display: flex; align-items: center; gap: 4px; }
+.popular-item__v { font-size: 11px; color: var(--color-muted-warm); display: flex; align-items: center; gap: 4px; }
 .popular-item__v .icon { width: 0.95em; height: 0.95em; }
 
 /* PRO panel */
@@ -703,46 +703,6 @@
 .pro-item__d { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; }
 
 .side-panel .cta-button { width: 100%; justify-content: center; margin-top: 16px; }
-
-/* ------------------------------------------------------------
-   9. COMUNIDAD EN LA ACADEMIA
-   ------------------------------------------------------------ */
-.community-acad-layout {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.6fr 0.9fr;
-  gap: 32px;
-  align-items: start;
-}
-.community-acad-main {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.community-acad-side { position: sticky; top: calc(var(--header-height) + 24px); }
-
-.thread-card--acad {
-  display: flex;
-  gap: 16px;
-  background: rgba(255, 252, 249, 0.82);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  border-radius: 20px;
-  padding: 20px 22px;
-  box-shadow: var(--shadow-card-flat);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.thread-card--acad:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 30px rgba(120, 100, 88, 0.12);
-}
-
-@media (max-width: 1023px) {
-  .community-acad-layout { grid-template-columns: 1fr; }
-  .community-acad-side { position: static; }
-}
 
 /* ------------------------------------------------------------
    6. MODAL "LEER MÁS"
@@ -795,10 +755,10 @@
 .guide-modal__body { padding: 26px 30px 30px; }
 .guide-modal__cat {
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
-  color: #B05B3A; margin-bottom: 8px;
+  color: var(--color-accent-dark); margin-bottom: 8px;
 }
 .guide-modal__title { font-family: var(--font-title); font-size: 27px; font-weight: 600; line-height: 1.25; margin-bottom: 14px; }
-.guide-modal__meta { display: flex; gap: 16px; font-size: 13px; color: #9e8b7e; margin-bottom: 18px; flex-wrap: wrap; }
+.guide-modal__meta { display: flex; gap: 16px; font-size: 13px; color: var(--color-muted-warm); margin-bottom: 18px; flex-wrap: wrap; }
 .guide-modal__meta span { display: inline-flex; align-items: center; gap: 5px; }
 .guide-modal__text { font-size: 15px; line-height: 1.75; color: var(--color-text-muted); }
 .guide-modal__text p { margin-bottom: 14px; }
@@ -861,33 +821,5 @@
 }
 [data-reveal].is-visible { opacity: 1; transform: none; }
 
-#toastNotification {
-  position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--bg-card);
-  color: var(--color-text);
-  padding: 14px 22px;
-  border-radius: 16px;
-  box-shadow: 0 16px 40px rgba(74, 63, 53, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  z-index: 3000;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
-  max-width: 90vw;
-}
-#toastNotification.show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-}
-.toast-icon { display: inline-flex; color: #B05B3A; }
-.toast-icon .icon { width: 1.3em; height: 1.3em; }
+/* Toast: movido a css/styles.css para que funcione también en index.html
+   y glosario.html, que no cargan esta hoja. */

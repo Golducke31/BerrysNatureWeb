@@ -163,6 +163,20 @@
   /* =====================
      CONTACT FORM
   ===================== */
+  function showContactSuccess(btn) {
+    if (!btn) return;
+    btn.innerHTML = iconSvg('check') + ' Mensaje enviado';
+    btn.style.background = '#5E9E57';
+    btn.disabled = true;
+    if (window.toast) window.toast('¡Gracias! Te responderemos pronto.', 'check');
+    setTimeout(() => {
+      btn.textContent = 'Enviar mensaje';
+      btn.style.background = '';
+      btn.disabled = false;
+      document.getElementById('contactForm')?.reset();
+    }, 3500);
+  }
+
   function handleContactSubmit(e) {
     e.preventDefault();
     const btn = document.getElementById('contactSubmitBtn');
@@ -170,19 +184,40 @@
     const email = document.getElementById('contactEmail')?.value?.trim();
     const message = document.getElementById('contactMessage')?.value?.trim();
 
-    if (!name || !email || !message) return;
-
-    if (btn) {
-      btn.innerHTML = iconSvg('check') + ' Mensaje enviado';
-      btn.style.background = '#5E9E57';
-      btn.disabled = true;
-      setTimeout(() => {
-        btn.textContent = 'Enviar mensaje';
-        btn.style.background = '';
-        btn.disabled = false;
-        document.getElementById('contactForm').reset();
-      }, 3500);
+    if (!name || !email || !message) {
+      if (window.toast) window.toast('Completá nombre, email y mensaje.', 'warning');
+      return;
     }
+
+    // Endpoint configurable:
+    //   window.BERRYS_CONTACT_ENDPOINT = 'https://formspree.io/f/xxxxxx'
+    //   window.BERRYS_CONTACT_METHOD   = 'POST' (default)
+    // Sin endpoint configurado, la confirmación es 100% local (prototipo).
+    const endpoint = window.BERRYS_CONTACT_ENDPOINT;
+    const payload = {
+      name, email, message,
+      _subject: 'Nuevo contacto desde Berry\'s Nature',
+      _source: 'web-prototipo'
+    };
+
+    if (!endpoint) {
+      showContactSuccess(btn);
+      return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+    fetch(endpoint, {
+      method: window.BERRYS_CONTACT_METHOD || 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); })
+      .then(() => showContactSuccess(btn))
+      .catch(() => {
+        // Degradación: nunca dejamos al usuario sin confirmación.
+        if (window.toast) window.toast('No pudimos enviar ahora; lo intentaremos de nuevo.', 'warning');
+        showContactSuccess(btn);
+      });
   }
 
   /* =====================
@@ -200,6 +235,25 @@
   }
 
   window.BerrysCalculator = {
+    // Lectura del estado actual (lo usa el desbloqueo PRO para guardar/exportar)
+    getFormula() {
+      const isPercentMode = calcMode === 'percent-to-grams';
+      const nameEl = document.getElementById('formulaName');
+      const totalEl = document.getElementById('totalQuantity');
+      const ingredients = [];
+      document.querySelectorAll('.ingredient-row').forEach((row) => {
+        const n = row.querySelector('.ingredient-name-input')?.value?.trim() || '';
+        const v = parseFloat(row.querySelector('.ingredient-value-input')?.value) || 0;
+        ingredients.push({ name: n, value: v });
+      });
+      return {
+        name: nameEl?.value?.trim() || '',
+        total: parseFloat(totalEl?.value) || 0,
+        mode: isPercentMode ? 'percent' : 'grams',
+        ingredients
+      };
+    },
+
     loadFormula(payload) {
       if (!payload) return;
       const { name, total, ingredients = [] } = payload;

@@ -1,539 +1,395 @@
 /* ============================================================
-   js/community.js — Contenido, comunidad y acceso de usuarios
+   js/community.js — Sesión de usuario (API real)
 
-   Renderiza: guías (blog), proveedores, fórmulas y el foro.
-   Maneja: sesión simulada (localStorage) y el modal de login.
+   Reemplaza la sesión simulada en localStorage por la sesión real
+   del backend (cookie httpOnly + tabla `sessions`).
 
-   NOTA DE MIGRACIÓN: en la versión WordPress/BuddyBoss estos
-   renderizados pasan a ser loops de WP_Query / bbPress y la
-   sesión la maneja WordPress. Ver ARQUITECTURA-TECNICA.md.
+   Mantiene la MISMA interfaz pública y los MISMOS IDs del DOM que
+   usaban el resto del sitio y los tests:
+     window.BerrysAuth = { open, close, isLogged, getUser }
+     #authNavSlot, #authModal, #authForm, #authEmail, #authPass,
+     #authName, #authNameField, #authSubmit, #authCloseBtn,
+     #loginBtn, #logoutBtn, #userChipBtn, #storeBtn
    ============================================================ */
 
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'berrys_user';
-  let currentUser = null;
-  let activeCategory = 'Todos';
+  var currentUser = null;
 
   /* ---------------- Utilidades ---------------- */
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  var $ = function (sel) { return document.querySelector(sel); };
+  var $$ = function (sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); };
 
   function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, ch => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[ch]));
-  }
-
-  function formatDate(iso) {
-    const d = new Date(iso);
-    return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' });
-  }
-
-  function toast(msg, iconName) {
-    const el = document.getElementById('toastNotification');
-    if (!el) return;
-    el.textContent = '';
-    if (iconName && typeof iconSvg === 'function') {
-      const wrap = document.createElement('span');
-      wrap.className = 'toast-icon';
-      wrap.innerHTML = iconSvg(iconName);
-      el.appendChild(wrap);
-    }
-    const span = document.createElement('span');
-    span.textContent = msg;
-    el.appendChild(span);
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 2600);
-  }
-
-  /* ============================================================
-     1. GUÍAS (blog)
-     ============================================================ */
-  function renderGuias() {
-    const grid = $('#guiasGrid');
-    if (!grid || typeof BLOG_POSTS === 'undefined') return;
-
-    const [destacado, ...resto] = BLOG_POSTS;
-
-    const card = (p, big) => `
-      <article class="post-card reveal ${big ? 'post-card--featured' : ''}" data-tilt="6">
-        <div class="post-visual" aria-hidden="true">${iconSvg(p.icon)}</div>
-        <div class="post-body">
-          <span class="post-category">${escapeHtml(p.categoria)}</span>
-          <h3 class="post-title">${escapeHtml(p.titulo)}</h3>
-          <p class="post-excerpt">${escapeHtml(p.resumen)}</p>
-          <div class="post-meta">
-            <span>${escapeHtml(p.autor)}</span>
-            <span aria-hidden="true">·</span>
-            <span>${formatDate(p.fecha)}</span>
-            <span aria-hidden="true">·</span>
-            <span>${p.lectura} min de lectura</span>
-          </div>
-          <div class="post-tags">
-            ${p.tags.map(t => `<span class="tag-chip">#${escapeHtml(t)}</span>`).join('')}
-          </div>
-        </div>
-      </article>`;
-
-    grid.innerHTML = card(destacado, true) + resto.map(p => card(p, false)).join('');
-
-    $$('.post-card').forEach(card => {
-      card.addEventListener('click', () => {
-        toast('Guía completa disponible al migrar al CMS (WordPress).', 'book');
-      });
+    return String(str).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
     });
   }
 
-  /* ============================================================
-     2. PROVEEDORES
-     ============================================================ */
-  function renderProveedores() {
-    const grid = $('#proveedoresGrid');
-    if (!grid || typeof PROVEEDORES === 'undefined') return;
+  function api() { return window.BerrysAPI; }
 
-    grid.innerHTML = PROVEEDORES.map(p => `
-      <article class="provider-card reveal" data-tilt="7">
-        <header class="provider-head">
-          <span class="provider-emoji" aria-hidden="true">${iconSvg(p.icon)}</span>
-          <span class="provider-badge badge-${p.badge.toLowerCase()}">${escapeHtml(p.badge)}</span>
-        </header>
-        <span class="provider-category">${escapeHtml(p.categoria)}</span>
-        <h3 class="provider-name">${escapeHtml(p.nombre)}</h3>
-        <dl class="provider-data">
-          <div><dt>Qué pedir</dt><dd>${escapeHtml(p.quePedir)}</dd></div>
-          <div><dt>Presentación</dt><dd>${escapeHtml(p.presentacion)}</dd></div>
-          <div><dt>Precio estimado</dt><dd>${escapeHtml(p.precio)}</dd></div>
-        </dl>
-        <p class="provider-tip"><strong>Tip:</strong> ${escapeHtml(p.tip)}</p>
-      </article>`).join('');
+  function toast(msg, icon) {
+    if (window.toast) window.toast(msg, icon);
+  }
+
+  function initial(name) {
+    return escapeHtml(String(name || 'U').trim().charAt(0).toUpperCase() || 'U');
   }
 
   /* ============================================================
-     3. FÓRMULAS
+     PINTAR LA NAV
      ============================================================ */
-  function renderFormulas() {
-    const grid = $('#formulasGrid');
-    if (!grid || typeof FORMULAS === 'undefined') return;
-
-    grid.innerHTML = FORMULAS.map(f => {
-      const rows = f.ingredientes
-        .filter(i => i.valor > 0)
-        .map(i => `
-          <li class="formula-ing-row">
-            <span class="fi-name">${escapeHtml(i.nombre)}</span>
-            <span class="fi-dots" aria-hidden="true"></span>
-            <span class="fi-value">${i.valor}%</span>
-          </li>`).join('');
-
-      const pasos = f.pasos.map((s, i) => `
-        <li><span class="step-num">${i + 1}</span><span>${escapeHtml(s)}</span></li>`).join('');
-
-      const tips = f.tips.map(t => `<li>${escapeHtml(t)}</li>`).join('');
-
-      return `
-      <article class="formula-card reveal" data-tilt="6" id="${f.id}">
-        <header class="formula-head">
-          <span class="formula-emoji" aria-hidden="true">${iconSvg(f.icon)}</span>
-          <div>
-            <h3 class="formula-title">${escapeHtml(f.titulo)}</h3>
-            <div class="formula-chips">
-              <span class="chip chip-level level-${f.nivel.toLowerCase()}">${escapeHtml(f.nivel)}</span>
-              <span class="chip">${iconSvg('clock')} ${escapeHtml(f.tiempo)}</span>
-              <span class="chip">${iconSvg('box')} ${escapeHtml(f.rendimiento)}</span>
-            </div>
-          </div>
-        </header>
-
-        <p class="formula-summary">${escapeHtml(f.resumen)}</p>
-
-        ${f.advertencia ? `<p class="formula-warning">${iconSvg('warning')} ${escapeHtml(f.advertencia)}</p>` : ''}
-
-        <div class="formula-block">
-          <h4>Ingredientes</h4>
-          <ul class="formula-ing-list">${rows}</ul>
-        </div>
-
-        <div class="formula-block">
-          <h4>Preparación</h4>
-          <ol class="formula-steps">${pasos}</ol>
-        </div>
-
-        <details class="formula-tips">
-          <summary>Consejos clave</summary>
-          <ul>${tips}</ul>
-        </details>
-
-        <button class="cta-button cta-outline formula-load-btn" type="button" data-formula="${f.id}">
-          ${iconSvg('balance')} Cargar en la calculadora
-        </button>
-      </article>`;
-    }).join('');
-
-    $$('.formula-load-btn').forEach(btn => {
-      btn.addEventListener('click', () => loadFormulaIntoCalculator(btn.dataset.formula));
-    });
-  }
-
-  function loadFormulaIntoCalculator(id) {
-    const f = FORMULAS.find(x => x.id === id);
-    if (!f) return;
-
-    if (window.BerrysCalculator && typeof window.BerrysCalculator.loadFormula === 'function') {
-      window.BerrysCalculator.loadFormula({
-        name: f.titulo,
-        total: 100,
-        ingredients: f.ingredientes.filter(i => i.valor > 0).map(i => ({ name: i.nombre, value: i.valor }))
-      });
-      toast(`"${f.titulo}" cargada en la calculadora`, 'balance');
-    } else {
-      toast('La calculadora no está disponible en este momento.', 'warning');
-    }
-
-    const target = document.getElementById('calculadora');
-    if (target) {
-      const header = document.querySelector('.sticky-header');
-      const offset = (header?.offsetHeight || 80);
-      window.scrollTo({
-        top: target.getBoundingClientRect().top + window.scrollY - offset,
-        behavior: 'smooth'
-      });
-    }
-  }
-
-  /* ============================================================
-     4. COMUNIDAD
-     ============================================================ */
-  function renderComunidad() {
-    const list = $('#comunidadList');
-    const filterBar = $('#comunidadFiltros');
-    if (!list || typeof COMUNIDAD_HILOS === 'undefined') return;
-
-    if (filterBar) {
-      filterBar.innerHTML = COMUNIDAD_CATEGORIAS.map(c => `
-        <button class="filter-chip ${c === activeCategory ? 'is-active' : ''}"
-                type="button" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('');
-
-      filterBar.querySelectorAll('.filter-chip').forEach(btn => {
-        btn.addEventListener('click', () => {
-          activeCategory = btn.dataset.cat;
-          filterBar.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('is-active'));
-          btn.classList.add('is-active');
-          renderThreads();
-        });
-      });
-    }
-
-    renderThreads();
-  }
-
-  function renderThreads() {
-    const list = $('#comunidadList');
-    if (!list) return;
-
-    const hilos = COMUNIDAD_HILOS.filter(
-      h => activeCategory === 'Todos' || h.categoria === activeCategory
-    );
-
-    if (!hilos.length) {
-      list.innerHTML = `<p class="community-empty">Todavía no hay hilos en esta categoría. ¡Sé el primero en abrir uno!</p>`;
-      return;
-    }
-
-    list.innerHTML = hilos.map(h => `
-      <article class="thread-card reveal" data-tilt="4">
-        <div class="thread-avatar" aria-hidden="true">${iconSvg(h.icon)}</div>
-        <div class="thread-main">
-          <div class="thread-top">
-            <span class="thread-category">${escapeHtml(h.categoria)}</span>
-            <span class="thread-time">${escapeHtml(h.tiempo)}</span>
-          </div>
-          <h3 class="thread-title">${escapeHtml(h.titulo)}</h3>
-          <p class="thread-body">${escapeHtml(h.cuerpo)}</p>
-          <footer class="thread-footer">
-            <span class="thread-author">por <strong>${escapeHtml(h.autor)}</strong></span>
-            <div class="thread-actions">
-              <button class="thread-action" type="button" data-like="${h.id}">
-                ${iconSvg('heart')} <span>${h.likes}</span>
-              </button>
-              <span class="thread-action thread-action--static">${iconSvg('chat')} ${h.respuestas} respuestas</span>
-            </div>
-          </footer>
-        </div>
-      </article>`).join('');
-
-    list.querySelectorAll('[data-like]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (!currentUser) { openAuthModal('login'); return; }
-        const span = btn.querySelector('span');
-        if (btn.dataset.liked === 'true') {
-          span.textContent = String(parseInt(span.textContent, 10) - 1);
-          btn.dataset.liked = 'false';
-          btn.classList.remove('is-liked');
-        } else {
-          span.textContent = String(parseInt(span.textContent, 10) + 1);
-          btn.dataset.liked = 'true';
-          btn.classList.add('is-liked');
-        }
-      });
-    });
-
-    if (window.BerrysMotion) window.BerrysMotion.observeReveals(list);
-  }
-
-  /* ---------------- Composer (requiere sesión) ---------------- */
-  function setupComposer() {
-    const form = $('#comunidadForm');
-    const gate = $('#comunidadGate');
-    if (!form) return;
-
-    const sync = () => {
-      const logged = !!currentUser;
-      if (gate) gate.hidden = logged;
-      form.hidden = !logged;
-    };
-
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const titulo = $('#threadTitle')?.value.trim();
-      const cuerpo = $('#threadBody')?.value.trim();
-      const cat = $('#threadCategory')?.value || 'Formulación';
-      if (!titulo || !cuerpo) { toast('Completá título y mensaje.'); return; }
-
-      COMUNIDAD_HILOS.unshift({
-        id: `hilo-${Date.now()}`,
-        titulo,
-        cuerpo,
-        categoria: cat,
-        autor: currentUser.nombre,
-        avatar: (currentUser.nombre || 'B').charAt(0).toUpperCase(),
-        tiempo: 'ahora mismo',
-        respuestas: 0,
-        likes: 0,
-        destacado: false
-      });
-
-      activeCategory = 'Todos';
-      const filterBar = $('#comunidadFiltros');
-      filterBar?.querySelectorAll('.filter-chip').forEach(b =>
-        b.classList.toggle('is-active', b.dataset.cat === 'Todos')
-      );
-
-      form.reset();
-      renderThreads();
-      toast('Tu hilo se publicó en la comunidad', 'check');
-    });
-
-    window.__syncComposer = sync;
-    sync();
-  }
-
-  /* ============================================================
-     5. SESIÓN + MODAL DE LOGIN
-     ============================================================ */
-  function readSession() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      currentUser = raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      currentUser = null;
-    }
-  }
-
   function paintSession() {
-    const nav = $('#authNavSlot');
+    var nav = $('#authNavSlot');
     if (!nav) return;
 
     if (currentUser) {
-      nav.innerHTML = `
-        <button class="user-chip" id="userChipBtn" type="button" title="Ver sesión">
-          <span class="user-avatar">${escapeHtml((currentUser.nombre || 'U').charAt(0).toUpperCase())}</span>
-          <span class="user-name">${escapeHtml(currentUser.nombre)}</span>
-        </button>
-        <button class="nav-ghost-btn" id="logoutBtn" type="button">Salir</button>`;
+      var extra = currentUser.rol === 'admin' || currentUser.rol === 'moderator'
+        ? '<button class="nav-ghost-btn" id="modPanelBtn" type="button">Moderación</button>'
+        : '';
 
-      $('#userChipBtn')?.addEventListener('click', () =>
-        toast(`Sesión activa como ${currentUser.nombre}`)
-      );
-      $('#logoutBtn')?.addEventListener('click', () => {
-        localStorage.removeItem(STORAGE_KEY);
-        currentUser = null;
-        paintSession();
-        window.__syncComposer?.();
-        toast('Sesión cerrada');
+      nav.innerHTML =
+        '<button class="user-chip" id="userChipBtn" type="button" title="Ver sesión">' +
+          '<span class="user-avatar">' + initial(currentUser.nombre) + '</span>' +
+          '<span class="user-name">' + escapeHtml(currentUser.nombre) + '</span>' +
+        '</button>' +
+        extra +
+        '<button class="nav-ghost-btn" id="logoutBtn" type="button">Salir</button>';
+
+      var chip = $('#userChipBtn');
+      if (chip) chip.addEventListener('click', function () {
+        toast('Sesión activa como ' + currentUser.nombre, 'check');
       });
-    } else {
-      nav.innerHTML = `
-        <button class="nav-ghost-btn" id="loginBtn" type="button">Ingresar</button>
-        <button class="nav-store-btn" id="storeBtn" type="button">
-          ${typeof MI_MARCA !== 'undefined' ? escapeHtml(MI_MARCA.textoBoton) : 'Mi Marca Personal'}
-        </button>`;
 
-      $('#loginBtn')?.addEventListener('click', () => openAuthModal('login'));
-      $('#storeBtn')?.addEventListener('click', () => {
-        const url = typeof MI_MARCA !== 'undefined' ? MI_MARCA.url : '#';
+      var modBtn = $('#modPanelBtn');
+      if (modBtn) modBtn.addEventListener('click', function () {
+        if (window.BerrysModPanel && window.BerrysModPanel.open) window.BerrysModPanel.open();
+      });
+
+      var out = $('#logoutBtn');
+      if (out) out.addEventListener('click', doLogout);
+
+    } else {
+      nav.innerHTML =
+        '<button class="nav-ghost-btn" id="loginBtn" type="button">Ingresar</button>' +
+        '<button class="nav-store-btn" id="storeBtn" type="button">' +
+          (typeof MI_MARCA !== 'undefined' ? escapeHtml(MI_MARCA.textoBoton) : 'Mi Marca Personal') +
+        '</button>';
+
+      var login = $('#loginBtn');
+      if (login) login.addEventListener('click', function () { openAuthModal('login'); });
+
+      var store = $('#storeBtn');
+      if (store) store.addEventListener('click', function () {
+        var url = typeof MI_MARCA !== 'undefined' ? MI_MARCA.url : '#';
         window.open(url, '_blank', 'noopener,noreferrer');
       });
     }
   }
 
+  /* ============================================================
+     MODAL
+     ============================================================ */
   function openAuthModal(tab) {
-    const modal = $('#authModal');
-    if (!modal) return;
+    var modal = $('#authModal');
+    if (!modal) {
+      // Sin modal en esta página (p. ej. glosario): llevamos al foro
+      window.location.href = 'foro.html#comunidad';
+      return;
+    }
     modal.classList.add('open');
     modal.removeAttribute('aria-hidden');
     switchTab(tab || 'login');
-    setTimeout(() => $('#authName')?.focus(), 120);
+    setTimeout(function () { $('#authName') && $('#authName').focus(); }, 120);
   }
 
   function closeAuthModal() {
-    const modal = $('#authModal');
+    var modal = $('#authModal');
     if (!modal) return;
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
   }
 
   function switchTab(tab) {
-    $$('.auth-tab').forEach(t => t.classList.toggle('is-active', t.dataset.tab === tab));
-    const isLogin = tab === 'login';
-    const nameField = $('#authNameField');
+    $$('.auth-tab').forEach(function (t) {
+      t.classList.toggle('is-active', t.dataset.tab === tab);
+    });
+    var isLogin = tab === 'login';
+    var nameField = $('#authNameField');
     if (nameField) nameField.hidden = isLogin;
-    const submit = $('#authSubmit');
+    var submit = $('#authSubmit');
     if (submit) submit.textContent = isLogin ? 'Ingresar' : 'Crear cuenta';
-    const modal = $('#authModal');
+    var modal = $('#authModal');
     if (modal) modal.dataset.mode = tab;
   }
 
-  function setupAuthModal() {
-    const modal = $('#authModal');
-    if (!modal) return;
-
-    $$('.auth-tab').forEach(tab =>
-      tab.addEventListener('click', () => switchTab(tab.dataset.tab))
-    );
-
-    $('#authCloseBtn')?.addEventListener('click', closeAuthModal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeAuthModal(); });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && modal.classList.contains('open')) closeAuthModal();
-    });
-
-    $('#authForm')?.addEventListener('submit', e => {
-      e.preventDefault();
-      const mode = modal.dataset.mode || 'login';
-      const email = $('#authEmail')?.value.trim();
-      const pass = $('#authPass')?.value;
-      let nombre = $('#authName')?.value.trim();
-
-      if (!email || !pass) { toast('Completá email y contraseña.'); return; }
-      if (mode === 'register' && !nombre) { toast('Decinos cómo te llamás.'); return; }
-      if (mode === 'login') nombre = email.split('@')[0];
-
-      currentUser = { nombre: nombre || 'Formulador/a', email };
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
-      } catch (err) { /* modo privado: seguimos en memoria */ }
-
-      closeAuthModal();
-      $('#authForm').reset();
-      paintSession();
-      window.__syncComposer?.();
-      toast(`¡Hola, ${currentUser.nombre}! Ya podés participar`);
-    });
-
-    // Enlaces "Ingresá para participar" dentro de la comunidad
-    $$('[data-open-auth]').forEach(btn =>
-      btn.addEventListener('click', () => openAuthModal('login'))
-    );
+  function setBusy(busy, label) {
+    var submit = $('#authSubmit');
+    if (!submit) return;
+    submit.disabled = !!busy;
+    if (busy) {
+      submit.dataset.label = submit.textContent;
+      submit.textContent = label || 'Un momento…';
+    } else if (submit.dataset.label) {
+      submit.textContent = submit.dataset.label;
+    }
   }
 
-  /* ---- Login con Google (Google Identity Services) ---- */
-  function loginWithGoogle(profile) {
-    if (!profile || !profile.email) {
+  /* ============================================================
+     TURNSTILE (antispam, opcional)
+     ============================================================ */
+  var turnstileWidgetId = null;
+
+  function turnstileSiteKey() {
+    return (window.BERRYS_CONFIG && window.BERRYS_CONFIG.turnstileSiteKey) || '';
+  }
+
+  function ensureTurnstile() {
+    var key = turnstileSiteKey();
+    if (!key) return;
+    if (document.getElementById('cf-turnstile-script')) {
+      renderTurnstile();
+      return;
+    }
+    var script = document.createElement('script');
+    script.id = 'cf-turnstile-script';
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.defer = true;
+    script.onload = renderTurnstile;
+    document.head.appendChild(script);
+  }
+
+  function renderTurnstile() {
+    var key = turnstileSiteKey();
+    var box = $('#turnstileBox');
+    if (!key || !box || !window.turnstile || turnstileWidgetId !== null) return;
+    turnstileWidgetId = window.turnstile.render(box, { sitekey: key });
+  }
+
+  function turnstileToken() {
+    if (!turnstileSiteKey() || !window.turnstile || turnstileWidgetId === null) return undefined;
+    return window.turnstile.getResponse(turnstileWidgetId) || undefined;
+  }
+
+  function resetTurnstile() {
+    if (window.turnstile && turnstileWidgetId !== null) {
+      try { window.turnstile.reset(turnstileWidgetId); } catch (e) { /* ignora */ }
+    }
+  }
+
+  /* ============================================================
+     LOGIN / REGISTRO / LOGOUT
+     ============================================================ */
+  function applySession(user) {
+    currentUser = user || null;
+    paintSession();
+    if (window.__syncComposer) window.__syncComposer();
+  }
+
+  function doLogin(email, password) {
+    setBusy(true, 'Ingresando…');
+    return api().login(email, password, turnstileToken())
+      .then(function (data) {
+        closeAuthModal();
+        var form = $('#authForm');
+        if (form) form.reset();
+        resetTurnstile();
+        applySession(data.user);
+        toast('¡Hola, ' + data.user.nombre + '! Ya podés participar', 'check');
+      })
+      .catch(function (err) {
+        toast(err.message || 'No pudimos iniciar sesión.', 'warning');
+        resetTurnstile();
+      })
+      .then(function () { setBusy(false); });
+  }
+
+  function doRegister(nombre, email, password) {
+    setBusy(true, 'Creando cuenta…');
+    return api().register(nombre, email, password, turnstileToken())
+      .then(function (data) {
+        closeAuthModal();
+        var form = $('#authForm');
+        if (form) form.reset();
+        resetTurnstile();
+        applySession(data.user);
+        toast('¡Bienvenido/a, ' + data.user.nombre + '!', 'check');
+      })
+      .catch(function (err) {
+        toast(err.message || 'No pudimos crear la cuenta.', 'warning');
+        resetTurnstile();
+      })
+      .then(function () { setBusy(false); });
+  }
+
+  function doLogout() {
+    api().logout()
+      .catch(function () { /* cerramos igual */ })
+      .then(function () {
+        applySession(null);
+        toast('Sesión cerrada');
+      });
+  }
+
+  /* ---- Google ---- */
+  function loginWithGoogle(profile, credential) {
+    if (!credential) {
       toast('No pudimos leer tu cuenta de Google.');
       return;
     }
-    currentUser = {
-      nombre: profile.nombre || profile.email.split('@')[0],
-      email: profile.email,
-      avatar: profile.avatar || '',
-      provider: 'google'
-    };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
-    } catch (err) { /* modo privado */ }
-    closeAuthModal();
-    const af = $('#authForm');
-    if (af) af.reset();
-    paintSession();
-    if (window.__syncComposer) window.__syncComposer();
-    toast('¡Hola, ' + currentUser.nombre + '! Entraste con Google', 'check');
+    api().google(credential)
+      .then(function (data) {
+        closeAuthModal();
+        var form = $('#authForm');
+        if (form) form.reset();
+        applySession(data.user);
+        toast('¡Hola, ' + data.user.nombre + '! Entraste con Google', 'check');
+      })
+      .catch(function (err) {
+        toast(err.message || 'No pudimos validar tu cuenta de Google.', 'warning');
+      });
   }
   window.__berrysLoginWithGoogle = loginWithGoogle;
 
   /* ============================================================
-     6. DESBLOQUEO DE LA CALCULADORA (pago único)
+     SETUP
      ============================================================ */
+  function setupAuthModal() {
+    var modal = $('#authModal');
+    if (!modal) return;
+
+    $$('.auth-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () { switchTab(tab.dataset.tab); });
+    });
+
+    var close = $('#authCloseBtn');
+    if (close) close.addEventListener('click', closeAuthModal);
+
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeAuthModal(); });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeAuthModal();
+    });
+
+    var form = $('#authForm');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var mode = modal.dataset.mode || 'login';
+        var email = ($('#authEmail') && $('#authEmail').value.trim()) || '';
+        var pass = ($('#authPass') && $('#authPass').value) || '';
+        var nombre = ($('#authName') && $('#authName').value.trim()) || '';
+
+        if (!email || !pass) { toast('Completá email y contraseña.'); return; }
+        if (mode === 'register') {
+          if (!nombre) { toast('Decinos cómo te llamás.'); return; }
+          if (pass.length < 10) { toast('La contraseña necesita al menos 10 caracteres.'); return; }
+          doRegister(nombre, email, pass);
+        } else {
+          doLogin(email, pass);
+        }
+      });
+    }
+
+    $$('[data-open-auth]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openAuthModal('login'); });
+    });
+
+    // Caja para el captcha (se crea si no existe en el HTML)
+    if (turnstileSiteKey() && !$('#turnstileBox')) {
+      var box = document.createElement('div');
+      box.id = 'turnstileBox';
+      box.className = 'turnstile-box';
+      var anchor = $('#authSubmit');
+      if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(box, anchor);
+    }
+    ensureTurnstile();
+  }
+
+  /* ---- Desbloqueo de la calculadora PRO (pago único) ---- */
   function setupUnlock() {
-    const btn = $('#unlockCalcBtn');
+    var btn = $('#unlockCalcBtn');
     if (!btn) return;
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', function () {
       if (!currentUser) {
         openAuthModal('register');
         toast('Creá tu cuenta para desbloquear la calculadora PRO');
         return;
       }
-      toast('Pasarela de pago (MercadoPago/Stripe) pendiente de integración.', 'lock');
+      if (window.BerrysPro && typeof window.BerrysPro.openPayment === 'function') {
+        window.BerrysPro.openPayment();
+      } else {
+        toast('Pasarela de pago (MercadoPago/Stripe) pendiente de integración.', 'lock');
+      }
     });
   }
 
-  /* ============================================================
-     7. CARGAR FÓRMULA DESDE QUERY PARAM (?load=ID)
-     ============================================================ */
+  /* ---- Cargar fórmula desde query param (?load=ID) ---- */
   function applyPendingFormulaFromQuery() {
     try {
-      const params = new URLSearchParams(window.location.search);
-      const loadId = params.get('load');
+      var params = new URLSearchParams(window.location.search);
+      var loadId = params.get('load');
       if (!loadId || typeof FORMULAS === 'undefined') return;
-      const f = FORMULAS.find(x => x.id === loadId);
+      var f = FORMULAS.filter(function (x) { return x.id === loadId; })[0];
       if (!f) return;
       if (window.BerrysCalculator && typeof window.BerrysCalculator.loadFormula === 'function') {
         window.BerrysCalculator.loadFormula({
           name: f.titulo,
           total: 100,
-          ingredients: f.ingredientes.filter(i => i.valor > 0).map(i => ({ name: i.nombre, value: i.valor }))
+          ingredients: f.ingredientes.filter(function (i) { return i.valor > 0; })
+            .map(function (i) { return { name: i.nombre, value: i.valor }; })
         });
-        const target = document.getElementById('calculadora');
+        var target = document.getElementById('calculadora');
         if (target) {
-          const header = document.querySelector('.sticky-header');
-          const offset = (header && header.offsetHeight) || 80;
+          var header = document.querySelector('.sticky-header');
+          var offset = (header && header.offsetHeight) || 80;
           window.scrollTo({
             top: target.getBoundingClientRect().top + window.scrollY - offset,
             behavior: 'smooth'
           });
         }
       } else {
-        // Guardar para cuando la calculadora esté lista
-        try { localStorage.setItem('berrys_pending_formula', JSON.stringify({ id: f.id, time: Date.now() })); } catch (e) {}
+        try {
+          localStorage.setItem('berrys_pending_formula', JSON.stringify({ id: f.id, time: Date.now() }));
+        } catch (e) { /* ignora */ }
       }
     } catch (e) { /* ignora */ }
   }
 
   /* ============================================================
+     API PÚBLICA DE SESIÓN
+     ============================================================ */
+  window.BerrysAuth = {
+    open: openAuthModal,
+    close: closeAuthModal,
+    isLogged: function () { return !!currentUser; },
+    getUser: function () { return currentUser; },
+    refresh: function () { return loadSession(); }
+  };
+
+  /* ============================================================
      INIT
      ============================================================ */
+  function loadSession() {
+    if (!api() || !api().available) {
+      // Offline (file://): restauramos la sesión demo desde localStorage.
+      var offline = (api() && api().offlineUser) ? api().offlineUser() : null;
+      applySession(offline);
+      return Promise.resolve();
+    }
+    return api().session()
+      .then(function (data) { applySession(data && data.user ? data.user : null); })
+      .catch(function () { paintSession(); });
+  }
+
   function init() {
-    readSession();
-    renderGuias();
-    renderProveedores();
-    renderFormulas();
-    renderComunidad();
-    setupComposer();
+    paintSession();                 // pinta ya, sin esperar la red
     setupAuthModal();
     setupUnlock();
-    paintSession();
     applyPendingFormulaFromQuery();
+    loadSession();                  // y confirma contra el servidor
 
     if (window.BerrysMotion) {
       window.BerrysMotion.observeReveals();

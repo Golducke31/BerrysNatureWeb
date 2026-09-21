@@ -7,6 +7,13 @@ Niko IA/
 # Dependencias de Node (solo para la suite de pruebas)
 node_modules/
 
+# Variables de entorno: el .env real NUNCA se versiona (tiene DATABASE_URL,
+# SESSION_SECRET, ADMIN_GATE_KEY, etc.). El template sí se versiona.
+.env
+.env.local
+.env.*.local
+.vercel/
+
 # Internos de WorkBuddy (memoria, agentes, estado de sesión)
 .workbuddy-ai/
 .agents/

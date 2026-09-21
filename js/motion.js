@@ -157,7 +157,7 @@
   /* ---------------- 4. REVEAL ---------------- */
   function observeReveals(root) {
     if (reduceMotion) {
-      (root || document).querySelectorAll('.reveal').forEach(el => el.classList.add('revealed'));
+      (root || document).querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
       return;
     }
     if (!revealObserver) {
@@ -165,7 +165,7 @@
         entries => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
-              entry.target.classList.add('revealed');
+              entry.target.classList.add('is-visible');
               revealObserver.unobserve(entry.target);
             }
           });
@@ -173,7 +173,7 @@
         { threshold: 0.1, rootMargin: '0px 0px -6% 0px' }
       );
     }
-    (root || document).querySelectorAll('.reveal:not(.revealed)').forEach(el => {
+    (root || document).querySelectorAll('.reveal:not(.is-visible)').forEach(el => {
       revealObserver.observe(el);
     });
   }

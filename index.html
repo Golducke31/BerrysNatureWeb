@@ -92,7 +92,7 @@
       <!-- Video de fondo (autoplay silenciado + overlay cálido) -->
       <div class="hero-video-layer" data-parallax="0.12" aria-hidden="true">
         <video class="hero-video" autoplay muted loop playsinline preload="metadata"
-               poster="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1200&amp;q=80&amp;auto=format&amp;fit=crop">
+               poster="assets/academia-hero-crop.jpg">
           <source src="assets/hero-cream-pour.mp4" type="video/mp4">
         </video>
         <div class="hero-video-overlay"></div>
@@ -161,9 +161,7 @@
     <section id="calculadora" class="calculator-section" tabindex="-1">
       <!-- Video de fondo de la calculadora -->
       <div class="calc-video-layer" aria-hidden="true">
-        <video class="calc-video" autoplay muted loop playsinline preload="metadata">
-          <source src="assets/calc-oil-pour.mp4" type="video/mp4">
-        </video>
+        <video class="calc-video" autoplay muted loop playsinline preload="none" data-lazy-video data-src="assets/calc-oil-pour.mp4"></video>
         <div class="calc-video-overlay"></div>
       </div>
 
@@ -287,6 +285,16 @@
           </div>
           <button class="cta-button" id="unlockCalcBtn" type="button" data-magnetic="5">
             Desbloquear para siempre
+          </button>
+        </div>
+
+        <!-- Acciones PRO (se revelan al desbloquear) -->
+        <div class="calc-pro-actions">
+          <button class="cta-button cta-outline pro-only" type="button" data-action="save" hidden>
+            <i data-icon="clipboard"></i> Guardar fórmula
+          </button>
+          <button class="cta-button cta-outline pro-only" type="button" data-action="export" hidden>
+            <i data-icon="box"></i> Exportar a PDF
           </button>
         </div>
 
@@ -485,7 +493,7 @@
       </form>
 
       <p class="auth-legal">
-        Demo en local: la sesión se guarda en tu navegador. En producción la gestiona WordPress + BuddyBoss.
+        Tus datos se guardan de forma segura en nuestro servidor. Al crear una cuenta aceptás las reglas de la comunidad.
       </p>
     </div>
   </div>
@@ -505,6 +513,14 @@
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
         Hecho con rigor científico y amor natural en la Patagonia Argentina.
       </p>
+      <div class="footer-social">
+        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
     </div>
   </footer>
 
@@ -513,19 +529,17 @@
   ============================== -->
   <script src="js/icons.js"></script>
   <script src="js/content-data.js"></script>
+  <script src="js/api-client.js"></script>
   <script src="js/calculator.js"></script>
   <script src="js/app.js"></script>
   <script src="js/motion.js"></script>
   <script src="js/community.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/pro-unlock.js"></script>
+  <script src="js/mod-panel.js"></script>
 
   <!-- Niko — asistente conversacional de Berry's Nature -->
-  <script>
-    window.NIKO_CONFIG = {
-      api: 'http://localhost:8000',
-      tenant: 'berry_natural'
-    };
-  </script>
+  <script src="js/niko-config.js"></script>
   <script src="js/niko-widget.js"></script>
 
 </body>

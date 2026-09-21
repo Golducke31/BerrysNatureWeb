@@ -1,5 +1,63 @@
 /* js/app.js */
 
+/* ------------------------------------------------------------------
+   Toast global — window.toast(mensaje, icono?)
+
+   Antes NO existía: calculator.js y auth.js llamaban a window.toast()
+   detrás de un `if (window.toast)`, así que esos avisos (confirmación
+   del formulario de contacto, errores de Google Sign-In) nunca salían.
+   academia.js y community.js tenían cada uno su propia copia local.
+
+   Ahora hay una sola implementación, definida a nivel global para que
+   esté disponible apenas cargan los scripts, sin esperar al DOMContentLoaded.
+   ------------------------------------------------------------------ */
+(function () {
+  var VISIBLE_MS = 2800;
+
+  window.toast = function (msg, iconName) {
+    var el = document.getElementById('toastNotification');
+    if (!el) return;
+
+    el.textContent = '';
+    if (iconName && typeof window.iconSvg === 'function') {
+      var wrap = document.createElement('span');
+      wrap.className = 'toast-icon';
+      wrap.innerHTML = window.iconSvg(iconName);
+      el.appendChild(wrap);
+    }
+
+    var span = document.createElement('span');
+    span.textContent = msg;
+    el.appendChild(span);
+
+    el.classList.add('show');
+    clearTimeout(window.toast._t);
+    window.toast._t = setTimeout(function () {
+      el.classList.remove('show');
+    }, VISIBLE_MS);
+  };
+})();
+
+/* ------------------------------------------------------------------
+   Red de seguridad del reveal
+
+   Los elementos con .reveal arrancan en opacity: 0 (definido en
+   styles.css) y dependen de que motion.js les agregue .is-visible.
+   Si una página no carga motion.js, nadie los revela y el contenido
+   queda invisible para siempre — pasó con el glosario, donde el
+   contenedor de las tarjetas desapareció.
+
+   Ante la duda, se muestra: es preferible perder la animación a
+   perder el contenido.
+   ------------------------------------------------------------------ */
+window.addEventListener('load', function () {
+  if (window.BerrysMotion) return; // el observador se ocupa
+  var nodes = document.querySelectorAll('.reveal:not(.is-visible)');
+  for (var i = 0; i < nodes.length; i++) {
+    nodes[i].classList.add('is-visible');
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   // --- Elements ---
   const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -97,6 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
     link.addEventListener('click', () => {
       closeMobileMenu();
     });
+  });
+
+  // Close mobile menu when resizing up to desktop (hamburger hidden >= 768px)
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 768 && navMenuMobile.classList.contains('open')) {
+      closeMobileMenu();
+    }
   });
 
   // Toggle del desplegable "Academia" en el menú móvil
@@ -211,5 +276,27 @@ document.addEventListener('DOMContentLoaded', () => {
       ticking = true;
     }
   });
+  // --- 5. Lazy-load de videos debajo del fold (perf / LCP) ---
+  const lazyVideos = document.querySelectorAll('video[data-lazy-video]');
+  if (lazyVideos.length && 'IntersectionObserver' in window) {
+    const vio = new IntersectionObserver((entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const v = entry.target;
+        if (v.dataset.src) {
+          v.src = v.dataset.src;
+          v.load();
+          const p = v.play();
+          if (p && p.catch) p.catch(() => {});
+        }
+        obs.unobserve(v);
+      });
+    }, { rootMargin: '300px' });
+    lazyVideos.forEach((v) => vio.observe(v));
+  } else {
+    // Sin IntersectionObserver: cargamos igual para no romper la experiencia.
+    lazyVideos.forEach((v) => { if (v.dataset.src) v.src = v.dataset.src; });
+  }
+
   updateActiveLink();
 });

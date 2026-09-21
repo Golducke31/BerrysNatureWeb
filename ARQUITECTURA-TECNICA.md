@@ -5,6 +5,28 @@
 
 ---
 
+## 0. Estado actual del repositorio (implementación serverless)
+
+Además del prototipo estático, este repo ya contiene una **implementación desplegable serverless** que
+cumple el mismo objetivo de fondo (contenido + comunidad + login + pago único) sin esperar a WordPress:
+
+- **Backend:** `server/` (router único + handlers) servido por una función serverless de Vercel
+  (`api/[...route].js`) o por `scripts/dev-server.cjs` en local. Usa **Neon Postgres** vía el driver HTTP.
+- **Cuentas reales:** registro/login/logout con sesiones httpOnly (`sessions`), rate-limiting y
+  protección Turnstile (se desactiva si no hay clave).
+- **Foro y Academia** servidos desde la base (el contenido semilla de `js/content-data.js` se migra con
+  `npm run seed`).
+- **Panel de administración secreto:** ruta ofuscada por `ADMIN_SLUG` + clave de puerta `ADMIN_GATE_KEY`
+  + allowlist de IP; 2FA (TOTP + códigos de respaldo) obligatorio. Los assets del panel (`css/admin.css`,
+  `js/admin.js`) no se sirven públicamente.
+- **CLI de operación:** `npm run db:init` (aplica `db/schema.sql`), `npm run seed`, `npm run create-admin`,
+  `npm run reset-password`, `npm run db:check`.
+
+Este documento (WordPress) sigue siendo el **destino recomendado a largo plazo** como CMS, pero la
+implementación serverless es el artefacto desplegable actual y la fuente de verdad del backend.
+
+---
+
 ## 1. Decisión central: WordPress.org (self-hosted)
 
 | Opción | Comisiones | Control | Comunidad | Veredicto |
@@ -27,8 +49,8 @@ Cada pieza del prototipo tiene un destino exacto. Nada se pierde.
 | `js/content-data.js` → `BLOG_POSTS` (6 guías) | Custom Post Type **`guia`** | CPT + taxonomía `categoria_guia` (Costos, Legal, Formulación, Envases). Loop con `WP_Query`. |
 | `PROVEEDORES` (8 fichas) | CPT **`proveedor`** + campos personalizados | ACF: `que_pedir`, `presentacion`, `precio_ref`, `tip`, `url`. Editable sin tocar código. |
 | `FORMULAS` (shampoo sólido, acond. sólido, jabón) | CPT **`formula`** + ACF Repeater | Repeater `ingredientes` (nombre / % / nota) + `pasos` + `tips` + campo `advertencia`. |
-| `COMUNIDAD_HILOS` (5 hilos semilla) | **bbPress**: foros + topics + replies | Crear foros por categoría: Formulación, Negocio, Taller, Proveedores, Legal. |
-| `COMUNIDAD_CATEGORIAS` | Taxonomía de foros bbPress | `forum-category` o foros separados; se mapea 1:1. |
+| `COMUNIDAD_HILOS` (8 hilos semilla, renderizados en `foro.html` por `js/foro.js`) | **bbPress**: foros + topics + replies | Crear foros por categoría: Formulación, Negocio, Taller, Proveedores, Legal. |
+| `COMUNIDAD_CATEGORIAS` (chips de filtro + buscador en `foro.html`) | Taxonomía de foros bbPress | `forum-category` o foros separados; se mapea 1:1. |
 | `js/community.js` → sesión en `localStorage` | **BuddyBoss / BuddyPress**: registro, login, perfiles | Reemplaza `readSession()`/`paintSession()` por `is_user_logged_in()` + avatar/nombre reales. |
 | Modal de login (`#authModal`) | Formulario nativo de BuddyBoss o `wp_login_form()` | Se elimina el modal JS; se usa `/registro` y `/mi-cuenta`. |
 | `#unlockCalcBtn` (pago único) | **Formidable Forms / Gravity Forms + MercadoPago o Stripe** | Ver §4. Al confirmar pago → se asigna el rol `calculadora_pro`. |

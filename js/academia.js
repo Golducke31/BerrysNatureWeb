@@ -19,24 +19,10 @@
     }[ch]));
   }
 
-  /* ---------------- Toast local ---------------- */
-  function toast(msg, iconName) {
-    let el = document.getElementById('toastNotification');
-    if (!el) return;
-    el.textContent = '';
-    if (iconName && typeof iconSvg === 'function') {
-      const wrap = document.createElement('span');
-      wrap.className = 'toast-icon';
-      wrap.innerHTML = iconSvg(iconName);
-      el.appendChild(wrap);
-    }
-    const span = document.createElement('span');
-    span.textContent = msg;
-    el.appendChild(span);
-    el.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => el.classList.remove('show'), 2800);
-  }
+  /* ---------------- Toast ----------------
+     Se usa el global window.toast() definido en app.js (que se carga antes
+     que este archivo). Antes había una copia local acá y otra en community.js. */
+  const toast = window.toast;
 
   /* ---------------- Progreso (localStorage) ---------------- */
   const READ_KEY = 'berrys_read_posts';
@@ -57,6 +43,25 @@
   let rutaActiva = 'Todas';
   let catActiva  = 'Todas';
 
+  /* ---------------- Contenido de guías ----------------
+     Arranca con la semilla de content-data.js y, si el backend está
+     disponible, se reemplaza por lo que devuelve GET /api/guides
+     (que incluye lo que publique el admin). */
+  let guias = (typeof BLOG_POSTS !== 'undefined') ? BLOG_POSTS.slice() : [];
+
+  function cargarGuias() {
+    const api = window.BerrysAPI;
+    if (!api || !api.available) return Promise.resolve(false);
+    return api.guides()
+      .then(data => {
+        const items = (data && data.items) || [];
+        if (!items.length) return false;
+        guias = api.mergeById(guias, items);
+        return true;
+      })
+      .catch(() => false);
+  }
+
   const RUTAS = [
     { id: 'Todas',       label: 'Todas las rutas', icon: 'book',       color: '#EAB8A3', desc: 'Explorá todo el hub de aprendizaje, de lo básico a lo avanzado.' },
     { id: 'Principiante',label: 'Ruta Principiante', icon: 'seedling', color: '#9AB27A', desc: 'Arrancás desde cero: conceptos, seguridad y tus primeras fórmulas.' },
@@ -70,12 +75,12 @@
   function renderRutas() {
     const wrap = $('#rutasCarousel');
     if (!wrap) return;
-    const total = BLOG_POSTS.filter(p => !p.pro).length;
+    const total = guias.filter(p => !p.pro).length;
 
     wrap.innerHTML = RUTAS.map(r => {
       const count = r.id === 'Todas'
         ? total
-        : BLOG_POSTS.filter(p => !p.pro && p.ruta === r.id).length;
+        : guias.filter(p => !p.pro && p.ruta === r.id).length;
       return `
         <button class="ruta-card ${r.id === rutaActiva ? 'is-active' : ''}"
                 type="button" data-ruta="${escapeHtml(r.id)}"
@@ -108,7 +113,7 @@
   function renderCatFilters() {
     const bar = $('#catFilters');
     if (!bar) return;
-    const cats = ['Todas', ...Array.from(new Set(BLOG_POSTS.filter(p => !p.pro).map(p => p.categoria)))];
+    const cats = ['Todas', ...Array.from(new Set(guias.filter(p => !p.pro).map(p => p.categoria)))];
     bar.innerHTML = cats.map(c =>
       `<button class="chip-filter ${c === catActiva ? 'is-active' : ''}" type="button" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`
     ).join('');
@@ -128,7 +133,7 @@
     const grid = $('#guiasGridAcad');
     if (!grid) return;
 
-    let posts = BLOG_POSTS.filter(p => !p.pro);
+    let posts = guias.filter(p => !p.pro);
 
     if (rutaActiva !== 'Todas') posts = posts.filter(p => p.ruta === rutaActiva);
     if (catActiva !== 'Todas')  posts = posts.filter(p => p.categoria === catActiva);
@@ -161,7 +166,7 @@
       </article>`).join('');
 
     // Tarjetas PRO bloqueadas al final
-    const proPosts = BLOG_POSTS.filter(p => p.pro);
+    const proPosts = guias.filter(p => p.pro);
     if (rutaActiva === 'Todas' && catActiva === 'Todas' && proPosts.length) {
       grid.insertAdjacentHTML('beforeend', proPosts.map(p => `
         <article class="guide-card guide-card--pro reveal" data-reveal data-id="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(p.titulo)} (PRO)">
@@ -204,7 +209,7 @@
      4. MODAL "LEER MÁS"
      ============================================================ */
   function openGuide(id) {
-    const p = BLOG_POSTS.find(x => x.id === id);
+    const p = guias.find(x => x.id === id);
     if (!p || p.pro) return;
     const overlay = $('#guideModal');
     if (!overlay) return;
@@ -217,11 +222,17 @@
        <span>${iconSvg('clock')} ${p.lectura} min de lectura</span>
        <span>${iconSvg('eye')} ${(p.vistas||0).toLocaleString('es-AR')} lecturas</span>`;
     $('#guideModalText').innerHTML =
-      `<p>${escapeHtml(p.resumen)}</p><p>${escapeHtml(p.leerMas || 'Contenido completo disponible al migrar al CMS (WordPress).')}</p>`;
+      `<p>${escapeHtml(p.resumen)}</p><p>${escapeHtml(p.leerMas || 'El contenido completo de esta guía se está preparando.')}</p>`;
 
     overlay.classList.add('open');
     overlay.removeAttribute('aria-hidden');
     markRead(id);
+
+    // Métrica de lectura (no bloquea la UI)
+    if (window.BerrysAPI && window.BerrysAPI.available) {
+      window.BerrysAPI.view('guide', id).catch(function () {});
+    }
+
     setTimeout(() => $('#guideModalClose')?.focus(), 120);
   }
 
@@ -305,35 +316,6 @@
   }
 
   /* ============================================================
-     7. COMUNIDAD / FORO (vista resumida en la Academia)
-     ============================================================ */
-  function renderComunidadAcad() {
-    const main = $('#comunidadAcadMain');
-    if (!main || typeof COMUNIDAD_HILOS === 'undefined') return;
-    const hilos = COMUNIDAD_HILOS.slice(0, 4);
-    main.innerHTML = hilos.map(h => `
-      <article class="thread-card--acad reveal" data-reveal>
-        <div class="thread-avatar" aria-hidden="true">${iconSvg(h.icon)}</div>
-        <div class="thread-main">
-          <div class="thread-top">
-            <span class="thread-category">${escapeHtml(h.categoria)}</span>
-            <span class="thread-time">${escapeHtml(h.tiempo)}</span>
-          </div>
-          <h3 class="thread-title">${escapeHtml(h.titulo)}</h3>
-          <p class="thread-body">${escapeHtml(h.cuerpo)}</p>
-          <footer class="thread-footer">
-            <span class="thread-author">por <strong>${escapeHtml(h.autor)}</strong></span>
-            <div class="thread-actions">
-              <span class="thread-action thread-action--static">${iconSvg('heart')} ${h.likes}</span>
-              <span class="thread-action thread-action--static">${iconSvg('chat')} ${h.respuestas}</span>
-            </div>
-          </footer>
-        </div>
-      </article>`).join('');
-    observeReveals();
-  }
-
-  /* ============================================================
      8. CALCULADORA DE COSTO POR LOTE
      ============================================================ */
   function setupBatchCalc() {
@@ -368,8 +350,8 @@
     const pctEl = $('#progressPct');
     const bar = $('#progressBarFill');
     const stat = $('#progressStat');
-    const total = BLOG_POSTS.filter(p => !p.pro).length;
-    const read = getRead().filter(id => BLOG_POSTS.some(p => p.id === id && !p.pro)).length;
+    const total = guias.filter(p => !p.pro).length;
+    const read = getRead().filter(id => guias.some(p => p.id === id && !p.pro)).length;
     const pct = total ? Math.round((read / total) * 100) : 0;
     if (ring)  ring.style.setProperty('--pct', pct);
     if (pctEl) pctEl.textContent = pct + '%';
@@ -380,7 +362,7 @@
   function renderPopular() {
     const list = $('#popularList');
     if (!list) return;
-    const top = BLOG_POSTS.filter(p => !p.pro).slice().sort((a, b) => (b.vistas||0) - (a.vistas||0)).slice(0, 5);
+    const top = guias.filter(p => !p.pro).slice().sort((a, b) => (b.vistas||0) - (a.vistas||0)).slice(0, 5);
     list.innerHTML = top.map((p, i) => `
       <li class="popular-item" data-id="${p.id}" role="button" tabindex="0">
         <span class="popular-rank">${i + 1}</span>
@@ -398,7 +380,7 @@
   function renderPro() {
     const wrap = $('#proList');
     if (!wrap) return;
-    const pro = BLOG_POSTS.filter(p => p.pro);
+    const pro = guias.filter(p => p.pro);
     wrap.innerHTML = pro.map(p => `
       <div class="pro-item">
         <span class="pro-item__icon">${iconSvg(p.icon)}</span>
@@ -437,7 +419,6 @@
     renderGuias();
     renderFormulas();
     renderProveedores();
-    renderComunidadAcad();
     setupBatchCalc();
     renderPopular();
     renderPro();
@@ -456,6 +437,19 @@
     });
 
     observeReveals();
+
+    // Si hay backend, reemplazamos la semilla por el contenido real
+    // (incluye las guías que publique el admin) y volvemos a pintar.
+    cargarGuias().then(function (changed) {
+      if (!changed) return;
+      renderRutas();
+      renderCatFilters();
+      renderGuias();
+      renderPopular();
+      renderPro();
+      updateProgress();
+      observeReveals();
+    });
   }
 
   if (document.readyState === 'loading') {

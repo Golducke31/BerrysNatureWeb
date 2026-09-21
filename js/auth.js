@@ -4,20 +4,28 @@
    Flujo:
    - Botón "Continuar con Google" en el modal de acceso.
    - Al hacer click se abre el selector de cuentas de Google (GIS).
-   - Google devuelve un JWT (credential); decodificamos nombre/email/avatar
-     y delegamos el inicio de sesión a window.__berrysLoginWithGoogle
-     (definido en community.js, que persiste en localStorage y pinta la UI).
+   - Google devuelve un JWT (credential); lo enviamos CRUDO a
+     window.__berrysLoginWithGoogle (definido en community.js), que lo
+     manda al backend. El servidor verifica la firma contra el JWKS de
+     Google antes de crear la sesión: acá NO se confía en el payload.
 
    ACTIVACIÓN EN PRODUCCIÓN:
-   - Reemplazá GOOGLE_CLIENT_ID con tu Client ID real de Google Cloud Console
-     (OAuth 2.0 → tipo "Web application"; origen autorizado = tu dominio/local).
+   - Configurá GOOGLE_CLIENT_ID (variable de entorno en Vercel) y el
+     mismo valor en window.BERRYS_CONFIG.googleClientId del HTML.
+   - En Google Cloud Console: OAuth 2.0 → "Web application", con el
+     origen autorizado = tu dominio.
    - Sin un Client ID válido, el botón queda visible y avisa cómo configurarlo.
    ============================================================ */
 (function () {
   'use strict';
 
-  // TODO: pegar aquí tu Client ID real de Google Cloud Console
-  var GOOGLE_CLIENT_ID = 'REEMPLAZAR_CON_TU_CLIENT_ID.apps.googleusercontent.com';
+  // El Client ID se puede inyectar desde el HTML sin editar este archivo:
+  //   window.BERRYS_CONFIG = { googleClientId: 'xxxx.apps.googleusercontent.com' };
+  // Si no se configura, el botón sigue visible y avisa cómo hacerlo
+  // (degradación elegante: no rompe el login demo por localStorage).
+  var GOOGLE_CLIENT_ID =
+    (window.BERRYS_CONFIG && window.BERRYS_CONFIG.googleClientId) ||
+    'REEMPLAZAR_CON_TU_CLIENT_ID.apps.googleusercontent.com';
 
   var isConfigured =
     typeof GOOGLE_CLIENT_ID === 'string' &&
@@ -46,11 +54,13 @@
     try {
       var payload = JSON.parse(base64UrlDecode(response.credential.split('.')[1]));
       if (window.__berrysLoginWithGoogle) {
+        // El segundo argumento es el JWT crudo: el servidor lo verifica
+        // contra el JWKS de Google antes de crear la sesión.
         window.__berrysLoginWithGoogle({
           nombre: payload.name || payload.given_name || '',
           email: payload.email || '',
           avatar: payload.picture || ''
-        });
+        }, response.credential);
       }
     } catch (err) {
       if (window.toast) window.toast('No pudimos procesar la sesión de Google.');

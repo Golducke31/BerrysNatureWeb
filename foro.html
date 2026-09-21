@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Foro de formuladores de Berry's Nature: compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo cosmética natural.">
+  <meta name="keywords" content="foro cosmética natural, comunidad formuladores, dudas formulación, proveedores cosmética, emprendedores cosmética argentina">
+  <meta property="og:title" content="Foro de formuladores | Berry's Nature">
+  <meta property="og:description" content="Compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo.">
+  <title>Foro de formuladores | Berry's Nature</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/academia.css">
+  <link rel="stylesheet" href="css/foro.css">
+  <link rel="stylesheet" href="css/niko-widget.css">
+</head>
+<body class="page-forum">
+
+  <!-- ============================
+       STICKY HEADER (mismo de index)
+  ============================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+
+      <!-- Logo and Brand -->
+      <a href="index.html" class="logo-area" aria-label="Volver al inicio">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav>
+        <ul class="nav-menu-desktop">
+          <li><a href="academia.html" class="nav-link"><i data-icon="arrowLeft"></i> Volver a la Academia</a></li>
+          <li><a href="index.html" class="nav-link">Inicio</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Icons -->
+      <div class="header-actions">
+        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Login / usuario + acceso a la tienda -->
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="academia.html" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver a la Academia</a></li>
+      <li><a href="index.html" class="mobile-nav-link">Inicio</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================
+       MAIN CONTENT
+  ============================== -->
+  <main>
+
+    <!-- HERO DEL FORO (banner de bienvenida) -->
+    <section class="foro-hero" id="foro-top" tabindex="-1">
+      <div class="foro-hero__inner">
+        <h1 class="visually-hidden">Foro de formuladores</h1>
+        <picture>
+          <source srcset="assets/foro-banner.webp" type="image/webp">
+          <img class="foro-hero__banner" src="assets/foro-banner.jpg"
+               alt="Bienvenidos al foro de la comunidad de Berry's Nature: un espacio para compartir, aprender y brillar juntos sobre belleza natural."
+               width="1024" height="572" fetchpriority="high">
+        </picture>
+        <ul class="foro-hero__stats" id="foroStats"></ul>
+      </div>
+    </section>
+
+    <!-- CUERPO DEL FORO -->
+    <section class="foro-section" id="foro-hilos" tabindex="-1">
+      <div class="foro-layout">
+
+        <div class="foro-main">
+          <div class="foro-list-head">
+            <h2>Conversaciones de la comunidad</h2>
+            <p>Filtrá por categoría o buscá por palabra clave para encontrar tu tema.</p>
+          </div>
+          <div class="foro-toolbar">
+            <div class="foro-filters" id="foroFilters" role="group" aria-label="Filtrar por categoría"></div>
+            <div class="foro-search">
+              <label for="foroSearch" class="visually-hidden">Buscar hilos</label>
+              <i data-icon="search" aria-hidden="true"></i>
+              <input type="search" id="foroSearch" placeholder="Buscar por título, autor o texto…" autocomplete="off">
+            </div>
+          </div>
+
+          <p class="foro-count" id="foroCount" aria-live="polite"></p>
+
+          <div id="foroDestacado"></div>
+          <div class="foro-thread-list" id="foroThreadList"></div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside class="foro-side">
+
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="chat"></i> Publicá tu consulta</h3>
+            <p class="foro-side__copy">
+              La comunidad es para miembros. Ingresá para participar, compartir fórmulas y guardar tus favoritos.
+            </p>
+            <button class="cta-button" type="button" id="foroPublicarBtn">
+              <i data-icon="plus"></i> Publicar consulta
+            </button>
+          </div>
+
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="tag"></i> Categorías</h3>
+            <ul class="foro-cat-list" id="foroCats"></ul>
+          </div>
+
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="shield"></i> Normas de la comunidad</h3>
+            <ul class="foro-rules">
+              <li>Sin recetas médicas ni promesas terapéuticas.</li>
+              <li>Citá fuentes cuando afirmes algo técnico.</li>
+              <li>Respeto: acá se viene a aprender.</li>
+            </ul>
+          </div>
+
+        </aside>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================
+       AUTH MODAL (login / registro) — replicado de academia
+  ============================== -->
+  <div class="auth-modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" aria-hidden="true">
+    <div class="auth-modal">
+      <button class="auth-close-btn" id="authCloseBtn" aria-label="Cerrar"><i data-icon="close"></i></button>
+
+      <div class="auth-tabs">
+        <button class="auth-tab is-active" type="button" data-tab="login">Ingresar</button>
+        <button class="auth-tab" type="button" data-tab="register">Crear cuenta</button>
+      </div>
+
+      <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
+      <p class="auth-sub">Guardá tus fórmulas, participá del foro y desbloqueá la calculadora PRO.</p>
+
+      <button class="google-btn" id="googleSignInBtn" type="button">
+        <svg class="google-g" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/>
+          <path fill="#FBBC05" d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84Z"/>
+          <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 6.68 9.14 4.75 12 4.75Z"/>
+        </svg>
+        Continuar con Google
+      </button>
+
+      <div class="auth-divider"><span>o</span></div>
+
+      <form class="auth-form" id="authForm" novalidate>
+        <div class="form-group" id="authNameField" hidden>
+          <label for="authName">Nombre</label>
+          <input type="text" id="authName" placeholder="¿Cómo te llamás?" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="authEmail">Email</label>
+          <input type="email" id="authEmail" placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="authPass">Contraseña</label>
+          <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button class="cta-button auth-submit" id="authSubmit" type="submit">Ingresar</button>
+      </form>
+
+      <p class="auth-legal">
+        Tus datos se guardan de forma segura en nuestro servidor. Al crear una cuenta aceptás las reglas de la comunidad.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================
+       TOAST NOTIFICATION
+  ============================== -->
+  <div id="toastNotification" role="status" aria-live="polite"></div>
+
+  <!-- ============================
+       FOOTER
+  ============================== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo">
+      <p class="footer-text">
+        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
+        Hecho con rigor científico y amor natural en la Patagonia Argentina.
+      </p>
+      <div class="footer-social">
+        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================
+       JAVASCRIPT MODULES
+  ============================== -->
+  <script src="js/icons.js"></script>
+  <script src="js/content-data.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/community.js"></script>
+  <script src="js/pro-unlock.js"></script>
+  <script src="js/mod-panel.js"></script>
+  <script src="js/foro.js"></script>
+
+  <!-- Niko — asistente conversacional de Berry's Nature -->
+  <script src="js/niko-config.js"></script>
+  <script src="js/niko-widget.js"></script>
+
+</body>
+</html>

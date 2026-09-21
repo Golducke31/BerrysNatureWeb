@@ -1,67 +1,15 @@
 /* css/catalog-calc.css — Estilos para Calculadora, About, Contacto y Toast */
 
 /* ============================================================
-   A. SHARED SECTION HEADER
+   A. ENCABEZADO DE SECCIÓN
+   Movido a css/styles.css: esta hoja NO se carga en academia.html
+   ni en glosario.html, así que tenerlo aquí dejaba a esas páginas
+   sin estilo de título de sección.
    ============================================================ */
 
-.section-header-wrapper {
-  text-align: center;
-  margin-bottom: 60px;
-}
-
-.section-label-tag {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: #B05B3A;
-  background: #FFFCF9;
-  padding: 5px 16px;
-  border-radius: 20px;
-  box-shadow: 6px 6px 12px #ece5df, -6px -6px 12px #ffffff;
-  margin-bottom: 16px;
-}
-
-.section-title {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 40px;
-  font-weight: 700;
-  color: #4A3F35;
-  margin-bottom: 12px;
-}
-
-.section-subtitle {
-  font-size: 17px;
-  color: #6e5d4f;
-  max-width: 500px;
-  margin: 0 auto;
-  font-family: 'Nunito', sans-serif;
-}
-
-/* --- Toast --- */
-#toastNotification {
-  position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%) translateY(130%);
-  background: #4A3F35;
-  color: #FFFCF9;
-  padding: 13px 26px;
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: 600;
-  z-index: 3000;
-  box-shadow: 0 8px 32px rgba(74, 63, 53, 0.3);
-  transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: none;
-  font-family: 'Nunito', sans-serif;
-  white-space: nowrap;
-}
-
-#toastNotification.toast-visible {
-  transform: translateX(-50%) translateY(0);
-}
+/* --- Toast ---
+   Movido a css/styles.css. Aquí se definía como pill oscuro con la clase
+   .toast-visible, pero el JS siempre agrega .show: nunca se mostraba. */
 
 /* ============================================================
    E. CALCULATOR SECTION
@@ -71,7 +19,7 @@
   padding: 100px 24px;
   position: relative;
   overflow: hidden;
-  background: #efe4db;
+  background: var(--color-surface-alt);
 }
 
 /* Video de fondo de la calculadora */
@@ -163,7 +111,7 @@
               0 0 0 2px rgba(234, 184, 163, 0.5);
 }
 
-.calc-input::placeholder { color: #9e8b7e; }
+.calc-input::placeholder { color: var(--color-muted-warm); }
 
 /* --- Tooltip flotante: aparece al enfocar el campo ("focus") --- */
 .calc-input-wrap {
@@ -287,7 +235,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   font-family: 'Nunito', sans-serif;
 }
 
@@ -329,7 +277,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   box-shadow: 3px 3px 6px #e0d6cf, -3px -3px 6px #ffffff;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -349,7 +297,7 @@
   font-family: 'Nunito', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: #B05B3A;
+  color: var(--color-accent-dark);
   cursor: pointer;
   box-shadow: 3px 3px 8px #e0d6cf, -3px -3px 8px #ffffff;
   transition: all 0.25s ease;
@@ -415,7 +363,7 @@
 
 .status-ok     { background: rgba(94, 158, 87, 0.15); color: #3A7A34; }
 .status-over   { background: rgba(192, 48, 48, 0.12); color: #c03030; }
-.status-under  { background: rgba(234, 184, 163, 0.25); color: #B05B3A; }
+.status-under  { background: rgba(234, 184, 163, 0.25); color: var(--color-accent-dark); }
 
 /* --- Progress Bar --- */
 .calc-progress-wrapper {
@@ -531,7 +479,7 @@
 
 .calc-disclaimer p {
   font-size: 12px;
-  color: #9e8b7e;
+  color: var(--color-muted-warm);
   line-height: 1.65;
   text-align: center;
   font-family: 'Nunito', sans-serif;
@@ -740,7 +688,7 @@
 }
 
 .form-group input::placeholder,
-.form-group textarea::placeholder { color: #9e8b7e; }
+.form-group textarea::placeholder { color: var(--color-muted-warm); }
 
 .form-submit-btn { align-self: flex-start; }
 
@@ -784,22 +732,9 @@
 
 /* ============================================================
    H. SCROLL REVEAL ANIMATIONS
+   Movido a css/styles.css: glosario.html usa clases .reveal pero NO
+   carga esta hoja, así que allí la animación nunca corría.
    ============================================================ */
-
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.65s ease, transform 0.65s ease;
-}
-
-.reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
 
 /* ============================================================
    I. RESPONSIVE OVERRIDES
