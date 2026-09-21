@@ -33,6 +33,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia-g1.webp',
     tags: ['precios', 'margen', 'costos'],
     icon: 'calculator',
+    url: 'academia/costo-real-crema-margen.html',
     leerMas: 'Sumar el precio del frasco es el error número uno de quien arranca. El costo real incluye materia prima, envase, etiqueta, mermas de producción (siempre hay), el tiempo tuyo valuado, y un margen para imprevistos y crecimiento. En esta guía armamos una planilla base que podés replicar en Google Sheets: costo unitario = (MP + envase + etiqueta + mano de obra + mermas) / unidades del lote. De ahí sacás tu precio mínimo de venta y tu margen real.'
   },
   {
@@ -67,6 +68,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia-g3.webp',
     tags: ['legal', 'rotulado', 'habilitación'],
     icon: 'clipboard',
+    url: 'academia/checklist-legal-anmat-cosmetica-argentina.html',
     leerMas: 'En Argentina los cosméticos se regulan por el ANMAT (ente nacional) y las bromatologías provinciales para la habilitación del elaborador. Necesitás: habilitación del establecimiento, responsable técnico habilitado, ficha de rotulado con los datos obligatorios (ingredientes INCI, lote, vencimiento, modo de uso, advertencias) y, en algunos casos, registro de producto. Esta guía es un mapa, no asesoramiento legal.'
   },
   {
@@ -135,6 +137,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia-g7.webp',
     tags: ['emulsiones', 'aceite-en-agua', 'base'],
     icon: 'droplet',
+    url: 'academia/primera-emulsion-estable-aceite-en-agua.html',
     leerMas: 'Una emulsión aceite-en-agua (O/A) tiene fase acuosa (agua + activos hidrosolubles + conservante), fase oleosa (aceites + mantecas + emulsionante) y se une con un emulsionante como BTMS o polisorbato. La clave está en la temperatura (ambas fases a 70°C), el agregado lento de la acuosa sobre la oleosa y el batido constante hasta emulsionar. Terminás con una crema que no se separa.'
   },
   {

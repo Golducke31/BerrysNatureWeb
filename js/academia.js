@@ -159,9 +159,10 @@
             <span>${iconSvg('clock')} ${p.lectura} min</span>
             <span>${iconSvg('eye')} ${ (p.vistas||0).toLocaleString('es-AR') }</span>
           </div>
-          <button class="cta-button cta-outline guide-card__btn" type="button" data-open="${p.id}">
-            ${iconSvg('book')} Leer más
-          </button>
+          ${p.url
+            ? `<a href="${escapeHtml(p.url)}" class="cta-button cta-outline guide-card__btn">${iconSvg('book')} Leer guía completa</a>`
+            : `<button class="cta-button cta-outline guide-card__btn" type="button" data-open="${p.id}">${iconSvg('book')} Leer más</button>`
+          }
         </div>
       </article>`).join('');
 
@@ -189,12 +190,11 @@
     grid.querySelectorAll('[data-open]').forEach(btn =>
       btn.addEventListener('click', e => { e.stopPropagation(); openGuide(btn.dataset.open); })
     );
-    grid.querySelectorAll('.guide-card:not(.guide-card--pro)').forEach(card =>
-      card.addEventListener('click', () => openGuide(card.dataset.id))
-    );
-    grid.querySelectorAll('.guide-card:not(.guide-card--pro)').forEach(card =>
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGuide(card.dataset.id); } })
-    );
+    grid.querySelectorAll('.guide-card:not(.guide-card--pro)').forEach(card => {
+      if (card.querySelector('a.guide-card__btn')) return; // tiene página propia: el <a> ya maneja la navegación
+      card.addEventListener('click', () => openGuide(card.dataset.id));
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGuide(card.dataset.id); } });
+    });
     grid.querySelectorAll('[data-pro]').forEach(btn =>
       btn.addEventListener('click', e => {
         e.stopPropagation();

@@ -4,15 +4,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Berry's Academy — Hub de aprendizaje de cosmética natural: guías por nivel, fórmulas descargables, proveedores y calculadora de costo por lote.">
-  <meta name="keywords" content="academia cosmética natural, guías formulación, fórmulas cosméticas, proveedores cosmética, curso cosmética argentina">
+  <meta name="keywords" content="academia cosmética natural, guías formulación, fórmulas cosméticas, proveedores cosmética, curso cosmética argentina, comunidad de emprendedores">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://berrysnature.com/academia.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
   <meta property="og:title" content="Berry's Academy | Aprendé a formular cosmética natural">
   <meta property="og:description" content="De entusiasta a formulador profesional: rutas de aprendizaje, fórmulas y proveedores en un solo hub.">
+  <meta property="og:url" content="https://berrysnature.com/academia.html">
+  <meta property="og:image" content="https://berrysnature.com/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:site_name" content="Berry's Nature">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Berry's Academy | Aprendé a formular cosmética natural">
+  <meta name="twitter:description" content="Rutas de aprendizaje, fórmulas y proveedores en un solo hub para elaboradores de cosmética natural.">
+  <meta name="twitter:image" content="https://berrysnature.com/assets/og-image.jpg">
+
   <title>Berry's Academy | Aprendé a formular cosmética natural</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/sections.css">
   <link rel="stylesheet" href="css/academia.css">
   <link rel="stylesheet" href="css/niko-widget.css">
+
+  <!-- JSON-LD: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Berry's Nature",
+    "url": "https://berrysnature.com/",
+    "logo": "https://berrysnature.com/assets/logo_berrys_nature.jpg"
+  }
+  </script>
+
+  <!-- JSON-LD: Breadcrumb -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://berrysnature.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Academia", "item": "https://berrysnature.com/academia.html" }
+    ]
+  }
+  </script>
 </head>
 <body class="page-academy">
 
@@ -24,7 +71,7 @@
 
       <!-- Logo and Brand -->
       <a href="index.html" class="logo-area" aria-label="Volver al inicio">
-        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
         <div class="logo-text-wrapper">
           <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
         </div>
@@ -72,6 +119,7 @@
     <section class="academy-hero" id="academia-top" tabindex="-1">
       <div class="academy-hero__bg" aria-hidden="true"></div>
       <div class="academy-hero__overlay" aria-hidden="true"></div>
+      <h1 class="sr-only">Berry's Academy — Guías de cosmética natural para emprendedores</h1>
     </section>
 
     <!-- CARRUSEL DE RUTAS -->
@@ -265,7 +313,7 @@
   ============================== -->
   <footer class="main-footer">
     <div class="footer-container">
-      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
       <p class="footer-text">
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
         Hecho con rigor científico y amor natural en la Patagonia Argentina.

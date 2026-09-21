@@ -104,6 +104,21 @@
   padding: 0;
 }
 
+/* Utilidad: visible para lectores de pantalla y buscadores, oculto visualmente.
+   Se usa para <h1> requeridos por SEO/accesibilidad en secciones hero
+   donde el diseño no lleva un título visible (ej. academia.html). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--header-height);

@@ -4,15 +4,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Berry's Nature — Cosmética natural argentina. Cremas, sérums y aceites botánicos de la Patagonia. Catálogo interactivo y calculadora de formulación profesional.">
-  <meta name="keywords" content="cosmética natural, argentina, patagonia, cremas orgánicas, sérum, aceite argán, formulación cosmética">
+  <meta name="keywords" content="cosmética natural, argentina, patagonia, cremas orgánicas, sérum, aceite argán, formulación cosmética, comunidad de elaboradores">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://berrysnature.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
   <meta property="og:title" content="Berry's Nature | Cosmética Natural Argentina">
-  <meta property="og:description" content="Fórmulas cosméticas de base natural inspiradas en la pureza de la Patagonia.">
+  <meta property="og:description" content="Fórmulas cosméticas de base natural inspiradas en la pureza de la Patagonia. Catálogo, calculadora de formulación y comunidad de elaboradores.">
+  <meta property="og:url" content="https://berrysnature.com/">
+  <meta property="og:image" content="https://berrysnature.com/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:site_name" content="Berry's Nature">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Berry's Nature | Cosmética Natural Argentina">
+  <meta name="twitter:description" content="Fórmulas cosméticas de base natural inspiradas en la pureza de la Patagonia.">
+  <meta name="twitter:image" content="https://berrysnature.com/assets/og-image.jpg">
+
   <title>Berry's Nature | Cosmética Natural Argentina</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/catalog-calc.css">
   <link rel="stylesheet" href="css/sections.css">
   <link rel="stylesheet" href="css/niko-widget.css">
+
+  <!-- JSON-LD: Organization (marca global — igual en las 3 páginas) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Berry's Nature",
+    "url": "https://berrysnature.com/",
+    "logo": "https://berrysnature.com/assets/logo_berrys_nature.jpg",
+    "description": "Marca argentina de cosmética natural: catálogo de productos, calculadora de formulación y comunidad de elaboradores.",
+    "sameAs": []
+  }
+  </script>
+
+  <!-- JSON-LD: WebSite (habilita sitelinks search box si algún día hay buscador propio) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Berry's Nature",
+    "url": "https://berrysnature.com/"
+  }
+  </script>
 </head>
 <body>
 
@@ -24,7 +71,7 @@
 
       <!-- Logo and Brand -->
       <a href="#inicio" class="logo-area">
-        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
         <div class="logo-text-wrapper">
           <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
         </div>
@@ -372,7 +419,7 @@
                   <circle cx="110" cy="186" r="3.6"/>
                 </g>
               </svg>
-              <img src="assets/logo_berrys_nature.jpg" alt="Logo Berry's Nature" class="about-logo-img">
+              <img src="assets/logo_berrys_nature.jpg" alt="Logo Berry's Nature" class="about-logo-img" loading="lazy">
             </div>
             <div class="about-logo-caption">
               <strong>Berry's Nature®</strong>
@@ -508,7 +555,7 @@
   ============================== -->
   <footer class="main-footer">
     <div class="footer-container">
-      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
       <p class="footer-text">
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
         Hecho con rigor científico y amor natural en la Patagonia Argentina.

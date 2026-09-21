@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://berrysnature.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://berrysnature.com/academia.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://berrysnature.com/glosario.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Guías de Academia publicadas como páginas propias (ver academia/*.html) -->
+  <url>
+    <loc>https://berrysnature.com/academia/checklist-legal-anmat-cosmetica-argentina.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://berrysnature.com/academia/costo-real-crema-margen.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://berrysnature.com/academia/primera-emulsion-estable-aceite-en-agua.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!--
+    A medida que migres el resto de BLOG_POSTS (content-data.js) a páginas
+    propias, agregá una entrada <url> por cada una acá, siguiendo el mismo
+    patrón de slug. Al pasar a WordPress, Rank Math / Yoast generan este
+    archivo automáticamente — este sitemap manual es solo para la etapa
+    estática actual.
+  -->
+
+</urlset>
