@@ -21,6 +21,7 @@ const pub = require('./handlers/public');
 const authH = require('./handlers/auth');
 const threads = require('./handlers/threads');
 const admin = require('./handlers/admin');
+const pages = require('./handlers/pages');
 const adminUI = require('./admin-ui');
 
 /* ---------------- Allowlist de IP ---------------- */
@@ -99,6 +100,7 @@ async function handleAdmin(req, res, method, seg) {
   if (a === 'logout' && method === 'POST') return admin.logout(req, res);
   if (a === 'session' && method === 'GET') return admin.session(req, res);
   if (a === 'metrics' && method === 'GET') return admin.metrics(req, res);
+  if (a === 'stats' && method === 'GET') return admin.stats(req, res);
   if (a === 'audit' && method === 'GET') return admin.listAudit(req, res);
 
   if (a === 'threads') {
@@ -131,12 +133,41 @@ async function handleAdmin(req, res, method, seg) {
 async function handlePublic(req, res, method, seg) {
   const [a, b, c] = seg;
 
+  /* Sitemap dinámico. Se llega por un rewrite de vercel.json:
+     /sitemap.xml → /api/sitemap (el archivo estático ya no existe). */
+  if (a === 'sitemap' && !b && method === 'GET') return pages.renderSitemap(req, res);
+
+  /* Página de guía renderizada en el servidor.
+     Rewrite: /guias/:id → /api/guias/:id.
+     OJO: no confundir con `/api/guides/:id` (la API JSON, en inglés). */
+  if (a === 'guias' && b && method === 'GET') {
+    let id = b;
+    try { id = decodeURIComponent(b); } catch (e) { /* se usa tal cual */ }
+    return pages.renderGuide(req, res, { id });
+  }
+
+  /* Páginas HTML renderizadas en el servidor.
+     Se llega por un rewrite de vercel.json: /foro/hilo/:id → /api/foro/hilo/:id.
+     La ruta pública es la bonita; esta es solo el destino del rewrite. */
+  if (a === 'foro' && b === 'hilo' && c && method === 'GET') {
+    let id = c;
+    try { id = decodeURIComponent(c); } catch (e) { /* se usa tal cual */ }
+    return pages.renderThread(req, res, { id });
+  }
+
   if (a === 'auth') {
     if (b === 'register' && method === 'POST') return authH.register(req, res, await body(req));
     if (b === 'login' && method === 'POST') return authH.login(req, res, await body(req));
     if (b === 'logout' && method === 'POST') return authH.logout(req, res);
     if (b === 'session' && method === 'GET') return authH.session(req, res);
     if (b === 'google' && method === 'POST') return authH.googleLogin(req, res, await body(req));
+    if (b === 'forgot' && method === 'POST') return authH.forgotPassword(req, res, await body(req));
+    if (b === 'reset' && method === 'POST') return authH.resetPassword(req, res, await body(req));
+    if (b === 'verify-email' && method === 'POST') return authH.verifyEmail(req, res, await body(req));
+    if (b === 'resend-verification' && method === 'POST') return authH.resendVerification(req, res);
+    if (b === 'change-email' && method === 'POST') return authH.changeEmail(req, res, await body(req));
+    if (b === 'confirm-email-change' && method === 'POST') return authH.confirmEmailChange(req, res, await body(req));
+    if (b === 'change-password' && method === 'POST') return authH.changePassword(req, res, await body(req));
     return http.notFound(res);
   }
 
@@ -164,6 +195,7 @@ async function handlePublic(req, res, method, seg) {
 
   if (a === 'likes' && method === 'POST') return threads.toggleLike(req, res, await body(req));
   if (a === 'views' && method === 'POST') return pub.registerView(req, res, await body(req));
+  if (a === 'events' && method === 'POST') return pub.registerEvent(req, res, await body(req));
 
   return http.notFound(res);
 }

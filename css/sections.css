@@ -623,6 +623,33 @@
   text-align: center;
 }
 
+/* Enlace de recuperación de contraseña.
+   Solo tiene sentido en la pestaña "Ingresar": switchTab() deja el modo en
+   #authModal[data-mode], así que lo ocultamos en registro sin tocar JS. */
+.auth-forgot {
+  display: block;
+  margin-top: 14px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  text-align: center;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.auth-forgot:hover {
+  border-bottom-color: var(--color-accent-dark);
+}
+
+#authModal[data-mode="register"] .auth-forgot {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-forgot { transition: none; }
+}
+
 /* ------------------------------------------------------------
    7. RESPONSIVE
    ------------------------------------------------------------ */
@@ -715,4 +742,32 @@
   .hero-orb, .section-orb { opacity: 0.4; filter: blur(38px); }
   .hero-orb--1 { width: 220px; height: 220px; }
   .hero-orb--2 { width: 200px; height: 200px; }
+}
+
+/* Enlaces legales del footer (privacidad · términos) */
+.footer-legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--color-muted-warm);
+}
+
+.footer-legal a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.footer-legal a:hover {
+  color: var(--color-accent-dark);
+  border-bottom-color: var(--color-accent-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-legal a { transition: none; }
 }

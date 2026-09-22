@@ -6,7 +6,7 @@ module.exports = defineConfig({
   // Los specs de backend (admin-routing, api) necesitan el dev server y
   // están cubiertos por tests/playwright.api.config.js. Se excluyen acá
   // para no correrlos contra file:// (donde no hay servidor).
-  testIgnore: ['**/admin-routing.spec.js', '**/api.spec.js'],
+  testIgnore: ['**/admin-routing.spec.js', '**/api.spec.js', '**/paginas-ssr.spec.js'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,

@@ -323,6 +323,14 @@ img {
   background: rgba(234, 184, 163, 0.14);
 }
 
+/* El mismo estilo, pero como enlace (ej. "Mi cuenta" en el header).
+   Sin esto el <a> queda subrayado y como texto en línea. */
+a.nav-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 /* Botón destacado → tienda externa de la marca personal */
 .nav-store-btn {
   background: linear-gradient(135deg, #EAB8A3 0%, #dfa993 100%);

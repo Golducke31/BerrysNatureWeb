@@ -38,6 +38,15 @@ berrys web/
 │   │   ├── academia.spec.js               # Academia + Glosario
 │   │   ├── auth-contact-niko.spec.js      # Sesión, contacto y widget Niko
 │   │   ├── foro.spec.js                   # Foro de formuladores (foro.html)
+│   │   ├── cuenta.spec.js                 # Recuperación de contraseña + confirmación de email
+│   │   ├── legal.spec.js                  # Páginas legales y sus enlaces
+│   │   ├── indexability.spec.js           # Regla de indexación de hilos (unitarias puras)
+│   │   ├── hilo-render.spec.js            # Render de la página de hilo sin base de datos
+│   │   ├── paginas-ssr.spec.js            # Página de hilo contra el dev server (backend)
+│   │   ├── sitemap.spec.js                # Sitemap dinámico sin base de datos
+│   │   ├── events.spec.js                 # Eventos de producto y su endpoint
+│   │   ├── guia-render.spec.js            # Render de la página de guía sin base de datos
+│   │   ├── seed.spec.js                    # Guarda de regresión del seed de guías (DO NOTHING por defecto)
 │   │   ├── admin-routing.spec.js          # Ruta secreta del admin (ofuscación, sin DB)
 │   │   ├── api.spec.js                    # API pública + protección del panel (requiere DB)
 │   │   ├── _admin-env.js                  # Constantes compartidas de slug/clave de prueba
@@ -80,23 +89,47 @@ DATABASE_URL=postgres://... npm run test:api   # corre también los tests de API
 5. **Glosario**: carrusel de ingredientes, contador `n / m`, filtros, botón siguiente.
 6. **Sesión y comunidad**: login/logout demo (`localStorage` → `berrys_user`), modal de auth, desbloqueo PRO sin sesión, formulario de contacto, widget de Niko y su degradación.
 7. **Foro de formuladores** (`foro.html`): banner, lista de hilos, hilo destacado, filtro por categoría, buscador, badges, avatares con iniciales, gate "Publicar consulta", estado vacío.
-8. **Responsive**: ausencia de scroll horizontal en las 4 páginas entre 320px y 1280px.
+8. **Responsive**: ausencia de scroll horizontal en las 9 páginas entre 320px y 1280px.
+9. **Cuenta** (`recuperar.html`, `verificar.html`, `cuenta.html`): máquina de estados según `?token=` y `?accion=`, validaciones locales (email vacío, contraseñas que no coinciden, mínimo 10 caracteres), degradación sin backend, y gestión de la cuenta con sesión simulada.
+10. **Legal** (`privacidad.html`, `terminos.html`): existencia y destino de los enlaces, contenido de ambas páginas, y guarda de que un borrador con placeholders no quede indexable.
+11. **SEO de hilos y sitemap**: la regla de indexación (`server/lib/indexability.js`) como unidad pura, el HTML que sirve la página de hilo renderizada en el servidor, y el sitemap dinámico (qué incluye y qué excluye).
+12. **Eventos de producto**: lista blanca, `events.log()` (que nunca lanza), tope de volumen y el endpoint `POST /api/events`.
+13. **Página de guía renderizada en el servidor**: indexación (normal / con página estática que cede el canonical / PRO), 404, escapado, JSON-LD y la validación de la ruta de imagen.
+14. **Seed de guías (guarda de regresión)**: `DO NOTHING` por defecto preserva las ediciones del panel; `DO UPDATE` solo con `--force`. Módulo puro `scripts/lib/seed-sql.cjs`.
+
+> **Técnica de la suite de cuenta:** `cuenta.html` depende de la sesión, y con `file://` no hay
+> backend. Las pruebas inyectan un doble de `window.BerrysAPI` y repintan llamando a
+> `window.BerrysCuenta.refrescar()`. Ese punto de entrada existe justamente para eso.
+
+> **Técnica de `hilo-render.spec.js`:** la página de hilo se sirve desde una función serverless que
+> necesita base. Para poder verificarla en CI (donde no hay base) se **parchea `server/lib/db`**
+> con datos falsos y se llama al handler con un `res` mínimo que captura status, headers y body.
+> Así quedan cubiertos el escapado, el JSON-LD y la decisión de indexación sin infraestructura.
 
 ---
 
 ## 5. Inventario de pruebas
 
-**Suite estática: 68 tests** en 6 archivos (3 navegadores → **204 corridas**).
-**Suite de backend: 11 tests** en 2 archivos (`admin-routing.spec.js` 6 / `api.spec.js` 5), contra el dev server.
+**Suite estática: 179 tests** en 14 archivos (3 navegadores → **537 corridas**).
+**Suite de backend: 20 tests** en 3 archivos (`admin-routing.spec.js` 6 / `api.spec.js` 5 / `paginas-ssr.spec.js` 9), contra el dev server.
 
 | Archivo | Tests | Qué cubre |
 |---|---:|---|
 | `landing-navigation.spec.js` | 18 | Header sticky, hamburguesa, 6 enlaces, hero, scroll, menú mobile, link activo, contraste WCAG AA, latencia de CTA. |
 | `calculator.spec.js` | 11 | Nombre, toggle, alta/baja de filas, entrada inválida, suma exacta 100.00%, 0 y 50 filas, `loadFormula`. |
-| `academia.spec.js` | 16 | Rutas, guías + filtro, fórmulas, proveedores, enlace al Foro, cálculo por lote, modal "Leer más", PRO, glosario, Niko. |
+| `academia.spec.js` | 17 | Rutas, guías + filtro, fórmulas, proveedores, enlace al Foro, cálculo por lote, modal "Leer más", guías con página propia, PRO, glosario, Niko. |
 | `auth-contact-niko.spec.js` | 9 | Login/logout (fallback offline `berrys_user`), pestaña registro, contacto (vacío/completo), PRO sin sesión, launcher y panel de Niko. |
 | `foro.spec.js` | 10 | Banner, lista, destacado, filtro, buscador, badge "Sin responder", avatares, gate de auth, estado vacío, volver a la Academia. |
-| `responsive-overflow.spec.js` | 4 | Cada página (index, academia, glosario, foro) sin desborde horizontal en 320/375/768/1024/1280px. |
+| `responsive-overflow.spec.js` | 9 | Cada página (index, academia, glosario, foro, recuperar, verificar, cuenta, privacidad, terminos) sin desborde horizontal en 320/375/768/1024/1280px. |
+| `cuenta.spec.js` | 18 | Recuperación de contraseña (estados y validaciones), confirmación de email, cambio de email, acceso desde el modal y **gestión de la cuenta** (`cuenta.html`) con sesión simulada. |
+| `legal.spec.js` | 5 | Enlaces a las páginas legales en footer y modal, contenido de cada página, y guarda de `noindex` mientras sean borradores. |
+| `indexability.spec.js` | 13 | Unitarias puras de la regla de indexación de hilos (oculto, sin tracción, resuelto, likes, respuestas, auto-respuesta, hilo de debate). |
+| `hilo-render.spec.js` | 12 | Render de la página de hilo con base parcheada: decisión de indexación, 404, escapado, JSON-LD, rutas absolutas, caché. |
+| `paginas-ssr.spec.js` | 9 | `hiloUrl` y `event` sobre http (3) + página de hilo contra el dev server (6, requieren DB). |
+| `sitemap.spec.js` | 20 | Sitemap dinámico con base parcheada: inclusiones, exclusiones, guías sin duplicar, XML bien formado, headers y degradación sin base. Las páginas legales entran solo al publicarse (`setLegalesPublicadas`) y quedan afuera mientras son `noindex`. |
+| `events.spec.js` | 20 | Eventos: lista blanca, `log()` que nunca lanza, hash de IP, tope de volumen y endpoint público. |
+| `guia-render.spec.js` | 13 | Página de guía: indexación (normal / estática / PRO), 404, escapado, JSON-LD, rutas absolutas y validación de la ruta de imagen. |
+| `seed.spec.js` | 4 | Seed de guías: `DO NOTHING` por defecto, `DO UPDATE` solo con `--force`; no actualiza columnas sin force. |
 | `admin-routing.spec.js` | 6 | Ofuscación de la ruta secreta del admin (slug/clave de puerta/asset) — sin DB. |
 | `api.spec.js` | 5 | API pública (hilos, guías, registro, login) + protección del panel — requiere `DATABASE_URL`. |
 

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Confirmá tu dirección de email para terminar de crear tu cuenta en Berry's Nature.">
+  <!-- Página funcional con token en la URL: no debe indexarse. -->
+  <meta name="robots" content="noindex, follow">
+  <title>Confirmar email | Berry's Nature</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/cuenta.css">
+</head>
+<body class="page-cuenta">
+
+  <!-- ============================
+       STICKY HEADER
+  ============================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+
+      <a href="index.html" class="logo-area" aria-label="Volver al inicio">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu-desktop">
+          <li><a href="index.html" class="nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+          <li><a href="academia.html" class="nav-link">Academia</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="index.html" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+      <li><a href="academia.html" class="mobile-nav-link">Academia</a></li>
+    </ul>
+  </nav>
+
+  <main class="cuenta-main">
+
+    <section class="cuenta-card">
+      <span class="cuenta-icon" aria-hidden="true">✉️</span>
+      <p class="cuenta-eyebrow">Tu cuenta</p>
+      <h1 class="cuenta-title" id="verifyTitle">Confirmación de email</h1>
+      <p class="cuenta-lead" id="verifyLead">
+        Estamos confirmando tu dirección. Esto toma un segundo.
+      </p>
+
+      <!-- js/cuenta.js reemplaza el contenido de este párrafo con el resultado -->
+      <p class="cuenta-msg" id="verifyState" role="status" aria-live="polite"></p>
+
+      <a class="cuenta-submit cuenta-submit--link" href="index.html">Ir al inicio</a>
+      <a class="cuenta-back" href="academia.html">Explorar la Academia</a>
+    </section>
+
+  </main>
+
+  <!-- ============================
+       FOOTER
+  ============================== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
+      <p class="footer-text">
+        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
+        Hecho con rigor científico y amor natural en la Patagonia Argentina.
+      </p>
+      <p class="footer-legal">
+        <a href="privacidad.html">Política de privacidad</a>
+        <span aria-hidden="true">·</span>
+        <a href="terminos.html">Términos de uso</a>
+      </p>
+      <div class="footer-social">
+        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================
+       JAVASCRIPT MODULES
+  ============================== -->
+  <script src="js/icons.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/cuenta.js"></script>
+
+</body>
+</html>

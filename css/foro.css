@@ -824,3 +824,30 @@ body.mod-panel-open { overflow: hidden; }
     padding-right: var(--space-md);
   }
 }
+
+/* ============================================================
+   Movimiento reducido
+   Mismo criterio que en styles.css y glossary.css: si el usuario
+   pidió menos movimiento, apagamos las transiciones y animaciones
+   propias del foro (hover de tarjetas, panel de moderación, etc.).
+   Va al final para ganar en el orden de cascada sin !important.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .foro-search,
+  .thread-card,
+  .foro-cat-list button,
+  button.thread-action,
+  .mod-panel__overlay,
+  .mod-panel__sheet,
+  .mod-icon-btn,
+  .mod-btn {
+    transition: none;
+    animation: none;
+  }
+
+  .thread-card:hover,
+  button.thread-action:hover,
+  .mod-btn:hover {
+    transform: none;
+  }
+}

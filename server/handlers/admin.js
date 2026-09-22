@@ -28,6 +28,7 @@ const V = require('../lib/validate');
 const S = require('../lib/serialize');
 const audit = require('../lib/audit');
 const csrf = require('../lib/csrf');
+const events = require('../lib/events');
 const rateLimit = require('../lib/rate-limit');
 const guards = require('../lib/guards');
 const { json, fail, notFound, getClientIp, getQuery, setCookie, clearCookie } = require('../lib/http');
@@ -218,6 +219,104 @@ async function metrics(req, res) {
     topHilos: topThreads.map(S.thread),
     topGuias: topGuides.map(g => S.guide(g, true)),
     auditoria: recentAudit
+  });
+}
+
+/* ============================================================
+   Métricas de producto
+
+   Complementa a `metrics`: ahí está el estado actual (totales y tops),
+   acá van las SERIES TEMPORALES y las conversiones, que es lo que
+   `metrics` no puede dar porque no guarda el cuándo.
+
+   Decisión D3: todo sale de la base propia (`content_views` + `events`),
+   sin analítica de terceros ni cookies.
+   ============================================================ */
+
+const DIAS_SERIE = 14;
+const DIAS_TOTALES = 30;
+
+/**
+ * Consulta tolerante a fallos.
+ *
+ * La tabla `events` la agrega la migración 003. Si todavía no corrió, el
+ * panel tiene que seguir mostrando las vistas en vez de romperse entero:
+ * devolvemos un resultado vacío y se ve "sin eventos".
+ */
+async function consultarTolerante(fn, vacio) {
+  try {
+    return await fn();
+  } catch (err) {
+    console.error('[admin] métrica no disponible:', err && err.message);
+    return vacio;
+  }
+}
+
+async function stats(req, res) {
+  const current = await guards.requireRole(req, res, 'admin', 'admin');
+  if (!current) return;
+
+  const [vistasPorDia, vistasTotal, eventosPorNombre, eventosPorDia] = await Promise.all([
+    // Serie diaria de lecturas. generate_series garantiza que los días sin
+    // actividad aparezcan con 0 en vez de faltar (si no, el gráfico miente).
+    db.query(
+      `SELECT to_char(d.dia, 'YYYY-MM-DD') AS dia,
+              COALESCE(v.n, 0)::int AS n
+         FROM generate_series(
+                (now() - ($1 || ' days')::interval)::date,
+                now()::date,
+                interval '1 day'
+              ) AS d(dia)
+         LEFT JOIN (
+           SELECT created_at::date AS dia, count(*)::int AS n
+             FROM content_views
+            WHERE created_at > now() - ($1 || ' days')::interval
+            GROUP BY 1
+         ) v ON v.dia = d.dia
+        ORDER BY d.dia`,
+      [String(DIAS_SERIE)]
+    ),
+    db.one(
+      `SELECT count(*)::int AS n FROM content_views
+        WHERE created_at > now() - ($1 || ' days')::interval`,
+      [String(DIAS_TOTALES)]
+    ),
+    consultarTolerante(() => db.query(
+      `SELECT event_name, count(*)::int AS n
+         FROM events
+        WHERE created_at > now() - ($1 || ' days')::interval
+        GROUP BY 1
+        ORDER BY n DESC`,
+      [String(DIAS_TOTALES)]
+    ), []),
+    consultarTolerante(() => db.query(
+      `SELECT to_char(created_at::date, 'YYYY-MM-DD') AS dia,
+              event_name,
+              count(*)::int AS n
+         FROM events
+        WHERE created_at > now() - ($1 || ' days')::interval
+        GROUP BY 1, 2
+        ORDER BY 1`,
+      [String(DIAS_TOTALES)]
+    ), [])
+  ]);
+
+  json(res, 200, {
+    dias: DIAS_SERIE,
+    diasTotales: DIAS_TOTALES,
+    vistas: {
+      porDia: vistasPorDia.map((r) => ({ dia: r.dia, n: r.n })),
+      total: (vistasTotal && vistasTotal.n) || 0
+    },
+    eventos: {
+      porNombre: eventosPorNombre.map((r) => ({
+        nombre: r.event_name,
+        etiqueta: events.NOMBRES[r.event_name] || r.event_name,
+        n: r.n
+      })),
+      porDia: eventosPorDia.map((r) => ({ dia: r.dia, nombre: r.event_name, n: r.n })),
+      total: eventosPorNombre.reduce((acc, r) => acc + r.n, 0)
+    }
   });
 }
 
@@ -559,7 +658,7 @@ async function listAudit(req, res) {
 
 module.exports = {
   login, logout, session,
-  metrics,
+  metrics, stats,
   listThreads, createThread, updateThread, deleteThread,
   listGuides, createGuide, updateGuide, deleteGuide,
   listUsers, updateUser,

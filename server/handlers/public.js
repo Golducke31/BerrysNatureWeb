@@ -6,11 +6,13 @@
    GET  /api/guides             lista de guías publicadas
    GET  /api/guides/:id         una guía
    POST /api/views              registra una vista (para métricas)
+   POST /api/events             registra un evento de producto
    ============================================================ */
 'use strict';
 
 const db = require('../lib/db');
 const S = require('../lib/serialize');
+const events = require('../lib/events');
 const { json, notFound, fail, getQuery, getClientIp } = require('../lib/http');
 const auth = require('../lib/auth');
 
@@ -164,4 +166,59 @@ async function registerView(req, res, body) {
   json(res, 200, { ok: true });
 }
 
-module.exports = { listThreads, getThread, listGuides, getGuide, registerView };
+/* ---------------- Eventos de producto ----------------
+
+   Mide ACCIONES (registrarse, publicar, desbloquear), no lecturas: para
+   eso ya está /api/views.
+
+   Criterio: este endpoint NUNCA puede romperle la acción al usuario. Si el
+   evento no se puede guardar, se responde 202 igual — la telemetría es
+   importante, pero no más que lo que la persona estaba haciendo. */
+
+/** Deja solo valores simples y pocos: metadata es contexto, no un cajón. */
+function limpiarMetadata(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out = {};
+  let n = 0;
+  for (const key of Object.keys(raw)) {
+    if (n >= 8) break;
+    const v = raw[key];
+    const t = typeof v;
+    if (t === 'string') out[key] = v.slice(0, 200);
+    else if (t === 'number' || t === 'boolean') out[key] = v;
+    else if (v === null) out[key] = null;
+    else continue;                     // objetos y arrays anidados: afuera
+    n++;
+  }
+  return out;
+}
+
+async function registerEvent(req, res, body) {
+  const name = String((body && body.name) || '').slice(0, 60);
+
+  // Lista blanca: un nombre desconocido se rechaza en vez de ensuciar la
+  // tabla con variantes del mismo evento.
+  if (!events.esValido(name)) {
+    return fail(res, 400, 'invalid_event', 'Evento desconocido.');
+  }
+
+  const ip = getClientIp(req);
+
+  // Tope de volumen: sin esto, un script podría inflar la tabla y arruinar
+  // las métricas. Se responde OK igual, para no darle señal al atacante.
+  if (await events.demasiadosDe(ip)) {
+    return json(res, 202, { ok: true, ignorado: 'rate_limit' });
+  }
+
+  const current = await auth.getSession(req, 'public').catch(() => null);
+
+  await events.log(name, {
+    userId: current ? current.user.id : null,
+    ip,
+    metadata: limpiarMetadata(body && body.metadata)
+  });
+
+  json(res, 202, { ok: true });
+}
+
+module.exports = { listThreads, getThread, listGuides, getGuide, registerView, registerEvent };

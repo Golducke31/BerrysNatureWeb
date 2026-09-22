@@ -27,6 +27,18 @@ function html(res, status, body, extraHeaders = {}) {
   res.end(body);
 }
 
+/**
+ * Respuesta XML (sitemap, RSS). El charset explícito importa: sin él, un
+ * buscador puede interpretar mal los acentos de los títulos.
+ */
+function xml(res, status, body, extraHeaders = {}) {
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  for (const [k, v] of Object.entries(extraHeaders)) res.setHeader(k, v);
+  res.statusCode = status;
+  res.end(body);
+}
+
 function noContent(res, extraHeaders = {}) {
   for (const [k, v] of Object.entries(extraHeaders)) res.setHeader(k, v);
   res.statusCode = 204;
@@ -138,7 +150,7 @@ function clearCookie(res, name, opts = {}) {
 }
 
 module.exports = {
-  json, html, noContent, fail, notFound,
+  json, html, xml, noContent, fail, notFound,
   getPath, getQuery, parseCookies, getClientIp, readBody,
   setCookie, clearCookie
 };

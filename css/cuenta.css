@@ -1,0 +1,281 @@
+/* ============================================================
+   css/cuenta.css — Páginas de cuenta
+   (recuperar.html · verificar.html)
+
+   Formularios funcionales: recuperación de contraseña y confirmación
+   de email. Reutiliza los tokens de styles.css (paleta "Tierra
+   Cremosa") y el mismo lenguaje de tarjeta que el resto del sitio.
+
+   Se carga después de styles.css y sections.css.
+   ============================================================ */
+
+.cuenta-main {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--space-xl, 40px) + 40px) var(--space-md, 20px) var(--space-2xl, 60px);
+}
+
+/* Centrado con `margin: auto` en lugar de `align-items: center`: con
+   contenido más alto que el contenedor, el centrado por align-items deja
+   la parte de arriba fuera del scroll. Así el contenido siempre es
+   alcanzable (cuenta.html es bastante alto). */
+.cuenta-main > * {
+  margin: auto;
+}
+
+.cuenta-card {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(255, 252, 249, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 22px;
+  box-shadow: var(--shadow-card-flat);
+  padding: 34px 30px;
+}
+
+.cuenta-card--wide {
+  max-width: 640px;
+}
+
+.cuenta-eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent-dark);
+}
+
+.cuenta-title {
+  margin: 0 0 12px;
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+.cuenta-lead {
+  margin: 0 0 24px;
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+}
+
+/* ---------------- Formulario ---------------- */
+
+.cuenta-field {
+  margin-bottom: 18px;
+}
+
+.cuenta-label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.cuenta-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--bg-main);
+  border: 1.5px solid var(--color-line-warm);
+  border-radius: 14px;
+  padding: 12px 15px;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.cuenta-input::placeholder {
+  color: var(--color-muted-warm);
+}
+
+.cuenta-input:focus {
+  outline: none;
+  border-color: var(--color-cta);
+  box-shadow: 0 0 0 3px rgba(234, 184, 163, 0.35);
+}
+
+.cuenta-hint {
+  margin: 7px 0 0;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-muted-warm);
+}
+
+.cuenta-submit {
+  width: 100%;
+  margin-top: 6px;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: 800;
+  color: var(--color-text);
+  background: var(--color-cta);
+  border: 0;
+  border-radius: var(--radius-pill, 999px);
+  padding: 14px 22px;
+  cursor: pointer;
+  box-shadow: var(--shadow-cta-flat);
+  transition: background 0.22s ease, transform 0.22s ease;
+}
+
+.cuenta-submit:hover:not(:disabled) {
+  background: var(--color-cta-hover);
+  transform: translateY(-1px);
+}
+
+.cuenta-submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Mismo botón, pero como enlace (panel de confirmación) */
+.cuenta-submit--link {
+  display: block;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Botón secundario (acciones que no son el camino principal) */
+.cuenta-submit--ghost {
+  background: transparent;
+  border: 1.5px solid var(--color-line-warm);
+  box-shadow: none;
+  color: var(--color-text-muted);
+}
+
+.cuenta-submit--ghost:hover:not(:disabled) {
+  background: var(--bg-main);
+  color: var(--color-accent-dark);
+  border-color: var(--color-cta);
+}
+
+/* ============================================================
+   cuenta.html — bloques de la página de cuenta
+   ============================================================ */
+
+.cuenta-block {
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 1px solid var(--color-line-warm);
+}
+
+.cuenta-block--last {
+  padding-bottom: 4px;
+}
+
+.cuenta-block__title {
+  margin: 0 0 10px;
+  font-family: var(--font-title);
+  font-size: var(--text-lg);
+  color: var(--color-text);
+}
+
+.cuenta-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 10px;
+  font-size: var(--text-base);
+}
+
+.cuenta-row__label {
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.cuenta-row__value {
+  min-width: 0;
+  text-align: right;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+/* ---------------- Mensajes ---------------- */
+
+.cuenta-msg {
+  margin: 0 0 20px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.cuenta-msg--ok {
+  background: rgba(130, 150, 107, 0.14);
+  border: 1px solid rgba(130, 150, 107, 0.4);
+  color: var(--color-text);
+}
+
+.cuenta-msg--error {
+  background: rgba(185, 112, 90, 0.13);
+  border: 1px solid rgba(185, 112, 90, 0.4);
+  color: var(--color-terracota-deep);
+}
+
+/* ---------------- Estados ---------------- */
+
+.cuenta-panel[hidden] {
+  display: none;
+}
+
+.cuenta-icon {
+  display: block;
+  font-size: 34px;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+.cuenta-back {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.cuenta-back:hover {
+  border-bottom-color: var(--color-accent-dark);
+}
+
+/* Foco visible en todo lo interactivo (accesibilidad) */
+.cuenta-card a:focus-visible,
+.cuenta-card button:focus-visible,
+.cuenta-card input:focus-visible {
+  outline: 2px solid var(--color-accent-dark);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .cuenta-card {
+    padding: 26px 20px;
+    border-radius: 18px;
+  }
+  .cuenta-title {
+    font-size: var(--text-xl);
+  }
+}
+
+/* Movimiento reducido — mismo criterio que styles.css y foro.css */
+@media (prefers-reduced-motion: reduce) {
+  .cuenta-input,
+  .cuenta-submit,
+  .cuenta-back {
+    transition: none;
+  }
+  .cuenta-submit:hover:not(:disabled) {
+    transform: none;
+  }
+}

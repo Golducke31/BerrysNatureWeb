@@ -39,6 +39,15 @@
     updateProgress();
   }
 
+  /* ---------------- Métrica: apertura de guía ----------------
+     Un solo lugar para no duplicar el nombre del evento. `desde` permite
+     distinguir la tarjeta (navega afuera) del modal. */
+  function trackGuia(id, desde) {
+    if (window.BerrysAPI && window.BerrysAPI.event) {
+      window.BerrysAPI.event('guia_abierta', { id: id || '', desde: desde });
+    }
+  }
+
   /* ---------------- Estado de filtros ---------------- */
   let rutaActiva = 'Todas';
   let catActiva  = 'Todas';
@@ -190,6 +199,16 @@
     grid.querySelectorAll('[data-open]').forEach(btn =>
       btn.addEventListener('click', e => { e.stopPropagation(); openGuide(btn.dataset.open); })
     );
+
+    /* "Leer guía completa" es un <a> que NAVEGA a la página de la guía. El
+       evento se manda en el clic, antes de salir; BerrysAPI.event usa
+       sendBeacon justamente para que sobreviva a la navegación. */
+    grid.querySelectorAll('a.guide-card__btn').forEach(a =>
+      a.addEventListener('click', () => {
+        const card = a.closest('.guide-card');
+        trackGuia(card ? card.dataset.id : '', 'tarjeta');
+      })
+    );
     grid.querySelectorAll('.guide-card:not(.guide-card--pro)').forEach(card => {
       if (card.querySelector('a.guide-card__btn')) return; // tiene página propia: el <a> ya maneja la navegación
       card.addEventListener('click', () => openGuide(card.dataset.id));
@@ -227,6 +246,7 @@
     overlay.classList.add('open');
     overlay.removeAttribute('aria-hidden');
     markRead(id);
+    trackGuia(id, 'modal');
 
     // Métrica de lectura (no bloquea la UI)
     if (window.BerrysAPI && window.BerrysAPI.available) {

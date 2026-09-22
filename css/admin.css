@@ -351,3 +351,59 @@
   .admin-nav button { width: auto; }
   .admin-main { padding: var(--space-lg) var(--space-md); }
 }
+
+/* ============================================================
+   Métricas — gráfico de barras
+   Hecho con CSS a propósito: el panel no carga librerías externas
+   (y la CSP tampoco las permitiría).
+   ============================================================ */
+.admin-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 170px;
+  padding: 10px 4px 0;
+}
+
+.admin-chart__col {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-chart__bar {
+  display: block;
+  width: 100%;
+  max-width: 36px;
+  min-height: 2px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--color-cta) 0%, var(--color-accent-dark) 100%);
+}
+
+/* Un día sin actividad igual tiene que verse: si no, el gráfico miente. */
+.admin-chart__bar.is-zero {
+  background: var(--color-line-warm);
+}
+
+.admin-chart__label {
+  font-size: 10px;
+  line-height: 1;
+  color: var(--color-muted-warm);
+}
+
+/* El código del nombre de evento (ej. `pro_desbloqueado`) */
+.admin-table code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 640px) {
+  .admin-chart { height: 130px; gap: 3px; }
+  .admin-chart__label { font-size: 9px; }
+}

@@ -1,0 +1,76 @@
+# ============================================================
+# CI — Berry's Nature Web
+#
+# Dos jobs independientes:
+#   1. estatica  → la suite de Playwright contra los .html (file://).
+#                  No necesita servidor ni base de datos.
+#   2. backend   → el routing de la ruta secreta del admin, contra el
+#                  dev server que Playwright levanta solo (webServer).
+#                  Tampoco necesita base de datos.
+#
+# Los 5 tests de api.spec.js (registro, login, listados) se SALTEAN
+# solos si no hay DATABASE_URL. Eso es intencional: NO cablear acá la
+# DATABASE_URL de producción. api.spec.js crea cuentas reales y
+# contaminaría los datos de producción. Si querés correrlos en CI,
+# usá una rama de Neon dedicada a tests y pasala como secret aparte.
+# ============================================================
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  estatica:
+    name: Suite estática (Chromium + Firefox + WebKit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar navegadores de Playwright
+        run: npx playwright install --with-deps
+
+      - name: Correr la suite estática
+        run: npm test
+
+      - name: Publicar el reporte HTML si falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  backend:
+    name: Suite de backend (routing del admin)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Correr la suite de backend
+        run: npm run test:api

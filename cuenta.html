@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gestioná tu cuenta de Berry's Nature: cambiá tu email, tu contraseña y revisá el estado de tu dirección.">
+  <!-- Página de cuenta: no tiene sentido indexarla. -->
+  <meta name="robots" content="noindex, follow">
+  <title>Mi cuenta | Berry's Nature</title>
+
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/cuenta.css">
+</head>
+<body class="page-cuenta">
+
+  <header class="sticky-header">
+    <div class="header-container">
+      <a href="index.html" class="logo-area" aria-label="Volver al inicio">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-menu-desktop">
+          <li><a href="index.html" class="nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+          <li><a href="academia.html" class="nav-link">Academia</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="index.html" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al inicio</a></li>
+      <li><a href="academia.html" class="mobile-nav-link">Academia</a></li>
+    </ul>
+  </nav>
+
+  <main class="cuenta-main">
+
+    <!-- ============================
+         CARGANDO
+    ============================== -->
+    <section class="cuenta-card" id="panelCargando">
+      <p class="cuenta-eyebrow">Tu cuenta</p>
+      <h1 class="cuenta-title">Un segundo…</h1>
+      <p class="cuenta-lead">Estamos revisando tu sesión.</p>
+    </section>
+
+    <!-- ============================
+         SIN SESIÓN
+    ============================== -->
+    <section class="cuenta-card" id="panelAnonimo" hidden>
+      <span class="cuenta-icon" aria-hidden="true">🔒</span>
+      <p class="cuenta-eyebrow">Tu cuenta</p>
+      <h1 class="cuenta-title">Necesitás iniciar sesión</h1>
+      <p class="cuenta-lead">
+        Para ver y cambiar los datos de tu cuenta tenés que entrar primero.
+      </p>
+      <a class="cuenta-submit cuenta-submit--link" href="index.html">Ir a ingresar</a>
+      <a class="cuenta-back" href="recuperar.html">¿Olvidaste tu contraseña?</a>
+    </section>
+
+    <!-- ============================
+         CUENTA
+    ============================== -->
+    <section class="cuenta-card cuenta-card--wide" id="panelCuenta" hidden>
+      <p class="cuenta-eyebrow">Tu cuenta</p>
+      <h1 class="cuenta-title">Mi cuenta</h1>
+      <p class="cuenta-lead">Desde acá administrás tu dirección de email y tu contraseña.</p>
+
+      <!-- ---------- Datos ---------- -->
+      <div class="cuenta-block">
+        <h2 class="cuenta-block__title">Datos de la cuenta</h2>
+
+        <p class="cuenta-row">
+          <span class="cuenta-row__label">Nombre</span>
+          <span class="cuenta-row__value" id="accNombre">—</span>
+        </p>
+        <p class="cuenta-row">
+          <span class="cuenta-row__label">Email</span>
+          <span class="cuenta-row__value" id="accEmail">—</span>
+        </p>
+        <p class="cuenta-row">
+          <span class="cuenta-row__label">Estado</span>
+          <span class="cuenta-row__value" id="accEstado">—</span>
+        </p>
+
+        <p class="cuenta-msg cuenta-msg--ok" id="accPendiente" hidden></p>
+
+        <p class="cuenta-msg" id="accMsg" hidden role="status" aria-live="polite"></p>
+
+        <button class="cuenta-submit cuenta-submit--ghost" type="button" id="accReenviar" hidden>
+          Reenviar el email de confirmación
+        </button>
+      </div>
+
+      <!-- ---------- Cuenta de Google ---------- -->
+      <div class="cuenta-block" id="bloqueGoogle" hidden>
+        <h2 class="cuenta-block__title">Cuenta de Google</h2>
+        <p class="cuenta-hint">
+          Entrás con Google, así que tu dirección y tu contraseña se administran desde tu
+          cuenta de Google. Acá no hace falta hacer nada.
+        </p>
+      </div>
+
+      <!-- ---------- Cambiar email ---------- -->
+      <div class="cuenta-block" id="bloqueEmail">
+        <h2 class="cuenta-block__title">Cambiar email</h2>
+        <p class="cuenta-hint">
+          Te mandamos un enlace a la dirección <strong>nueva</strong> para que la confirmes.
+          Hasta que lo hagas, tu cuenta sigue usando la dirección actual.
+        </p>
+
+        <p class="cuenta-msg" id="emailMsg" hidden role="status" aria-live="polite"></p>
+
+        <form id="emailForm" novalidate>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="emailNuevo">Email nuevo</label>
+            <input class="cuenta-input" type="email" id="emailNuevo" name="emailNuevo"
+                   autocomplete="email" placeholder="tu@email.com" required>
+          </div>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="emailPassword">Tu contraseña actual</label>
+            <input class="cuenta-input" type="password" id="emailPassword" name="emailPassword"
+                   autocomplete="current-password" required>
+            <p class="cuenta-hint">La pedimos para confirmar que sos vos.</p>
+          </div>
+          <button class="cuenta-submit" type="submit" id="emailSubmit">Enviar confirmación</button>
+        </form>
+      </div>
+
+      <!-- ---------- Cambiar contraseña ---------- -->
+      <div class="cuenta-block" id="bloquePass">
+        <h2 class="cuenta-block__title">Cambiar contraseña</h2>
+        <p class="cuenta-hint">
+          Al guardarla se cierran las demás sesiones abiertas, pero esta sigue activa.
+        </p>
+
+        <p class="cuenta-msg" id="passMsg" hidden role="status" aria-live="polite"></p>
+
+        <form id="passForm" novalidate>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="passActual">Contraseña actual</label>
+            <input class="cuenta-input" type="password" id="passActual" name="passActual"
+                   autocomplete="current-password" required>
+          </div>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="passNueva">Contraseña nueva</label>
+            <input class="cuenta-input" type="password" id="passNueva" name="passNueva"
+                   autocomplete="new-password" minlength="10" required>
+            <p class="cuenta-hint">Mínimo 10 caracteres.</p>
+          </div>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="passNueva2">Repetí la contraseña nueva</label>
+            <input class="cuenta-input" type="password" id="passNueva2" name="passNueva2"
+                   autocomplete="new-password" minlength="10" required>
+          </div>
+          <button class="cuenta-submit" type="submit" id="passSubmit">Guardar contraseña</button>
+        </form>
+      </div>
+
+      <!-- ---------- Sesión ---------- -->
+      <div class="cuenta-block cuenta-block--last">
+        <h2 class="cuenta-block__title">Sesión</h2>
+        <button class="cuenta-submit cuenta-submit--ghost" type="button" id="accSalir">Cerrar sesión</button>
+      </div>
+
+      <a class="cuenta-back" href="index.html">← Volver al inicio</a>
+    </section>
+
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-container">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
+      <p class="footer-text">
+        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
+        Hecho con rigor científico y amor natural en la Patagonia Argentina.
+      </p>
+      <p class="footer-legal">
+        <a href="privacidad.html">Política de privacidad</a>
+        <span aria-hidden="true">·</span>
+        <a href="terminos.html">Términos de uso</a>
+      </p>
+      <div class="footer-social">
+        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/icons.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/mi-cuenta.js"></script>
+
+</body>
+</html>

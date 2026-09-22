@@ -77,11 +77,25 @@ test.describe('Berry\'s Academy', () => {
   });
 
   test('T2-A-02: El modal "Leer más" abre y cierra', async ({ page }) => {
-    const openBtn = page.locator('#guiasGridAcad .guide-card__btn').first();
+    // Ojo: `.guide-card__btn` matchea tres cosas distintas — el <a> de las guías
+    // que ya tienen página propia, el <button data-open> que abre el modal, y el
+    // botón PRO. El modal solo lo abre el segundo, así que apuntamos a [data-open].
+    const openBtn = page.locator('#guiasGridAcad [data-open]').first();
     await openBtn.click();
     await expect(page.locator('#guideModal')).toHaveClass(/open/);
     await page.locator('#guideModalClose').click();
     await expect(page.locator('#guideModal')).not.toHaveClass(/open/);
+  });
+
+  test('T2-A-04: Las guías con página propia enlazan en vez de abrir el modal', async ({ page }) => {
+    // Guarda de regresión: al migrar una guía a página propia se le agrega `url`
+    // en content-data.js y su CTA deja de ser un <button data-open> para
+    // convertirse en un <a> que navega a academia/<slug>.html (js/academia.js:163).
+    // Si esto se rompe, la guía vuelve a abrir el modal en vez de navegar.
+    const link = page.locator('#guiasGridAcad a.guide-card__btn').first();
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('href', /^academia\/[a-z0-9-]+\.html$/);
+    await expect(link).toContainText('Leer guía completa');
   });
 
   test('T2-A-03: El botón Pro abre el modal de pago', async ({ page }) => {

@@ -17,6 +17,7 @@ const S = require('../lib/serialize');
 const auth = require('../lib/auth');
 const audit = require('../lib/audit');
 const csrf = require('../lib/csrf');
+const events = require('../lib/events');
 const turnstile = require('../lib/turnstile');
 const guards = require('../lib/guards');
 const { json, fail, notFound, getClientIp, readBody } = require('../lib/http');
@@ -67,6 +68,11 @@ async function createThread(req, res, body) {
   await audit.log({
     actor: current.user, action: 'thread.create', entityType: 'thread',
     entityId: id, payload: { titulo, categoria }, ip
+  });
+
+  // Métrica de conversión (nunca lanza).
+  await events.log('hilo_creado', {
+    userId: current.user.id, ip, metadata: { id, categoria }
   });
 
   json(res, 201, { hilo: S.thread(row) });
@@ -172,6 +178,11 @@ async function createReply(req, res, params, body) {
   await audit.log({
     actor: current.user, action: 'reply.create', entityType: 'reply',
     entityId: id, payload: { threadId: params.id }, ip
+  });
+
+  // Métrica de conversión (nunca lanza).
+  await events.log('respuesta_creada', {
+    userId: current.user.id, ip, metadata: { hiloId: params.id }
   });
 
   json(res, 201, { respuesta: S.reply(row) });

@@ -5,15 +5,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Foro de formuladores de Berry's Nature: compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo cosmética natural.">
   <meta name="keywords" content="foro cosmética natural, comunidad formuladores, dudas formulación, proveedores cosmética, emprendedores cosmética argentina">
+  <!-- Canonical -->
+  <link rel="canonical" href="https://berrysnature.com/foro.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
   <meta property="og:title" content="Foro de formuladores | Berry's Nature">
   <meta property="og:description" content="Compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo.">
+  <meta property="og:url" content="https://berrysnature.com/foro.html">
+  <meta property="og:image" content="https://berrysnature.com/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:site_name" content="Berry's Nature">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Foro de formuladores | Berry's Nature">
+  <meta name="twitter:description" content="Compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo.">
+  <meta name="twitter:image" content="https://berrysnature.com/assets/og-image.jpg">
+
   <title>Foro de formuladores | Berry's Nature</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/sections.css">
   <link rel="stylesheet" href="css/academia.css">
   <link rel="stylesheet" href="css/foro.css">
   <link rel="stylesheet" href="css/niko-widget.css">
+
+  <!-- JSON-LD: Organization (marca global) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Berry's Nature",
+    "url": "https://berrysnature.com/",
+    "logo": "https://berrysnature.com/assets/logo_berrys_nature.jpg"
+  }
+  </script>
+
+  <!-- JSON-LD: Breadcrumb -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://berrysnature.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Academia", "item": "https://berrysnature.com/academia.html" },
+      { "@type": "ListItem", "position": 3, "name": "Foro", "item": "https://berrysnature.com/foro.html" }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD: CollectionPage (el foro es un listado de hilos de la comunidad) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Foro de formuladores",
+    "description": "Comunidad de formuladores de cosmética natural: fórmulas, dudas de formulación, proveedores y negocio.",
+    "url": "https://berrysnature.com/foro.html",
+    "inLanguage": "es-AR",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Berry's Nature",
+      "url": "https://berrysnature.com/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Berry's Nature",
+      "url": "https://berrysnature.com/"
+    }
+  }
+  </script>
 </head>
 <body class="page-forum">
 
@@ -25,7 +94,7 @@
 
       <!-- Logo and Brand -->
       <a href="index.html" class="logo-area" aria-label="Volver al inicio">
-        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
         <div class="logo-text-wrapper">
           <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
         </div>
@@ -182,10 +251,13 @@
           <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" required>
         </div>
         <button class="cta-button auth-submit" id="authSubmit" type="submit">Ingresar</button>
+        <a class="auth-forgot" href="recuperar.html">¿Olvidaste tu contraseña?</a>
       </form>
 
       <p class="auth-legal">
-        Tus datos se guardan de forma segura en nuestro servidor. Al crear una cuenta aceptás las reglas de la comunidad.
+        Tus datos se guardan de forma segura en nuestro servidor. Al crear una cuenta aceptás los
+        <a href="terminos.html">términos de uso</a> y la
+        <a href="privacidad.html">política de privacidad</a>.
       </p>
     </div>
   </div>
@@ -200,10 +272,15 @@
   ============================== -->
   <footer class="main-footer">
     <div class="footer-container">
-      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
       <p class="footer-text">
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
         Hecho con rigor científico y amor natural en la Patagonia Argentina.
+      </p>
+      <p class="footer-legal">
+        <a href="privacidad.html">Política de privacidad</a>
+        <span aria-hidden="true">·</span>
+        <a href="terminos.html">Términos de uso</a>
       </p>
       <div class="footer-social">
         <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">

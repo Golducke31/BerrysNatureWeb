@@ -1,7 +1,23 @@
-# Arquitectura Técnica Recomendada — Berry's Nature
+# Arquitectura Técnica — Berry's Nature
 
-> Documento puente entre el **prototipo estático** que ya existe en este repo y la **plataforma real** (blog + comunidad + login + pago único).
-> Todo lo que hoy está en arrays de JavaScript tiene un equivalente directo en WordPress. Este archivo explica cuál es y en qué orden conviene migrarlo.
+> ## ⛔ DOCUMENTO SUPERADO — NO ES UN PLAN VIGENTE
+>
+> Este archivo proponía migrar el sitio a **WordPress.org** y trazaba un roadmap de 10–16 días
+> para hacerlo. **Esa migración quedó descartada** (decisión D5, 21/09/2026).
+>
+> El motivo es concreto: la implementación **serverless actual** (Vercel + Neon, en `server/`)
+> ya resuelve todo lo que WordPress iba a resolver —contenido, comunidad, cuentas, sesiones,
+> moderación, auditoría y pago único— sin comisiones de plugins, sin licencias y con el
+> front-end que ya existe. Migrar sería pagar dos veces por lo mismo.
+>
+> **Si llegaste acá buscando el plan de producción vigente, el documento es
+> [`PLAN-PRODUCCION.md`](./PLAN-PRODUCCION.md).**
+>
+> Lo que sigue se conserva por dos motivos: (1) el **§2 (mapa de migración)** sigue siendo útil
+> como inventario de qué pieza del prototipo corresponde a qué concepto, aunque ahora el destino
+> sea el backend propio; y (2) el **§7 (nota legal/ANMAT)** y el **§6 (moderación)** siguen
+> vigentes y aplicables tal cual.
+
 
 ---
 
@@ -22,12 +38,16 @@ cumple el mismo objetivo de fondo (contenido + comunidad + login + pago único) 
 - **CLI de operación:** `npm run db:init` (aplica `db/schema.sql`), `npm run seed`, `npm run create-admin`,
   `npm run reset-password`, `npm run db:check`.
 
-Este documento (WordPress) sigue siendo el **destino recomendado a largo plazo** como CMS, pero la
-implementación serverless es el artefacto desplegable actual y la fuente de verdad del backend.
+Este documento (WordPress) **ya NO es el destino**: quedó superado por la implementación
+serverless, que es el artefacto desplegable y la fuente de verdad del backend. Ver el aviso
+al inicio del archivo y la decisión D5 en `PLAN-PRODUCCION.md`.
 
 ---
 
-## 1. Decisión central: WordPress.org (self-hosted)
+## 1. Decisión original: WordPress.org (self-hosted) — **DESCARTADA**
+
+> ⚠️ La comparación de abajo se conserva como registro del análisis, pero la conclusión
+> ("Elegida") **ya no aplica**. La opción vigente es la implementación serverless propia.
 
 | Opción | Comisiones | Control | Comunidad | Veredicto |
 |---|---|---|---|---|
@@ -201,6 +221,10 @@ Lo único que se descarta es la **simulación de sesión en `localStorage`** (`b
 
 ---
 
-## 10. Resumen en una línea
+## 10. Resumen en una línea — **SUPERADO**
 
-> **WordPress.org + tema hijo liviano + ACF/CPT UI para el contenido + BuddyBoss (o bbPress+BuddyPress) para login y comunidad + Formidable/Gravity Forms con MercadoPago para el pago único**, sobre un VPS con Redis y Cloudflare. El prototipo actual ya es el 80% del front-end.
+> ~~**WordPress.org + tema hijo liviano + ACF/CPT UI para el contenido + BuddyBoss (o bbPress+BuddyPress) para login y comunidad + Formidable/Gravity Forms con MercadoPago para el pago único**, sobre un VPS con Redis y Cloudflare. El prototipo actual ya es el 80% del front-end.~~
+
+**Vigente:** el sitio se queda en **serverless (Vercel + Neon)** con el backend propio de `server/`.
+El contenido vive en Postgres y se sirve desde funciones serverless; la comunidad, las cuentas y la
+moderación ya están implementadas. Para el plan de ejecución, ver `PLAN-PRODUCCION.md`.

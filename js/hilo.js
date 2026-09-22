@@ -33,6 +33,38 @@
   let hilo = null;
   let respuestas = [];
 
+  /* ---------------- Ubicación ----------------
+     El id puede llegar de dos maneras:
+       ?id=<id>            → formato viejo (hilo.html?id=…, y file://)
+       /foro/hilo/<id>     → formato canónico (servido por el servidor)   */
+  function idDesdeUbicacion() {
+    const params = new URLSearchParams(window.location.search);
+    const porQuery = params.get('id');
+    if (porQuery) return porQuery;
+
+    const m = /\/foro\/hilo\/([^/?#]+)/.exec(window.location.pathname);
+    if (!m) return '';
+    try { return decodeURIComponent(m[1]); } catch (e) { return m[1]; }
+  }
+
+  /** ¿El servidor ya renderizó el hilo y sus respuestas? */
+  function renderizadoPorElServidor() {
+    const det = document.getElementById('hiloDetalle');
+    return !!(det && det.dataset && det.dataset.ssr === '1');
+  }
+
+  /** Pasa la barra de direcciones al formato canónico sin recargar.
+      No se hace en file:// porque ahí no existen los rewrites. */
+  function canonicalizarUrl() {
+    if (window.location.protocol === 'file:') return;
+    if (!hiloId) return;
+    if (/\/foro\/hilo\//.test(window.location.pathname)) return;
+
+    try {
+      window.history.replaceState(null, '', '/foro/hilo/' + encodeURIComponent(hiloId));
+    } catch (e) { /* si el navegador lo bloquea, seguimos igual */ }
+  }
+
   /* ---------------- Render ---------------- */
   function renderHilo() {
     const wrap = $('#hiloDetalle');
@@ -144,6 +176,16 @@
 
   function cargar() {
     const api = window.BerrysAPI;
+
+    // Página servida por el servidor (/foro/hilo/<id>): el hilo y las
+    // respuestas ya vienen en el HTML. No se vuelve a pintar —eso causaría
+    // un parpadeo— así que solo registramos la vista. Lo interactivo lo
+    // conecta init().
+    if (renderizadoPorElServidor()) {
+      if (api && api.available) api.view('thread', hiloId).catch(() => {});
+      return Promise.resolve();
+    }
+
     if (!api || !api.available) {
       seedFallback();
       renderHilo();
@@ -238,8 +280,8 @@
 
   /* ---------------- Init ---------------- */
   function init() {
-    const params = new URLSearchParams(window.location.search);
-    hiloId = params.get('id') || '';
+    hiloId = idDesdeUbicacion();
+    canonicalizarUrl();
     syncResponder();
     setupEvents();
 

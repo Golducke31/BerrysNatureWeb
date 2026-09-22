@@ -66,6 +66,60 @@
     });
   }
 
+  /**
+   * URL canónica de un hilo.
+   * En producción es /foro/hilo/<id> (ruta bonita, servida por el servidor con
+   * el HTML ya renderizado). Abriendo los .html con file:// no existen los
+   * rewrites, así que ahí se usa el formato viejo para que la navegación local
+   * y los tests sigan funcionando.
+   */
+  function hiloUrl(id) {
+    var enc = encodeURIComponent(id);
+    if (typeof window !== 'undefined' && window.location.protocol === 'file:') {
+      return 'hilo.html?id=' + enc;
+    }
+    return '/foro/hilo/' + enc;
+  }
+
+  /**
+   * Envía un evento de producto sin esperar respuesta.
+   *
+   * Usa `sendBeacon` cuando está disponible porque es la única forma
+   * confiable de mandar algo mientras el navegador se va a otra página
+   * (por ejemplo el clic en "Leer guía completa", que navega afuera).
+   *
+   * No manda el header CSRF a propósito: `sendBeacon` no permite headers
+   * personalizados, y el endpoint de eventos no valida CSRF. El payload no
+   * es sensible y hay un tope de volumen por visitante del lado del server.
+   */
+  function event(name, metadata) {
+    if (isFile) return;
+
+    var payload;
+    try {
+      payload = JSON.stringify({ name: name, metadata: metadata || {} });
+    } catch (e) {
+      return;
+    }
+
+    try {
+      if (navigator.sendBeacon) {
+        var blob = new Blob([payload], { type: 'application/json' });
+        if (navigator.sendBeacon('/api/events', blob)) return;
+      }
+    } catch (e) { /* seguimos con fetch */ }
+
+    try {
+      fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        keepalive: true,
+        body: payload
+      }).catch(function () {});
+    } catch (e) { /* la telemetría nunca rompe la acción del usuario */ }
+  }
+
   function qs(params) {
     if (!params) return '';
     var parts = [];
@@ -125,6 +179,7 @@
     available: !isFile,
     isFile: isFile,
     request: request,
+    hiloUrl: hiloUrl,
     mergeById: mergeById,
     readCookie: readCookie,
     /** Lee el usuario demo guardado en file:// (lo usa community.js al iniciar). */
@@ -160,6 +215,48 @@
       return request('POST', '/api/auth/google', { credential: credential });
     },
 
+    /* --- Recuperación de cuenta ---
+       La respuesta de forgotPassword es siempre genérica: el servidor no
+       revela si el email existe. */
+    forgotPassword: function (email, turnstileToken) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/forgot', {
+        email: email,
+        turnstileToken: turnstileToken || null
+      });
+    },
+    resetPassword: function (token, password) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/reset', { token: token, password: password });
+    },
+    verifyEmail: function (token) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/verify-email', { token: token });
+    },
+    resendVerification: function () {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/resend-verification', {});
+    },
+
+    /* --- Gestión de la cuenta (requieren sesión) ---
+       changeEmail NO cambia el email al instante: deja el cambio pendiente
+       y manda un enlace de confirmación a la dirección nueva. */
+    changeEmail: function (email, password) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/change-email', { email: email, password: password });
+    },
+    confirmEmailChange: function (token) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/confirm-email-change', { token: token });
+    },
+    changePassword: function (currentPassword, newPassword) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/change-password', {
+        currentPassword: currentPassword,
+        newPassword: newPassword
+      });
+    },
+
     /* --- Foro --- */
     threads: function (params) { return request('GET', '/api/threads' + qs(params)); },
     thread: function (id, params) {
@@ -182,6 +279,9 @@
     guide: function (id) { return request('GET', '/api/guides/' + encodeURIComponent(id)); },
 
     /* --- Métricas de vistas --- */
-    view: function (type, id) { return request('POST', '/api/views', { type: type, id: id }); }
+    view: function (type, id) { return request('POST', '/api/views', { type: type, id: id }); },
+
+    /* --- Eventos de producto (no espera respuesta) --- */
+    event: event
   };
 })();

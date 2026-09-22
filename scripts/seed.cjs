@@ -8,12 +8,15 @@
      - BLOG_POSTS        → guides
      - COMUNIDAD_CATEGORIAS se usa solo para validar categorías
 
-   Es idempotente: usa ON CONFLICT ... DO UPDATE, así que se puede
-   correr varias veces sin duplicar nada.
+   Por DEFECTO es conservador: NO sobreescribe lo que ya existe en la base.
+   Si editaste algo desde el panel de admin, volver a correr el seed no te
+   borra el trabajo. Para pisar a propósito usá los flags de force.
 
    Uso:
      npm run seed
-     npm run seed -- --force-threads   # sobreescribe títulos/cuerpos ya editados
+     npm run seed -- --force        # sobreescribe hilos Y guías ya editados
+     npm run seed -- --force-threads # solo hilos
+     npm run seed -- --force-guides  # solo guías
    ============================================================ */
 'use strict';
 
@@ -23,6 +26,7 @@ loadEnv();
 requireDb();
 
 const db = require('../server/lib/db');
+const { guiaConflict } = require('./lib/seed-sql.cjs');
 
 /* El contenido semilla vive en js/content-data.js (CommonJS export). */
 const DATA = require(path.join(__dirname, '..', 'js', 'content-data.js'));
@@ -175,14 +179,19 @@ async function seedThreads(forceOverwrite) {
 
 /* ============================================================
    Seed de guías
+
+   Usa `guiaConflict(force)`: por defecto `DO NOTHING` (preserva las
+   ediciones del panel); solo con `--force` (o `--force-guides`) hace
+   `DO UPDATE` y pisa los campos que el panel puede editar.
    ============================================================ */
-async function seedGuides() {
+async function seedGuides(forceOverwrite) {
   const posts = Array.isArray(DATA.BLOG_POSTS) ? DATA.BLOG_POSTS : [];
   if (!posts.length) {
     warn('content-data.js no tiene BLOG_POSTS. Nada que hacer.');
     return 0;
   }
 
+  const conflict = guiaConflict(forceOverwrite);
   let count = 0;
   for (const g of posts) {
     const fecha = g.fecha ? new Date(`${g.fecha}T12:00:00Z`) : new Date();
@@ -191,19 +200,7 @@ async function seedGuides() {
          (id, category, title, summary, body, author, route, reading_minutes,
           views, image, tags, icon, is_featured, is_pro, is_published, created_at)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::text[],$12,$13,$14,true,$15)
-       ON CONFLICT (id) DO UPDATE SET
-         category = EXCLUDED.category,
-         title = EXCLUDED.title,
-         summary = EXCLUDED.summary,
-         body = EXCLUDED.body,
-         author = EXCLUDED.author,
-         route = EXCLUDED.route,
-         reading_minutes = EXCLUDED.reading_minutes,
-         image = EXCLUDED.image,
-         tags = EXCLUDED.tags,
-         icon = EXCLUDED.icon,
-         is_featured = EXCLUDED.is_featured,
-         is_pro = EXCLUDED.is_pro`,
+       ${conflict}`,
       [
         g.id,
         g.categoria || 'General',
@@ -246,18 +243,22 @@ async function main() {
   }
   ok('Esquema encontrado.');
 
-  const force = hasFlag('force-threads');
+  const forceThreads = hasFlag('force') || hasFlag('force-threads');
+  const forceGuides = hasFlag('force') || hasFlag('force-guides');
 
   step(`Insertando ${DATA.COMUNIDAD_HILOS.length} hilos y sus respuestas…`);
-  const t = await seedThreads(force);
+  const t = await seedThreads(forceThreads);
   ok(`${t.threads} hilos y ${t.replies} respuestas cargados.`);
-  if (!force) {
-    info('Los hilos existentes no se sobreescribieron. Usá --force-threads para pisarlos.');
+  if (!forceThreads) {
+    info('Los hilos existentes no se sobreescribieron. Usá --force-threads (o --force) para pisarlos.');
   }
 
   step(`Insertando ${DATA.BLOG_POSTS.length} guías de la Academia…`);
-  const g = await seedGuides();
+  const g = await seedGuides(forceGuides);
   ok(`${g} guías cargadas.`);
+  if (!forceGuides) {
+    info('Las guías existentes no se sobreescribieron: editarlas desde el panel es seguro. Usá --force-guides (o --force) para pisarlas.');
+  }
 
   console.log('');
   console.log(c.bold('  Resumen'));

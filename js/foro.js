@@ -173,7 +173,7 @@
 
   function wireCards(root) {
     $$('.thread-card[data-id]', root || document).forEach(card => {
-      const go = () => { window.location.href = 'hilo.html?id=' + encodeURIComponent(card.dataset.id); };
+      const go = () => { window.location.href = window.BerrysAPI.hiloUrl(card.dataset.id); };
       card.addEventListener('click', go);
       card.addEventListener('keydown', e => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }

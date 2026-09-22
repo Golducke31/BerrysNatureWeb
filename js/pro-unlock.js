@@ -28,6 +28,15 @@
     document.documentElement.classList.add('pro-unlocked');
     revealProUI();
     try { document.dispatchEvent(new CustomEvent('berrys:pro-unlocked')); } catch (e) {}
+
+    /* Métrica de conversión.
+       OJO: hoy el "pago" es una simulación local (ver el encabezado de este
+       archivo). El evento mide cuánta gente LLEGA al desbloqueo, no una
+       compra real. Cuando se conecte MercadoPago, esto se mueve al webhook
+       del servidor y recién ahí la métrica es una conversión de verdad. */
+    if (window.BerrysAPI && window.BerrysAPI.event) {
+      window.BerrysAPI.event('pro_desbloqueado', { simulado: true });
+    }
   }
 
   function toast(msg, iconName) {

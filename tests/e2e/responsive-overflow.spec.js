@@ -9,7 +9,17 @@ const path = require('path');
   página en 5 anchos y fallan si `documentElement.scrollWidth` supera el
   ancho del viewport (es decir, si aparece scroll horizontal).
 */
-const PAGES = ['index.html', 'academia.html', 'glosario.html', 'foro.html'];
+const PAGES = [
+  'index.html',
+  'academia.html',
+  'glosario.html',
+  'foro.html',
+  'recuperar.html',
+  'verificar.html',
+  'cuenta.html',
+  'privacidad.html',
+  'terminos.html'
+];
 const WIDTHS = [320, 375, 768, 1024, 1280];
 
 PAGES.forEach((file, i) => {

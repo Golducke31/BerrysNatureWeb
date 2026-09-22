@@ -2,11 +2,19 @@
    server/lib/csrf.js — Protección CSRF
 
    Doble barrera:
-   1) La cookie de sesión es SameSite=Strict (el navegador no la
-      manda en requests cross-site).
+   1) La cookie de sesión es SameSite=Lax. El navegador NO la manda en
+      requests cross-site de escritura (POST/PUT/DELETE), así que un
+      formulario alojado en otro sitio no puede actuar en nombre del
+      usuario. Sí la manda en navegaciones GET de nivel superior.
    2) Double-submit token: el cliente debe enviar el header
       X-CSRF-Token cuyo sha256 coincida con el guardado en la sesión.
    Además se valida el header Origin cuando está presente.
+
+   ALCANCE REAL (importante): `assertValid` hoy solo se llama desde
+   server/handlers/admin.js. Los endpoints públicos que mutan datos
+   (hilos, respuestas, likes) NO lo validan — quedan cubiertos solo por
+   la barrera 1. Está pendiente extenderlo (decisión D13 en
+   PLAN-PRODUCCION.md). Los endpoints de gestión de cuenta sí lo validan.
    ============================================================ */
 'use strict';
 

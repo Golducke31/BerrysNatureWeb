@@ -207,7 +207,7 @@
         '<p class="mod-item__excerpt">' + escapeHtml(String(h.cuerpo || '').slice(0, 160)) +
           (String(h.cuerpo || '').length > 160 ? '…' : '') + '</p>' +
         '<div class="mod-item__actions">' +
-          '<a class="mod-btn" href="hilo.html?id=' + encodeURIComponent(h.id) + '">' + icon('eye') + ' Ver</a>' +
+          '<a class="mod-btn" href="' + window.BerrysAPI.hiloUrl(h.id) + '">' + icon('eye') + ' Ver</a>' +
           '<button class="mod-btn" type="button" data-mod-act="ocultar" data-mod-id="' + escapeHtml(h.id) + '">' +
             icon(h.oculto ? 'unlock' : 'ban') + (h.oculto ? ' Restaurar' : ' Ocultar') + '</button>' +
           '<button class="mod-btn" type="button" data-mod-act="fijar" data-mod-id="' + escapeHtml(h.id) + '">' +

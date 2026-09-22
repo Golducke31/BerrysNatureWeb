@@ -54,6 +54,7 @@
           '<span class="user-avatar">' + initial(currentUser.nombre) + '</span>' +
           '<span class="user-name">' + escapeHtml(currentUser.nombre) + '</span>' +
         '</button>' +
+        '<a class="nav-ghost-btn" id="accountBtn" href="cuenta.html">Mi cuenta</a>' +
         extra +
         '<button class="nav-ghost-btn" id="logoutBtn" type="button">Salir</button>';
 

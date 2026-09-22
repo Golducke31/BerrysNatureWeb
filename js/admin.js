@@ -160,6 +160,7 @@
      ============================================================ */
   var NAV = [
     { id: 'dashboard', label: 'Dashboard', icon: 'chart' },
+    { id: 'metrics', label: 'Métricas', icon: 'eye' },
     { id: 'threads', label: 'Hilos del foro', icon: 'chat' },
     { id: 'guides', label: 'Guías', icon: 'book' },
     { id: 'users', label: 'Usuarios', icon: 'shield' },
@@ -214,6 +215,7 @@
 
     var renderers = {
       dashboard: renderDashboard,
+      metrics: renderMetrics,
       threads: renderThreads,
       guides: renderGuides,
       users: renderUsers,
@@ -235,6 +237,86 @@
   /* ============================================================
      DASHBOARD
      ============================================================ */
+  /* ============================================================
+     MÉTRICAS
+     ============================================================ */
+
+  /** Gráfico de barras con CSS: el panel no carga librerías externas
+      (y la CSP tampoco las permitiría). */
+  function barras(serie) {
+    if (!serie.length) return '<p class="admin-empty">Sin datos todavía.</p>';
+
+    var max = serie.reduce(function (acc, d) { return Math.max(acc, d.n); }, 0) || 1;
+
+    return '<div class="admin-chart" role="img" aria-label="Vistas por día">' +
+      serie.map(function (d) {
+        var alto = Math.max(Math.round((d.n / max) * 100), d.n > 0 ? 6 : 2);
+        return '<div class="admin-chart__col" title="' + escapeHtml(d.dia) + ': ' + d.n + ' vistas">' +
+          '<span class="admin-chart__bar' + (d.n === 0 ? ' is-zero' : '') + '" style="height:' + alto + '%"></span>' +
+          '<span class="admin-chart__label">' + escapeHtml(d.dia.slice(8)) + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderMetrics() {
+    $('#adminMain').innerHTML = '<div class="admin-loading"><div class="admin-spinner"></div><p>Cargando métricas…</p></div>';
+
+    req('GET', '/stats')
+      .then(function (s) {
+        var porNombre = {};
+        s.eventos.porNombre.forEach(function (e) { porNombre[e.nombre] = e.n; });
+
+        var cards = [
+          ['Vistas (' + s.diasTotales + ' días)', s.vistas.total, 'Lecturas de guías e hilos'],
+          ['Cuentas creadas', porNombre.registro || 0, 'Conversión a registro'],
+          ['Hilos publicados', porNombre.hilo_creado || 0, 'Contenido de la comunidad'],
+          ['Desbloqueos PRO', porNombre.pro_desbloqueado || 0, 'El pago todavía es simulado']
+        ];
+
+        $('#adminMain').innerHTML =
+          '<div class="admin-topbar">' +
+            '<div><h1 class="admin-title">Métricas</h1>' +
+            '<p class="admin-subtitle">Últimos ' + s.dias + ' días, desde la base propia. Sin cookies ni terceros.</p></div>' +
+            '<button class="admin-btn" type="button" id="metricsReload">Actualizar</button>' +
+          '</div>' +
+
+          '<div class="admin-cards">' +
+            cards.map(function (c) {
+              return '<div class="admin-card"><div class="admin-card__value">' + c[1] + '</div>' +
+                '<div class="admin-card__label">' + escapeHtml(c[0]) + '</div>' +
+                '<p class="admin-help">' + escapeHtml(c[2]) + '</p></div>';
+            }).join('') +
+          '</div>' +
+
+          '<div class="admin-panel">' +
+            '<div class="admin-panel__head"><h2>Vistas por día</h2></div>' +
+            barras(s.vistas.porDia) +
+          '</div>' +
+
+          '<div class="admin-panel">' +
+            '<div class="admin-panel__head"><h2>Eventos (' + s.diasTotales + ' días)</h2></div>' +
+            (s.eventos.porNombre.length
+              ? '<div class="admin-table-wrap"><table class="admin-table"><tbody>' +
+                  s.eventos.porNombre.map(function (e) {
+                    return '<tr><td class="admin-cell-title">' + escapeHtml(e.etiqueta) + '</td>' +
+                      '<td><code>' + escapeHtml(e.nombre) + '</code></td>' +
+                      '<td>' + e.n + '</td></tr>';
+                  }).join('') + '</tbody></table></div>'
+              : '<p class="admin-empty">Todavía no hay eventos registrados. Se cargan solos a medida que la gente usa el sitio.</p>') +
+          '</div>';
+
+        var reload = $('#metricsReload');
+        if (reload) reload.addEventListener('click', renderMetrics);
+      })
+      .catch(function (err) {
+        $('#adminMain').innerHTML =
+          '<div class="admin-panel"><p class="admin-empty">' +
+            escapeHtml(err.message || 'No pudimos cargar las métricas.') +
+          '</p></div>';
+      });
+  }
+
   function renderDashboard() {
     req('GET', '/metrics')
       .then(function (m) {
