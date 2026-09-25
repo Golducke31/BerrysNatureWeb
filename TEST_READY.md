@@ -4,9 +4,9 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 179 tests que corren contra los `.html` con `file://`
+- **Suite estática (frontend):** 181 tests que corren contra los `.html` con `file://`
   (no requiere base de datos). Ver abajo los archivos 1–14.
-- **Suite de backend (API + ruta secreta del admin + página de hilo):** vive en
+- **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
   - `admin-routing.spec.js` (6 tests) — verifica la ofuscación de la ruta secreta del panel.
     **No requiere base de datos** y pasa en verde tal cual.
@@ -15,11 +15,19 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     limpiamente si no hay base.
   - `paginas-ssr.spec.js` (9 tests) — 3 verifican `BerrysAPI.hiloUrl` y `BerrysAPI.event` sobre
     http (sin base) y 6 la página de hilo renderizada en el servidor (**requieren `DATABASE_URL`**).
+  - `etapa5.spec.js` (13 tests) — gate de privacidad de perfiles (D6), que reportar exija sesión, los
+    endpoints de F8 (editar perfil / borrar cuenta) sin sesión, insignias de reputación (unitarias
+    puras), `autorAvatar` y `emprendimiento` en la serialización, y `GET /api/likes` sin sesión.
+    **No requiere base de datos** y pasa en verde tal cual.
+  - `pagos.spec.js` (8 tests) — firma HMAC del webhook de MercadoPago (unitario puro), parseo del
+    header `x-signature`, que el checkout exija sesión, que el webhook sin cobro configurado responda
+    «ignorado», y que `GET /api/<slug>/revenue` exija sesión de admin. **No requiere base de datos** y
+    pasa en verde tal cual.
 
 ## Test Files
-The static suite contains exactly 179 tests (the old catalog-hotspots and cart-integration specs
+The static suite contains exactly 181 tests (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (537 runs in total). The backend suite adds 20 tests (6 routing + 5 API + 9 SSR).
+and WebKit (543 runs in total). The backend suite adds 41 tests (6 routing + 5 API + 9 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 6 enlaces (Inicio/Academia/Glosario/Berry's Calculator/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
@@ -31,8 +39,8 @@ and WebKit (537 runs in total). The backend suite adds 20 tests (6 routing + 5 A
    - Login/logout (localStorage `berrys_user`), pestaña "Crear cuenta" muestra nombre, formulario de contacto (vacío / completo → "Mensaje enviado"), desbloqueo sin sesión abre registro, launcher y panel de Niko, degradación de Niko.
 5. `tests/e2e/foro.spec.js` (10 tests)
    - Banner del foro, lista de hilos, hilo destacado, filtro por categoría, buscador, badge "Sin responder", avatares con iniciales, gate "Publicar consulta" abre el modal de acceso, estado vacío sin resultados, enlace de vuelta a la Academia.
-6. `tests/e2e/responsive-overflow.spec.js` (9 tests)
-   - Guarda de regresión de scroll horizontal: cada página (index, academia, glosario, foro, recuperar, verificar, cuenta, privacidad, terminos) se recorre en 320/375/768/1024/1280px y falla si `documentElement.scrollWidth` supera el viewport.
+6. `tests/e2e/responsive-overflow.spec.js` (11 tests)
+   - Guarda de regresión de scroll horizontal: cada página (index, academia, glosario, foro, perfil, recuperar, verificar, cuenta, privacidad, terminos, normas) se recorre en 320/375/768/1024/1280px y falla si `documentElement.scrollWidth` supera el viewport.
 7. `tests/e2e/cuenta.spec.js` (18 tests)
    - Recuperación de contraseña: panel correcto según haya `?token=` o no, validación de email vacío, contraseñas que no coinciden, contraseña de menos de 10 caracteres, y degradación sin backend. Confirmación de email: falta el token / sin backend / `accion=cambio-email` cambia el título. Modal de acceso: el enlace a `recuperar.html` existe y se oculta en la pestaña "Crear cuenta". **Mi cuenta** (`cuenta.html`): estado sin sesión, datos con sesión, estado de verificación, cambio de email pendiente, cuenta de Google sin formularios, validación local de la contraseña nueva, y el enlace "Mi cuenta" en el header.
 8. `tests/e2e/legal.spec.js` (5 tests)
@@ -60,14 +68,29 @@ and WebKit (537 runs in total). The backend suite adds 20 tests (6 routing + 5 A
     - API pública: `GET /api/threads` lista hilos, `GET /api/guides` lista guías, registro crea cuenta
       y mantiene sesión, login con credenciales incorrectas → 401, métricas del panel sin sesión → 401.
       **Requiere `DATABASE_URL`** (esquema + seed); se saltean sin base.
+18. `tests/e2e/etapa5.spec.js` (13 tests) — **suite de backend**
+    - Etapa 5: el gate de privacidad de perfiles (D6) responde 404 + `noindex` con el flag apagado,
+      `/api/users/:id` también da 404, `POST /api/reports` sin sesión da 401, el cliente expone
+      `BerrysAPI.report` y el modal de reporte; F8: `update-profile` y `delete-account` sin sesión
+      dan 401 y el cliente expone ambos métodos; reputación: `computeBadges` (unitario puro) y
+      `autorAvatar` en `serialize.thread/reply`; like optimista: `GET /api/likes` sin sesión da 200
+      vacío y el cliente expone `likesState`; `emprendimiento` en `userProfile`/`userSelf`.
+      **No requiere DB.**
+19. `tests/e2e/pagos.spec.js` (8 tests) — **suite de backend**
+    - Pagos (O9): verificación de la firma HMAC del webhook de MercadoPago (válida / alterada / sin
+      secreto) y parseo del header `x-signature`; `POST /api/payments/checkout` sin sesión → 401;
+      `POST /api/webhooks/mercadopago` sin cobro configurado → 200 «ignorado»; el cliente expone
+      `BerrysAPI.checkout`; y `GET /api/<slug>/revenue` (panel de ingresos) sin sesión de admin → 401.
+      **No requiere DB.**
 
 ## Verification
-La suite estática (179 tests) está verificada y en verde. La suite de backend corre con
-`npm run test:api`: los 6 tests de routing del admin y los 3 de `hiloUrl`/`event` pasan sin base
-de datos; los 5 de API y los 6 de render en servidor se saltean si no hay `DATABASE_URL`.
+La suite estática (181 tests) está verificada y en verde. La suite de backend corre con
+`npm run test:api`: los 6 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
+Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
+saltean si no hay `DATABASE_URL`.
 
-- **Corrida verificada (Chromium):** estática **179/179 passed**; backend **9/9 passed**, **11 skipped** (sin DB).
-- La cuenta cross-browser completa (Chromium + Firefox + WebKit) es **537 corridas** para la parte estática.
+- **Corrida verificada (Chromium):** estática **181/181 passed**; backend **30/30 passed**, **11 skipped** (sin DB).
+- La cuenta cross-browser completa (Chromium + Firefox + WebKit) es **543 corridas** para la parte estática.
 
 > Los flujos que necesitan base (envío real del email, consumo del token de un solo uso,
 > revocación de sesiones al cambiar la contraseña) **no** están cubiertos por la suite estática:

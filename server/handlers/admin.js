@@ -434,6 +434,42 @@ async function deleteThread(req, res, params, body) {
   json(res, 200, { ok: true });
 }
 
+/**
+ * PATCH /replies/:id — moderar una respuesta (ocultar/restaurar o editar).
+ * Se usa desde la cola de reportes cuando el objetivo es una respuesta.
+ */
+async function updateReply(req, res, params, body) {
+  const current = await guards.requireRole(req, res, 'admin', 'admin');
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+
+  const row = await db.one('SELECT * FROM forum_replies WHERE id = $1', [params.id]);
+  if (!row) return notFound(res);
+
+  const patch = {};
+  if (body.cuerpo !== undefined) patch.body = V.str(body.cuerpo, { min: 5, max: 4000, field: 'respuesta' });
+  if (body.oculto !== undefined) patch.is_hidden = V.bool(body.oculto, row.is_hidden);
+
+  const keys = Object.keys(patch);
+  if (!keys.length) return fail(res, 400, 'invalid_input', 'No enviaste ningún cambio.');
+
+  const sets = keys.map((k, i) => `${k} = $${i + 1}`).join(', ');
+  const values = keys.map(k => patch[k]);
+  values.push(params.id);
+
+  const updated = await db.one(
+    `UPDATE forum_replies SET ${sets} WHERE id = $${values.length} RETURNING *`,
+    values
+  );
+
+  await audit.log({
+    actor: current.user, action: 'admin.reply.update', entityType: 'reply',
+    entityId: params.id, payload: patch, ip: getClientIp(req)
+  });
+
+  json(res, 200, { respuesta: S.reply(updated) });
+}
+
 /* ============================================================
    Guías
    ============================================================ */
@@ -656,11 +692,78 @@ async function listAudit(req, res) {
   json(res, 200, { items });
 }
 
+/**
+ * GET /revenue — ingresos del desbloqueo PRO (O9).
+ * Tolerante a que la migración 006 todavía no haya corrido: si falta la
+ * tabla, devuelve todo en cero en vez de romper el panel.
+ */
+async function revenue(req, res) {
+  const current = await guards.requireRole(req, res, 'admin', 'admin');
+  if (!current) return;
+
+  const q = getQuery(req);
+  const dias = Math.min(Math.max(Number(q.get('dias')) || 30, 7), 180);
+
+  const vacio = { total: 0, aprobados: 0, pendientes: 0, registros: 0, pro: 0, serie: [], ultimos: [] };
+
+  try {
+    const total = await db.one(
+      `SELECT
+         coalesce(sum(amount) FILTER (WHERE status = 'approved'), 0)::float AS total,
+         count(*) FILTER (WHERE status = 'approved')::int AS aprobados,
+         count(*) FILTER (WHERE status = 'pending')::int  AS pendientes,
+         count(*)::int AS registros
+       FROM payments`
+    );
+
+    const pro = await db.one(
+      `SELECT count(*)::int AS n FROM users
+        WHERE (permissions->>'calculadora_pro')::boolean IS TRUE`
+    );
+
+    const serie = await db.query(
+      `SELECT to_char(d, 'YYYY-MM-DD') AS dia,
+              coalesce(count(p.id) FILTER (WHERE p.status = 'approved'), 0)::int AS n,
+              coalesce(sum(p.amount) FILTER (WHERE p.status = 'approved'), 0)::float AS monto
+         FROM generate_series(current_date - ($1::int - 1), current_date, interval '1 day') AS d
+         LEFT JOIN payments p
+           ON p.status = 'approved' AND p.updated_at::date = d::date
+        GROUP BY d
+        ORDER BY d`,
+      [dias]
+    );
+
+    const ultimos = await db.query(
+      `SELECT p.id, p.status, p.amount, p.currency, p.payment_id, p.created_at, p.updated_at,
+              u.display_name AS usuario, u.email AS email
+         FROM payments p
+         LEFT JOIN users u ON u.id = p.user_id
+        ORDER BY p.created_at DESC
+        LIMIT 20`
+    );
+
+    return json(res, 200, {
+      total: (total && total.total) || 0,
+      aprobados: (total && total.aprobados) || 0,
+      pendientes: (total && total.pendientes) || 0,
+      registros: (total && total.registros) || 0,
+      pro: (pro && pro.n) || 0,
+      serie: serie || [],
+      ultimos: ultimos || []
+    });
+  } catch (err) {
+    // Migración 006 pendiente: el panel muestra ceros.
+    console.error('[admin] no se pudo leer ingresos:', err && err.message);
+    return json(res, 200, vacio);
+  }
+}
+
 module.exports = {
   login, logout, session,
   metrics, stats,
-  listThreads, createThread, updateThread, deleteThread,
+  listThreads, createThread, updateThread, deleteThread, updateReply,
   listGuides, createGuide, updateGuide, deleteGuide,
   listUsers, updateUser,
-  listAudit
+  listAudit,
+  revenue
 };

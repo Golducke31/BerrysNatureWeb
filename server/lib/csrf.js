@@ -10,11 +10,13 @@
       X-CSRF-Token cuyo sha256 coincida con el guardado en la sesión.
    Además se valida el header Origin cuando está presente.
 
-   ALCANCE REAL (importante): `assertValid` hoy solo se llama desde
-   server/handlers/admin.js. Los endpoints públicos que mutan datos
-   (hilos, respuestas, likes) NO lo validan — quedan cubiertos solo por
-   la barrera 1. Está pendiente extenderlo (decisión D13 en
-   PLAN-PRODUCCION.md). Los endpoints de gestión de cuenta sí lo validan.
+   ALCANCE REAL: `assertValid` se aplica en server/handlers/admin.js
+   (panel), server/handlers/auth.js (gestión de cuenta) y
+   server/handlers/threads.js (crear/editar/borrar hilo y respuesta, y
+   like). Cubre los endpoints públicos que mutan datos, además de la
+   barrera 1 (cookie Lax). Decisión D13 de PLAN-PRODUCCION.md: extender
+   la validación a todos los endpoints públicos que mutan datos —
+   implementado.
    ============================================================ */
 'use strict';
 

@@ -20,7 +20,7 @@ const csrf = require('../lib/csrf');
 const events = require('../lib/events');
 const turnstile = require('../lib/turnstile');
 const guards = require('../lib/guards');
-const { json, fail, notFound, getClientIp, readBody } = require('../lib/http');
+const { json, fail, notFound, getClientIp, getQuery, readBody } = require('../lib/http');
 
 const CATEGORIAS = ['Formulación', 'Negocio', 'Taller', 'Proveedores', 'Legal'];
 const ICONOS = ['seedling', 'flask', 'beaker', 'chat', 'bulb', 'droplet', 'soap',
@@ -37,6 +37,7 @@ function safeIcon(value) {
 async function createThread(req, res, body) {
   const current = await guards.requireUser(req, res);
   if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
 
   const ip = getClientIp(req);
   const captcha = await turnstile.verify(body && body.turnstileToken, ip);
@@ -144,6 +145,7 @@ async function deleteThread(req, res, params, body) {
 async function createReply(req, res, params, body) {
   const current = await guards.requireUser(req, res);
   if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
 
   const ip = getClientIp(req);
   const captcha = await turnstile.verify(body && body.turnstileToken, ip);
@@ -254,6 +256,7 @@ async function deleteReply(req, res, params, body) {
 async function toggleLike(req, res, body) {
   const current = await guards.requireUser(req, res);
   if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
 
   const targetType = body && body.targetType === 'reply' ? 'reply' : 'thread';
   const targetId = String((body && body.targetId) || '').slice(0, 120);
@@ -290,9 +293,39 @@ async function toggleLike(req, res, body) {
   json(res, 200, { liked, likes: row ? row.likes_count : 0 });
 }
 
+/**
+ * GET /api/likes?thread=<id> — qué likeó el usuario en este hilo.
+ *
+ * Sirve para que el cliente pinte el corazón ya lleno (y así el toggle
+ * optimista parta del estado correcto). Si no hay sesión, devuelve vacío
+ * en vez de 401: no es un error, simplemente no hay nada likeado.
+ */
+async function listLikes(req, res) {
+  const q = getQuery(req);
+  const threadId = String(q.get('thread') || '').slice(0, 200);
+  const current = await auth.getSession(req, 'public').catch(() => null);
+
+  if (!current || !threadId) return json(res, 200, { thread: false, replies: [] });
+
+  const rows = await db.query(
+    `SELECT l.target_type, l.target_id
+       FROM forum_likes l
+      WHERE l.user_id = $1
+        AND ((l.target_type = 'thread' AND l.target_id = $2)
+          OR (l.target_type = 'reply' AND l.target_id IN (
+                SELECT r.id FROM forum_replies r WHERE r.thread_id = $2)))`,
+    [current.user.id, threadId]
+  );
+
+  json(res, 200, {
+    thread: rows.some(r => r.target_type === 'thread'),
+    replies: rows.filter(r => r.target_type === 'reply').map(r => r.target_id)
+  });
+}
+
 module.exports = {
   CATEGORIAS,
   createThread, updateThread, deleteThread,
   createReply, updateReply, deleteReply,
-  toggleLike
+  toggleLike, listLikes
 };

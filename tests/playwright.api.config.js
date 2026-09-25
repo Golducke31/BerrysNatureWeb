@@ -17,7 +17,13 @@ const env = require('./e2e/_admin-env');
 
 module.exports = defineConfig({
   testDir: './e2e',
-  testMatch: ['**/admin-routing.spec.js', '**/api.spec.js', '**/paginas-ssr.spec.js'],
+  testMatch: [
+    '**/admin-routing.spec.js',
+    '**/api.spec.js',
+    '**/paginas-ssr.spec.js',
+    '**/etapa5.spec.js',
+    '**/pagos.spec.js'
+  ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
@@ -39,7 +45,10 @@ module.exports = defineConfig({
       ADMIN_GATE_KEY: env.ADMIN_GATE_KEY,
       ADMIN_IP_ALLOWLIST: '',
       SESSION_SECRET: 'testsessionsecret_0123456789abcdef0123456789',
-      DATABASE_URL: process.env.DATABASE_URL || ''
+      DATABASE_URL: process.env.DATABASE_URL || '',
+      // Sin cobro configurado: el webhook debe responder "ignorado" (200).
+      MERCADOPAGO_ACCESS_TOKEN: '',
+      MERCADOPAGO_WEBHOOK_SECRET: ''
     }
   },
   projects: [

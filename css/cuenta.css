@@ -157,6 +157,24 @@
   border-color: var(--color-cta);
 }
 
+/* Botón destructivo (borrar cuenta). Mantiene su color al pasar el mouse
+   (la regla genérica de :hover cambiaría el fondo al de la CTA). */
+.cuenta-submit--danger {
+  background: var(--color-terracota-deep, #8f4a35);
+  color: #fff;
+}
+
+.cuenta-submit--danger:hover:not(:disabled) {
+  background: var(--color-terracota-deep, #8f4a35);
+  filter: brightness(0.93);
+}
+
+/* La bio usa el mismo input, pero es un textarea. */
+textarea.cuenta-input {
+  resize: vertical;
+  min-height: 84px;
+}
+
 /* ============================================================
    cuenta.html — bloques de la página de cuenta
    ============================================================ */

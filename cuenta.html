@@ -109,6 +109,40 @@
         </button>
       </div>
 
+      <!-- ---------- Perfil público (F8) ---------- -->
+      <div class="cuenta-block" id="bloquePerfil">
+        <h2 class="cuenta-block__title">Perfil público</h2>
+        <p class="cuenta-hint">
+          Tu nombre visible, tu avatar y una bio corta. Se usan en el foro.
+        </p>
+
+        <p class="cuenta-msg" id="perfilMsg" hidden role="status" aria-live="polite"></p>
+
+        <form id="perfilForm" novalidate>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="perfilNombre">Nombre visible</label>
+            <input class="cuenta-input" type="text" id="perfilNombre" name="perfilNombre"
+                   maxlength="60" autocomplete="nickname" required>
+          </div>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="perfilAvatar">URL del avatar (opcional)</label>
+            <input class="cuenta-input" type="url" id="perfilAvatar" name="perfilAvatar"
+                   maxlength="500" placeholder="https://…" autocomplete="off">
+          </div>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="perfilEmprendimiento">Emprendimiento (opcional)</label>
+            <input class="cuenta-input" type="text" id="perfilEmprendimiento" name="perfilEmprendimiento"
+                   maxlength="100" placeholder="El nombre de tu proyecto o marca" autocomplete="organization">
+          </div>
+          <div class="cuenta-field">
+            <label class="cuenta-label" for="perfilBio">Bio (opcional)</label>
+            <textarea class="cuenta-input" id="perfilBio" name="perfilBio" rows="3"
+                      maxlength="500" placeholder="Contá a qué te dedicás."></textarea>
+          </div>
+          <button class="cuenta-submit" type="submit" id="perfilSubmit">Guardar perfil</button>
+        </form>
+      </div>
+
       <!-- ---------- Cuenta de Google ---------- -->
       <div class="cuenta-block" id="bloqueGoogle" hidden>
         <h2 class="cuenta-block__title">Cuenta de Google</h2>
@@ -171,6 +205,33 @@
                    autocomplete="new-password" minlength="10" required>
           </div>
           <button class="cuenta-submit" type="submit" id="passSubmit">Guardar contraseña</button>
+        </form>
+      </div>
+
+      <!-- ---------- Zona de peligro (F8) ---------- -->
+      <div class="cuenta-block" id="bloquePeligro">
+        <h2 class="cuenta-block__title">Zona de peligro</h2>
+        <p class="cuenta-hint">
+          Borrar la cuenta es permanente. Tus hilos y respuestas siguen en el foro, pero
+          desvinculados de tu identidad (van a figurar como «Usuario eliminado»).
+        </p>
+
+        <p class="cuenta-msg" id="borrarMsg" hidden role="status" aria-live="polite"></p>
+
+        <form id="borrarForm" novalidate>
+          <div class="cuenta-field" id="borrarPassField">
+            <label class="cuenta-label" for="borrarPassword">Tu contraseña</label>
+            <input class="cuenta-input" type="password" id="borrarPassword" name="borrarPassword"
+                   autocomplete="current-password">
+          </div>
+          <div class="cuenta-field" id="borrarConfirmField" hidden>
+            <label class="cuenta-label" for="borrarConfirm">Escribí ELIMINAR para confirmar</label>
+            <input class="cuenta-input" type="text" id="borrarConfirm" name="borrarConfirm"
+                   autocomplete="off" placeholder="ELIMINAR">
+          </div>
+          <button class="cuenta-submit cuenta-submit--danger" type="submit" id="borrarSubmit">
+            Borrar mi cuenta
+          </button>
         </form>
       </div>
 

@@ -8,7 +8,7 @@ Prototipo de alta fidelidad para la marca de cosmética natural **Berry's Nature
 
 - **Landing, navegación, calculadora, academia, glosario y foro:** implementados en el prototipo estático.
 - **Backend serverless (Vercel + Neon Postgres):** cuentas públicas reales, foro y academia servidos desde la base, y un **panel de administración secreto con 2FA** (ruta ofuscada por slug + clave de puerta, assets no públicos). Ver `ARQUITECTURA-TECNICA.md`.
-- **Suite E2E (Playwright):** estática (179 pruebas, 537 corridas cross-browser) + backend (`admin-routing` 6 sin DB, `api` 5 con DB, `paginas-ssr` 9). Ver `TEST_READY.md`.
+- **Suite E2E (Playwright):** estática (181 pruebas, 543 corridas cross-browser) + backend (`admin-routing` 6 sin DB, `api` 5 con DB, `paginas-ssr` 9, `etapa5` 13 sin DB, `pagos` 8 sin DB). Ver `TEST_READY.md`.
 - **Documentación:** arquitectura, brief y plan de migración a WordPress disponibles en los `.md` del repo.
 
 ## Estructura del proyecto
@@ -49,7 +49,7 @@ python3 -m http.server 8000
 
 ```bash
 npm install        # instala @playwright/test
-npm test           # suite estática: 179 tests (537 corridas: Chromium + Firefox + WebKit)
+npm test           # suite estática: 181 tests (543 corridas: Chromium + Firefox + WebKit)
 npm run test:report # abre el reporte HTML
 
 # Suite de backend (levanta el dev server en :3000)

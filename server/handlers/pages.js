@@ -23,6 +23,8 @@
 const db = require('../lib/db');
 const S = require('../lib/serialize');
 const indexability = require('../lib/indexability');
+const features = require('../lib/features');
+const reputation = require('../lib/reputation');
 const { html, xml } = require('../lib/http');
 const { esc } = require('../admin-ui');
 
@@ -182,6 +184,17 @@ function scriptsHtml() {
   <script src="/js/hilo.js"></script>`;
 }
 
+/** Scripts mínimos del perfil: no carga hilo.js ni mod-panel.js. */
+function scriptsPerfil() {
+  return `
+  <script src="/js/icons.js"></script>
+  <script src="/js/content-data.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/community.js"></script>`;
+}
+
 /** Hojas de estilo del foro (por defecto). */
 const CSS_FORO = ['styles', 'sections', 'academia', 'foro', 'niko-widget'];
 /** Hojas de estilo de una guía: reusa el layout de los artículos. */
@@ -247,18 +260,23 @@ function threadCardHtml(hilo) {
           </div>
           <h1 class="hilo-titulo">${esc(hilo.titulo)}</h1>
           <div class="hilo-autor">
-            <span class="thread-avatar thread-avatar--initials" aria-hidden="true">${esc(iniciales(hilo.autor))}</span>
+            ${avatarHtml(hilo.autor, hilo.autorAvatar)}
             <span>por <strong>${esc(hilo.autor)}</strong></span>
             <span class="thread-time">· ${esc(fechaCorta(hilo.createdAt))}</span>
           </div>
           <div class="hilo-cuerpo">${esc(hilo.cuerpo).replace(/\n/g, '<br>')}</div>
           <footer class="thread-footer">
             <div class="thread-actions">
-              <button class="thread-action" type="button" data-like-thread="${esc(hilo.id)}">
+              <button class="thread-action" type="button" data-like-thread="${esc(hilo.id)}" aria-pressed="false">
                 <i data-icon="heart"></i> <span data-likes>${hilo.likes || 0}</span>
               </button>
               <span class="thread-action thread-action--static"><i data-icon="chat"></i> ${hilo.respuestas || 0}</span>
               <span class="thread-action thread-action--static"><i data-icon="eye"></i> ${(hilo.vistas || 0).toLocaleString('es-AR')}</span>
+              <button class="thread-action thread-action--report" type="button"
+                      data-report-thread="${esc(hilo.id)}" data-report-label="${esc(hilo.titulo)}"
+                      aria-label="Reportar este hilo" title="Reportar">
+                <i data-icon="flag"></i>
+              </button>
             </div>
           </footer>
         </article>`;
@@ -273,7 +291,7 @@ function repliesHtml(respuestas) {
   return `<h2 class="hilo-respuestas__title">Respuestas (${respuestas.length})</h2>` +
     respuestas.map((r) => `
         <article class="hilo-respuesta" data-id="${esc(r.id)}">
-          <span class="thread-avatar thread-avatar--initials" aria-hidden="true">${esc(iniciales(r.autor))}</span>
+          ${avatarHtml(r.autor, r.autorAvatar)}
           <div class="hilo-respuesta__main">
             <div class="hilo-respuesta__head">
               <strong>${esc(r.autor)}</strong>
@@ -281,8 +299,13 @@ function repliesHtml(respuestas) {
             </div>
             <div class="hilo-respuesta__cuerpo">${esc(r.cuerpo).replace(/\n/g, '<br>')}</div>
             <div class="hilo-respuesta__actions">
-              <button class="thread-action" type="button" data-like-reply="${esc(r.id)}">
+              <button class="thread-action" type="button" data-like-reply="${esc(r.id)}" aria-pressed="false">
                 <i data-icon="heart"></i> <span data-likes>${r.likes || 0}</span>
+              </button>
+              <button class="thread-action thread-action--report" type="button"
+                      data-report-reply="${esc(r.id)}" data-report-label="respuesta de ${esc(r.autor)}"
+                      aria-label="Reportar esta respuesta" title="Reportar">
+                <i data-icon="flag"></i>
               </button>
             </div>
           </div>
@@ -292,6 +315,24 @@ function repliesHtml(respuestas) {
 function iniciales(nombre) {
   return String(nombre || '?').trim().split(/\s+/).slice(0, 2)
     .map((w) => w[0] || '').join('').toUpperCase();
+}
+
+/** Avatar del autor: imagen real si tiene, si no iniciales. */
+function avatarHtml(nombre, avatar) {
+  const url = String(avatar || '').trim();
+  if (url) {
+    return `<img class="thread-avatar" src="${esc(url)}" alt="" loading="lazy" decoding="async">`;
+  }
+  return `<span class="thread-avatar thread-avatar--initials" aria-hidden="true">${esc(iniciales(nombre))}</span>`;
+}
+
+/** Lista de insignias de reputación (o cadena vacía si no hay ninguna). */
+function badgesHtml(badges) {
+  const list = Array.isArray(badges) ? badges : [];
+  if (!list.length) return '';
+  return `<ul class="badge-list">${list.map((b) =>
+    `<li class="badge" title="${esc(b.descripcion || '')}"><i data-icon="${esc(b.icon || 'gem')}"></i> ${esc(b.label)}</li>`
+  ).join('')}</ul>`;
 }
 
 function bodyHilo({ hilo, respuestas }) {
@@ -354,7 +395,13 @@ async function replicantesDistintos(threadId, autorId) {
  * GET /foro/hilo/:id — página canónica de un hilo, renderizada en el servidor.
  */
 async function renderThread(req, res, { id }) {
-  const row = await db.one('SELECT * FROM forum_threads WHERE id = $1', [id]);
+  const row = await db.one(
+    `SELECT t.*, u.avatar_url AS author_avatar
+       FROM forum_threads t
+       LEFT JOIN users u ON u.id = t.author_id
+      WHERE t.id = $1`,
+    [id]
+  );
 
   // Hilo inexistente u oculto → 404 real, sin filtrar que existió.
   if (!row || row.is_hidden) {
@@ -382,7 +429,11 @@ async function renderThread(req, res, { id }) {
   const hilo = S.thread(row);
 
   const repliesRows = await db.many(
-    'SELECT * FROM forum_replies WHERE thread_id = $1 AND is_hidden = false ORDER BY created_at',
+    `SELECT r.*, u.avatar_url AS author_avatar
+       FROM forum_replies r
+       LEFT JOIN users u ON u.id = r.author_id
+      WHERE r.thread_id = $1 AND r.is_hidden = false
+      ORDER BY r.created_at`,
     [id]
   );
   const respuestas = repliesRows.map(S.reply);
@@ -677,6 +728,166 @@ async function renderGuide(req, res, { id }) {
 }
 
 /* ============================================================
+   Perfil público renderizado en el servidor (Etapa 5, F7)
+
+   Decisión D6 — privacidad primero: mientras PERFILES_PUBLICOS no esté
+   en '1', esta página responde 404 (noindex). El código queda listo para
+   prender cuando D12 (privacidad y términos publicados) esté resuelta.
+
+   Los perfiles NO van al sitemap: se descubren por enlaces internos. Así
+   evitamos empujar datos personales al índice desde el propio sitemap.
+   ============================================================ */
+
+function perfilUrl(id) {
+  return `${siteUrl()}/perfil/${encodeURIComponent(id)}`;
+}
+
+function bodyPerfil({ perfil, hilos }) {
+  const avatar = perfil.avatar
+    ? `<img class="profile-avatar" src="${esc(perfil.avatar)}" alt="${esc(perfil.nombre)}" loading="eager">`
+    : `<span class="profile-avatar profile-avatar--initials" aria-hidden="true">${esc(iniciales(perfil.nombre))}</span>`;
+
+  const bio = perfil.bio
+    ? `<p class="profile-bio">${esc(perfil.bio).replace(/\n/g, '<br>')}</p>`
+    : '';
+
+  const emprendimiento = perfil.emprendimiento
+    ? `<p class="profile-venture"><i data-icon="seedling"></i> ${esc(perfil.emprendimiento)}</p>`
+    : '';
+
+  const lista = hilos.length
+    ? `<div class="foro-thread-list">${hilos.map(threadCardHtml).join('')}</div>`
+    : '<p class="community-empty">Todavía no publicó hilos.</p>';
+
+  return `
+  <main>
+    <section class="profile-section">
+      <div class="profile-layout">
+        <p class="hilo-breadcrumb">
+          <a href="/foro.html"><i data-icon="arrowLeft"></i> Volver al foro</a>
+        </p>
+
+        <header class="profile-head">
+          ${avatar}
+          <div class="profile-head__main">
+            <h1 class="profile-name">${esc(perfil.nombre)}</h1>
+            <p class="profile-meta">
+              <span>${esc(String(perfil.hilos))} hilos</span>
+              <span aria-hidden="true">·</span>
+              <span>${esc(String(perfil.respuestas))} respuestas</span>
+            </p>
+            ${emprendimiento}
+            ${bio}
+            ${badgesHtml(perfil.badges)}
+          </div>
+        </header>
+
+        <h2 class="hilo-respuestas__title">Hilos de ${esc(perfil.nombre)}</h2>
+        ${lista}
+      </div>
+    </section>
+  </main>`;
+}
+
+/** Página 404/noindex del perfil, con el mismo encuadre visual. */
+function perfilNoDisponible(res, { usuario, titulo, mensaje }) {
+  return html(res, 404, layout({
+    title: `${titulo} | Berry's Nature`,
+    description: mensaje,
+    canonical: perfilUrl(usuario),
+    robots: 'noindex, nofollow',
+    ogImage: `${siteUrl()}/assets/og-image.jpg`,
+    body: `
+  <main>
+    <section class="profile-section">
+      <div class="profile-layout">
+        <p class="hilo-breadcrumb"><a href="/foro.html"><i data-icon="arrowLeft"></i> Volver al foro</a></p>
+        <div class="community-empty">
+          <p>${esc(mensaje)}</p>
+          <p><a href="/foro.html">Ver los demás hilos</a></p>
+        </div>
+      </div>
+    </section>
+  </main>`
+  }), { 'X-Robots-Tag': 'noindex, nofollow' });
+}
+
+/**
+ * GET /perfil/:usuario — perfil público (Etapa 5, F7).
+ * Se llega por un rewrite de vercel.json: /perfil/:usuario → /api/perfil/:usuario.
+ */
+async function renderProfile(req, res, { usuario }) {
+  // Gate de privacidad (D6). Sin esto, no se expone nada.
+  if (!features.perfilesPublicos()) {
+    return perfilNoDisponible(res, {
+      usuario,
+      titulo: 'Perfil no disponible',
+      mensaje: 'Los perfiles públicos todavía no están disponibles.'
+    });
+  }
+
+  const row = await db.one(
+    `SELECT id, display_name, avatar_url, bio, emprendimiento, role, created_at
+       FROM users
+      WHERE id = $1 AND status <> 'banned'`,
+    [usuario]
+  );
+
+  if (!row) {
+    return perfilNoDisponible(res, {
+      usuario,
+      titulo: 'Perfil no encontrado',
+      mensaje: 'No encontramos este perfil. Puede que la cuenta se haya dado de baja.'
+    });
+  }
+
+  const stats = await reputation.statsDeUsuario(row.id);
+  const perfil = S.userProfile(row, stats);
+  perfil.badges = reputation.computeBadges(stats);
+
+  const hilosRows = await db.query(
+    `SELECT * FROM forum_threads
+      WHERE author_id = $1 AND is_hidden = false
+      ORDER BY created_at DESC
+      LIMIT 50`,
+    [row.id]
+  );
+  const hilos = hilosRows.map(S.thread);
+
+  const canonical = perfilUrl(row.id);
+
+  const markup = layout({
+    title: `${perfil.nombre} | Comunidad Berry's Nature`,
+    description: recortar(perfil.bio || `Perfil de ${perfil.nombre} en la comunidad de Berry's Nature.`, 155),
+    canonical,
+    // Una vez habilitados (D12 hecha), los perfiles son páginas públicas
+    // normales con su propio JSON-LD `Person`.
+    robots: null,
+    ogImage: `${siteUrl()}/assets/og-image.jpg`,
+    jsonLdBlocks: [{
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: perfil.nombre,
+      url: canonical,
+      description: perfil.bio || undefined,
+      image: perfil.avatar || undefined,
+      interactionStatistic: [{
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/CommentAction',
+        userInteractionCount: perfil.respuestas
+      }]
+    }],
+    scripts: scriptsPerfil(),
+    body: bodyPerfil({ perfil, hilos })
+  });
+
+  return html(res, 200, markup, {
+    'X-Robots-Tag': 'index, follow',
+    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600'
+  });
+}
+
+/* ============================================================
    Sitemap dinámico
    ============================================================ */
 
@@ -687,7 +898,8 @@ const PAGINAS_FIJAS = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
   { path: '/academia.html', changefreq: 'weekly', priority: '0.9' },
   { path: '/foro.html', changefreq: 'daily', priority: '0.8' },
-  { path: '/glosario.html', changefreq: 'monthly', priority: '0.7' }
+  { path: '/glosario.html', changefreq: 'monthly', priority: '0.7' },
+  { path: '/normas.html', changefreq: 'monthly', priority: '0.4' }
 ];
 
 /* Páginas legales.
@@ -875,4 +1087,4 @@ ${entradas.map((e) => `  <url>
   });
 }
 
-module.exports = { renderThread, renderGuide, renderSitemap, threadUrl, guiaUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };
+module.exports = { renderThread, renderGuide, renderProfile, renderSitemap, threadUrl, guiaUrl, perfilUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };

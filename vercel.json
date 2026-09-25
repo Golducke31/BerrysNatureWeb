@@ -15,6 +15,7 @@
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/guias/:id", "destination": "/api/guias/:id" },
     { "source": "/foro/hilo/:id", "destination": "/api/foro/hilo/:id" },
+    { "source": "/perfil/:usuario", "destination": "/api/perfil/:usuario" },
     { "source": "/server/(.*)", "destination": "/__private_not_found" },
     { "source": "/scripts/(.*)", "destination": "/__private_not_found" },
     { "source": "/db/(.*)", "destination": "/__private_not_found" },

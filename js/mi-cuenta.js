@@ -100,6 +100,25 @@
       show($('#bloquePass'));
       hide($('#bloqueGoogle'));
     }
+
+    // Perfil editable (F8).
+    var pn = $('#perfilNombre');
+    var pa = $('#perfilAvatar');
+    var pb = $('#perfilBio');
+    var pe = $('#perfilEmprendimiento');
+    if (pn) pn.value = user.nombre || '';
+    if (pa) pa.value = user.avatar || '';
+    if (pb) pb.value = user.bio || '';
+    if (pe) pe.value = user.emprendimiento || '';
+
+    // Borrado: contraseña si es local; si entra con Google, palabra escrita.
+    if (esGoogle) {
+      hide($('#borrarPassField'));
+      show($('#borrarConfirmField'));
+    } else {
+      show($('#borrarPassField'));
+      hide($('#borrarConfirmField'));
+    }
   }
 
   /* ---------------- Acciones ---------------- */
@@ -220,6 +239,101 @@
     });
   }
 
+  /* ---------------- Perfil (F8) ---------------- */
+
+  function initPerfil() {
+    var form = $('#perfilForm');
+    if (!form) return;
+
+    var msg = $('#perfilMsg');
+    var btn = $('#perfilSubmit');
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+
+      var nombre = ($('#perfilNombre').value || '').trim();
+      var avatar = ($('#perfilAvatar').value || '').trim();
+      var bio = ($('#perfilBio').value || '').trim();
+      var emprendimiento = ($('#perfilEmprendimiento').value || '').trim();
+
+      if (nombre.length < 2) {
+        setMsg(msg, 'El nombre tiene que tener al menos 2 caracteres.', 'error');
+        return;
+      }
+
+      var client = api();
+      if (!client || !client.available) {
+        setMsg(msg, 'El sitio no está conectado al servidor.', 'error');
+        return;
+      }
+
+      hide(msg);
+      setBusy(btn, true, 'Guardando…');
+
+      client.updateProfile(nombre, avatar, bio, emprendimiento)
+        .then(function (data) {
+          if (data && data.user) {
+            var n = $('#accNombre');
+            if (n) n.textContent = data.user.nombre || nombre;
+          }
+          setMsg(msg, 'Perfil actualizado.', 'ok');
+        })
+        .catch(function (err) {
+          setMsg(msg, (err && err.message) || 'No pudimos guardar el perfil.', 'error');
+        })
+        .then(function () { setBusy(btn, false); });
+    });
+  }
+
+  /* ---------------- Borrar la cuenta (F8) ---------------- */
+
+  function initBorrar() {
+    var form = $('#borrarForm');
+    if (!form) return;
+
+    var msg = $('#borrarMsg');
+    var btn = $('#borrarSubmit');
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+
+      var client = api();
+      if (!client || !client.available) {
+        setMsg(msg, 'El sitio no está conectado al servidor.', 'error');
+        return;
+      }
+
+      var passField = $('#borrarPassField');
+      var usaPassword = !(passField && passField.hidden);
+
+      var payload;
+      if (usaPassword) {
+        var password = $('#borrarPassword').value || '';
+        if (!password) { setMsg(msg, 'Escribí tu contraseña.', 'error'); return; }
+        payload = { password: password };
+      } else {
+        var confirmacion = ($('#borrarConfirm').value || '').trim();
+        if (confirmacion !== 'ELIMINAR') {
+          setMsg(msg, 'Escribí ELIMINAR para confirmar.', 'error');
+          return;
+        }
+        payload = { confirmacion: confirmacion };
+      }
+
+      if (!window.confirm('¿Borrar tu cuenta? Esta acción es permanente.')) return;
+
+      hide(msg);
+      setBusy(btn, true, 'Borrando…');
+
+      client.deleteAccount(payload)
+        .then(function () { window.location.href = 'index.html'; })
+        .catch(function (err) {
+          setMsg(msg, (err && err.message) || 'No pudimos borrar la cuenta.', 'error');
+        })
+        .then(function () { setBusy(btn, false); });
+    });
+  }
+
   function initSalir() {
     var btn = $('#accSalir');
     if (!btn) return;
@@ -254,6 +368,8 @@
     initReenviar();
     initCambiarEmail();
     initCambiarPass();
+    initPerfil();
+    initBorrar();
     initSalir();
     recargar();
   }

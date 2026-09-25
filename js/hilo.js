@@ -29,6 +29,13 @@
     return h;
   }
 
+  /** Avatar: imagen real si el usuario cargó una, si no iniciales con color. */
+  function avatarHtml(name, avatar, h) {
+    const url = String(avatar || '').trim();
+    if (url) return `<img class="thread-avatar" src="${escapeHtml(url)}" alt="" loading="lazy" decoding="async">`;
+    return `<span class="thread-avatar thread-avatar--initials" style="--avatar-hue:${h}" aria-hidden="true">${escapeHtml(initials(name))}</span>`;
+  }
+
   let hiloId = '';
   let hilo = null;
   let respuestas = [];
@@ -92,17 +99,20 @@
         </div>
         <h1 class="hilo-titulo">${escapeHtml(hilo.titulo)}</h1>
         <div class="hilo-autor">
-          <span class="thread-avatar thread-avatar--initials" style="--avatar-hue:${hue(hilo.autor)}" aria-hidden="true">${escapeHtml(initials(hilo.autor))}</span>
+          ${avatarHtml(hilo.autor, hilo.autorAvatar, hue(hilo.autor))}
           <span>por <strong>${escapeHtml(hilo.autor)}</strong></span>
         </div>
         <div class="hilo-cuerpo">${escapeHtml(hilo.cuerpo).replace(/\n/g, '<br>')}</div>
         <footer class="thread-footer">
           <div class="thread-actions">
-            <button class="thread-action" type="button" data-like-thread="${escapeHtml(hilo.id)}">
+            <button class="thread-action" type="button" data-like-thread="${escapeHtml(hilo.id)}" aria-pressed="false">
               ${icon('heart')} <span data-likes>${hilo.likes || 0}</span>
             </button>
             <span class="thread-action thread-action--static">${icon('chat')} ${hilo.respuestas || 0}</span>
             <span class="thread-action thread-action--static">${icon('eye')} ${(hilo.vistas || 0).toLocaleString('es-AR')}</span>
+            <button class="thread-action thread-action--report" type="button"
+                    data-report-thread="${escapeHtml(hilo.id)}" data-report-label="${escapeHtml(hilo.titulo)}"
+                    aria-label="Reportar este hilo" title="Reportar">${icon('flag')}</button>
           </div>
         </footer>
       </article>`;
@@ -123,7 +133,7 @@
     wrap.innerHTML = '<h2 class="hilo-respuestas__title">Respuestas (' + respuestas.length + ')</h2>' +
       respuestas.map(r => `
         <article class="hilo-respuesta${r.oculto ? ' is-hidden' : ''}" data-id="${escapeHtml(r.id)}">
-          <span class="thread-avatar thread-avatar--initials" style="--avatar-hue:${hue(r.autor)}" aria-hidden="true">${escapeHtml(initials(r.autor))}</span>
+          ${avatarHtml(r.autor, r.autorAvatar, hue(r.autor))}
           <div class="hilo-respuesta__main">
             <div class="hilo-respuesta__head">
               <strong>${escapeHtml(r.autor)}</strong>
@@ -132,9 +142,12 @@
             </div>
             <div class="hilo-respuesta__cuerpo">${escapeHtml(r.cuerpo).replace(/\n/g, '<br>')}</div>
             <div class="hilo-respuesta__actions">
-              <button class="thread-action" type="button" data-like-reply="${escapeHtml(r.id)}">
+              <button class="thread-action" type="button" data-like-reply="${escapeHtml(r.id)}" aria-pressed="false">
                 ${icon('heart')} <span data-likes>${r.likes || 0}</span>
               </button>
+              <button class="thread-action thread-action--report" type="button"
+                      data-report-reply="${escapeHtml(r.id)}" data-report-label="respuesta de ${escapeHtml(r.autor)}"
+                      aria-label="Reportar esta respuesta" title="Reportar">${icon('flag')}</button>
               ${modControls(r)}
             </div>
           </div>
@@ -198,6 +211,7 @@
         respuestas = data.respuestas || [];
         renderHilo();
         renderRespuestas();
+        aplicarLikesGuardados();
         api.view('thread', hiloId).catch(() => {});
       })
       .catch(() => {
@@ -205,6 +219,81 @@
         renderHilo();
         renderRespuestas();
       });
+  }
+
+  /* ---------------- Likes (feedback optimista) ----------------
+     El click actualiza la UI al instante (corazón lleno + contador) y recién
+     después confirma con el server. Si falla, revierte. El estado inicial se
+     pide aparte porque la página SSR viene cacheada y no puede traer datos
+     por usuario. */
+
+  const likedSet = new Set();          // 'thread:<id>' / 'reply:<id>'
+
+  const likeKey = (type, id) => type + ':' + id;
+
+  function pintarLike(btn, liked) {
+    if (!btn) return;
+    btn.classList.toggle('is-liked', liked);
+    btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+  }
+
+  function aplicarLikesGuardados() {
+    document.querySelectorAll('[data-like-thread]').forEach(b => {
+      pintarLike(b, likedSet.has(likeKey('thread', b.dataset.likeThread)));
+    });
+    document.querySelectorAll('[data-like-reply]').forEach(b => {
+      pintarLike(b, likedSet.has(likeKey('reply', b.dataset.likeReply)));
+    });
+  }
+
+  function cargarLikes() {
+    const api = window.BerrysAPI;
+    const logged = !!(window.BerrysAuth && window.BerrysAuth.isLogged());
+    if (!logged || !api || !api.available || !hiloId) return Promise.resolve();
+    return api.likesState(hiloId)
+      .then(data => {
+        likedSet.clear();
+        if (data && data.thread) likedSet.add(likeKey('thread', hiloId));
+        ((data && data.replies) || []).forEach(id => likedSet.add(likeKey('reply', id)));
+        aplicarLikesGuardados();
+      })
+      .catch(() => {});
+  }
+
+  function toggleLike(btn, type, id) {
+    if (!requireLogin()) return;
+    const api = window.BerrysAPI;
+    if (!api || !api.available) return toast('Necesitás el servidor para dar like.', 'warning');
+
+    const key = likeKey(type, id);
+    const countEl = btn.querySelector('[data-likes]');
+    const antesCount = countEl ? Number(countEl.textContent) || 0 : 0;
+    const antesLiked = likedSet.has(key);
+
+    // 1) Feedback inmediato (optimista).
+    const liked = !antesLiked;
+    if (liked) likedSet.add(key); else likedSet.delete(key);
+    pintarLike(btn, liked);
+    if (countEl) countEl.textContent = Math.max(antesCount + (liked ? 1 : -1), 0);
+    btn.disabled = true;
+
+    // 2) Confirmar con el server y corregir con su respuesta.
+    api.like(type, id)
+      .then(data => {
+        if (data && typeof data.liked === 'boolean') {
+          if (data.liked) likedSet.add(key); else likedSet.delete(key);
+          pintarLike(btn, data.liked);
+        }
+        if (countEl && data && typeof data.likes === 'number') countEl.textContent = data.likes;
+      })
+      .catch(err => {
+        // 3) Revertir si falló.
+        if (antesLiked) likedSet.add(key); else likedSet.delete(key);
+        pintarLike(btn, antesLiked);
+        if (countEl) countEl.textContent = antesCount;
+        toast((err && err.message) || 'No pudimos registrar tu like.', 'warning');
+      })
+      .then(() => { btn.disabled = false; });
   }
 
   /* ---------------- Interacciones ---------------- */
@@ -225,29 +314,13 @@
 
       const likeThread = e.target.closest('[data-like-thread]');
       if (likeThread) {
-        if (!requireLogin()) return;
-        const api = window.BerrysAPI;
-        if (!api || !api.available) return toast('Necesitás el servidor para dar like.', 'warning');
-        api.like('thread', likeThread.dataset.likeThread)
-          .then(data => {
-            const el = likeThread.querySelector('[data-likes]');
-            if (el) el.textContent = data.likes;
-          })
-          .catch(err => toast(err.message || 'No pudimos registrar tu like.', 'warning'));
+        toggleLike(likeThread, 'thread', likeThread.dataset.likeThread);
         return;
       }
 
       const likeReply = e.target.closest('[data-like-reply]');
       if (likeReply) {
-        if (!requireLogin()) return;
-        const api = window.BerrysAPI;
-        if (!api || !api.available) return toast('Necesitás el servidor para dar like.', 'warning');
-        api.like('reply', likeReply.dataset.likeReply)
-          .then(data => {
-            const el = likeReply.querySelector('[data-likes]');
-            if (el) el.textContent = data.likes;
-          })
-          .catch(err => toast(err.message || 'No pudimos registrar tu like.', 'warning'));
+        toggleLike(likeReply, 'reply', likeReply.dataset.likeReply);
       }
     });
 
@@ -291,7 +364,7 @@
       renderRespuestas();
       return;
     }
-    cargar().then(syncResponder);
+    cargar().then(() => { syncResponder(); cargarLikes(); });
   }
 
   if (document.readyState === 'loading') {

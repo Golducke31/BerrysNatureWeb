@@ -36,6 +36,13 @@
     return h;
   }
 
+  /** Avatar: imagen real si el usuario cargó una, si no iniciales con color. */
+  function avatarHtml(name, avatar, h) {
+    const url = String(avatar || '').trim();
+    if (url) return `<img class="thread-avatar" src="${escapeHtml(url)}" alt="" loading="lazy" decoding="async">`;
+    return `<div class="thread-avatar thread-avatar--initials" style="--avatar-hue:${h}" aria-hidden="true">${escapeHtml(initials(name))}</div>`;
+  }
+
   function toast(msg, ic) {
     if (typeof window.toast === 'function') window.toast(msg, ic);
   }
@@ -150,7 +157,7 @@
       <article class="thread-card${opts.featured ? ' thread-card--featured' : ''} reveal" data-reveal
                data-id="${escapeHtml(h.id)}" role="link" tabindex="0"
                aria-label="Abrir el hilo: ${escapeHtml(h.titulo)}">
-        <div class="thread-avatar thread-avatar--initials" style="--avatar-hue:${hue(h.autor)}" aria-hidden="true">${escapeHtml(initials(h.autor))}</div>
+        ${avatarHtml(h.autor, h.autorAvatar, hue(h.autor))}
         <div class="thread-main">
           <div class="thread-top">
             <span class="thread-category">${escapeHtml(h.categoria)}</span>
@@ -165,6 +172,9 @@
               <span class="thread-action thread-action--static">${icon('heart')} ${h.likes || 0}</span>
               <span class="thread-action thread-action--static">${icon('chat')} ${h.respuestas || 0}</span>
               <span class="thread-action thread-action--static">${icon('eye')} ${(h.vistas || 0).toLocaleString('es-AR')}</span>
+              <button class="thread-action thread-action--report" type="button"
+                      data-report-thread="${escapeHtml(h.id)}" data-report-label="${escapeHtml(h.titulo)}"
+                      aria-label="Reportar este hilo" title="Reportar">${icon('flag')}</button>
             </div>
           </footer>
         </div>
@@ -389,6 +399,31 @@
     $$('[data-reveal]:not(.is-visible)').forEach(el => _io.observe(el));
   }
 
+  /* ---------------- Top colaboradores del mes ---------------- */
+  function renderTop(items) {
+    const wrap = $('#foroTop');
+    if (!wrap) return;
+    if (!items || !items.length) {
+      wrap.innerHTML = '<li class="foro-top__empty">Todavía no hay actividad este mes.</li>';
+      return;
+    }
+    wrap.innerHTML = items.map((u, i) => `
+      <li class="foro-top__item">
+        <span class="foro-top__rank">${i + 1}</span>
+        ${avatarHtml(u.nombre, u.avatar, hue(u.nombre))}
+        <span class="foro-top__name">${escapeHtml(u.nombre)}</span>
+        <span class="foro-top__score" title="Aportes del mes">${u.aportes}</span>
+      </li>`).join('');
+  }
+
+  function cargarTop() {
+    const api = window.BerrysAPI;
+    if (!api || !api.available || !$('#foroTop')) return Promise.resolve();
+    return api.contributors({ limit: 5 })
+      .then(data => renderTop(data && data.items))
+      .catch(() => {});
+  }
+
   /* ---------------- Init ---------------- */
   function init() {
     hilos = seedThreads();          // pinta al instante con la semilla
@@ -396,6 +431,7 @@
     renderTodo();
     setupSearch();
     setupGate();
+    cargarTop();
 
     cargarHilos().then(() => {
       renderFilters();              // por si cambiaron las categorías

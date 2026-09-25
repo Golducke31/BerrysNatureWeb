@@ -13,6 +13,8 @@
 const db = require('../lib/db');
 const S = require('../lib/serialize');
 const events = require('../lib/events');
+const features = require('../lib/features');
+const reputation = require('../lib/reputation');
 const { json, notFound, fail, getQuery, getClientIp } = require('../lib/http');
 const auth = require('../lib/auth');
 
@@ -34,29 +36,33 @@ async function listThreads(req, res) {
   }
 
   const params = [];
-  const where = [incluirOcultos ? 'true' : 'is_hidden = false'];
+  // Se cualifica con `t.` porque ahora hay JOIN con users.
+  const where = [incluirOcultos ? 'true' : 't.is_hidden = false'];
 
   if (category && category !== 'Todos') {
     params.push(category);
-    where.push(`category = $${params.length}`);
+    where.push(`t.category = $${params.length}`);
   }
   if (search) {
     params.push(`%${search}%`);
-    where.push(`(title ILIKE $${params.length} OR body ILIKE $${params.length} OR author_name ILIKE $${params.length})`);
+    where.push(`(t.title ILIKE $${params.length} OR t.body ILIKE $${params.length} OR t.author_name ILIKE $${params.length})`);
   }
 
   params.push(limit, offset);
+  // LEFT JOIN para traer el avatar del autor (autor_id puede ser NULL).
   const rows = await db.query(
-    `SELECT * FROM forum_threads
+    `SELECT t.*, u.avatar_url AS author_avatar
+       FROM forum_threads t
+       LEFT JOIN users u ON u.id = t.author_id
       WHERE ${where.join(' AND ')}
-      ORDER BY is_pinned DESC, created_at DESC
+      ORDER BY t.is_pinned DESC, t.created_at DESC
       LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
 
   const countParams = params.slice(0, params.length - 2);
   const totalRow = await db.one(
-    `SELECT count(*)::int AS n FROM forum_threads WHERE ${where.join(' AND ')}`,
+    `SELECT count(*)::int AS n FROM forum_threads t WHERE ${where.join(' AND ')}`,
     countParams
   );
 
@@ -69,7 +75,13 @@ async function listThreads(req, res) {
 async function getThread(req, res, params) {
   const id = params.id;
 
-  const row = await db.one('SELECT * FROM forum_threads WHERE id = $1', [id]);
+  const row = await db.one(
+    `SELECT t.*, u.avatar_url AS author_avatar
+       FROM forum_threads t
+       LEFT JOIN users u ON u.id = t.author_id
+      WHERE t.id = $1`,
+    [id]
+  );
   if (!row) return notFound(res);
 
   /* Un hilo oculto solo lo ve el staff (para poder revisarlo y restaurarlo). */
@@ -81,9 +93,11 @@ async function getThread(req, res, params) {
   }
 
   const replies = await db.query(
-    `SELECT * FROM forum_replies
-      WHERE thread_id = $1 ${staff ? '' : 'AND is_hidden = false'}
-      ORDER BY created_at ASC`,
+    `SELECT r.*, u.avatar_url AS author_avatar
+       FROM forum_replies r
+       LEFT JOIN users u ON u.id = r.author_id
+      WHERE r.thread_id = $1 ${staff ? '' : 'AND r.is_hidden = false'}
+      ORDER BY r.created_at ASC`,
     [id]
   );
 
@@ -221,4 +235,40 @@ async function registerEvent(req, res, body) {
   json(res, 202, { ok: true });
 }
 
-module.exports = { listThreads, getThread, listGuides, getGuide, registerView, registerEvent };
+/* ---------------- Perfiles públicos ----------------
+
+   Gated por la decisión D6 (privacidad primero): mientras
+   PERFILES_PUBLICOS no esté en '1', esto responde 404 — el perfil
+   existe en el código pero no se expone hasta que D12 esté resuelta. */
+
+async function getUserProfile(req, res, params) {
+  if (!features.perfilesPublicos()) return notFound(res);
+
+  const row = await db.one(
+    `SELECT id, display_name, avatar_url, bio, emprendimiento, role, created_at
+       FROM users
+      WHERE id = $1 AND status <> 'banned'`,
+    [params.id]
+  );
+  if (!row) return notFound(res);
+
+  const stats = await reputation.statsDeUsuario(row.id);
+  const perfil = S.userProfile(row, stats);
+  perfil.badges = reputation.computeBadges(stats);
+
+  json(res, 200, { perfil });
+}
+
+/** GET /api/contributors — Top colaboradores del mes (ranking público). */
+async function listContributors(req, res) {
+  const q = getQuery(req);
+  const limit = Math.min(Number(q.get('limit')) || 5, 20);
+  const items = await reputation.topColaboradores(limit);
+  json(res, 200, { items });
+}
+
+module.exports = {
+  listThreads, getThread, listGuides, getGuide,
+  registerView, registerEvent,
+  getUserProfile, listContributors
+};

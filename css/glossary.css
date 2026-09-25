@@ -532,4 +532,21 @@
 
   .glossary-main-nav--prev { left: 4px; }
   .glossary-main-nav--next { right: 4px; }
+
+  /* Dots: el punto visible sigue chico, pero el área táctil sube a ~24 px.
+     `background-clip: content-box` deja el círculo del tamaño original y el
+     `padding` agranda lo que se toca. `flex-wrap` para que no desborden.
+     (Va acá y no en styles.css: este archivo carga después y `padding` tiene
+     la misma especificidad, así que allá lo pisaría.) */
+  .glossary-dots {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .glossary-dot {
+    min-width: 24px;
+    min-height: 24px;
+    padding: 8px;
+    background-clip: content-box;
+  }
 }

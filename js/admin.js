@@ -161,9 +161,11 @@
   var NAV = [
     { id: 'dashboard', label: 'Dashboard', icon: 'chart' },
     { id: 'metrics', label: 'Métricas', icon: 'eye' },
+    { id: 'revenue', label: 'Ingresos', icon: 'bank' },
     { id: 'threads', label: 'Hilos del foro', icon: 'chat' },
     { id: 'guides', label: 'Guías', icon: 'book' },
     { id: 'users', label: 'Usuarios', icon: 'shield' },
+    { id: 'reports', label: 'Reportes', icon: 'flag' },
     { id: 'audit', label: 'Auditoría', icon: 'clipboard' }
   ];
 
@@ -216,9 +218,11 @@
     var renderers = {
       dashboard: renderDashboard,
       metrics: renderMetrics,
+      revenue: renderRevenue,
       threads: renderThreads,
       guides: renderGuides,
       users: renderUsers,
+      reports: renderReports,
       audit: renderAudit
     };
     (renderers[view] || renderDashboard)();
@@ -243,15 +247,17 @@
 
   /** Gráfico de barras con CSS: el panel no carga librerías externas
       (y la CSP tampoco las permitiría). */
-  function barras(serie) {
+  function barras(serie, opts) {
+    opts = opts || {};
+    var unidad = opts.unidad || 'vistas';
     if (!serie.length) return '<p class="admin-empty">Sin datos todavía.</p>';
 
     var max = serie.reduce(function (acc, d) { return Math.max(acc, d.n); }, 0) || 1;
 
-    return '<div class="admin-chart" role="img" aria-label="Vistas por día">' +
+    return '<div class="admin-chart" role="img" aria-label="' + escapeHtml(opts.ariaLabel || 'Vistas por día') + '">' +
       serie.map(function (d) {
         var alto = Math.max(Math.round((d.n / max) * 100), d.n > 0 ? 6 : 2);
-        return '<div class="admin-chart__col" title="' + escapeHtml(d.dia) + ': ' + d.n + ' vistas">' +
+        return '<div class="admin-chart__col" title="' + escapeHtml(d.dia) + ': ' + d.n + ' ' + escapeHtml(unidad) + '">' +
           '<span class="admin-chart__bar' + (d.n === 0 ? ' is-zero' : '') + '" style="height:' + alto + '%"></span>' +
           '<span class="admin-chart__label">' + escapeHtml(d.dia.slice(8)) + '</span>' +
         '</div>';
@@ -315,6 +321,88 @@
             escapeHtml(err.message || 'No pudimos cargar las métricas.') +
           '</p></div>';
       });
+  }
+
+  /* ============================================================
+     INGRESOS (O9 — desbloqueo PRO)
+     ============================================================ */
+  function fmtMoney(n) {
+    var v = Number(n) || 0;
+    try { return '$ ' + v.toLocaleString('es-AR', { maximumFractionDigits: 0 }); }
+    catch (e) { return '$ ' + v; }
+  }
+
+  function estadoPago(status) {
+    var map = {
+      approved: ['ok', 'Aprobado'],
+      pending: ['warn', 'Pendiente'],
+      in_process: ['warn', 'En proceso'],
+      rejected: ['bad', 'Rechazado'],
+      refunded: ['bad', 'Reembolsado']
+    };
+    var it = map[status] || ['', status || '—'];
+    return '<span class="admin-pill admin-pill--' + it[0] + '">' + escapeHtml(it[1]) + '</span>';
+  }
+
+  function renderRevenue() {
+    $('#adminMain').innerHTML = '<div class="admin-loading"><div class="admin-spinner"></div><p>Cargando ingresos…</p></div>';
+
+    req('GET', '/revenue?dias=30')
+      .then(function (d) {
+        d = d || {};
+        var cards = [
+          ['Ingresos (30 días)', fmtMoney(d.total), 'Pagos aprobados, en ARS'],
+          ['Desbloqueos PRO', d.aprobados || 0, 'Compras acreditadas'],
+          ['Accesos PRO activos', d.pro || 0, 'Cuentas con el permiso'],
+          ['Pagos pendientes', d.pendientes || 0, 'Iniciados sin acreditar']
+        ];
+
+        var serie = (d.serie || []).map(function (x) { return { dia: x.dia, n: x.n }; });
+
+        var filas = (d.ultimos || []).map(function (p) {
+          return '<tr>' +
+            '<td>' + fmtDate(p.updated_at || p.created_at) + '</td>' +
+            '<td class="admin-cell-title">' + escapeHtml(p.usuario || '—') + '</td>' +
+            '<td>' + escapeHtml(p.email || '') + '</td>' +
+            '<td>' + fmtMoney(p.amount) + '</td>' +
+            '<td>' + estadoPago(p.status) + '</td>' +
+            '<td><code>' + escapeHtml(String(p.payment_id || '—')) + '</code></td>' +
+          '</tr>';
+        }).join('');
+
+        $('#adminMain').innerHTML =
+          '<div class="admin-topbar">' +
+            '<div><h1 class="admin-title">Ingresos</h1>' +
+            '<p class="admin-subtitle">Desbloqueo PRO (pago único) vía MercadoPago.</p></div>' +
+            '<button class="admin-btn" type="button" id="revenueReload">Actualizar</button>' +
+          '</div>' +
+
+          '<div class="admin-cards">' +
+            cards.map(function (c) {
+              return '<div class="admin-card"><div class="admin-card__value">' + escapeHtml(String(c[1])) + '</div>' +
+                '<div class="admin-card__label">' + escapeHtml(c[0]) + '</div>' +
+                '<p class="admin-help">' + escapeHtml(c[2]) + '</p></div>';
+            }).join('') +
+          '</div>' +
+
+          '<div class="admin-panel">' +
+            '<div class="admin-panel__head"><h2>Desbloqueos por día (30 días)</h2></div>' +
+            barras(serie, { unidad: 'desbloqueos', ariaLabel: 'Desbloqueos PRO por día' }) +
+          '</div>' +
+
+          '<div class="admin-panel">' +
+            '<div class="admin-panel__head"><h2>Últimos pagos</h2></div>' +
+            ((d.ultimos || []).length
+              ? '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
+                  '<th>Fecha</th><th>Cuenta</th><th>Email</th><th>Monto</th><th>Estado</th><th>Pago MP</th>' +
+                '</tr></thead><tbody>' + filas + '</tbody></table></div>'
+              : '<p class="admin-empty">Todavía no hay pagos registrados.</p>') +
+          '</div>';
+
+        var reload = $('#revenueReload');
+        if (reload) reload.addEventListener('click', renderRevenue);
+      })
+      .catch(guard);
   }
 
   function renderDashboard() {
@@ -672,6 +760,94 @@
   /* ============================================================
      AUDITORÍA
      ============================================================ */
+  /* ============================================================
+     REPORTES (cola de moderación — Etapa 5, F9)
+     ============================================================ */
+  function renderReports() {
+    req('GET', '/reports?status=open')
+      .then(function (data) {
+        var items = (data && data.items) || [];
+        state.cache.reports = items;
+
+        $('#adminMain').innerHTML =
+          '<div class="admin-topbar">' +
+            '<div><h1 class="admin-title">Reportes</h1>' +
+            '<p class="admin-subtitle">Contenido reportado por la comunidad · ' +
+              (data.open || 0) + ' abierto(s).</p></div>' +
+            '<button class="admin-btn" type="button" id="reportsReload">' + icon('eye') + ' Actualizar</button>' +
+          '</div>' +
+          '<div class="admin-panel"><div class="admin-table-wrap">' +
+            (items.length ? '<table class="admin-table"><thead><tr>' +
+              '<th>Fecha</th><th>Objetivo</th><th>Motivo</th><th>Reportó</th><th></th>' +
+              '</tr></thead><tbody>' +
+              items.map(function (r) {
+                var ocultable = r.target_type === 'thread' || r.target_type === 'reply';
+                var accionOcultar = r.target_type === 'reply' ? 'hide-reply' : 'hide-thread';
+                var labelOcultar = r.target_type === 'reply' ? 'Ocultar respuesta' : 'Ocultar hilo';
+                return '<tr>' +
+                  '<td>' + fmtDate(r.created_at) + '</td>' +
+                  '<td><code>' + escapeHtml(r.target_type) + '</code><br><small>' + escapeHtml(r.target_id) + '</small></td>' +
+                  '<td>' + escapeHtml(r.reason) +
+                    (r.detail ? '<br><small>' + escapeHtml(r.detail) + '</small>' : '') + '</td>' +
+                  '<td>' + escapeHtml(r.reporter_name || '—') + '</td>' +
+                  '<td><div class="admin-actions">' +
+                    (ocultable
+                      ? '<button class="admin-btn admin-btn--danger" data-act="' + accionOcultar + '" ' +
+                          'data-id="' + escapeHtml(r.target_id) + '" data-report="' + r.id + '">' + labelOcultar + '</button>'
+                      : '') +
+                    '<button class="admin-btn" data-act="dismiss-report" data-id="' + r.id + '">Descartar</button>' +
+                    '<button class="admin-btn admin-btn--primary" data-act="resolve-report" data-id="' + r.id + '">Resolver</button>' +
+                  '</div></td>' +
+                '</tr>';
+              }).join('') + '</tbody></table>'
+              : '<p class="admin-empty">No hay reportes abiertos.</p>') +
+          '</div></div>';
+
+        $('#reportsReload').addEventListener('click', renderReports);
+
+        // El listener se ata una sola vez por shell: #adminMain persiste
+        // entre vistas y sin este guard se acumularían handlers.
+        var main = $('#adminMain');
+        if (!main.dataset.reportsBound) {
+          main.addEventListener('click', onReportsClick);
+          main.dataset.reportsBound = '1';
+        }
+      })
+      .catch(guard);
+  }
+
+  function onReportsClick(e) {
+    var btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    var act = btn.dataset.act;
+    var id = btn.dataset.id;
+    if (act === 'dismiss-report') {
+      patchReport(id, 'dismissed');
+    } else if (act === 'resolve-report') {
+      patchReport(id, 'resolved');
+    } else if (act === 'hide-thread') {
+      req('PATCH', '/threads/' + encodeURIComponent(id), { oculto: true })
+        .then(function () {
+          toast('Hilo oculto.');
+          return patchReport(btn.dataset.report, 'resolved');
+        })
+        .catch(guard);
+    } else if (act === 'hide-reply') {
+      req('PATCH', '/replies/' + encodeURIComponent(id), { oculto: true })
+        .then(function () {
+          toast('Respuesta oculta.');
+          return patchReport(btn.dataset.report, 'resolved');
+        })
+        .catch(guard);
+    }
+  }
+
+  function patchReport(id, status) {
+    return req('PATCH', '/reports/' + encodeURIComponent(id), { status: status })
+      .then(function () { toast('Reporte actualizado.'); renderReports(); })
+      .catch(guard);
+  }
+
   function renderAudit() {
     req('GET', '/audit?limit=100')
       .then(function (data) {

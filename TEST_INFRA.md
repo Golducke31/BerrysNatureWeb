@@ -20,7 +20,7 @@ Usamos **Playwright** como framework E2E.
 4. **Sin servidor para la suite estática**: el prototipo carga los `.html` con URLs `file://`
    cuando no hay backend (degradación elegante vía `js/api-client.js`). La **suite de backend**
    (`tests/playwright.api.config.js`) sí levanta el dev server (`npm run dev`) y ejecuta los specs
-   `admin-routing.spec.js` y `api.spec.js` contra `http://localhost:3000`.
+   `admin-routing.spec.js`, `api.spec.js`, `paginas-ssr.spec.js` y `etapa5.spec.js` contra `http://localhost:3000`.
 
 **Base URL:** `file://[project-root]/index.html` (configurable con `TEST_BASE_URL`).
 Cada spec navega explícitamente al archivo que prueba.
@@ -43,6 +43,8 @@ berrys web/
 │   │   ├── indexability.spec.js           # Regla de indexación de hilos (unitarias puras)
 │   │   ├── hilo-render.spec.js            # Render de la página de hilo sin base de datos
 │   │   ├── paginas-ssr.spec.js            # Página de hilo contra el dev server (backend)
+│   │   ├── etapa5.spec.js                 # Perfiles (gate D6) y reportes (backend, sin DB)
+│   │   ├── pagos.spec.js                  # MercadoPago: firma del webhook y rutas (sin DB)
 │   │   ├── sitemap.spec.js                # Sitemap dinámico sin base de datos
 │   │   ├── events.spec.js                 # Eventos de producto y su endpoint
 │   │   ├── guia-render.spec.js            # Render de la página de guía sin base de datos
@@ -89,7 +91,7 @@ DATABASE_URL=postgres://... npm run test:api   # corre también los tests de API
 5. **Glosario**: carrusel de ingredientes, contador `n / m`, filtros, botón siguiente.
 6. **Sesión y comunidad**: login/logout demo (`localStorage` → `berrys_user`), modal de auth, desbloqueo PRO sin sesión, formulario de contacto, widget de Niko y su degradación.
 7. **Foro de formuladores** (`foro.html`): banner, lista de hilos, hilo destacado, filtro por categoría, buscador, badges, avatares con iniciales, gate "Publicar consulta", estado vacío.
-8. **Responsive**: ausencia de scroll horizontal en las 9 páginas entre 320px y 1280px.
+8. **Responsive**: ausencia de scroll horizontal en las 11 páginas entre 320px y 1280px.
 9. **Cuenta** (`recuperar.html`, `verificar.html`, `cuenta.html`): máquina de estados según `?token=` y `?accion=`, validaciones locales (email vacío, contraseñas que no coinciden, mínimo 10 caracteres), degradación sin backend, y gestión de la cuenta con sesión simulada.
 10. **Legal** (`privacidad.html`, `terminos.html`): existencia y destino de los enlaces, contenido de ambas páginas, y guarda de que un borrador con placeholders no quede indexable.
 11. **SEO de hilos y sitemap**: la regla de indexación (`server/lib/indexability.js`) como unidad pura, el HTML que sirve la página de hilo renderizada en el servidor, y el sitemap dinámico (qué incluye y qué excluye).
@@ -110,8 +112,8 @@ DATABASE_URL=postgres://... npm run test:api   # corre también los tests de API
 
 ## 5. Inventario de pruebas
 
-**Suite estática: 179 tests** en 14 archivos (3 navegadores → **537 corridas**).
-**Suite de backend: 20 tests** en 3 archivos (`admin-routing.spec.js` 6 / `api.spec.js` 5 / `paginas-ssr.spec.js` 9), contra el dev server.
+**Suite estática: 181 tests** en 14 archivos (3 navegadores → **543 corridas**).
+**Suite de backend: 41 tests** en 5 archivos (`admin-routing.spec.js` 6 / `api.spec.js` 5 / `paginas-ssr.spec.js` 9 / `etapa5.spec.js` 13 / `pagos.spec.js` 8), contra el dev server.
 
 | Archivo | Tests | Qué cubre |
 |---|---:|---|
@@ -120,12 +122,14 @@ DATABASE_URL=postgres://... npm run test:api   # corre también los tests de API
 | `academia.spec.js` | 17 | Rutas, guías + filtro, fórmulas, proveedores, enlace al Foro, cálculo por lote, modal "Leer más", guías con página propia, PRO, glosario, Niko. |
 | `auth-contact-niko.spec.js` | 9 | Login/logout (fallback offline `berrys_user`), pestaña registro, contacto (vacío/completo), PRO sin sesión, launcher y panel de Niko. |
 | `foro.spec.js` | 10 | Banner, lista, destacado, filtro, buscador, badge "Sin responder", avatares, gate de auth, estado vacío, volver a la Academia. |
-| `responsive-overflow.spec.js` | 9 | Cada página (index, academia, glosario, foro, recuperar, verificar, cuenta, privacidad, terminos) sin desborde horizontal en 320/375/768/1024/1280px. |
+| `responsive-overflow.spec.js` | 11 | Cada página (index, academia, glosario, foro, perfil, recuperar, verificar, cuenta, privacidad, terminos, normas) sin desborde horizontal en 320/375/768/1024/1280px. |
 | `cuenta.spec.js` | 18 | Recuperación de contraseña (estados y validaciones), confirmación de email, cambio de email, acceso desde el modal y **gestión de la cuenta** (`cuenta.html`) con sesión simulada. |
 | `legal.spec.js` | 5 | Enlaces a las páginas legales en footer y modal, contenido de cada página, y guarda de `noindex` mientras sean borradores. |
 | `indexability.spec.js` | 13 | Unitarias puras de la regla de indexación de hilos (oculto, sin tracción, resuelto, likes, respuestas, auto-respuesta, hilo de debate). |
 | `hilo-render.spec.js` | 12 | Render de la página de hilo con base parcheada: decisión de indexación, 404, escapado, JSON-LD, rutas absolutas, caché. |
 | `paginas-ssr.spec.js` | 9 | `hiloUrl` y `event` sobre http (3) + página de hilo contra el dev server (6, requieren DB). |
+| `etapa5.spec.js` | 13 | Etapa 5: gate de privacidad de perfiles (D6) → 404 + `noindex`; `/api/users/:id` → 404; `POST /api/reports` sin sesión → 401; F8 (`update-profile`/`delete-account`) sin sesión → 401; `computeBadges` (unitario), `autorAvatar` y `emprendimiento` en serialize; `GET /api/likes` sin sesión → 200 vacío; cliente `report`/`likesState`/`contributors` — sin DB. |
+| `pagos.spec.js` | 8 | MercadoPago: firma HMAC del webhook (válida / alterada / sin secreto) y parseo de `x-signature` (unitario); checkout sin sesión → 401; webhook sin cobro configurado → 200 ignorado; cliente `checkout`; panel de ingresos sin sesión → 401 — sin DB. |
 | `sitemap.spec.js` | 20 | Sitemap dinámico con base parcheada: inclusiones, exclusiones, guías sin duplicar, XML bien formado, headers y degradación sin base. Las páginas legales entran solo al publicarse (`setLegalesPublicadas`) y quedan afuera mientras son `noindex`. |
 | `events.spec.js` | 20 | Eventos: lista blanca, `log()` que nunca lanza, hash de IP, tope de volumen y endpoint público. |
 | `guia-render.spec.js` | 13 | Página de guía: indexación (normal / estática / PRO), 404, escapado, JSON-LD, rutas absolutas y validación de la ruta de imagen. |

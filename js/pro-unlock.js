@@ -1,17 +1,18 @@
 /* ============================================================
    js/pro-unlock.js — Desbloqueo PRO (pago único) para Berry's Nature
 
-   ESTADO: en el prototipo el "pago" se simula localmente. La autoridad
-   real de acceso (rol `calculadora_pro`) vive en el servidor
-   (WordPress + MercadoPago), según ARQUITECTURA-TECNICA.md §4. Este
-   módulo deja listo el flujo de UI y el estado local; al migrar,
-   reemplazá `unlock()` por la verificación del webhook de MercadoPago.
+   La AUTORIDAD del acceso es el SERVIDOR: `users.permissions.calculadora_pro`,
+   que asigna el webhook de MercadoPago cuando el pago queda aprobado
+   (ver server/handlers/payments.js). Este módulo:
+     - pinta la UI PRO si el servidor dice que tenés acceso,
+     - inicia el pago real (Checkout Pro) cuando está configurado,
+     - y en modo demo (sin cobro) simula el desbloqueo.
 
    Config opcional (antes de incluir el script):
      window.BerrysProConfig = {
-       mercadoPagoUrl: '',   // URL de checkout de MP (producción)
-       stripeUrl: '',        // URL de checkout de Stripe
-       demo: true            // true = simular pago (prototipo)
+       price: '9.900',   // texto del precio (solo visual)
+       demo: true        // true = simular pago (prototipo/offline)
+                         // false = pago real vía /api/payments/checkout
      };
    ============================================================ */
 (function () {
@@ -23,18 +24,17 @@
     try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
   }
 
-  function setPro() {
+  function setPro(opts) {
+    var simulado = !opts || opts.simulado !== false;
     try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
     document.documentElement.classList.add('pro-unlocked');
     revealProUI();
     try { document.dispatchEvent(new CustomEvent('berrys:pro-unlocked')); } catch (e) {}
 
-    /* Métrica de conversión.
-       OJO: hoy el "pago" es una simulación local (ver el encabezado de este
-       archivo). El evento mide cuánta gente LLEGA al desbloqueo, no una
-       compra real. Cuando se conecte MercadoPago, esto se mueve al webhook
-       del servidor y recién ahí la métrica es una conversión de verdad. */
-    if (window.BerrysAPI && window.BerrysAPI.event) {
+    /* Métrica de conversión. Con el cobro real, el evento lo emite el WEBHOOK
+       del servidor (una sola vez). El navegador solo lo emite en modo demo,
+       para no contar dos veces la misma compra. */
+    if (simulado && window.BerrysAPI && window.BerrysAPI.event) {
       window.BerrysAPI.event('pro_desbloqueado', { simulado: true });
     }
   }
@@ -117,45 +117,70 @@
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-hidden', 'true');
+    var cfg = window.BerrysProConfig || {};
+    var esReal = cfg.demo === false;
     modal.innerHTML =
       '<div class="berrys-pro-modal">' +
         '<button class="berrys-pro-close" type="button" aria-label="Cerrar">&times;</button>' +
         '<span class="section-label-tag">Acceso PRO · Pago único</span>' +
         '<h2 class="berrys-pro-title">Desbloqueá Berry\'s Calculator PRO</h2>' +
         '<p class="berrys-pro-desc">Guardá fórmulas ilimitadas, exportalas a PDF y accedé a los cursos de formulación. Pago único, para siempre.</p>' +
-        '<div class="berrys-pro-amount"><strong>$9.900</strong> <span>ARS · pago único</span></div>' +
+        '<div class="berrys-pro-amount"><strong>$' + esc(cfg.price || '9.900') + '</strong> <span>ARS · pago único</span></div>' +
         '<div class="berrys-pro-methods">' +
           '<button class="berrys-pro-method" type="button" data-method="mercadopago"><span>🟢</span> MercadoPago</button>' +
-          '<button class="berrys-pro-method" type="button" data-method="stripe"><span>🔵</span> Stripe</button>' +
         '</div>' +
-        '<button class="cta-button berrys-pro-pay" type="button" data-pay="demo">Pagar y desbloquear</button>' +
-        '<p class="berrys-pro-note">Prototipo: el pago se simula localmente. En producción, MercadoPago/Stripe procesa el cobro y un webhook asigna el rol <code>calculadora_pro</code> (ver ARQUITECTURA-TECNICA.md §4).</p>' +
+        '<button class="cta-button berrys-pro-pay" type="button">Pagar y desbloquear</button>' +
+        '<p class="berrys-pro-note">' + (esReal
+          ? 'El cobro lo procesa MercadoPago. Cuando se aprueba, el acceso se activa solo en tu cuenta.'
+          : 'Modo demo: el pago se simula localmente. Para cobrar de verdad, configurá <code>BerrysProConfig.demo = false</code> y las variables de MercadoPago.') +
+        '</p>' +
       '</div>';
     document.body.appendChild(modal);
 
     modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
     modal.querySelector('.berrys-pro-close').addEventListener('click', closeModal);
-    modal.querySelectorAll('.berrys-pro-method').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var cfg = window.BerrysProConfig || {};
-        var url = cfg[b.dataset.method + 'Url'];
-        if (url) {
-          window.open(url, '_blank', 'noopener,noreferrer');
-        } else {
-          toast('Configurá ' + b.dataset.method + 'Url en BerrysProConfig para producción.', 'lock');
-        }
-      });
-    });
-    modal.querySelector('.berrys-pro-pay').addEventListener('click', function () {
-      closeModal();
-      setPro();
-      toast('¡Calculadora PRO desbloqueada! Ya podés guardar y exportar.', 'check');
-    });
+    modal.querySelector('.berrys-pro-pay').addEventListener('click', pagar);
+    modal.querySelector('.berrys-pro-method').addEventListener('click', pagar);
     return modal;
   }
 
   function openModal() { var m = buildModal(); m.classList.add('open'); m.setAttribute('aria-hidden', 'false'); }
   function closeModal() { if (modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); } }
+
+  /* ---------- Pago ---------- */
+  function pagar() {
+    var api = window.BerrysAPI;
+    var cfg = window.BerrysProConfig || {};
+
+    // Demo (o sin backend): simulamos el desbloqueo, como antes.
+    if (cfg.demo !== false || !api || !api.available) {
+      closeModal();
+      setPro({ simulado: true });
+      toast('¡Calculadora PRO desbloqueada! (demo)', 'check');
+      return;
+    }
+
+    var btn = modal && modal.querySelector('.berrys-pro-pay');
+    if (btn) { btn.disabled = true; btn.textContent = 'Abriendo el pago…'; }
+
+    api.checkout()
+      .then(function (data) {
+        if (data && data.yaEsPro) {
+          closeModal();
+          setPro({ simulado: false });
+          toast('¡Ya tenías el acceso PRO!', 'check');
+          return;
+        }
+        if (data && data.initPoint) { window.location.href = data.initPoint; return; }
+        throw new Error('No pudimos iniciar el pago.');
+      })
+      .catch(function (err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Pagar y desbloquear'; }
+        var msg = (err && err.message) || 'No pudimos iniciar el pago.';
+        if (err && err.code === 'payment_not_configured') msg = 'El cobro todavía no está configurado.';
+        toast(msg, 'warning');
+      });
+  }
 
   /* ---------- Init ---------- */
   function init() {
@@ -167,15 +192,51 @@
     });
 
     var proBtn = document.getElementById('unlockProBtn');
-    if (proBtn) {
-      proBtn.addEventListener('click', function () {
-        if (!window.BerrysProConfig || window.BerrysProConfig.demo !== false) openModal();
-        else toast('Configurá BerrysProConfig para producción.', 'lock');
-      });
-    }
+    if (proBtn) proBtn.addEventListener('click', openModal);
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && modal && modal.classList.contains('open')) closeModal();
+    });
+
+    // El servidor manda: si la cuenta ya tiene el permiso, activamos PRO.
+    sincronizarConServidor();
+
+    // Si volvemos del checkout, el webhook puede tardar unos segundos.
+    if (volviendoDelPago()) esperarDesbloqueo(6);
+  }
+
+  /** ¿El servidor dice que esta cuenta tiene el acceso PRO? */
+  function sesionPro() {
+    var api = window.BerrysAPI;
+    if (!api || !api.available) return Promise.resolve(false);
+    return api.session()
+      .then(function (data) {
+        var u = data && data.user;
+        return Boolean(u && u.permisos && u.permisos.calculadora_pro);
+      })
+      .catch(function () { return false; });
+  }
+
+  function sincronizarConServidor() {
+    sesionPro().then(function (pro) { if (pro) setPro({ simulado: false }); });
+  }
+
+  function volviendoDelPago() {
+    try {
+      var p = new URLSearchParams(window.location.search).get('pago');
+      return p === 'ok' || p === 'pendiente';
+    } catch (e) { return false; }
+  }
+
+  function esperarDesbloqueo(intentos) {
+    if (intentos <= 0) return;
+    sesionPro().then(function (pro) {
+      if (pro) {
+        setPro({ simulado: false });
+        toast('¡Pago confirmado! Ya tenés el acceso PRO.', 'check');
+        return;
+      }
+      setTimeout(function () { esperarDesbloqueo(intentos - 1); }, 2500);
     });
   }
 

@@ -311,7 +311,9 @@
 .thread-author { font-size: 12.5px; color: var(--color-text-muted); }
 .thread-author strong { color: var(--color-text); }
 
-.thread-actions { display: flex; gap: 8px; }
+/* flex-wrap: con la acción de reporte son 4 píldoras; a 320px no entran
+   en una línea y sin wrap desbordaban la tarjeta. */
+.thread-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .thread-action {
   display: inline-flex;
@@ -851,3 +853,184 @@ body.mod-panel-open { overflow: hidden; }
     transform: none;
   }
 }
+
+/* ------------------------------------------------------------
+   12. REPORTE DE CONTENIDO Y PERFIL PÚBLICO (Etapa 5)
+   ------------------------------------------------------------ */
+
+/* Botón de reporte: mismo look que las demás acciones, solo ícono. */
+.thread-action--report { padding: 6px 10px; }
+.thread-action--report:hover { color: var(--color-accent-terracota); }
+
+/* El modal de reporte reutiliza el look del modal de acceso; solo
+   hace falta estilar el <select>, que el modal de acceso no tenía. */
+.report-modal select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 63, 53, 0.15);
+  border-radius: 12px;
+  padding: 11px 13px;
+}
+.report-modal select:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* Perfil público (/perfil/<usuario>). Gated por D6: no se expone hasta
+   que la privacidad esté publicada (D12). */
+.profile-section { padding: 96px 20px 72px; }
+.profile-layout { max-width: 900px; margin: 0 auto; }
+.profile-head {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin: 18px 0 28px;
+}
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 auto;
+  box-shadow: var(--shadow-soft);
+}
+.profile-avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text);
+  background: rgba(234, 184, 163, 0.35);
+}
+.profile-name {
+  font-family: var(--font-title);
+  font-size: 30px;
+  margin: 0 0 6px;
+  color: var(--color-text);
+}
+.profile-meta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0 0 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.profile-venture {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  margin: 0 0 8px;
+}
+.profile-venture .icon { width: 1em; height: 1em; }
+
+.profile-bio {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--color-text);
+  margin: 0;
+  max-width: 60ch;
+}
+
+@media (max-width: 640px) {
+  .profile-head { flex-direction: column; text-align: center; }
+  .profile-meta { justify-content: center; }
+}
+
+/* ------------------------------------------------------------
+   13. AVATARES REALES, INSIGNIAS Y TOP COLABORADORES (Etapa 5)
+   ------------------------------------------------------------ */
+
+/* Avatar con imagen real: mismo círculo que las iniciales. */
+img.thread-avatar {
+  object-fit: cover;
+  display: block;
+}
+
+/* Insignias de reputación (perfil). */
+.badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  background: rgba(234, 184, 163, 0.22);
+  border: 1px solid rgba(234, 184, 163, 0.5);
+  border-radius: 999px;
+  padding: 4px 11px;
+}
+.badge .icon { width: 1em; height: 1em; }
+
+/* Top colaboradores del mes (sidebar del foro). */
+.foro-top__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.foro-top__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.foro-top__item .thread-avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+}
+.foro-top__rank {
+  width: 16px;
+  text-align: center;
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+.foro-top__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+.foro-top__score {
+  font-weight: 800;
+  color: var(--color-accent-dark);
+}
+.foro-top__empty {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.foro-rules__link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+.foro-rules__link:hover { border-bottom-color: var(--color-accent-dark); }
+
+/* Like activo (feedback optimista): corazón lleno. */
+.thread-action.is-liked { color: var(--color-accent-terracota); }
+.thread-action.is-liked svg { fill: currentColor; }
+.thread-action:disabled { opacity: 0.7; cursor: progress; }

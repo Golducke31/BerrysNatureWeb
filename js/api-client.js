@@ -257,6 +257,23 @@
       });
     },
 
+    /* --- F8: perfil y borrado de cuenta --- */
+    /** Edita el perfil público (nombre visible, avatar, emprendimiento y bio). */
+    updateProfile: function (nombre, avatar, bio, emprendimiento) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/update-profile', {
+        nombre: nombre,
+        avatar: avatar || '',
+        bio: bio || '',
+        emprendimiento: emprendimiento || ''
+      });
+    },
+    /** Borra la cuenta. `payload`: { password } o { confirmacion: 'ELIMINAR' }. */
+    deleteAccount: function (payload) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/auth/delete-account', payload || {});
+    },
+
     /* --- Foro --- */
     threads: function (params) { return request('GET', '/api/threads' + qs(params)); },
     thread: function (id, params) {
@@ -273,6 +290,22 @@
     like: function (targetType, targetId) {
       return request('POST', '/api/likes', { targetType: targetType, targetId: targetId });
     },
+    /** Qué likeó el usuario en un hilo (para pintar el estado inicial). */
+    likesState: function (threadId) {
+      return request('GET', '/api/likes' + qs({ thread: threadId }));
+    },
+    /** Top colaboradores del mes (ranking público). */
+    contributors: function (params) { return request('GET', '/api/contributors' + qs(params)); },
+
+    /** Reporta contenido. Requiere sesión (el server responde 401 si no). */
+    report: function (targetType, targetId, reason, detail) {
+      return request('POST', '/api/reports', {
+        targetType: targetType,
+        targetId: targetId,
+        reason: reason,
+        detail: detail || ''
+      });
+    },
 
     /* --- Academia --- */
     guides: function (params) { return request('GET', '/api/guides' + qs(params)); },
@@ -280,6 +313,13 @@
 
     /* --- Métricas de vistas --- */
     view: function (type, id) { return request('POST', '/api/views', { type: type, id: id }); },
+
+    /* --- Pagos (desbloqueo PRO) ---
+       Devuelve el link de MercadoPago (initPoint) o { yaEsPro: true }. */
+    checkout: function () {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/payments/checkout', {});
+    },
 
     /* --- Eventos de producto (no espera respuesta) --- */
     event: event

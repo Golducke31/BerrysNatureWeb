@@ -410,6 +410,9 @@ Llevar Berry's Nature de "prototipo desplegable con backend real" a **producto e
 | O6 | Crecer sin depender solo de SEO | Suscriptores de newsletter | ≥ 100 en 90 días |
 | O7 | Operar sin sorpresas | Suite en verde en CI | 100% de tests pasando en cada push |
 | O8 | Sostenibilidad de contenido | Cadencia editorial | 1 guía nueva cada 2 semanas |
+| O9 | **Monetizar con tráfico** | Ingresos reales por audiencia (desbloqueos PRO + afiliados/destacados) | ≥ 1 pago real en 30 días; ≥ 20 desbloqueos PRO en 90 días |
+
+> **O9 (2026-09-24, en marcha):** convierte la audiencia en ingresos. **Integración de MercadoPago implementada** — Checkout Pro + webhook que revalida el pago contra la API, valida la firma HMAC y otorga `users.permissions.calculadora_pro`. El evento `pro_desbloqueado` ahora se emite **desde el webhook** (conversión real), no desde el navegador. **Falta:** cargar `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` y `PRO_PRICE_ARS` en Vercel, correr la migración `006`, y **publicar los legales** (D12) antes de cobrar. El panel del admin ya tiene la pestaña **Ingresos** (total en ARS, desbloqueos, pendientes, accesos PRO activos, serie diaria y últimos pagos). La meta de 20 desbloqueos es un punto de partida a ajustar.
 
 ---
 
@@ -496,19 +499,26 @@ Llevar Berry's Nature de "prototipo desplegable con backend real" a **producto e
 | **D3** | Analítica | ✅ **Dashboard propio** sobre `content_views`. Sin terceros, sin cookies, sin tocar la CSP. Sumar una tabla `events` mínima para conversión. | El panel ya expone `vistas{hoy,semana,mes}` + top hilos/guías en `GET /api/<slug>/metrics`. Falta la agregación por día y los 4 eventos clave. |
 | **D4** | Email transaccional | ✅ **Resend.** Orden de urgencia: verificación en registro → recuperación de contraseña → newsletter. | Ya implementado como transporte (`MAIL_TRANSPORT=resend`). **Falta solo cargar `MAIL_*` en Vercel**: la verificación y la recuperación ya están construidas (Etapa 4). |
 | **D5** | Stack del contenido | ✅ **Seguir en serverless.** Página de guía con un handler propio que devuelve HTML. WordPress **descartado**. | `ARQUITECTURA-TECNICA.md` quedó marcado como superado. El handler de guías necesita un rewrite, igual que el de hilos (§2.15(e)). |
+| **D6** | ¿Perfiles públicos ahora o después de privacidad? | ✅ **Privacidad primero (opción a).** No se exponen datos personales (`/perfil/<usuario>`) hasta que la política de privacidad y los términos estén publicados (D12). La Etapa 5 queda bloqueada por **D12**, no por D6. | Resolución de política. El cableado de la Etapa 5 se construye recién tras D12. |
+| **D7** | ¿Newsletter ahora o después del ESP? | ✅ **Después del ESP (opción a).** Sin proveedor de email configurado, capturar emails es un pasivo legal (Ley 25.326) y de spam. Se construye tras cargar `MAIL_*` en Vercel (D4). La Etapa 6 queda bloqueada por **D4**, no por D7. | La abstracción de transporte ya existe (D4); falta configurar el ESP. |
+| **D9** | ¿Quién resuelve el contenido y la moderación? | ✅ **Solo el dueño por ahora (opción a).** No hay programa de moderadores voluntarios todavía. Habilita construir la infraestructura de moderación (cola de reportes + panel) en la Etapa 5 con el dueño como único moderador. | Define el modelo operativo; la Etapa 5 construye la herramienta. |
+| **D11** | ¿Se hashea la IP en `sessions`, `auth_attempts` y `audit_log`? | ✅ **Solo `auth_attempts` (opción b), implementado.** `server/lib/rate-limit.js` guarda `auth.hashIp(ip)` en vez de la IP cruda. `sessions.ip` y `audit_log.ip` quedan en claro pero con retención acotada y documentada (no se pierde la capacidad de investigar abuso). `content_views.ip_hash` y `events.ip_hash` ya estaban hasheados. | `server/lib/rate-limit.js` (record/failuresForIp). Hash determinístico ⇒ el rate-limit por IP sigue funcionando. |
+| **D13** | ¿Se extiende la validación CSRF a los endpoints públicos que mutan datos? | ✅ **Sí, a todos (opción a), implementado.** `csrf.assertValid` cubre admin, cuenta (`auth.js`) y foro (`threads.js`: crear/editar/borrar hilo y respuesta, y like). El cliente ya manda `X-CSRF-Token`. Corregido el comentario de `csrf.js` que decía lo contrario. | `server/handlers/threads.js` (createThread/createReply/toggleLike + los 4 existentes) + comentario en `server/lib/csrf.js`. |
 
 ### Pendientes
 
 | ID | Decisión | Opciones | Recomendación | Bloquea |
 |---|---|---|---|---|
-| **D6** | ¿Perfiles públicos ahora o después de privacidad? | (a) Privacidad primero · (b) En paralelo | **(a)**: no exponer datos personales sin política publicada | Etapa 5 |
-| **D7** | ¿Newsletter ahora o después del ESP? | (a) Después del ESP · (b) Captura simple ahora | **(a)**: sin ESP la captura es un pasivo, no un activo | Etapa 6 |
 | **D8** | Presupuesto de terceros | — | Definir techo mensual (hosting, ESP, analítica, monitoreo) | Etapas 4-8 |
-| **D9** | ¿Quién resuelve el contenido y la moderación? | (a) Solo vos · (b) Moderadores voluntarios | Definir antes de abrir el registro masivo | Etapas 5-7 |
 | **D10** | ¿Se hashean los nombres de los assets en el build? | (a) Sí (permite `immutable`) · (b) No, mantener cache de 7 días | (b) por ahora: hashear requiere un paso de build que hoy no existe | Track de rendimiento |
-| **D11** | ¿Se hashea la IP en `sessions`, `auth_attempts` y `audit_log`? | (a) Hashear en las tres · (b) Solo `auth_attempts` · (c) Dejar como está | **(b)**: en `auth_attempts` no se pierde nada; en `sessions`/`audit_log` la IP cruda sirve para investigar abuso | Etapa 5 (privacidad) |
-| **D12** | ¿Se aprueban y publican las páginas legales? | (a) Revisión legal externa · (b) Publicarlas con placeholders completados por vos | **(a)** antes de abrir perfiles públicos o newsletter | Etapa 5 |
-| **D13** | ¿Se extiende la validación CSRF a los endpoints públicos que mutan datos? | (a) Sí, a todos · (b) Solo corregir el comentario de `csrf.js` | **(a)**: el cliente ya manda `X-CSRF-Token`; el servidor solo tiene que verificarlo | Etapa 5 |
+| **D12** | ¿Se aprueban y publican las páginas legales? | (a) Revisión legal externa · (b) Publicarlas con placeholders completados por vos | **(a)** antes de abrir perfiles públicos o newsletter | Etapa 5 (y Etapa 6 vía D6/D7) |
+
+> **D12 — para publicar los legales (checklist).** El contenido ya cubre todo lo que exige cobrar (incluidas las cláusulas de pago y reembolso, §8 de `terminos.html`) y el tratamiento de datos de pago (`privacidad.html`). Lo que falta es **el dato del dueño** y su OK. Completar los `[COMPLETAR]` en `privacidad.html` y `terminos.html`:
+> **razón social** · **CUIT** · **domicilio legal** · **ciudad y jurisdicción** · **email de contacto** (en ambos documentos) · **cómo se emite la factura**.
+>
+> Después, **un solo comando** hace los 3 pasos (saca `.legal-draft`, pasa el meta a `index, follow` y habilita `setLegalesPublicadas(true)`): **`npm run legales:publicar`** — y **se niega a publicar si queda algún `[COMPLETAR]`**. Con eso se habilita **cobrar (O9)** y **prender los perfiles públicos (D6)**. Si se elige la opción (a), sumar la revisión legal externa antes de publicar.
+>
+> **Todo el despliegue está en [`CHECKLIST-DESPLIEGUE.md`](./CHECKLIST-DESPLIEGUE.md)** (variables, migraciones, verificación de rewrites en Preview, email, pagos, operación y rollback).
 
 ---
 
@@ -633,24 +643,36 @@ Cada etapa tiene dependencias explícitas y criterios de éxito verificables (§
 **Dependencias:** D4 (solo para el proveedor), D8. Etapa 0.
 **Bloquea:** difundir el sitio (R3).
 
-> **Nota de despliegue:** el código nuevo ya está listo, pero **no se ejecutó ninguna migración contra la base**. Antes de desplegar hay que correr `npm run db:init` (o `npm run db:migrate`) para aplicar `001_email_tokens` y `002_cambio_de_email`. Sin eso: el registro sigue funcionando (el envío falla en silencio y queda en `audit_log`), pero la recuperación de contraseña y la gestión de cuenta no. El chequeo de sesión está escrito para **no romperse** si la migración todavía no corrió (ver el `try/catch` en el handler `session`).
+> **Nota de despliegue:** el código nuevo ya está listo, pero **no se ejecutó ninguna migración contra la base**. Antes de desplegar hay que correr `npm run db:init` (o `npm run db:migrate`) para aplicar las migraciones pendientes (`001`–`005`: tokens/verificación, cambio de email, eventos, `004_forum_reports` y `005_users_emprendimiento`). Sin eso: el registro sigue funcionando (el envío falla en silencio y queda en `audit_log`), pero la recuperación de contraseña, la gestión de cuenta, la cola de reportes y los campos `bio`/`emprendimiento` no. El chequeo de sesión está escrito para **no romperse** si una migración todavía no corrió (ver los `try/catch` en el handler `session`).
 
 ### Etapa 5 — Comunidad
 
 **Objetivo:** pasar de "foro" a comunidad.
 
-- [ ] Perfiles públicos `/perfil/<usuario>`: hilos, respuestas, bio, emprendimiento opcional, badges.
-- [ ] Edición de perfil (display_name, avatar, bio) y **borrado de cuenta** con anonimización.
-- [ ] Reputación: 3-4 badges desde datos existentes + "Top colaboradores del mes" (`forum_likes` + `replies_count`).
-- [ ] Reporte de contenido por usuarios + tabla `reports` + cola en el panel + acción de moderar (registrada en `audit_log`).
-- [ ] Normas de convivencia publicadas y enlazadas desde el foro.
-- [ ] Avatares con imagen real (`avatar_url`) en lista, respuestas y perfil.
-- [ ] Indicador visual claro de resuelto vs. abierto.
-- [ ] Estados vacíos con diseño propio (sin respuestas, sin resultados).
-- [ ] Like con feedback optimista (UI inmediata).
+- [x] Perfiles públicos `/perfil/<usuario>`: hilos, respuestas, bio, emprendimiento opcional y badges (gated por `PERFILES_PUBLICOS` hasta D12).
+- [x] Edición de perfil (display_name, avatar, bio) y **borrado de cuenta** con anonimización (F8).
+- [x] Reputación: 4 badges desde datos existentes + "Top colaboradores del mes" (`forum_replies` + likes).
+- [x] Reporte de contenido por usuarios + tabla `forum_reports` + cola en el panel + acción de moderar (registrada en `audit_log`).
+- [x] Normas de convivencia publicadas (`normas.html`) y enlazadas desde el foro.
+- [x] Avatares con imagen real (`avatar_url`) en lista, respuestas y perfil.
+- [x] Indicador visual de resuelto vs. abierto (badges "Resuelto" / "Sin responder").
+- [x] Estados vacíos con diseño propio (`.community-empty`).
+- [x] Like con feedback optimista (UI inmediata) — estado inicial vía `GET /api/likes`.
 
 **Dependencias:** D6, D9. Etapas 3, 4 (privacidad publicada).
 **Bloquea:** O5, y la monetización con tráfico (Etapa 6).
+
+> **Estado del scaffolding (2026-09-23):** arrancada la Etapa 5 con las dos piezas que no dependen de exponer datos personales.
+> - **Cola de reportes (F9) — construida completa:** migración `004_forum_reports` (tabla `forum_reports`), `server/lib/reports.js` (modelo), `server/handlers/reports.js` (`POST /api/reports` con sesión + CSRF; `GET`/`PATCH /api/<slug>/reports` para el panel), modal de reporte en `js/community.js` (`BerrysReport`), botones de reporte en foro/hilo (lista y detalle, SSR y cliente) y pestaña **Reportes** en el panel (`js/admin.js`) con acciones Ocultar hilo / Descartar / Resolver (todo registrado en `audit_log`).
+> - **Perfiles públicos (F7) — scaffolding, apagado por defecto:** `renderProfile` (SSR con JSON-LD `Person`), endpoint `GET /api/users/:id`, `serialize.userProfile` (nunca expone email), rewrite `/perfil/:usuario`, `perfil.html` + `js/perfil.js` y estilos. Todo detrás del flag **`PERFILES_PUBLICOS`**: con el flag apagado, página y endpoint devuelven 404 `noindex`. **Se prende recién cuando D12 esté resuelta** (decisión D6).
+> - **F8 — edición de perfil + borrado de cuenta: hecha.** `POST /api/auth/update-profile` (nombre visible, avatar http(s) y bio; sincroniza el `author_name` desnormalizado del foro) y `POST /api/auth/delete-account` (re-auth con contraseña —o palabra `ELIMINAR` en cuentas de Google—, anonimiza hilos/respuestas a "Usuario eliminado", limpia el email de `audit_log` y borra la cuenta). UI en `cuenta.html` (`js/mi-cuenta.js`).
+> - **Ocultar respuestas desde el panel: hecho.** `admin.updateReply` + ruta `PATCH /api/<slug>/replies/:id`; la cola de reportes ahora oculta hilos **y** respuestas.
+> - **Reputación (badges): hecha.** `server/lib/reputation.js` — 4 insignias desde datos existentes (primer aporte, colaborador/a, referente, resolutivo/a); `computeBadges` es **puro** y testeable. Badges en el perfil (SSR + JSON) y **"Top colaboradores del mes"** en el sidebar del foro (`GET /api/contributors`).
+> - **Normas de convivencia: publicadas.** `normas.html` (indexable, en el sitemap), enlazada desde el sidebar del foro.
+> - **Avatares con imagen real: hechos.** `serialize.thread/reply` exponen `autorAvatar` (JOIN a `users`); el foro, el hilo y el perfil pintan la imagen con *fallback* a iniciales.
+> - **Like con feedback optimista: hecho.** `js/hilo.js` actualiza el corazón y el contador al instante y **revierte** si el server falla. El estado inicial (si ya likeaste) se pide con `GET /api/likes?thread=<id>`: la página SSR viene cacheada, así que no puede traer datos por usuario.
+> - **Campo "emprendimiento" del perfil: hecho.** Migración `005`, aceptado en `update-profile`, en `serialize` y en el perfil (SSR + JSON); UI en `cuenta.html`.
+> - **Etapa 5 — completa.**
 
 ### Etapa 6 — Crecimiento
 
@@ -659,11 +681,15 @@ Cada etapa tiene dependencias explícitas y criterios de éxito verificables (§
 - [ ] Newsletter: tabla `newsletter_subscribers`, doble opt-in, baja en un clic, reutilizando Turnstile + rate-limit.
 - [ ] Formulario en footer y al final de cada guía.
 - [ ] Digest quincenal (hilos destacados + guía nueva).
+- [x] Pago real del desbloqueo PRO (**MercadoPago Checkout Pro + webhook**) — código listo (migración `006`); falta cargar credenciales en Vercel y publicar los legales (D12).
 - [ ] Rol de proveedor-colaborador verificado + listado "Proveedores de la comunidad".
 - [ ] Afiliados y destacados pagos (solo con datos de la Etapa 3).
+- [x] Link **"Marca Personal"** en el header → **ya existía** (`community.js` inyecta `#storeBtn`; texto y URL desde `MI_MARCA` en `content-data.js`; abre en pestaña nueva). Solo falta **confirmar la URL real** de la tienda (hoy apunta a `https://berrysnature.com`).
 
 **Dependencias:** D7. Etapas 3, 4, 5.
-**Bloquea:** O6.
+**Bloquea:** O6, O9.
+
+> **Backlog — link "Marca Personal" (2026-09-23, revisado 2026-09-24):** el enlace **ya está implementado** (`js/community.js` inyecta el botón `#storeBtn` en el header; el texto y la URL salen de `MI_MARCA` en `js/content-data.js`; abre en pestaña nueva con `noopener`). **Lo único pendiente es confirmar la URL real de la tienda**: hoy `MI_MARCA.url = 'https://berrysnature.com'`, que es el dominio del propio sitio, así que si la tienda personal vive en otro lado hay que cambiarla ahí.
 
 ### Etapa 7 — Contenido
 
@@ -862,6 +888,17 @@ Para no gastar esfuerzo donde no corresponde (coincide con el §7 del plan origi
 | 2026-09-22 | 2 | 17 tests nuevos (13 de guía + 4 de sitemap) | ✅ `npm run test:chromium` → **173/173 passed** · backend **9/9**, sin regresión |
 | 2026-09-22 | 2 | **Seed de guías ya no pisa ediciones del panel** | ✅ `scripts/lib/seed-sql.cjs` + flags `--force`/`--force-guides` + 4 tests en `seed.spec.js` |
 | 2026-09-22 | 5 | **Páginas legales cableadas al sitemap (O1, mecánico)** | ✅ `PAGINAS_LEGALES` + `setLegalesPublicadas` (default `false`): fuera del sitemap mientras son `noindex`; 2 tests S19/S20 en `sitemap.spec.js` fijan la invariante; Resend completado en `privacidad.html` |
+| 2026-09-22 | 9 | **D6, D7, D9 resueltas (política)** | ✅ D6 privacidad primero · D7 newsletter tras ESP (D4) · D9 moderación solo del dueño por ahora. La Etapa 5 queda bloqueada por D12, la 6 por D4, la 7 por migrar guías. |
+| 2026-09-22 | 11 | **D11 implementada: IP hasheada en `auth_attempts`** | ✅ `server/lib/rate-limit.js` guarda `auth.hashIp(ip)` (no IP cruda). `sessions.ip`/`audit_log.ip` siguen en claro con retención documentada. Hash determinístico ⇒ rate-limit por IP intacto. |
+| 2026-09-22 | 13 | **D13 implementada: CSRF en todos los endpoints públicos que mutan** | ✅ `csrf.assertValid` agregado a `createThread`, `createReply` y `toggleLike` en `server/handlers/threads.js` (los otros 4 ya lo tenían). Corregido el comentario de `server/lib/csrf.js`. |
+| 2026-09-23 | 5 | **Scaffolding Etapa 5: cola de reportes + perfiles (gated)** | ✅ Cola de reportes completa (migración `004_forum_reports`, `server/lib/reports.js`, `server/handlers/reports.js`, modal `BerrysReport` en `community.js`, botones en foro/hilo SSR+cliente, pestaña **Reportes** en el panel con acciones auditadas). Perfiles públicos: SSR `renderProfile` + `GET /api/users/:id` + `perfil.html`/`js/perfil.js`, **apagados por `PERFILES_PUBLICOS`** hasta D12 (D6). Tests: `etapa5.spec.js` (4, sin DB) + `perfil.html` en `responsive-overflow`. Verificado: estática **180/180** (Chromium), backend **13/13 + 11 skip**. |
+| 2026-09-23 | — | **O9 (monetizar con tráfico) + backlog "Marca Personal"** | ✅ Nuevo objetivo **O9** con métrica (≥ 1 pago real en 30 días; ≥ 20 desbloqueos PRO en 90). Backlog registrado: link **"Marca Personal"** en el header → tienda personal (pendiente a propósito, puede esperar). Etapa 6 ahora bloquea **O6 y O9**. |
+| 2026-09-23 | 5 | **F8: edición de perfil + borrado de cuenta; y ocultar respuestas desde la cola** | ✅ `POST /api/auth/update-profile` (nombre/avatar/bio + sincroniza `author_name` desnormalizado) y `POST /api/auth/delete-account` (re-auth + anonimización de hilos/respuestas + limpieza de PII en `audit_log` + borrado). UI en `cuenta.html`/`js/mi-cuenta.js`. `admin.updateReply` + ruta `PATCH /api/<slug>/replies/:id` y botón "Ocultar respuesta" en la cola. |
+| 2026-09-23 | 5 | **Etapa 5 completa: reputación, normas y avatares reales** | ✅ `server/lib/reputation.js` (4 badges desde datos existentes; `computeBadges` puro) → badges en el perfil (SSR/JSON) + "Top colaboradores del mes" en el foro (`GET /api/contributors`). `normas.html` (indexable, en el sitemap) enlazada desde el sidebar del foro. `autorAvatar` en `thread`/`reply` (JOIN a `users`) pintado en foro/hilo/perfil. Tests: `etapa5.spec.js` 10. Verificado: estática **181** (1 flaky pre-existente, `T1-AU-02`); backend **19/19 + 11 skip**. |
+| 2026-09-23 | 5 | **Detalles menores de Etapa 5: like optimista + emprendimiento** | ✅ Like optimista en `js/hilo.js` (toggle inmediato del corazón/contador + reversión si falla; estado inicial con `GET /api/likes?thread=<id>`). Campo `emprendimiento` (migración `005`) aceptado en `update-profile`, expuesto en `serialize` y renderizado en el perfil; UI en `cuenta.html`. Tests: `etapa5.spec.js` 13. Verificado: estática **181/181**; backend **22/22 + 11 skip**. |
+| 2026-09-24 | 6 | **O9: pago real con MercadoPago (Checkout Pro + webhook)** | ✅ Migración `006_payments`. `server/lib/mercadopago.js` (preferencia, `getPayment`, firma HMAC). `server/handlers/payments.js`: `POST /api/payments/checkout` (sesión + CSRF) y `POST /api/webhooks/mercadopago` (sin CSRF: valida firma, **revalida el pago contra la API**, otorga `permissions.calculadora_pro` de forma idempotente y emite `pro_desbloqueado` real). Cliente: `BerrysAPI.checkout()`; `pro-unlock.js` lee el permiso del servidor y hace Checkout Pro cuando `demo:false`. `.env.example` con `MERCADOPAGO_*`. Tests: `pagos.spec.js` 7. Verificado: estática **181/181**; backend **29/29 + 11 skip**. |
+| 2026-09-24 | 6 | **D12 preparado + panel de Ingresos** | ✅ **Legales:** §8 de `terminos.html` ampliado con precio/medios de pago (MercadoPago), acceso, comprobante y reembolsos/derecho de arrepentimiento (Ley 24.240 art. 34); `privacidad.html` con datos de pago, MercadoPago como encargado y retención. **No se publican** (faltan los datos del dueño — checklist en §9). **Panel:** `GET /api/<slug>/revenue` (tolerante a que falte la migración 006) + pestaña **Ingresos** en el admin. Tests: `pagos.spec.js` 8. Verificado: estática **181/181**; backend **30/30 + 11 skip**. |
+| 2026-09-24 | — | **Preparación de despliegue + publicación de legales automatizada** | ✅ **`CHECKLIST-DESPLIEGUE.md`**: variables de entorno, migraciones, verificación de rewrites en Preview, email, pagos, operación y rollback. **`npm run legales:publicar`** (`scripts/publish-legales.cjs`): hace los 3 pasos de publicación y **se niega si queda algún `[COMPLETAR]`**. **Webhook:** reconciliación de la intención de pago con el pago real (una sola fila por compra). Verificado: estática **181** (1 flaky `T2-F4-05`, pasa aislado); backend **30/30 + 11 skip**. |
 
 **Nota de entorno (Windows):** Playwright limpia `test-results/` al arrancar y eso dispara el guardián de borrado masivo del entorno (acumula por turno, umbral 50 archivos). Workaround que funciona: `npx playwright test -c <config> --output=.tmp-pw` — apunta la salida a un directorio nuevo y evita el borrado por completo.
 
@@ -908,10 +945,10 @@ Criterio aplicado:
 4. **Configurar el email en Vercel (D4)**: `MAIL_TRANSPORT=resend`, `MAIL_FROM` y `MAIL_API_KEY`.
 5. **Completar y revisar las páginas legales (D12)**: reemplazar los `[COMPLETAR]` restantes, quitar el aviso de borrador y sacar el `noindex` del HTML, y luego habilitarlas en el sitemap con `setLegalesPublicadas(true)` en `server/handlers/pages.js` (ver §2.18). El cableado ya está listo: mientras sean borrador quedan afuera del sitemap automáticamente.
 6. **Migrar las 9 guías públicas restantes** a contenido real (hoy existen como páginas dinámicas, pero el cuerpo de varias está sin escribir).
-7. **Responder D11 y D13** → encuadre de privacidad de las IPs y endurecimiento de CSRF.
-8. **Conectar el pago real (MercadoPago)** → recién ahí `pro_desbloqueado` mide conversión de verdad, y se desbloquea la monetización con tráfico (Etapa 6).
+7. ~~**Responder D11 y D13** → encuadre de privacidad de las IPs y endurecimiento de CSRF.~~ **Hecho (2026-09-22):** D11 implementada en `server/lib/rate-limit.js`; D13 implementada en `server/handlers/threads.js` + comentario de `csrf.js` corregido.
+8. ~~**Conectar el pago real (MercadoPago + webhook)**~~ → **hecho (2026-09-24, código):** Checkout Pro + webhook con firma HMAC y revalidación del pago; `pro_desbloqueado` ahora es una conversión real. Falta cargar las credenciales `MERCADOPAGO_*` en Vercel, correr la migración `006` y publicar los legales con condiciones de pago y reembolso (D12) antes de cobrar.
 
-**Etapas 0, 1, 2, 3, 4 y 8 completadas** (la 2 salvo el 301 y el `FAQPage`). Las 5, 6 y 7 esperan D6, D7 y D9.
+**Etapas 0, 1, 2, 3, 4 y 8 completadas** (la 2 salvo el 301 y el `FAQPage`). Las 5, 6 y 7 siguen pendientes de construcción: la 5 espera **D12** (privacidad publicada), la 6 espera **D4** (ESP configurado en Vercel) y la 7 espera migrar las 9 guías públicas restantes. **Decisiones D6/D7/D9/D11/D13 resueltas** (ver §9 y §15). Restan D8, D10 y D12.
 
 
 

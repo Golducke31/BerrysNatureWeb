@@ -20,6 +20,8 @@ const V = require('./lib/validate');
 const pub = require('./handlers/public');
 const authH = require('./handlers/auth');
 const threads = require('./handlers/threads');
+const reports = require('./handlers/reports');
+const payments = require('./handlers/payments');
 const admin = require('./handlers/admin');
 const pages = require('./handlers/pages');
 const adminUI = require('./admin-ui');
@@ -101,6 +103,7 @@ async function handleAdmin(req, res, method, seg) {
   if (a === 'session' && method === 'GET') return admin.session(req, res);
   if (a === 'metrics' && method === 'GET') return admin.metrics(req, res);
   if (a === 'stats' && method === 'GET') return admin.stats(req, res);
+  if (a === 'revenue' && method === 'GET') return admin.revenue(req, res);
   if (a === 'audit' && method === 'GET') return admin.listAudit(req, res);
 
   if (a === 'threads') {
@@ -122,6 +125,20 @@ async function handleAdmin(req, res, method, seg) {
   if (a === 'users') {
     if (!b && method === 'GET') return admin.listUsers(req, res);
     if (b && method === 'PATCH') return admin.updateUser(req, res, { id: b }, await body(req));
+    return http.notFound(res);
+  }
+
+  /* Cola de reportes (Etapa 5, F9). Vive en el panel porque la decisión
+     D9 deja la moderación en manos del dueño por ahora. */
+  if (a === 'reports') {
+    if (!b && method === 'GET') return reports.listReports(req, res);
+    if (b && method === 'PATCH') return reports.resolveReport(req, res, { id: b }, await body(req));
+    return http.notFound(res);
+  }
+
+  /* Moderar respuestas (Etapa 5): ocultar/editar desde el panel. */
+  if (a === 'replies') {
+    if (b && method === 'PATCH') return admin.updateReply(req, res, { id: b }, await body(req));
     return http.notFound(res);
   }
 
@@ -155,6 +172,14 @@ async function handlePublic(req, res, method, seg) {
     return pages.renderThread(req, res, { id });
   }
 
+  /* Perfil público (Etapa 5, F7). Rewrite: /perfil/:usuario → /api/perfil/:usuario.
+     Gated por D6: responde 404 mientras PERFILES_PUBLICOS no esté activo. */
+  if (a === 'perfil' && b && method === 'GET') {
+    let usuario = b;
+    try { usuario = decodeURIComponent(b); } catch (e) { /* se usa tal cual */ }
+    return pages.renderProfile(req, res, { usuario });
+  }
+
   if (a === 'auth') {
     if (b === 'register' && method === 'POST') return authH.register(req, res, await body(req));
     if (b === 'login' && method === 'POST') return authH.login(req, res, await body(req));
@@ -168,6 +193,8 @@ async function handlePublic(req, res, method, seg) {
     if (b === 'change-email' && method === 'POST') return authH.changeEmail(req, res, await body(req));
     if (b === 'confirm-email-change' && method === 'POST') return authH.confirmEmailChange(req, res, await body(req));
     if (b === 'change-password' && method === 'POST') return authH.changePassword(req, res, await body(req));
+    if (b === 'update-profile' && method === 'POST') return authH.updateProfile(req, res, await body(req));
+    if (b === 'delete-account' && method === 'POST') return authH.deleteAccount(req, res, await body(req));
     return http.notFound(res);
   }
 
@@ -193,9 +220,29 @@ async function handlePublic(req, res, method, seg) {
     return http.notFound(res);
   }
 
+  if (a === 'likes' && method === 'GET') return threads.listLikes(req, res);
   if (a === 'likes' && method === 'POST') return threads.toggleLike(req, res, await body(req));
   if (a === 'views' && method === 'POST') return pub.registerView(req, res, await body(req));
   if (a === 'events' && method === 'POST') return pub.registerEvent(req, res, await body(req));
+
+  /* Top colaboradores del mes (Etapa 5, reputación). */
+  if (a === 'contributors' && !b && method === 'GET') return pub.listContributors(req, res);
+
+  /* Pagos (O9). El checkout exige sesión + CSRF; el webhook lo llama
+     MercadoPago (sin sesión y sin CSRF: se defiende con la firma). */
+  if (a === 'payments' && b === 'checkout' && method === 'POST') {
+    return payments.createCheckout(req, res, await body(req));
+  }
+  if (a === 'webhooks' && b === 'mercadopago' && method === 'POST') {
+    return payments.webhook(req, res, await body(req));
+  }
+
+  /* Reporte de contenido (Etapa 5, F9): cualquier usuario logueado. */
+  if (a === 'reports' && method === 'POST') return reports.createReport(req, res, await body(req));
+
+  /* Perfil público en JSON (lo usa perfil.html cuando se abre directo).
+     Gated por D6: 404 mientras PERFILES_PUBLICOS no esté activo. */
+  if (a === 'users' && b && method === 'GET') return pub.getUserProfile(req, res, { id: b });
 
   return http.notFound(res);
 }

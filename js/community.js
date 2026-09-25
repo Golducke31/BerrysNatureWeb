@@ -89,6 +89,23 @@
     }
   }
 
+  /* En mobile el botón de la tienda sale del header (ver css/styles.css):
+     lo agregamos al menú lateral para que siga accesible. */
+  function injectStoreInDrawer() {
+    var list = $('#navMenuMobile');
+    if (!list || $('#storeDrawerLink')) return;
+
+    var url = typeof MI_MARCA !== 'undefined' ? MI_MARCA.url : '';
+    var texto = typeof MI_MARCA !== 'undefined' ? MI_MARCA.textoBoton : 'Mi Marca Personal';
+    if (!url) return;
+
+    var li = document.createElement('li');
+    li.innerHTML =
+      '<a class="mobile-nav-link" id="storeDrawerLink" href="' + escapeHtml(url) +
+      '" target="_blank" rel="noopener noreferrer">' + escapeHtml(texto) + '</a>';
+    list.appendChild(li);
+  }
+
   /* ============================================================
      MODAL
      ============================================================ */
@@ -360,6 +377,132 @@
   }
 
   /* ============================================================
+     REPORTE DE CONTENIDO (Etapa 5, F9)
+
+     Un modal compartido por el foro y el hilo. Los botones se marcan
+     con data-report-thread / data-report-reply / data-report-user; el
+     listener global (en fase de captura) los intercepta antes de que
+     el card navegue.
+     ============================================================ */
+
+  var reportTarget = null;
+
+  function buildReportModal() {
+    if ($('#reportModal')) return;
+    var wrap = document.createElement('div');
+    wrap.innerHTML =
+      '<div class="auth-modal-overlay" id="reportModal" role="dialog" aria-modal="true" ' +
+        'aria-labelledby="reportModalTitle" aria-hidden="true">' +
+        '<div class="auth-modal report-modal">' +
+          '<button class="auth-close-btn" id="reportCloseBtn" type="button" aria-label="Cerrar">' +
+            '<i data-icon="close"></i></button>' +
+          '<h2 class="auth-title" id="reportModalTitle">Reportar contenido</h2>' +
+          '<p class="auth-sub" id="reportSub">Contanos qué pasa y lo revisamos.</p>' +
+          '<form class="auth-form" id="reportForm" novalidate>' +
+            '<div class="form-group">' +
+              '<label for="reportReason">Motivo</label>' +
+              '<select id="reportReason" required>' +
+                '<option value="spam">Spam o publicidad</option>' +
+                '<option value="ofensa">Ofensa o agresión</option>' +
+                '<option value="datos_personales">Datos personales</option>' +
+                '<option value="informacion_erronea">Información errónea</option>' +
+                '<option value="otro">Otro</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label for="reportDetail">Detalle (opcional)</label>' +
+              '<textarea id="reportDetail" rows="3" maxlength="1000" ' +
+                'placeholder="Contanos brevemente qué pasa."></textarea>' +
+            '</div>' +
+            '<button class="cta-button auth-submit" id="reportSubmit" type="submit">Enviar reporte</button>' +
+          '</form>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(wrap.firstElementChild);
+    if (window.paintIcons) window.paintIcons();
+  }
+
+  function openReport(type, id, label) {
+    if (!currentUser) {
+      openAuthModal('login');
+      toast('Ingresá para reportar contenido');
+      return;
+    }
+    buildReportModal();
+    reportTarget = { type: type, id: id };
+    var sub = $('#reportSub');
+    if (sub) sub.textContent = label ? 'Reportar: ' + label : 'Contanos qué pasa y lo revisamos.';
+    var modal = $('#reportModal');
+    if (modal) {
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+    var reason = $('#reportReason');
+    if (reason) reason.focus();
+  }
+
+  function closeReport() {
+    var modal = $('#reportModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  function submitReport(e) {
+    e.preventDefault();
+    if (!reportTarget) return;
+    var reason = $('#reportReason');
+    var detail = $('#reportDetail');
+    var btn = $('#reportSubmit');
+    if (!reason || !reason.value) { toast('Elegí un motivo.'); return; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+    api().report(reportTarget.type, reportTarget.id, reason.value, detail ? detail.value : '')
+      .then(function () {
+        toast('Gracias. Vamos a revisarlo.', 'check');
+        closeReport();
+      })
+      .catch(function (err) {
+        toast((err && err.message) || 'No pudimos enviar el reporte.', 'warning');
+      })
+      .then(function () {
+        if (btn) { btn.disabled = false; btn.textContent = 'Enviar reporte'; }
+        if (detail) detail.value = '';
+      });
+  }
+
+  function setupReport() {
+    // Fase de captura: frena el clic del card (que navega al hilo) antes
+    // de que dispare su propio listener.
+    document.addEventListener('click', function (e) {
+      var t = e.target && e.target.closest
+        ? e.target.closest('[data-report-thread],[data-report-reply],[data-report-user]')
+        : null;
+      if (!t) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var label = t.getAttribute('data-report-label') || '';
+      if (t.hasAttribute('data-report-thread')) openReport('thread', t.getAttribute('data-report-thread'), label);
+      else if (t.hasAttribute('data-report-reply')) openReport('reply', t.getAttribute('data-report-reply'), label);
+      else if (t.hasAttribute('data-report-user')) openReport('user', t.getAttribute('data-report-user'), label);
+    }, true);
+
+    document.addEventListener('click', function (e) {
+      if (!e.target) return;
+      if (e.target.closest && e.target.closest('#reportCloseBtn')) { closeReport(); return; }
+      var modal = $('#reportModal');
+      if (modal && e.target === modal) closeReport();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeReport();
+    });
+
+    document.addEventListener('submit', function (e) {
+      if (e.target && e.target.id === 'reportForm') submitReport(e);
+    });
+  }
+
+  /* ============================================================
      API PÚBLICA DE SESIÓN
      ============================================================ */
   window.BerrysAuth = {
@@ -369,6 +512,9 @@
     getUser: function () { return currentUser; },
     refresh: function () { return loadSession(); }
   };
+
+  /* API pública de reporte (por si otro módulo la necesita). */
+  window.BerrysReport = { open: openReport, close: closeReport };
 
   /* ============================================================
      INIT
@@ -389,6 +535,8 @@
     paintSession();                 // pinta ya, sin esperar la red
     setupAuthModal();
     setupUnlock();
+    setupReport();
+    injectStoreInDrawer();
     applyPendingFormulaFromQuery();
     loadSession();                  // y confirma contra el servidor
 

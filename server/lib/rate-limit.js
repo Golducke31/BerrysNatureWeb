@@ -6,6 +6,7 @@
    ============================================================ */
 'use strict';
 
+const crypto = require('node:crypto');
 const db = require('./db');
 
 const WINDOW_MIN = 15;          // ventana de análisis
@@ -13,11 +14,25 @@ const MAX_PER_IDENTIFIER = 5;   // fallos por email antes de bloquear
 const MAX_PER_IP = 20;          // fallos por IP antes de cortar
 const LOCK_MIN = 15;            // duración del bloqueo por email
 
+/**
+ * Hash de IP con sal del server. DEBE coincidir con `auth.hashIp`
+ * (server/lib/auth.js) para que el rate-limit por IP siga funcionando.
+ * No guardamos IPs crudas: Ley 25.326 (decisión D11).
+ */
+function hashIp(ip) {
+  return crypto
+    .createHash('sha256')
+    .update(`${ip || ''}|${process.env.SESSION_SECRET || 'berrys'}`)
+    .digest('hex');
+}
+
 async function record(identifier, ip, success) {
   try {
+    // D11: guardamos el hash, nunca la IP cruda. El rate-limit por IP
+    // sigue funcionando porque el hash es determinístico.
     await db.query(
       'INSERT INTO auth_attempts (identifier, ip, success) VALUES ($1, $2, $3)',
-      [String(identifier || '').slice(0, 200), ip || null, Boolean(success)]
+      [String(identifier || '').slice(0, 200), ip ? hashIp(ip) : null, Boolean(success)]
     );
   } catch (e) {
     // Nunca romper el login por un fallo de telemetría
@@ -44,7 +59,7 @@ async function failuresForIp(ip) {
       WHERE ip = $1
         AND success = false
         AND created_at > now() - ($2 || ' minutes')::interval`,
-    [ip, String(WINDOW_MIN)]
+    [hashIp(ip), String(WINDOW_MIN)]
   );
   return (row && row.n) || 0;
 }

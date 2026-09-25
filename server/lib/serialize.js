@@ -35,6 +35,7 @@ function thread(row) {
     cuerpo: row.body,
     autor: row.author_name,
     autorId: row.author_id,
+    autorAvatar: row.author_avatar || '',
     categoria: row.category,
     icon: row.icon,
     likes: row.likes_count,
@@ -55,6 +56,7 @@ function reply(row) {
     cuerpo: row.body,
     autor: row.author_name,
     autorId: row.author_id,
+    autorAvatar: row.author_avatar || '',
     likes: row.likes_count,
     oculto: row.is_hidden,
     tiempo: relativeTime(row.created_at),
@@ -102,6 +104,26 @@ function userPublic(row) {
   };
 }
 
+/**
+ * Perfil público de un usuario. NUNCA incluye email ni datos internos:
+ * la decisión D6 (privacidad primero) exige exponer lo mínimo.
+ * @param {object} row
+ * @param {{hilos?:number, respuestas?:number}} [counts]
+ */
+function userProfile(row, counts = {}) {
+  return {
+    id: row.id,
+    nombre: row.display_name,
+    avatar: row.avatar_url || '',
+    bio: row.bio || '',
+    emprendimiento: row.emprendimiento || '',
+    rol: row.role,
+    creado: row.created_at,
+    hilos: (counts && counts.hilos) || 0,
+    respuestas: (counts && counts.respuestas) || 0
+  };
+}
+
 /** Usuario propio (incluye datos que solo él debe ver). */
 function userSelf(row) {
   return {
@@ -110,8 +132,10 @@ function userSelf(row) {
     email: row.email,
     rol: row.role,
     avatar: row.avatar_url || '',
+    bio: row.bio || '',
+    emprendimiento: row.emprendimiento || '',
     permisos: row.permissions || {}
   };
 }
 
-module.exports = { relativeTime, thread, reply, guide, userPublic, userSelf };
+module.exports = { relativeTime, thread, reply, guide, userPublic, userProfile, userSelf };

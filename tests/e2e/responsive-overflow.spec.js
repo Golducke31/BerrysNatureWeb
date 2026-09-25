@@ -14,11 +14,13 @@ const PAGES = [
   'academia.html',
   'glosario.html',
   'foro.html',
+  'perfil.html',
   'recuperar.html',
   'verificar.html',
   'cuenta.html',
   'privacidad.html',
-  'terminos.html'
+  'terminos.html',
+  'normas.html'
 ];
 const WIDTHS = [320, 375, 768, 1024, 1280];
 

@@ -18,6 +18,7 @@
     "db:migrate": "node scripts/migrate.cjs --only-migrations",
     "db:status": "node scripts/migrate.cjs --status",
     "db:rollback": "node scripts/migrate.cjs --rollback",
+    "legales:publicar": "node scripts/publish-legales.cjs",
     "test": "playwright test -c tests/playwright.config.js",
     "test:chromium": "playwright test -c tests/playwright.config.js --project=chromium",
     "test:headed": "playwright test -c tests/playwright.config.js --headed",

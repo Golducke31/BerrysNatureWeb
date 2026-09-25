@@ -250,6 +250,21 @@ async function session(req, res) {
     // Migración 002 pendiente: seguimos sin esos datos.
   }
 
+  // La bio llega con la migración 004: se consulta aparte para que, si esa
+  // migración todavía no corrió, NO se caiga el resto (email/verificación).
+  let bio = '';
+  try {
+    const b = await db.one('SELECT bio FROM users WHERE id = $1', [current.user.id]);
+    bio = (b && b.bio) || '';
+  } catch (e) { /* migración 004 pendiente */ }
+
+  // El emprendimiento llega con la migración 005: misma tolerancia.
+  let emprendimiento = '';
+  try {
+    const e2 = await db.one('SELECT emprendimiento FROM users WHERE id = $1', [current.user.id]);
+    emprendimiento = (e2 && e2.emprendimiento) || '';
+  } catch (e) { /* migración 005 pendiente */ }
+
   json(res, 200, {
     user: {
       id: current.user.id,
@@ -257,6 +272,8 @@ async function session(req, res) {
       email: current.user.email,
       rol: current.user.role,
       avatar: current.user.avatarUrl || '',
+      bio,
+      emprendimiento,
       permisos: current.user.permissions || {},
       proveedor: extra.provider || 'local',
       emailVerificado: Boolean(extra.email_verified_at),
@@ -640,8 +657,138 @@ async function changePassword(req, res, body) {
   json(res, 200, { ok: true });
 }
 
+/* ============================================================
+   F8 — Edición de perfil y borrado de cuenta (Etapa 5)
+   ============================================================ */
+
+const AVATAR_MAX = 500;
+const BIO_MAX = 500;
+const EMPRENDIMIENTO_MAX = 100;
+
+/** El avatar tiene que ser una URL http(s) o quedar vacío. Nada de
+ *  `javascript:` ni rutas raras que después se inyectan en el foro. */
+function avatarSeguro(value) {
+  const v = String(value == null ? '' : value).trim();
+  if (!v) return '';
+  try {
+    const u = new URL(v);
+    if (u.protocol === 'http:' || u.protocol === 'https:') return v.slice(0, AVATAR_MAX);
+  } catch (e) { /* no es una URL absoluta */ }
+  V.fail('El avatar tiene que ser una URL http(s).', 'avatar');
+}
+
+/** Cambia el nombre visible, el avatar y la bio. No toca email ni
+ *  contraseña: eso tiene sus propios flujos, con confirmación. */
+async function updateProfile(req, res, body) {
+  const current = await auth.getSession(req, 'public');
+  if (!current) return fail(res, 401, 'unauthorized', 'Necesitás iniciar sesión.');
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+
+  const nombre = V.str(body && body.nombre, { min: 2, max: 60, field: 'nombre' });
+  const avatar = avatarSeguro(body && body.avatar);
+  const bio = V.str(body && body.bio, { required: false, max: BIO_MAX, field: 'bio' });
+  const emprendimiento = V.str(body && body.emprendimiento, {
+    required: false, max: EMPRENDIMIENTO_MAX, field: 'emprendimiento'
+  });
+
+  await db.query(
+    'UPDATE users SET display_name = $2, avatar_url = $3 WHERE id = $1',
+    [current.user.id, nombre, avatar || null]
+  );
+  // `bio` (migración 004) y `emprendimiento` (005) llegan con migraciones:
+  // si todavía no corrieron, guardamos el resto igual y seguimos.
+  try {
+    await db.query('UPDATE users SET bio = $2 WHERE id = $1', [current.user.id, bio || null]);
+  } catch (e) { /* migración 004 pendiente */ }
+  try {
+    await db.query('UPDATE users SET emprendimiento = $2 WHERE id = $1', [current.user.id, emprendimiento || null]);
+  } catch (e) { /* migración 005 pendiente */ }
+
+  // El foro guarda el nombre desnormalizado: lo mantenemos en sincronía
+  // para que los hilos/respuestas viejos muestren el nombre actual.
+  await db.query('UPDATE forum_threads SET author_name = $2 WHERE author_id = $1', [current.user.id, nombre]);
+  await db.query('UPDATE forum_replies SET author_name = $2 WHERE author_id = $1', [current.user.id, nombre]);
+
+  await audit.log({
+    actor: current.user, action: 'account.profile_updated', entityType: 'user',
+    entityId: current.user.id, payload: { nombre }, ip: getClientIp(req)
+  });
+
+  const user = S.userSelf({
+    id: current.user.id,
+    email: current.user.email,
+    display_name: nombre,
+    role: current.user.role,
+    avatar_url: avatar || null,
+    permissions: current.user.permissions
+  });
+  user.bio = bio || '';
+  user.emprendimiento = emprendimiento || '';
+  json(res, 200, { user });
+}
+
+const ANON_NAME = 'Usuario eliminado';
+
+/** Borra la cuenta de verdad, pero antes desvincula el contenido: los
+ *  hilos y respuestas quedan (aporta a la comunidad) con `author_name`
+ *  anonimizado y `author_id = NULL`. El email se limpia también de la
+ *  auditoría. Ver §3.4 del plan (derecho de supresión, Ley 25.326). */
+async function deleteAccount(req, res, body) {
+  const current = await auth.getSession(req, 'public');
+  if (!current) return fail(res, 401, 'unauthorized', 'Necesitás iniciar sesión.');
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+
+  const ip = getClientIp(req);
+  const user = await db.one('SELECT * FROM users WHERE id = $1', [current.user.id]);
+  if (!user) return fail(res, 401, 'unauthorized', 'Necesitás iniciar sesión.');
+  if (user.role === 'admin') {
+    return fail(res, 403, 'forbidden', 'La cuenta de administración no se borra desde acá.');
+  }
+
+  // Confirmación: contraseña si la cuenta es local; si entra con Google
+  // (sin contraseña propia), escribir la palabra de confirmación.
+  if (user.provider === 'local' && user.password_hash) {
+    const password = String((body && body.password) || '');
+    const ok = await auth.verifyPassword(password, user.password_salt, user.password_hash);
+    await sleep(250);
+    if (!ok) {
+      await rateLimit.record('deleteacct:' + user.email, ip, false);
+      return fail(res, 401, 'invalid_credentials', 'La contraseña no es correcta.');
+    }
+  } else if (String((body && body.confirmacion) || '').trim() !== 'ELIMINAR') {
+    return fail(res, 400, 'confirm_required', 'Escribí ELIMINAR para confirmar el borrado.');
+  }
+
+  // 1) Anonimizar el contenido (autor desvinculado y sin nombre).
+  const hilos = await db.query(
+    'UPDATE forum_threads SET author_id = NULL, author_name = $2 WHERE author_id = $1 RETURNING id',
+    [user.id, ANON_NAME]
+  );
+  const respuestas = await db.query(
+    'UPDATE forum_replies SET author_id = NULL, author_name = $2 WHERE author_id = $1 RETURNING id',
+    [user.id, ANON_NAME]
+  );
+
+  // 2) Sacar el email de la auditoría (los hechos quedan; la PII, no).
+  await db.query('UPDATE audit_log SET actor_email = NULL WHERE actor_id = $1', [user.id]);
+
+  // 3) Borrar la cuenta: sessions, likes y tokens caen por CASCADE.
+  await db.query('DELETE FROM sessions WHERE user_id = $1', [user.id]);
+  await db.query('DELETE FROM users WHERE id = $1', [user.id]);
+
+  // 4) Registro del borrado, SIN PII (actor null, sin email).
+  await audit.log({
+    actor: null, action: 'account.delete', entityType: 'user', entityId: user.id,
+    payload: { hilos: (hilos || []).length, respuestas: (respuestas || []).length }, ip
+  });
+
+  clearSessionCookies(res);
+  json(res, 200, { ok: true });
+}
+
 module.exports = {
   register, login, logout, session, googleLogin,
   forgotPassword, resetPassword, verifyEmail, resendVerification,
-  changeEmail, confirmEmailChange, changePassword
+  changeEmail, confirmEmailChange, changePassword,
+  updateProfile, deleteAccount
 };

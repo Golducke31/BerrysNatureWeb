@@ -1171,6 +1171,60 @@ a.nav-ghost-btn {
   .nav-store-btn { letter-spacing: 0.6px; padding: 8px 11px; }
 }
 
+/* ============================================================
+   Objetivo táctil en mobile (44×44 px)
+   En celular varios controles quedaban por debajo del mínimo cómodo
+   (chips ~35 px, filtros del glosario ~24 px, botones del nav ~33 px).
+   Acá se sube el piso a 44 px. `min-*` gana sobre `width`/`height`
+   explícitos, así que aplica aunque el control tenga tamaño fijo.
+
+   Además, en mobile el botón de la tienda sale del header (queda más
+   limpio) y se agrega al menú lateral — ver `js/community.js`.
+   ============================================================ */
+@media (max-width: 640px) {
+  .chip-filter,
+  .glossary-filter-btn,
+  .nav-ghost-btn,
+  .nav-store-btn,
+  .auth-tab,
+  .thread-action,
+  .remove-ingredient-btn,
+  .niko-panel__close,
+  .hamburger-btn,
+  .guide-modal__close,
+  .glossary-main-nav,
+  .niko-composer__send,
+  .foro-cat-list button,
+  .mod-btn {
+    min-height: 44px;
+  }
+
+  .glossary-filter-btn,
+  .nav-ghost-btn,
+  .nav-store-btn,
+  .remove-ingredient-btn,
+  .niko-panel__close,
+  .hamburger-btn,
+  .guide-modal__close,
+  .glossary-main-nav,
+  .mod-icon-btn {
+    min-width: 44px;
+  }
+
+  /* Controles de ícono en las esquinas: cuadrado de 44. */
+  .auth-close-btn,
+  .guide-modal__close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Los dots del glosario se ajustan en `css/glossary.css` (ese archivo carga
+     después y su `padding` tiene la misma especificidad que este bloque). */
+
+  /* Header más liviano: la tienda se accede desde el menú lateral. */
+  .nav-store-btn { display: none; }
+}
+
 /* Tablet View (768px - 1279px) */
 @media (min-width: 768px) and (max-width: 1279px) {
   .hero-title {
