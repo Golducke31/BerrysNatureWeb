@@ -1231,6 +1231,28 @@ a.nav-ghost-btn {
 
   /* Header más liviano: la tienda se accede desde el menú lateral. */
   .nav-store-btn { display: none; }
+
+  /* Centrar la hamburguesa en el hueco entre el logo y "Ingresar".
+     Con `justify-content: space-between` la X no quedaba pareja: la distancia
+     al logo y a "Ingresar" dependía del ancho de cada uno (el botón es más
+     ancho que el logo, así que el hueco de la izquierda salía mayor).
+     Los dos pseudo-elementos son espaciadores flexibles idénticos a cada lado
+     de la X, así que absorben el espacio sobrante en partes iguales y la X
+     cae en el medio exacto del hueco libre. El orden en el DOM es:
+     logo · espaciador · X · espaciador · login, con `order` para intercalarlos. */
+  .header-container > .logo-area        { order: 1; }
+  .header-container > .header-actions   { order: 3; flex: 0 0 auto; }
+  .header-container > .auth-nav-slot    { order: 5; justify-content: flex-end; }
+
+  .header-container::before,
+  .header-container::after {
+    content: "";
+    flex: 1 1 0;
+    align-self: stretch;
+    min-width: 0;
+  }
+  .header-container::before { order: 2; }
+  .header-container::after  { order: 4; }
 }
 
 /* Tablet View (768px - 1279px) */
