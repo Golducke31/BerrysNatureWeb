@@ -439,11 +439,19 @@ a.nav-ghost-btn {
   box-shadow: var(--shadow-soft-sunken);
 }
 
+/* Las tres líneas del hamburguesa. `transform-box: fill-box` es imprescindible:
+   sin él, `transform-origin: center` se resuelve contra la caja del viewBox
+   (24×24) y no contra la línea real, que tiene altura 0. Al rotar, cada línea
+   giraba sobre un pivote que no era su centro y la X salía desalineada. */
 .hamburger-btn svg line {
   transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-box: fill-box;
   transform-origin: center;
 }
 
+/* Las líneas están en y=6, 12, 18 (separación 6px). Para que ambas converjan
+   en el centro la de arriba baja 6 y la de abajo sube 6. El pivote ya es el
+   centro real de cada línea, así que el aspa queda simétrica. */
 .hamburger-btn.open .line-top {
   transform: translateY(6px) rotate(45deg);
 }
