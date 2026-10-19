@@ -76,6 +76,7 @@
     const row = document.createElement('div');
     row.className = 'ingredient-row';
     row.id = rowId;
+    row.setAttribute('role', 'listitem');
     row.innerHTML = `
       <input 
         type="text" 
@@ -135,6 +136,12 @@
 
     if (progressBar) {
       progressBar.style.width = `${pct}%`;
+      const roundedPct = Math.round(pct);
+      const wrapper = document.getElementById('calcProgressWrapper');
+      if (wrapper) {
+        wrapper.setAttribute('aria-valuenow', String(roundedPct));
+        wrapper.setAttribute('aria-valuetext', `${roundedPct}% del total`);
+      }
       progressBar.classList.remove('progress-ok', 'progress-over', 'progress-under');
       if (maxVal > 0) {
         if (Math.abs(accumulated - maxVal) < 0.005) progressBar.classList.add('progress-ok');

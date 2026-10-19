@@ -188,6 +188,16 @@
     const hidePlayBtn = () => { if (playBtn) playBtn.classList.remove('is-visible'); };
     const tryPlay = () => video.play().then(hidePlayBtn).catch(() => showPlayBtn());
 
+    /* En móvil (o con ahorro de datos / movimiento reducido) NO descargamos el
+       video: queda el póster optimizado. Ahorra 240 KB y mejora el LCP. */
+    const desktop = window.matchMedia('(min-width: 768px)').matches;
+    const saveData = navigator.connection && navigator.connection.saveData;
+    if (!desktop || saveData) {
+      video.removeAttribute('autoplay');
+      video.preload = 'none';
+      return;
+    }
+
     video.muted = true;
     video.setAttribute('muted', '');
     video.playsInline = true;

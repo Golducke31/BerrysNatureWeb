@@ -1,8 +1,6 @@
 /* css/styles.css */
 
 /* 1. Typography & Import */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap');
-
 /* 2. Custom Properties (Neumorphic Design Tokens) */
 :root {
   /* Colors — "Tierra Cremosa": beige-rosado cálido en lugar del gris-azulado frío */
@@ -498,12 +496,22 @@ a.nav-ghost-btn {
      Antes apuntaba a una URL de Unsplash: dependía de internet y rompía
      el funcionamiento offline / con file://. Ahora usa el mismo asset
      que ya sirve de poster del video. */
-  background: var(--color-surface-alt)
-    url("../assets/academia-hero-crop.jpg")
-    center / cover no-repeat;
+  background: var(--color-surface-alt);
+}
+
+/* Póster del hero (LCP): mismo encuadre que el video */
+.hero-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.08);
+  z-index: 0;
 }
 
 .hero-video {
+  z-index: 1;
   position: absolute;
   top: 50%;
   left: 50%;

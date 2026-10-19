@@ -24,7 +24,8 @@
     "test:headed": "playwright test -c tests/playwright.config.js --headed",
     "test:api": "playwright test -c tests/playwright.api.config.js",
     "test:report": "playwright show-report",
-    "test:ui": "playwright test -c tests/playwright.config.js --ui"
+    "test:ui": "playwright test -c tests/playwright.config.js --ui",
+    "preview": "node server/serve.cjs --dir . --port 3000"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4"

@@ -33,8 +33,9 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
   <!-- Stylesheets -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="assets/fonts/nunito-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/playfair-display-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
 
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/catalog-calc.css">
@@ -50,7 +51,7 @@
     "@type": "Organization",
     "name": "Berry's Nature",
     "url": "https://berrysnature.com/",
-    "logo": "https://berrysnature.com/assets/logo_berrys_nature.jpg",
+    "logo": "https://berrysnature.com/assets/logo-512.jpg",
     "description": "Marca argentina de cosmética natural artesanal: jabones, sérums y cremas en pequeños lotes, hechos en Hurlingham, Buenos Aires.",
     "address": {
       "@type": "PostalAddress",
@@ -83,7 +84,7 @@
 
       <!-- Logo and Brand -->
       <a href="index.html" class="logo-area">
-        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" decoding="async">
         <div class="logo-text-wrapper">
           <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
         </div>
@@ -148,13 +149,17 @@
     <section id="inicio" class="hero-section" tabindex="-1">
 
       <!-- Video de fondo (autoplay silenciado + overlay cálido) -->
-      <div class="hero-video-layer" data-parallax="0.12" aria-hidden="true">
-        <video class="hero-video" autoplay muted loop playsinline preload="metadata"
-               poster="assets/academia-hero-crop.jpg">
+      <div class="hero-video-layer" data-parallax="0.12">
+        <!-- Póster optimizado: es el LCP real (37 KB en móvil vs 133 KB antes) -->
+        <img class="hero-poster"
+             src="assets/hero-poster-768.webp"
+             srcset="assets/hero-poster-480.webp 480w, assets/hero-poster-768.webp 768w"
+             sizes="100vw" width="768" height="738" alt="" fetchpriority="high" decoding="async">
+        <video class="hero-video" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">
           <source src="assets/hero-cream-pour.webm" type="video/webm">
           <source src="assets/hero-cream-pour.mp4" type="video/mp4">
         </video>
-        <div class="hero-video-overlay"></div>
+        <div class="hero-video-overlay" aria-hidden="true"></div>
         <!-- Botón de play: aparece si el autoplay es bloqueado por el navegador/iframe -->
         <button class="hero-play-btn" type="button" aria-label="Reproducir video del hero">
           <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="7,4 21,12 7,20"/></svg>
@@ -291,7 +296,9 @@
         </div>
 
         <!-- Barra de progreso -->
-        <div class="calc-progress-wrapper" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="calc-progress-wrapper" id="calcProgressWrapper" role="progressbar"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+             aria-label="Progreso del total de la fórmula">
           <div class="calc-progress-bar" id="calcProgressBar" style="width:0%"></div>
         </div>
 
@@ -417,7 +424,7 @@
                   <circle cx="110" cy="186" r="3.6"/>
                 </g>
               </svg>
-              <img src="assets/logo_berrys_nature.jpg" alt="Logo Berry's Nature" class="about-logo-img" loading="lazy">
+              <img src="assets/logo_berrys_nature-320.jpg" srcset="assets/logo_berrys_nature-224.webp 224w, assets/logo_berrys_nature-320.webp 320w" sizes="(max-width: 767px) 112px, 150px" width="320" height="320" alt="Logo Berry's Nature" class="about-logo-img" loading="lazy" decoding="async">
             </div>
             <div class="about-logo-caption">
               <strong>Berry's Nature®</strong>
@@ -556,7 +563,7 @@
   ============================== -->
   <footer class="main-footer">
     <div class="footer-container">
-      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
+      <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy" decoding="async">
       <p class="footer-text">
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
         Hecho con amor y rigor artesanal en Hurlingham, Buenos Aires.
