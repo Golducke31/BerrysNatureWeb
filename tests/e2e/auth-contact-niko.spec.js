@@ -78,30 +78,16 @@ test.describe('Desbloqueo PRO (pago único)', () => {
   });
 });
 
-test.describe('Widget de Niko', () => {
+test.describe('Niko (desactivado temporalmente)', () => {
   test.beforeEach(async ({ page }) => {
     const fileUrl = `file://${path.resolve(__dirname, '../../index.html')}`;
     await page.goto(fileUrl);
   });
 
-  test('T1-NK-01: El launcher de Niko existe y abre el panel', async ({ page }) => {
-    const launcher = page.locator('.niko-launcher');
-    await expect(launcher).toBeVisible();
-    await launcher.click();
-    await expect(page.locator('.niko-panel')).toHaveClass(/is-open/);
-  });
-
-  test('T1-NK-02: El panel muestra estado (aunque el backend esté offline)', async ({ page }) => {
-    await page.locator('.niko-launcher').click();
-    const status = page.locator('.niko-panel__status');
-    await expect(status).toBeVisible();
-    const text = (await status.textContent() || '').trim();
-    expect(text.length).toBeGreaterThan(0);
-  });
-
-  test('T1-NK-03: El widget degrada sin romper la página', async ({ page }) => {
-    await page.locator('.niko-launcher').click();
-    // Degradación elegante: sin backend, el panel sigue accesible y no hay errores fatales.
-    await expect(page.locator('.niko-composer__input')).toBeVisible();
+  test('T1-NK-01: El widget de Niko no se carga', async ({ page }) => {
+    // Se desactivó hasta nuevo aviso; el código queda como backup en js/niko-*.js
+    await expect(page.locator('.niko-launcher')).toHaveCount(0);
+    await expect(page.locator('.niko-panel')).toHaveCount(0);
+    expect(await page.locator('script[src*="niko"]').count()).toBe(0);
   });
 });

@@ -58,14 +58,14 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
 
   // T1-F2-02: CTA principal a la Academia
   test('T1-F2-02: El CTA principal lleva a la Academia', async ({ page }) => {
-    const cta = page.locator('.hero-actions-row a', { hasText: 'Explorar la Academia' });
+    const cta = page.locator('.hero-actions-grid a', { hasText: 'Explorar la Academia' });
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute('href', /academia\.html/);
   });
 
   // T1-F2-03: CTA "Probar Calculadora" hace scroll a #calculadora
   test('T1-F2-03: El CTA "Probar Calculadora" hace scroll suave a la calculadora', async ({ page }) => {
-    const cta = page.locator('.hero-actions-row a[href="#calculadora"]');
+    const cta = page.locator('.hero-actions-grid a[href="#calculadora"]');
     await expect(cta).toBeVisible();
     // Forzamos scroll instantáneo: bajo carga paralela el scroll-behavior:smooth
     // no progresa de forma fiable en headless (Firefox/WebKit).
@@ -93,10 +93,11 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     expect(fontFamily.toLowerCase()).toMatch(/playfair display|georgia|serif/);
   });
 
-  // T1-F2-05: Clase de animación en el showcase del hero
-  test('T1-F2-05: El showcase del hero tiene clase de animación en carga', async ({ page }) => {
-    const showcase = page.locator('.hero-float-wrap, .hero-card-showcase');
-    await expect(showcase.first()).toHaveClass(/animate-float|transition|reveal/);
+  // T1-F2-05: Grilla de CTA del hero (2x2)
+  test('T1-F2-05: El hero muestra la grilla de CTA con 4 botones', async ({ page }) => {
+    const grid = page.locator('.hero-actions-grid');
+    await expect(grid).toBeVisible();
+    await expect(grid.locator('.cta-button')).toHaveCount(4);
   });
 
   // T2-F1-01: Clase .scrolled tras scroll > 15px
@@ -152,7 +153,7 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
 
   // T2-F2-02: CTA no rompe y produce scroll
   test('T2-F2-02: Clic en el CTA de calculadora no lanza error y desplaza la página', async ({ page }) => {
-    const cta = page.locator('.hero-actions-row a[href="#calculadora"]');
+    const cta = page.locator('.hero-actions-grid a[href="#calculadora"]');
     await page.addStyleTag({ content: 'html { scroll-behavior: auto !important; }' });
     await cta.click();
     // Smooth-scroll cross-browser: esperamos por polling hasta que haya scroll.
@@ -189,9 +190,9 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     expect(latency).toBeLessThan(100);
   });
 
-  // T2-F2-05: El hero tiene elemento visual presente (sin depender de alt de imagen)
-  test('T2-F2-05: El hero renderiza su showcase visual aunque falle un asset', async ({ page }) => {
-    const showcase = page.locator('.hero-card-showcase, .hero-float-wrap');
-    await expect(showcase.first()).toBeVisible();
+  // T2-F2-05: El hero renderiza su contenido principal
+  test('T2-F2-05: El hero renderiza título y contenido', async ({ page }) => {
+    await expect(page.locator('.hero-content')).toBeVisible();
+    await expect(page.locator('.hero-title')).toBeVisible();
   });
 });

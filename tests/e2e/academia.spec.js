@@ -50,10 +50,10 @@ test.describe('Berry\'s Academy', () => {
     expect(page.url()).toMatch(/index\.html\?load=/);
   });
 
-  test('T1-A-06: Los proveedores se renderizan', async ({ page }) => {
-    const prov = page.locator('#providersGridAcad .provider-card--acad');
-    await expect(prov.first()).toBeVisible();
-    expect(await prov.count()).toBeGreaterThanOrEqual(1);
+  test('T1-A-06: Proveedores y calculadora de lote ya no están publicados', async ({ page }) => {
+    // Se retiraron hasta tener datos reales (backup en el historial de git).
+    await expect(page.locator('#providersGridAcad')).toHaveCount(0);
+    await expect(page.locator('#batchCalcForm')).toHaveCount(0);
   });
 
   test('T1-A-07: El header de la Academia enlaza al Foro', async ({ page }) => {
@@ -66,14 +66,11 @@ test.describe('Berry\'s Academy', () => {
     await expect(page.locator('#comunidad-acad')).toHaveCount(0);
   });
 
-  test('T2-A-01: La calculadora de costo por lote actualiza el resultado', async ({ page }) => {
-    const units = page.locator('#bcUnits');
-    const margin = page.locator('#bcMargin');
-    await units.fill('200');
-    await margin.fill('150');
-    await page.waitForTimeout(150);
-    await expect(page.locator('#bcUnit')).toContainText('$');
-    await expect(page.locator('#bcSale')).toContainText('$');
+  test('T2-A-01: Las guías se filtran por categoría', async ({ page }) => {
+    const chips = page.locator('#catFilters .chip-filter');
+    await expect(chips.first()).toBeVisible();
+    await chips.nth(1).click();
+    await expect(page.locator('#guiasGridAcad .guide-card').first()).toBeVisible();
   });
 
   test('T2-A-02: El modal "Leer más" abre y cierra', async ({ page }) => {

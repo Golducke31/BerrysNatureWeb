@@ -20,7 +20,9 @@ const PAGES = [
   'cuenta.html',
   'privacidad.html',
   'terminos.html',
-  'normas.html'
+  'normas.html',
+  'marca.html',
+  '404.html'
 ];
 const WIDTHS = [320, 375, 768, 1024, 1280];
 
