@@ -228,5 +228,18 @@ window.catalogProducts = [
     origen: 'instagram',
     meta: ['100 g', 'Nutrición intensa'],
     mp: ''
+  },
+  {
+    id: 'agua-micelar',
+    nombre: 'Agua Micelar Berry\'s Nature',
+    categoria: 'Facial',
+    descripcion: 'Limpieza y desmaquillante en un solo paso: las micelas atrapan impurezas, restos de maquillaje y exceso de sebo sin frotar. Sin alcohol, respeta la barrera de la piel y es apta para pieles sensibles.',
+    activos: ['Micelas', 'Agua floral', 'Glicerina vegetal'],
+    precio: null,
+    imagen: 'assets/productos/p18-agua-micelar.webp',
+    origen: 'instagram',
+    destacado: true,
+    meta: ['200 ml', 'Sin alcohol'],
+    mp: ''
   }
 ];
