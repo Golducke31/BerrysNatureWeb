@@ -34,8 +34,12 @@ test.describe('Autenticación (demo localStorage)', () => {
   });
 
   test('T1-AU-03: Cambiar a pestaña "Crear cuenta" muestra el campo nombre', async ({ page }) => {
-    await page.locator('#loginBtn').click({ force: true });
-    await page.locator('.auth-tab[data-tab="register"]').click({ force: true });
+    // Clics por JS: el clic con coordenadas puede caer sobre el overlay recién
+    // abierto y cerrar el modal (carrera vista en WebKit).
+    await page.evaluate(() => document.querySelector('#loginBtn').click());
+    await expect(page.locator('#authModal')).toHaveClass(/open/);
+    await page.evaluate(() => document.querySelector('.auth-tab[data-tab="register"]').click());
+    await expect(page.locator('#authModal')).toHaveAttribute('data-mode', 'register');
     await expect(page.locator('#authNameField')).toBeVisible();
   });
 });
@@ -71,9 +75,10 @@ test.describe('Desbloqueo PRO (pago único)', () => {
   });
 
   test('T1-PR-01: Sin sesión, "Desbloquear" abre el modal de registro', async ({ page }) => {
-    await page.locator('#unlockCalcBtn').click();
-    await page.waitForTimeout(200);
+    // Clic por JS para evitar la carrera overlay/cursor en WebKit.
+    await page.evaluate(() => document.querySelector('#unlockCalcBtn').click());
     await expect(page.locator('#authModal')).toHaveClass(/open/);
+    await expect(page.locator('#authModal')).toHaveAttribute('data-mode', 'register');
     await expect(page.locator('#authNameField')).toBeVisible();
   });
 });

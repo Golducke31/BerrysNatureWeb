@@ -132,7 +132,8 @@ test.describe('Glosario de Ingredientes', () => {
     await expect(page.locator('#glossaryCardStage')).toBeVisible();
   });
 
-  test('T1-G-05: El widget de Niko está presente en el glosario', async ({ page }) => {
-    await expect(page.locator('.niko-launcher')).toBeVisible();
+  test('T1-G-05: El widget de Niko no se carga en el glosario', async ({ page }) => {
+    // Niko está desactivado temporalmente; el código queda como backup.
+    await expect(page.locator('.niko-launcher')).toHaveCount(0);
   });
 });
