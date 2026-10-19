@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, follow">
+  <meta name="description" content="La página que buscás no existe. Volvé al inicio o explorá la tienda y la Academia de Berry's Nature.">
+  <title>Página no encontrada · Berry's Nature</title>
+
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="stylesheet" href="css/styles.css?v=3">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/catalog.css?v=3">
+
+  <style>
+    .notfound {
+      min-height: 78vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 90px 22px;
+      text-align: center;
+    }
+    .notfound__inner { max-width: 620px; margin: 0 auto; }
+    .notfound__logo {
+      width: 96px; height: 96px; border-radius: 50%;
+      object-fit: cover; margin: 0 auto 22px; display: block;
+      box-shadow: 0 10px 26px rgba(74, 63, 53, 0.18);
+    }
+    .notfound__code {
+      font-family: var(--font-title);
+      font-size: clamp(72px, 14vw, 118px);
+      line-height: 1;
+      color: var(--color-cta);
+      margin-bottom: 8px;
+    }
+    .notfound h1 {
+      font-family: var(--font-title);
+      font-size: clamp(24px, 4vw, 34px);
+      color: var(--color-text);
+      margin-bottom: 14px;
+    }
+    .notfound p {
+      font-size: 15.5px;
+      line-height: 1.7;
+      color: var(--color-text-muted);
+      margin-bottom: 28px;
+    }
+    .notfound__actions {
+      display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="sticky-header">
+    <div class="header-container">
+      <a href="index.html" class="logo-area" aria-label="Volver al inicio">
+        <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-menu-desktop">
+          <li><a href="index.html" class="nav-link">Inicio</a></li>
+          <li><a href="academia.html" class="nav-link">Academia</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="notfound">
+    <div class="notfound__inner">
+      <img class="notfound__logo" src="assets/logo_berrys_nature.jpg" alt="Berry's Nature">
+      <div class="notfound__code">404</div>
+      <h1>Esta página se nos escapó del frasco</h1>
+      <p>
+        El enlace que seguiste no existe o cambió de lugar.
+        Probá desde el inicio, mirá la tienda o seguí aprendiendo en la Academia.
+      </p>
+      <div class="notfound__actions">
+        <a href="marca.html" class="cta-button"><i data-icon="cart"></i> Tienda Berry's Nature</a>
+        <a href="index.html" class="cta-button cta-outline">Volver al inicio</a>
+        <a href="academia.html" class="cta-button cta-outline">Ir a la Academia</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-container">
+      <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
+      <p class="footer-text">
+        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
+        Hecho con amor y rigor artesanal en Hurlingham, Buenos Aires.
+      </p>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/icons.js"></script>
+</body>
+</html>

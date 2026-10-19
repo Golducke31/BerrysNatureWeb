@@ -284,7 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!entry.isIntersecting) return;
         const v = entry.target;
         if (v.dataset.src) {
-          v.src = v.dataset.src;
+          // Preferir WebM (≈70-85% más liviano) cuando el navegador lo soporta.
+          var webm = v.dataset.srcWebm;
+          var canWebm = webm && v.canPlayType('video/webm; codecs="vp9"');
+          v.src = canWebm ? webm : v.dataset.src;
           v.load();
           const p = v.play();
           if (p && p.catch) p.catch(() => {});

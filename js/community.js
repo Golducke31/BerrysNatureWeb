@@ -75,7 +75,7 @@
       nav.innerHTML =
         '<button class="nav-ghost-btn" id="loginBtn" type="button">Ingresar</button>' +
         '<button class="nav-store-btn" id="storeBtn" type="button">' +
-          (typeof MI_MARCA !== 'undefined' ? escapeHtml(MI_MARCA.textoBoton) : 'Mi Marca Personal') +
+          (typeof MI_MARCA !== 'undefined' ? escapeHtml(MI_MARCA.textoBoton) : "Tienda Berry's Nature") +
         '</button>';
 
       var login = $('#loginBtn');
@@ -96,7 +96,7 @@
     if (!list || $('#storeDrawerLink')) return;
 
     var url = typeof MI_MARCA !== 'undefined' ? MI_MARCA.url : '';
-    var texto = typeof MI_MARCA !== 'undefined' ? MI_MARCA.textoBoton : 'Mi Marca Personal';
+    var texto = typeof MI_MARCA !== 'undefined' ? MI_MARCA.textoBoton : "Tienda Berry's Nature";
     if (!url) return;
 
     var li = document.createElement('li');

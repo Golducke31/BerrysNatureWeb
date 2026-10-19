@@ -438,8 +438,11 @@
     renderCatFilters();
     renderGuias();
     renderFormulas();
-    renderProveedores();
-    setupBatchCalc();
+    // Proveedores + calculadora de lote: fuera de línea hasta tener los datos reales.
+    // Para reactivar: descomentar estas 2 líneas y restaurar la sección en academia.html
+    // (buscar "PROVEEDORES + TRUCOS" en el historial git del archivo HTML).
+    // renderProveedores();
+    // setupBatchCalc();
     renderPopular();
     renderPro();
     updateProgress();

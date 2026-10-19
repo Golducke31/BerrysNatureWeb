@@ -1,0 +1,520 @@
+/* ============================================================
+   css/catalog.css — Tienda Berry's Nature (Mi Marca Personal)
+
+   Las tarjetas de producto REUSAN .guide-card / .guide-card__media /
+   .guide-card__body de css/academia.css → el estilo es idéntico al de
+   la Academia por construcción. Acá solo se agrega lo propio de la
+   tienda: precio sobre la imagen, acciones, carrito y botón flotante.
+   ============================================================ */
+
+/* ---- Layout de secciones (mismo ritmo de espaciado que la Academia) ---- */
+.store-layout {
+  grid-template-columns: 1fr;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- Grid de productos: columna única vertical, centrada ---- */
+.store-grid {
+  grid-template-columns: 1fr;
+  max-width: 880px;
+  margin: 0 auto;
+}
+.store-grid .guide-card__media { height: 260px; }
+.store-grid .guide-card__title { font-size: 21px; }
+.store-grid .guide-card__excerpt { font-size: 14.5px; }
+.store-grid .product-card__actions { flex-direction: row; }
+.store-grid .product-card__actions .cta-button { flex: 1; }
+
+/* Texto de marca con ancho de lectura */
+.store-prose { max-width: 760px; margin: 0 auto; }
+.store-prose p {
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+.store-prose strong { color: var(--color-text); }
+
+/* ---- Hero de la tienda ---- */
+.store-hero {
+  position: relative;
+  min-height: 380px;
+  display: flex;
+  align-items: flex-end;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-surface-alt);
+  overflow: hidden;
+}
+.store-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(247, 240, 235, 0.25) 0%, rgba(247, 240, 235, 0.55) 55%, var(--bg-main) 100%);
+}
+.store-hero__content {
+  position: relative;
+  z-index: 2;
+  max-width: var(--max-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 60px 22px 42px;
+  text-align: center;
+}
+.store-hero__content .section-label-tag { display: inline-block; margin-bottom: 14px; }
+
+/* Logo real de la marca, arriba del texto (no detrás de la frase) */
+.store-hero__logo {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 10px 26px rgba(74, 63, 53, 0.18);
+  opacity: 0.96;
+}
+.store-hero__title {
+  font-family: var(--font-title);
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.15;
+  margin-bottom: 14px;
+}
+.store-hero__sub {
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  max-width: 640px;
+  margin: 0 auto 22px;
+}
+.store-hero__trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.store-hero__trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text);
+  background: rgba(255, 252, 249, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  padding: 8px 16px;
+  box-shadow: var(--shadow-card-flat);
+}
+.store-hero__trust .icon { width: 1em; height: 1em; color: var(--color-accent-botanical); }
+
+/* ---- Precio sobre la imagen (espejo del chip de categoría) ---- */
+.product-card__price {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  font-family: var(--font-title);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  background: rgba(255, 252, 249, 0.94);
+  padding: 6px 14px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(74, 63, 53, 0.12);
+}
+.product-card__price.is-consult {
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--color-accent-terracota);
+}
+
+/* ---- Acciones de la tarjeta ---- */
+.product-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.product-card__actions .cta-button { width: 100%; }
+.product-card__actions .cta-button.cta-outline {
+  font-size: 12.5px;
+  padding: 13px 26px;
+  gap: 8px;
+}
+.product-card__actions .cta-button.cta-outline .icon { width: 1.05em; height: 1.05em; }
+
+/* Aviso de imagen placeholder dentro de la tarjeta */
+.product-card__ph {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(74, 63, 53, 0.55);
+  backdrop-filter: blur(6px);
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---- Filtros (mismo estilo chip-filter de la Academia) ---- */
+.store-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto 30px;
+}
+.store-filters .chip-filter.is-active {
+  box-shadow: 0 6px 14px rgba(234, 184, 163, 0.4);
+}
+
+/* ---- Cómo comprar ---- */
+.store-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 8px;
+}
+.store-step {
+  background: rgba(255, 252, 249, 0.82);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card-flat);
+  padding: 26px 24px;
+  text-align: center;
+}
+.store-step__num {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--color-cta);
+  color: #4A3F35;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-cta-flat);
+}
+.store-step h3 {
+  font-family: var(--font-title);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+.store-step p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   CARRITO
+   ============================================================ */
+
+/* Botón flotante */
+.cart-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.6px;
+  color: #4A3F35;
+  background: var(--color-cta);
+  border-radius: 999px;
+  padding: 15px 22px;
+  box-shadow: 5px 5px 14px #c89682, -5px -5px 14px #ffdacf;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+.cart-fab:hover { transform: translateY(-3px); background: var(--color-cta-hover); }
+.cart-fab .icon { width: 1.25em; height: 1.25em; }
+.cart-fab__count {
+  min-width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--color-text);
+  color: var(--bg-card);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+.cart-fab.is-empty .cart-fab__count { display: none; }
+
+/* Overlay + panel */
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  background: rgba(74, 63, 53, 0.35);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.cart-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+.cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 960;
+  width: min(420px, 100vw);
+  background: var(--bg-main);
+  box-shadow: -12px 0 40px rgba(74, 63, 53, 0.18);
+  transform: translateX(105%);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  flex-direction: column;
+}
+.cart-drawer.is-open { transform: translateX(0); }
+
+.cart-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid var(--color-line-warm);
+}
+.cart-drawer__head h2 {
+  font-family: var(--font-title);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.cart-drawer__close {
+  border: none;
+  background: rgba(255, 252, 249, 0.8);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text);
+  box-shadow: var(--shadow-card-flat);
+  transition: transform 0.25s ease;
+}
+.cart-drawer__close:hover { transform: rotate(90deg); }
+.cart-drawer__close .icon { width: 1.1em; height: 1.1em; }
+
+.cart-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cart-empty {
+  text-align: center;
+  padding: 48px 12px;
+  color: var(--color-text-muted);
+}
+.cart-empty .icon { width: 2.2em; height: 2.2em; color: var(--color-line-warm); margin-bottom: 10px; }
+.cart-empty p { font-size: 14px; line-height: 1.6; }
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 76px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255, 252, 249, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card-flat);
+  padding: 12px;
+}
+.cart-item__img {
+  width: 76px;
+  height: 76px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-line-warm);
+}
+.cart-item__name {
+  font-family: var(--font-title);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.cart-item__price { font-size: 12.5px; color: var(--color-accent-terracota); font-weight: 700; }
+.cart-item__side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+.cart-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-main);
+  border-radius: 999px;
+  padding: 3px;
+  box-shadow: var(--shadow-soft-sunken);
+}
+.cart-qty button {
+  border: none;
+  background: var(--bg-card);
+  color: var(--color-text);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease;
+}
+.cart-qty button:hover { transform: scale(1.1); }
+.cart-qty span { min-width: 22px; text-align: center; font-weight: 700; font-size: 13px; color: var(--color-text); }
+.cart-item__remove {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-muted-warm);
+  padding: 4px;
+  border-radius: 8px;
+  transition: color 0.2s ease;
+}
+.cart-item__remove:hover { color: var(--color-accent-terracota); }
+.cart-item__remove .icon { width: 1em; height: 1em; }
+
+.cart-drawer__foot {
+  border-top: 1px solid var(--color-line-warm);
+  padding: 18px 24px 22px;
+  background: var(--bg-main);
+}
+.cart-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.cart-total__label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--color-text-muted);
+}
+.cart-total__value {
+  font-family: var(--font-title);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.cart-note {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--color-muted-warm);
+  margin-bottom: 14px;
+}
+.cart-drawer__foot .cta-button { width: 100%; margin-bottom: 10px; }
+.cart-drawer__foot .cta-button:last-child { margin-bottom: 0; }
+.cart-drawer__foot .cta-button.is-whatsapp {
+  background: #25D366;
+  color: #0b3d20;
+  box-shadow: 4px 4px 10px #b7ddc4, -4px -4px 10px #e8fff2;
+}
+.cart-drawer__foot .cta-button.is-whatsapp:hover { background: #1fbe5b; }
+.cart-drawer__foot .cta-button.is-whatsapp .icon { width: 1.15em; height: 1.15em; }
+
+/* ---- Responsive ---- */
+@media (max-width: 760px) {
+  .store-steps { grid-template-columns: 1fr; }
+  /* En celular los botones se apilan: en fila no caben dos etiquetas uppercase */
+  .store-grid .product-card__actions { flex-direction: column; }
+  .store-grid .guide-card__media { height: 220px; }
+  .store-hero__logo { width: 78px; height: 78px; margin-bottom: 14px; }
+  .store-hero__content { padding: 44px 18px 34px; }
+  .store-hero { min-height: 340px; }
+  .cart-fab { right: 16px; bottom: 16px; padding: 13px 18px; }
+  .cart-drawer { width: 100vw; }
+}
+
+/* ---- Preguntas frecuentes (acordeón nativo, sin JS) ---- */
+.store-faq {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.faq-item {
+  background: rgba(255, 252, 249, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card-flat);
+  padding: 4px 22px;
+}
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 15px 0;
+  font-family: var(--font-title);
+  font-size: 16.5px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+';
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-cta);
+  color: #4A3F35;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 26px;
+  text-align: center;
+  transition: transform 0.25s ease;
+}
+.faq-item[open] summary::after { content: '–'; }
+.faq-item p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  padding: 0 0 18px;
+  max-width: 92%;
+}

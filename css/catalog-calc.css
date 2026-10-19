@@ -771,3 +771,25 @@
   .contact-grid { grid-template-columns: 1fr; gap: 36px; }
   .form-submit-btn { align-self: flex-start; }
 }
+
+/* Video de la calculadora en móvil: mismo criterio que el hero —
+   menos velo (antes 0.55 lavaba el video) y encuadre centrado. */
+@media (max-width: 760px) {
+  .calc-video-overlay { background: rgba(247, 240, 235, 0.34); }
+  .calc-video {
+    object-position: 50% 50%;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+}
+
+/* Tarjetas de contacto clickeables (Instagram / WhatsApp / Email / Ubicación) */
+a.contact-channel {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+a.contact-channel:hover { transform: translateX(4px); }
+a.contact-channel:focus-visible {
+  outline: 2px solid var(--color-cta);
+  outline-offset: 3px;
+}

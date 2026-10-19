@@ -28,6 +28,7 @@
     pin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
     mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
     close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
     instagram: '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/>',
     whatsapp: '<path d="M5.5 3h3.2l1.8 4.6-2.3 1.7a11.5 11.5 0 0 0 5.4 5.4l1.7-2.3 3.3.6v3.5a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 3.5 5.2 2 2 0 0 1 5.5 3Z"/>',
     clock: '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>',

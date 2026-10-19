@@ -104,6 +104,10 @@
   padding: 0;
 }
 
+/* El atributo [hidden] debe ganarle a los display:flex/grid de los componentes
+   (ej.: #authNameField en el modal de acceso mostraba el campo Nombre en modo Ingresar). */
+[hidden] { display: none !important; }
+
 /* Utilidad: visible para lectores de pantalla y buscadores, oculto visualmente.
    Se usa para <h1> requeridos por SEO/accesibilidad en secciones hero
    donde el diseño no lleva un título visible (ej. academia.html). */
@@ -610,7 +614,7 @@ a.nav-ghost-btn {
   max-width: var(--max-width);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-columns: 1fr;
   gap: 48px;
   align-items: center;
   position: relative;
@@ -622,6 +626,7 @@ a.nav-ghost-btn {
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
+  max-width: 720px;
 }
 
 .hero-tagline {
@@ -716,6 +721,35 @@ a.nav-ghost-btn {
   align-items: center;
   gap: 16px;
 }
+
+/* CTA del hero: grilla 2x2 (Tienda + Academia / Comunidad + Calculadora) */
+.hero-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 690px;
+  margin-top: 4px;
+}
+.hero-actions-grid .cta-button {
+  width: 100%;
+  padding: 15px 18px;
+  letter-spacing: 1.6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.hero-text-link {
+  margin-top: 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-cta);
+  padding-bottom: 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.hero-text-link:hover { color: var(--color-accent-dark); border-color: var(--color-accent-dark); }
 
 /* Envoltorio animado: separa el flotado del tilt 3D del mouse */
 .hero-float-wrap {
@@ -1117,6 +1151,11 @@ a.nav-ghost-btn {
   .hero-actions-row {
     justify-content: center;
   }
+  .hero-actions-grid {
+    grid-template-columns: 1fr;
+    max-width: 340px;
+  }
+  .hero-text-link { align-self: center; }
 
   .cta-button {
     padding: 14px 26px;
@@ -1130,18 +1169,25 @@ a.nav-ghost-btn {
   .nav-store-btn { font-size: 10.5px; padding: 8px 12px; letter-spacing: 1px; }
   .nav-ghost-btn { font-size: 12px; padding: 8px 13px; }
   .hero-trust-row { gap: 6px 14px; font-size: 12px; margin-top: 22px; }
-  .hero-video { opacity: 0.9; }
+
+  /* Video del hero en móvil: centrado, sin zoom extra y a opacidad plena
+     (antes quedaba lavado por el overlay y descentrado por el scale). */
+  .hero-video {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.02);
+    object-position: 50% 50%;
+  }
 
   /* En mobile el texto ocupa todo el ancho: el degradado pasa a ser vertical
      para que el video se vea sin perder legibilidad. */
   .hero-video-overlay {
     background:
       linear-gradient(180deg,
-        rgba(247, 240, 235, 0.88) 0%,
-        rgba(247, 240, 235, 0.82) 48%,
-        rgba(247, 240, 235, 0.62) 78%,
-        rgba(247, 240, 235, 0.40) 100%),
-      radial-gradient(circle at 50% 18%, rgba(234, 184, 163, 0.14) 0%, transparent 62%);
+        rgba(247, 240, 235, 0.62) 0%,
+        rgba(247, 240, 235, 0.52) 48%,
+        rgba(247, 240, 235, 0.34) 78%,
+        rgba(247, 240, 235, 0.20) 100%),
+      radial-gradient(circle at 50% 18%, rgba(234, 184, 163, 0.12) 0%, transparent 62%);
   }
 
   .hero-title {
@@ -1517,3 +1563,14 @@ i[data-icon]:not(:has(svg))::after {
 i[data-icon].icon-sm:not(:has(svg)) { width: 1em; height: 1em; }
 i[data-icon].icon-lg:not(:has(svg)) { width: 1.6em; height: 1.6em; }
 
+
+/* La tarjeta flotante del hero ahora es un enlace a la tienda */
+a.hero-card-showcase {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+a.hero-card-showcase:focus-visible {
+  outline: 2px solid var(--color-cta);
+  outline-offset: 4px;
+}

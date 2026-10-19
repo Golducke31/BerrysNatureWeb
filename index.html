@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Berry's Nature — Cosmética natural argentina. Cremas, sérums y aceites botánicos de la Patagonia. Catálogo interactivo y calculadora de formulación profesional.">
-  <meta name="keywords" content="cosmética natural, argentina, patagonia, cremas orgánicas, sérum, aceite argán, formulación cosmética, comunidad de elaboradores">
+  <meta name="description" content="Berry's Nature — cosmética natural artesanal de Hurlingham, Buenos Aires. Jabones, champús y acondicionadores sólidos, sérums y cremas en pequeños lotes. Tienda online, Academia y comunidad.">
+  <meta name="keywords" content="cosmética natural, argentina, hurlingham, jabones artesanales, shampoo sólido, acondicionador sólido, sérum hialurónico, crema facial natural, cosmética artesanal">
 
   <!-- Canonical -->
   <link rel="canonical" href="https://berrysnature.com/">
@@ -12,7 +12,7 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Berry's Nature | Cosmética Natural Argentina">
-  <meta property="og:description" content="Fórmulas cosméticas de base natural inspiradas en la pureza de la Patagonia. Catálogo, calculadora de formulación y comunidad de elaboradores.">
+  <meta property="og:description" content="Jabones, champús y acondicionadores sólidos, sérums y cremas elaborados en pequeños lotes en Hurlingham, Buenos Aires. Comprá online o coordiná por WhatsApp.">
   <meta property="og:url" content="https://berrysnature.com/">
   <meta property="og:image" content="https://berrysnature.com/assets/og-image.jpg">
   <meta property="og:image:width" content="1200">
@@ -23,20 +23,25 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Berry's Nature | Cosmética Natural Argentina">
-  <meta name="twitter:description" content="Fórmulas cosméticas de base natural inspiradas en la pureza de la Patagonia.">
+  <meta name="twitter:description" content="Cosmética natural artesanal de Hurlingham, Buenos Aires. Jabones, champús y acondicionadores sólidos, sérums y cremas en pequeños lotes.">
   <meta name="twitter:image" content="https://berrysnature.com/assets/og-image.jpg">
 
-  <title>Berry's Nature | Cosmética Natural Argentina</title>
+  <title>Berry's Nature | Cosmética Natural Artesanal Argentina</title>
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
   <!-- Stylesheets -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/catalog-calc.css">
   <link rel="stylesheet" href="css/sections.css">
-  <link rel="stylesheet" href="css/niko-widget.css">
+  <!-- NIKO desactivado temporalmente. Backup intacto: css/niko-widget.css + js/niko-*.js.
+       Para reactivarlo, descomentar estas 3 líneas. -->
+  <!-- <link rel="stylesheet" href="css/niko-widget.css"> -->
 
   <!-- JSON-LD: Organization (marca global — igual en las 3 páginas) -->
   <script type="application/ld+json">
@@ -46,8 +51,15 @@
     "name": "Berry's Nature",
     "url": "https://berrysnature.com/",
     "logo": "https://berrysnature.com/assets/logo_berrys_nature.jpg",
-    "description": "Marca argentina de cosmética natural: catálogo de productos, calculadora de formulación y comunidad de elaboradores.",
-    "sameAs": []
+    "description": "Marca argentina de cosmética natural artesanal: jabones, sérums y cremas en pequeños lotes, hechos en Hurlingham, Buenos Aires.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Eduardo Bradley 703, esq. Húsares",
+      "addressLocality": "Hurlingham",
+      "addressRegion": "Buenos Aires",
+      "addressCountry": "AR"
+    },
+    "sameAs": ["https://www.instagram.com/berrys.nature/"]
   }
   </script>
 
@@ -70,7 +82,7 @@
     <div class="header-container">
 
       <!-- Logo and Brand -->
-      <a href="#inicio" class="logo-area">
+      <a href="index.html" class="logo-area">
         <img src="assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
         <div class="logo-text-wrapper">
           <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
@@ -117,8 +129,7 @@
         </button>
         <ul class="mobile-nav-sub" id="mobileAcademia">
           <li><a href="academia.html" class="mobile-nav-link">Ver la Academia</a></li>
-          <li><a href="academia.html#formulas-acad" class="mobile-nav-link">Fórmulas</a></li>
-          <li><a href="academia.html#proveedores-acad" class="mobile-nav-link">Proveedores</a></li>
+              <li><a href="academia.html#formulas-acad" class="mobile-nav-link">Fórmulas</a></li>
         </ul>
       </li>
       <li><a href="glosario.html" class="mobile-nav-link">Glosario</a></li>
@@ -140,6 +151,7 @@
       <div class="hero-video-layer" data-parallax="0.12" aria-hidden="true">
         <video class="hero-video" autoplay muted loop playsinline preload="metadata"
                poster="assets/academia-hero-crop.jpg">
+          <source src="assets/hero-cream-pour.webm" type="video/webm">
           <source src="assets/hero-cream-pour.mp4" type="video/mp4">
         </video>
         <div class="hero-video-overlay"></div>
@@ -153,40 +165,26 @@
 
         <!-- Left: Copy & CTA -->
         <div class="hero-content" data-mouse-shift="10">
-          <span class="hero-tagline">Academia + Comunidad de Cosmética Natural</span>
+          <span class="hero-tagline">Cosmética natural artesanal · Hurlingham, Buenos Aires</span>
           <h1 class="hero-title">
-            Aprendé a formular, <br><span class="accent-text">y viví de tu cosmética natural</span>
+            Cosmética natural, <br><span class="accent-text">hecha a mano</span>
           </h1>
           <p class="hero-description">
-            Guías, proveedores, fórmulas probadas y una comunidad de formuladores.
-            De tu primera crema al primer lote de 100 unidades — con la Berry's Calculator como centro de todo.
+            Jabones, champús y acondicionadores sólidos, sérums y cremas con activos de origen vegetal.
+            Comprá en nuestra tienda, aprendé en la Academia y sumate a la comunidad de formuladores.
           </p>
-          <div class="hero-actions-row">
+          <div class="hero-actions-grid">
+            <a href="marca.html" class="cta-button" data-magnetic="5"><i data-icon="cart"></i> Tienda Berry's Nature</a>
             <a href="academia.html" class="cta-button" data-magnetic="5"><i data-icon="leaf"></i> Explorar la Academia</a>
+            <a href="foro.html" class="cta-button cta-outline" data-magnetic="5"><i data-icon="chat"></i> Comunidad</a>
             <a href="#calculadora" class="cta-button cta-outline" data-magnetic="5"><i data-icon="balance"></i> Probar Calculadora</a>
           </div>
-          <div class="hero-actions-row" style="margin-top:10px">
-            <a href="glosario.html" class="cta-button cta-outline" data-magnetic="5" style="--color-primary:#6a7c55"><i data-icon="book"></i> Glosario de Ingredientes</a>
-          </div>
+          <a href="glosario.html" class="hero-text-link">Explorar el glosario de ingredientes <span aria-hidden="true">→</span></a>
           <ul class="hero-trust-row">
-            <li><i data-icon="seedling"></i> +40 fórmulas documentadas</li>
-            <li><i data-icon="flask"></i> Calculadora profesional</li>
+            <li><i data-icon="seedling"></i> Elaboración artesanal por lotes</li>
+            <li><i data-icon="pin"></i> Hecho en Hurlingham</li>
             <li><i data-icon="chat"></i> Comunidad activa</li>
           </ul>
-        </div>
-
-        <!-- Right: Visual showcase -->
-        <div class="hero-visual">
-          <div class="hero-float-wrap animate-float">
-            <div class="hero-card-showcase" data-tilt="10">
-              <div class="card-details">
-                <span class="card-eyebrow"><i data-icon="leaf"></i> Botánica real</span>
-                <span class="card-title">Fórmulas Orgánicas</span>
-                <p class="card-text">Libre de parabenos, siliconas y crueldad animal.</p>
-                <div class="badge-organic">99.9% Natural</div>
-              </div>
-            </div>
-          </div>
         </div>
 
       </div>
@@ -208,7 +206,7 @@
     <section id="calculadora" class="calculator-section" tabindex="-1">
       <!-- Video de fondo de la calculadora -->
       <div class="calc-video-layer" aria-hidden="true">
-        <video class="calc-video" autoplay muted loop playsinline preload="none" data-lazy-video data-src="assets/calc-oil-pour.mp4"></video>
+        <video class="calc-video" autoplay muted loop playsinline preload="none" data-lazy-video data-src="assets/calc-oil-pour.mp4" data-src-webm="assets/calc-oil-pour.webm"></video>
         <div class="calc-video-overlay"></div>
       </div>
 
@@ -233,7 +231,7 @@
               aria-describedby="formulaNameTip">
             <!-- Tooltip flotante: aparece al enfocar el campo -->
             <div class="calc-tooltip" id="formulaNameTip" role="tooltip">
-              Así llamarás a tu creación. Ej: <em>“Sérum de Noche Patagónico”</em>
+              Así llamarás a tu creación. Ej: <em>“Sérum de Noche”</em>
             </div>
           </div>
         </div>
@@ -363,7 +361,7 @@
       <div class="section-header-wrapper reveal" data-parallax="0.05">
         <span class="section-label-tag">Nuestra Historia</span>
         <h2 class="section-title">Sobre Berry's Nature</h2>
-        <p class="section-subtitle">Cosméticos con alma patagónica y rigor científico</p>
+        <p class="section-subtitle">Cosmética natural artesanal, hecha en Hurlingham</p>
       </div>
 
       <div class="about-grid">
@@ -372,12 +370,12 @@
             Nacimos de la convicción de que la naturaleza argentina tiene todo lo necesario para cuidar tu piel.
           </p>
           <p class="about-body">
-            Desde la Patagonia, formulamos productos cosméticos de base natural que combinan la ciencia moderna con la riqueza botánica de nuestra tierra. Cada fórmula es desarrollada con activos cuidadosamente seleccionados, sin parabenos, sin siliconas sintéticas y sin crueldad animal. Creemos en la transparencia de ingredientes, en la trazabilidad de origen y en el poder transformador de la naturaleza cuando se aplica con conocimiento científico.
+            Berry's Nature nace en Hurlingham, Buenos Aires, como un emprendimiento de cosmética natural artesanal. Elaboramos jabones, sérums y cremas en pequeños lotes, con activos de origen vegetal y aceites esenciales. Cada jabón se prensa y se cura con paciencia; cada sérum se envasa y etiqueta a mano. Creemos en la transparencia de los ingredientes, en el cuidado de lo que cuida y en que la constancia transforma la piel.
           </p>
           <div class="about-values">
-            <div class="value-card reveal reveal-delay-1"><i data-icon="leaf"></i> <span>100% Natural</span></div>
-            <div class="value-card reveal reveal-delay-2"><i data-icon="microscope"></i> <span>Base Científica</span></div>
-            <div class="value-card reveal reveal-delay-2"><i data-icon="pin"></i> <span>Made in Argentina</span></div>
+            <div class="value-card reveal reveal-delay-1"><i data-icon="leaf"></i> <span>Ingredientes naturales</span></div>
+            <div class="value-card reveal reveal-delay-2"><i data-icon="flask"></i> <span>Fórmulas propias</span></div>
+            <div class="value-card reveal reveal-delay-2"><i data-icon="pin"></i> <span>Hecho en Hurlingham</span></div>
             <div class="value-card reveal reveal-delay-3"><i data-icon="heart"></i> <span>Cruelty Free</span></div>
           </div>
         </div>
@@ -461,34 +459,34 @@
         </form>
 
         <div class="contact-info reveal reveal-delay-1">
-          <div class="contact-channel">
+          <a class="contact-channel" href="https://www.google.com/maps/search/?api=1&query=Eduardo+Bradley+703,+Hurlingham,+Buenos+Aires" target="_blank" rel="noopener noreferrer">
             <div class="channel-icon"><i data-icon="pin"></i></div>
             <div>
               <strong>Ubicación</strong>
-              <p>Patagonia Argentina</p>
+              <p>Eduardo Bradley 703, esq. Húsares<br>Villa Tesei, Hurlingham</p>
             </div>
-          </div>
-          <div class="contact-channel">
+          </a>
+          <a class="contact-channel" href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer">
             <div class="channel-icon"><i data-icon="instagram"></i></div>
             <div>
               <strong>Instagram</strong>
               <p>@berrys.nature</p>
             </div>
-          </div>
-          <div class="contact-channel">
+          </a>
+          <a class="contact-channel" href="mailto:Berrysnatureok@gmail.com">
             <div class="channel-icon"><i data-icon="mail"></i></div>
             <div>
               <strong>Email</strong>
-              <p>contacto@berrysnature.com</p>
+              <p>Berrysnatureok@gmail.com</p>
             </div>
-          </div>
-          <div class="contact-channel">
+          </a>
+          <a class="contact-channel" href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer">
             <div class="channel-icon"><i data-icon="whatsapp"></i></div>
             <div>
               <strong>WhatsApp</strong>
-              <p>Consultas y distribución</p>
+              <p>+54 9 11 5609-0265</p>
             </div>
-          </div>
+          </a>
         </div>
 
       </div>
@@ -561,7 +559,7 @@
       <img src="assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
       <p class="footer-text">
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
-        Hecho con rigor científico y amor natural en la Patagonia Argentina.
+        Hecho con amor y rigor artesanal en Hurlingham, Buenos Aires.
       </p>
       <p class="footer-legal">
         <a href="privacidad.html">Política de privacidad</a>
@@ -569,10 +567,10 @@
         <a href="terminos.html">Términos de uso</a>
       </p>
       <div class="footer-social">
-        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
           <i data-icon="instagram"></i>
         </a>
-        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+        <a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
           <i data-icon="whatsapp"></i>
         </a>
       </div>
@@ -594,8 +592,8 @@
   <script src="js/mod-panel.js"></script>
 
   <!-- Niko — asistente conversacional de Berry's Nature -->
-  <script src="js/niko-config.js"></script>
-  <script src="js/niko-widget.js"></script>
+  <!-- <script src="js/niko-config.js"></script> -->
+  <!-- <script src="js/niko-widget.js"></script> -->
 
 </body>
 </html>
