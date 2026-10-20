@@ -254,5 +254,18 @@ window.catalogProducts = [
     destacado: true,
     meta: ['Con dosificador', 'Uso diario'],
     mp: ''
+  },
+  {
+    id: 'crema-amae',
+    nombre: 'Crema Amae',
+    categoria: 'Facial',
+    descripcion: 'Crema hidratante de textura liviana para el rostro: nutrición profunda sin sensación grasa, para el uso diario y como mimo final de tu rutina facial.',
+    activos: ['Manteca de karité', 'Aceite de argán', 'Escualano vegetal'],
+    precio: null,
+    imagen: 'assets/productos/p20-crema-amae.webp',
+    origen: 'instagram',
+    destacado: true,
+    meta: ['Hidratante', 'Uso diario'],
+    mp: ''
   }
 ];

@@ -31,7 +31,16 @@
 @media (max-width: 680px) {
   .store-grid { grid-template-columns: minmax(0, 1fr); }
 }
-.store-grid .guide-card__media { height: 240px; }
+/* Foto del producto COMPLETA (sin recorte): contain sobre fondo crema.
+   El overlay oscuro de academia se desactiva acá para no velar la foto. */
+.store-grid .guide-card__media {
+  height: 284px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: var(--bg-card);
+}
+.store-grid .guide-card__media::after { display: none; }
 .store-grid .guide-card__title { font-size: 19px; }
 .store-grid .guide-card__excerpt {
   font-size: 13.5px;
@@ -475,7 +484,7 @@
   .store-steps { grid-template-columns: 1fr; }
   /* En celular los botones se apilan: en fila no caben dos etiquetas uppercase */
   .store-grid .product-card__actions { flex-direction: column; }
-  .store-grid .guide-card__media { height: 200px; }
+  .store-grid .guide-card__media { height: 240px; }
   .store-hero__logo { width: 78px; height: 78px; margin-bottom: 14px; }
   .store-hero__content { padding: 44px 18px 34px; }
   .store-hero { min-height: 340px; }

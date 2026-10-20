@@ -78,15 +78,11 @@
   }
 
   function cardHtml(p) {
-    var ph = window.catalogConfig.imagenesPlaceholder
-      ? '<span class="product-card__ph">Imagen placeholder</span>'
-      : '';
     return '' +
       '<article class="guide-card product-card reveal" data-reveal data-product="' + escapeHtml(p.id) + '">' +
         '<div class="guide-card__media" style="background-image:url(\'' + escapeHtml(p.imagen) + '\')">' +
           '<span class="guide-card__cat">' + escapeHtml(p.categoria) + '</span>' +
           precioHtml(p) +
-          ph +
         '</div>' +
         '<div class="guide-card__body">' +
           '<h3 class="guide-card__title">' + escapeHtml(p.nombre) + '</h3>' +
