@@ -44,10 +44,6 @@
 .store-grid .guide-card__title { font-size: 19px; }
 .store-grid .guide-card__excerpt {
   font-size: 13.5px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 /* En tarjetas angostas los dos CTA se apilan a todo el ancho */
 .store-grid .product-card__actions { flex-direction: column; }
