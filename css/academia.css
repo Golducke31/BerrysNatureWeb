@@ -789,7 +789,19 @@
 }
 
 @media (max-width: 767px) {
-  .academy-hero { min-height: 70vh; padding: 80px 20px 56px; }
+  /* El banner de la Academia es horizontal (1376x768): sobre el hero
+     vertical de 70vh, cover recortaba el ancho (se perdia la palabra
+     BERRY'S de la izquierda). En movil el fondo pasa a flujo con el
+     aspect ratio natural de la imagen, asi se muestra COMPLETA. */
+  .academy-hero { min-height: 0; height: auto; padding: 80px 0 0; }
+  .academy-hero__bg {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 1376 / 768;
+    background-size: contain;
+    background-color: var(--color-surface-alt);
+  }
   .academy-hero__title { font-size: 34px; }
   .academy-hero__subtitle { font-size: 16px; }
   .rutas-head h2, .academy-section__head h2 { font-size: 27px; }
