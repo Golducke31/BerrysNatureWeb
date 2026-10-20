@@ -241,5 +241,18 @@ window.catalogProducts = [
     destacado: true,
     meta: ['200 ml', 'Sin alcohol'],
     mp: ''
+  },
+  {
+    id: 'crema-de-enjuague',
+    nombre: 'Crema de Enjuague',
+    categoria: 'Cabello',
+    descripcion: 'Crema liviana de enjuague para después del lavado: desenreda, suaviza y aporta brillo sin dejar residuo graso. En práctico envase con dosificador para el uso diario.',
+    activos: ['Manteca de karité', 'Aceite de argán', 'Pantenol'],
+    precio: null,
+    imagen: 'assets/productos/p19-crema-de-enjuague.webp',
+    origen: 'instagram',
+    destacado: true,
+    meta: ['Con dosificador', 'Uso diario'],
+    mp: ''
   }
 ];
