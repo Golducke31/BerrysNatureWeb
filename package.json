@@ -8,6 +8,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "build": "node scripts/build.cjs",
     "dev": "node scripts/dev-server.cjs",
     "seed": "node scripts/seed.cjs",
     "seed:force": "node scripts/seed.cjs --force",
@@ -28,7 +29,9 @@
     "preview": "node server/serve.cjs --dir . --port 3000"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4"
+    "@neon/config": "^1.9.3",
+    "@neon/env": "^1.6.4",
+    "@neondatabase/serverless": "^1.2.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"

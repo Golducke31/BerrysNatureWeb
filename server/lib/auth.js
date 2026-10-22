@@ -327,7 +327,7 @@ function isAtLeast(user, role) {
 module.exports = {
   IS_PROD,
   PUBLIC_COOKIE, ADMIN_COOKIE,
-  PUBLIC_TTL_MS, ADMIN_TTL_MS, ADMIN_IDLE_MS,
+  PUBLIC_TTL_MS, ADMIN_TTL_MS, ADMIN_IDLE_MS, ttlFor,
   hashPassword, verifyPassword,
   sha256, randomToken, hashIp, safeEqual,
   encrypt, decrypt,

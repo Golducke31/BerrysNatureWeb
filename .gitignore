@@ -42,3 +42,7 @@ Thumbs.db
 # Capturas de pantalla sueltas (no forman parte del sitio)
 Screenshot_*.jpg
 1781126614010.png
+.neon
+
+# Build local (npm run build) — se genera en Netlify, no se versiona
+dist/

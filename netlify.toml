@@ -5,7 +5,9 @@
 
 [build]
   # Paquete estático: solo archivos del sitio (el backend vive en Functions).
-  command = "mkdir -p dist && cp *.html robots.txt sitemap.xml dist/ && cp -r css js assets academia dist/"
+  # El empaquetado vive en scripts/build.cjs para que local y Netlify usen
+  # exactamente el mismo build (verificable con `npm run build`).
+  command = "npm run build"
   publish = "dist"
 
 [functions]
