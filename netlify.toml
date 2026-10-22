@@ -92,3 +92,11 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow, noarchive"
     Cache-Control = "no-store, max-age=0"
+
+# Las imágenes subidas desde el panel NO son datos que cambian: la URL es
+# el hash del contenido, así que se pueden cachear para siempre. Sin esta
+# regla, el "no-store" de /api/* obligaría a bajar cada foto en cada visita.
+[[headers]]
+  for = "/api/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

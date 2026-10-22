@@ -23,6 +23,7 @@ const threads = require('./handlers/threads');
 const reports = require('./handlers/reports');
 const payments = require('./handlers/payments');
 const products = require('./handlers/products');
+const images = require('./handlers/images');
 const admin = require('./handlers/admin');
 const pages = require('./handlers/pages');
 const adminUI = require('./admin-ui');
@@ -138,6 +139,11 @@ async function handleAdmin(req, res, method, seg) {
     return http.notFound(res);
   }
 
+  /* Subida de imágenes de producto desde el panel. */
+  if (a === 'uploads' && !b && method === 'POST') {
+    return images.upload(req, res, await body(req));
+  }
+
   /* Cola de reportes (Etapa 5, F9). Vive en el panel porque la decisión
      D9 deja la moderación en manos del dueño por ahora. */
   if (a === 'reports') {
@@ -234,6 +240,12 @@ async function handlePublic(req, res, method, seg) {
   if (a === 'products') {
     if (!b && method === 'GET') return products.listPublic(req, res);
     if (b && method === 'GET') return products.getPublic(req, res, { id: b });
+    return http.notFound(res);
+  }
+
+  /* Imágenes de producto subidas desde el panel. */
+  if (a === 'img') {
+    if (b && method === 'GET') return images.serve(req, res, { file: b });
     return http.notFound(res);
   }
 

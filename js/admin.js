@@ -979,6 +979,68 @@
       .catch(guard);
   }
 
+  /* ---------------- Subida de imágenes ---------------- */
+  /* Achica la foto en el navegador antes de mandarla: una foto de
+     celular de 4 MB queda en ~200 KB, que es lo que la tienda necesita
+     (la grilla muestra 357 px de ancho). */
+  function redimensionarImagen(file, maxLado, cb) {
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      var w = img.naturalWidth;
+      var h = img.naturalHeight;
+      var escala = Math.min(1, maxLado / Math.max(w, h));
+      var cw = Math.max(1, Math.round(w * escala));
+      var ch = Math.max(1, Math.round(h * escala));
+
+      var canvas = document.createElement('canvas');
+      canvas.width = cw;
+      canvas.height = ch;
+      var ctx = canvas.getContext('2d');
+      /* Fondo blanco: los PNG con transparencia no quedan negros. */
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.drawImage(img, 0, 0, cw, ch);
+
+      var dataUrl;
+      try {
+        dataUrl = canvas.toDataURL('image/webp', 0.85);
+      } catch (e) {
+        dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      }
+      URL.revokeObjectURL(url);
+
+      /* Si el navegador no soporta WebP devuelve PNG: respetamos el
+         mime real en vez de asumirlo. */
+      var mime = dataUrl.slice(5, dataUrl.indexOf(';'));
+      cb({ data: dataUrl, mime: mime, width: cw, height: ch });
+    };
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      cb(null);
+    };
+    img.src = url;
+  }
+
+  function subirImagen(file, cb) {
+    redimensionarImagen(file, 1000, function (out) {
+      if (!out) return cb(new Error('no pudimos leer el archivo'));
+      /* ~4.2 MB de base64 ≈ 3 MB de binario: cortamos antes de que el
+         servidor lo rechace, con un mensaje entendible. */
+      if (out.data.length > 4200000) {
+        return cb(new Error('la imagen es demasiado pesada'));
+      }
+      req('POST', '/uploads', {
+        data: out.data,
+        mime: out.mime,
+        width: out.width,
+        height: out.height
+      }).then(function (r) {
+        cb(null, r.url);
+      }).catch(cb);
+    });
+  }
+
   function openProductEditor(p) {
     var isNew = !p;
 
@@ -1004,8 +1066,18 @@
           p && typeof p.precio === 'number' ? String(p.precio) : '') +
         field('pStock', 'Stock', 'number', 'Vacío = sin control de stock',
           p && typeof p.stock === 'number' ? String(p.stock) : '') +
-        field('pImagen', 'Imagen (ruta)', 'text', 'assets/productos/p18-agua-micelar.webp',
-          p ? p.imagen : '') +
+        '<div class="admin-field admin-field--full"><label for="pImagen">Imagen</label>' +
+          '<div class="admin-upload">' +
+            '<span class="admin-upload__preview" id="pImagenPreview"></span>' +
+            '<div class="admin-upload__side">' +
+              '<input type="file" id="pImagenFile" accept="image/png,image/jpeg,image/webp">' +
+              '<input type="text" id="pImagen" placeholder="assets/productos/… o subí una foto" value="' +
+                escapeHtml(p ? p.imagen : '') + '">' +
+              '<small class="admin-help" id="pImagenHelp">' +
+                'Al subir una foto se achica a 1000 px y se pasa a WebP automáticamente.</small>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
         field('pOrden', 'Orden en la grilla', 'number', '100', p ? String(p.orden) : '100') +
         '<div class="admin-field admin-field--full"><label for="pDescripcion">Descripción</label>' +
           '<textarea id="pDescripcion" style="min-height:110px" ' +
@@ -1072,6 +1144,35 @@
       },
       isNew ? 'Crear producto' : 'Guardar cambios');
     modal.open();
+
+    /* --- Subida de imagen --- */
+    var preview = $('#pImagenPreview');
+    var inputRuta = $('#pImagen');
+    var ayuda = $('#pImagenHelp');
+
+    function pintarPreview() {
+      var v = rutaImagen(inputRuta.value);
+      preview.style.backgroundImage = v ? 'url(\'' + v + '\')' : '';
+    }
+    pintarPreview();
+    inputRuta.addEventListener('input', pintarPreview);
+
+    $('#pImagenFile').addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      ayuda.textContent = 'Procesando la imagen…';
+      subirImagen(file, function (err, url) {
+        if (err) {
+          ayuda.textContent = 'No se pudo subir: ' + ((err && err.message) || 'error');
+          toast('No se pudo subir la imagen.');
+          return;
+        }
+        inputRuta.value = url;
+        pintarPreview();
+        ayuda.textContent = 'Imagen subida y lista. Guardá los cambios para aplicarla.';
+        toast('Imagen subida.');
+      });
+    });
   }
 
   /* ============================================================

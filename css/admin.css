@@ -498,3 +498,41 @@
   margin: 0 0 18px;
   color: var(--color-text, #3c342e);
 }
+
+/* ---- Subida de imagen en el editor de producto ---- */
+.admin-upload {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.admin-upload__preview {
+  flex: 0 0 auto;
+  width: 84px;
+  height: 84px;
+  border-radius: 12px;
+  background-color: var(--color-surface-alt, #f4efe9);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.admin-upload__side {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-upload__side input[type="file"] {
+  font-family: var(--font-body, inherit);
+  font-size: 12.5px;
+  color: var(--color-text-muted, #6b6058);
+}
+
+@media (max-width: 640px) {
+  .admin-upload { flex-direction: column; }
+  .admin-upload__preview { width: 100%; height: 140px; }
+}
