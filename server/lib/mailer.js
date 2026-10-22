@@ -15,7 +15,7 @@
 
    Variables:
      MAIL_TRANSPORT   console | resend | webhook   (default: console)
-     MAIL_FROM        remitente, ej: "Berry's Nature <hola@berrysnature.com>"
+     MAIL_FROM        remitente, ej: "Berry's Nature <hola@berrysnature.com.ar>"
      MAIL_API_KEY     clave del proveedor (resend / webhook)
      MAIL_ENDPOINT    URL del POST (solo webhook)
 
@@ -29,7 +29,7 @@
 const IS_PROD =
   Boolean(process.env.VERCEL) || /^https:/i.test(process.env.APP_URL || '');
 
-const DEFAULT_FROM = "Berry's Nature <no-reply@berrysnature.com>";
+const DEFAULT_FROM = "Berry's Nature <no-reply@berrysnature.com.ar>";
 
 function transportName() {
   const explicit = String(process.env.MAIL_TRANSPORT || '').trim().toLowerCase();
@@ -47,7 +47,7 @@ function from() {
 function appUrl() {
   const raw = String(process.env.APP_URL || '').trim();
   if (raw) return raw.replace(/\/+$/, '');
-  return 'https://berrysnature.com';
+  return 'https://berrysnature.com.ar';
 }
 
 /** ¿Hay un transporte real configurado? (console no cuenta como real) */

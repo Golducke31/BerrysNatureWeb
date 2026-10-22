@@ -32,7 +32,7 @@ const { esc } = require('../admin-ui');
 
 function siteUrl() {
   const raw = String(process.env.APP_URL || '').trim().replace(/\/+$/, '');
-  return raw || 'https://berrysnature.com';
+  return raw || 'https://berrysnature.com.ar';
 }
 
 /** URL canónica y estable de un hilo. */

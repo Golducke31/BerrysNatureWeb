@@ -142,7 +142,7 @@ test.describe('Página de hilo — contenido y metadatos', () => {
 
   test('R7: el canonical y el og:url usan la ruta bonita', async () => {
     const res = await render();
-    const esperado = 'https://berrysnature.com/foro/hilo/hilo-como-esterilizar-envases-a1b2';
+    const esperado = 'https://berrysnature.com.ar/foro/hilo/hilo-como-esterilizar-envases-a1b2';
     expect(res.body).toContain(`<link rel="canonical" href="${esperado}">`);
     expect(res.body).toContain(`<meta property="og:url" content="${esperado}">`);
   });

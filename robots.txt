@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://berrysnature.com/sitemap.xml
+Sitemap: https://berrysnature.com.ar/sitemap.xml

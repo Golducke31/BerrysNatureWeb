@@ -72,7 +72,7 @@ test.describe('Página de hilo renderizada en el servidor', () => {
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     expect(body).toContain(tituloEscapado);
-    expect(body).toContain(`<link rel="canonical" href="https://berrysnature.com/foro/hilo/${hilo.id}">`);
+    expect(body).toContain(`<link rel="canonical" href="https://berrysnature.com.ar/foro/hilo/${hilo.id}">`);
   });
 
   test('T1-P-05: incluye el JSON-LD DiscussionForumPosting', async ({ request }) => {

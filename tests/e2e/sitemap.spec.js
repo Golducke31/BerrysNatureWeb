@@ -71,11 +71,11 @@ test.describe('Sitemap — qué incluye', () => {
     const res = await sitemap();
     const urls = locs(res.body);
 
-    expect(urls).toContain('https://berrysnature.com/');
-    expect(urls).toContain('https://berrysnature.com/academia.html');
-    expect(urls).toContain('https://berrysnature.com/foro.html');
-    expect(urls).toContain('https://berrysnature.com/glosario.html');
-    expect(urls).toContain('https://berrysnature.com/marca.html');
+    expect(urls).toContain('https://berrysnature.com.ar/');
+    expect(urls).toContain('https://berrysnature.com.ar/academia.html');
+    expect(urls).toContain('https://berrysnature.com.ar/foro.html');
+    expect(urls).toContain('https://berrysnature.com.ar/glosario.html');
+    expect(urls).toContain('https://berrysnature.com.ar/marca.html');
   });
 
   test('S2: incluye las guías con página propia, leídas de content-data.js', async () => {
@@ -84,16 +84,16 @@ test.describe('Sitemap — qué incluye', () => {
 
     // Se derivan de la misma fuente que usa el front, así que no se
     // desactualizan solas como pasaba con el sitemap estático.
-    expect(urls).toContain('https://berrysnature.com/academia/costo-real-crema-margen.html');
-    expect(urls).toContain('https://berrysnature.com/academia/checklist-legal-anmat-cosmetica-argentina.html');
-    expect(urls).toContain('https://berrysnature.com/academia/primera-emulsion-estable-aceite-en-agua.html');
+    expect(urls).toContain('https://berrysnature.com.ar/academia/costo-real-crema-margen.html');
+    expect(urls).toContain('https://berrysnature.com.ar/academia/checklist-legal-anmat-cosmetica-argentina.html');
+    expect(urls).toContain('https://berrysnature.com.ar/academia/primera-emulsion-estable-aceite-en-agua.html');
   });
 
   test('S3: incluye los hilos indexables con la URL canónica', async () => {
     const res = await sitemap([filaHilo({ is_resolved: true })]);
     const urls = locs(res.body);
 
-    expect(urls).toContain('https://berrysnature.com/foro/hilo/hilo-como-esterilizar-envases-a1b2');
+    expect(urls).toContain('https://berrysnature.com.ar/foro/hilo/hilo-como-esterilizar-envases-a1b2');
   });
 
   test('S4: excluye los hilos sin tracción', async () => {
@@ -103,14 +103,14 @@ test.describe('Sitemap — qué incluye', () => {
     ]);
     const urls = locs(res.body);
 
-    expect(urls).not.toContain('https://berrysnature.com/foro/hilo/hilo-nuevo-sin-nada');
+    expect(urls).not.toContain('https://berrysnature.com.ar/foro/hilo/hilo-nuevo-sin-nada');
     // El autor respondiéndose a sí mismo no alcanza para indexar.
-    expect(urls).not.toContain('https://berrysnature.com/foro/hilo/hilo-solo-autorespuestas');
+    expect(urls).not.toContain('https://berrysnature.com.ar/foro/hilo/hilo-solo-autorespuestas');
   });
 
   test('S5: incluye un hilo con una respuesta de otra persona', async () => {
     const res = await sitemap([filaHilo({ replies_count: 2, replicantes: 1 })]);
-    expect(locs(res.body)).toContain('https://berrysnature.com/foro/hilo/hilo-como-esterilizar-envases-a1b2');
+    expect(locs(res.body)).toContain('https://berrysnature.com.ar/foro/hilo/hilo-como-esterilizar-envases-a1b2');
   });
 
   test('S6: excluye las páginas noindex', async () => {
@@ -143,8 +143,8 @@ test.describe('Sitemap — páginas legales', () => {
     const res = await sitemap();
     const urls = locs(res.body);
 
-    expect(urls).not.toContain('https://berrysnature.com/privacidad.html');
-    expect(urls).not.toContain('https://berrysnature.com/terminos.html');
+    expect(urls).not.toContain('https://berrysnature.com.ar/privacidad.html');
+    expect(urls).not.toContain('https://berrysnature.com.ar/terminos.html');
   });
 
   test('S20: al publicarlas (legalesPublicadas=true) entran con su URL canónica', async () => {
@@ -154,8 +154,8 @@ test.describe('Sitemap — páginas legales', () => {
       const res = await sitemap();
       const urls = locs(res.body);
 
-      expect(urls).toContain('https://berrysnature.com/privacidad.html');
-      expect(urls).toContain('https://berrysnature.com/terminos.html');
+      expect(urls).toContain('https://berrysnature.com.ar/privacidad.html');
+      expect(urls).toContain('https://berrysnature.com.ar/terminos.html');
     } finally {
       pages.setLegalesPublicadas(false); // deja el estado para el resto de la suite
     }
@@ -173,7 +173,7 @@ test.describe('Sitemap — guías dinámicas', () => {
   test('S15: incluye las guías publicadas sin página propia como /guias/<id>', async () => {
     // `post-conservantes` NO tiene página estática en content-data.js.
     const res = await sitemap([], [filaGuia('post-conservantes')]);
-    expect(locs(res.body)).toContain('https://berrysnature.com/guias/post-conservantes');
+    expect(locs(res.body)).toContain('https://berrysnature.com.ar/guias/post-conservantes');
   });
 
   test('S16: NO duplica una guía que ya tiene página estática', async () => {
@@ -183,8 +183,8 @@ test.describe('Sitemap — guías dinámicas', () => {
     const res = await sitemap([], [filaGuia('post-costo-real')]);
     const urls = locs(res.body);
 
-    expect(urls).toContain('https://berrysnature.com/academia/costo-real-crema-margen.html');
-    expect(urls).not.toContain('https://berrysnature.com/guias/post-costo-real');
+    expect(urls).toContain('https://berrysnature.com.ar/academia/costo-real-crema-margen.html');
+    expect(urls).not.toContain('https://berrysnature.com.ar/guias/post-costo-real');
   });
 
   test('S17: la consulta de guías filtra publicadas y no PRO', async () => {
@@ -206,7 +206,7 @@ test.describe('Sitemap — guías dinámicas', () => {
     await pages.renderSitemap({}, res);
 
     expect(res.statusCode).toBe(200);
-    expect(locs(res.body)).toContain('https://berrysnature.com/');
+    expect(locs(res.body)).toContain('https://berrysnature.com.ar/');
   });
 });
 
@@ -277,6 +277,6 @@ test.describe('Sitemap — formato', () => {
     // Un sitemap con solo las páginas fijas es mejor que un 500.
     expect(res.statusCode).toBe(200);
     expect(res.body).toContain('<urlset');
-    expect(locs(res.body)).toContain('https://berrysnature.com/');
+    expect(locs(res.body)).toContain('https://berrysnature.com.ar/');
   });
 });

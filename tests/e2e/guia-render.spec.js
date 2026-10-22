@@ -75,7 +75,7 @@ test.describe('Página de guía — indexación', () => {
     expect(res.headers['x-indexability-reason']).toBe('tiene_pagina_propia');
     // El canonical apunta a la estática: la dinámica no compite.
     expect(res.body).toContain(
-      '<link rel="canonical" href="https://berrysnature.com/academia/costo-real-crema-margen.html">'
+      '<link rel="canonical" href="https://berrysnature.com.ar/academia/costo-real-crema-margen.html">'
     );
   });
 
@@ -138,7 +138,7 @@ test.describe('Página de guía — contenido y metadatos', () => {
 
   test('G9: el canonical de una guía dinámica es /guias/<id>', async () => {
     const res = await render();
-    const esperado = 'https://berrysnature.com/guias/post-conservantes';
+    const esperado = 'https://berrysnature.com.ar/guias/post-conservantes';
 
     expect(res.body).toContain(`<link rel="canonical" href="${esperado}">`);
     expect(res.body).toContain(`<meta property="og:url" content="${esperado}">`);
