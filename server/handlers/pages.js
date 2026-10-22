@@ -66,7 +66,7 @@ function headerHtml() {
   <header class="sticky-header">
     <div class="header-container">
       <a href="/index.html" class="logo-area" aria-label="Volver al inicio">
-        <img src="/assets/logo_berrys_nature.jpg" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
+        <img src="/assets/logo_berrys_nature-112.jpg" srcset="/assets/logo_berrys_nature-112.webp 1x, /assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
         <div class="logo-text-wrapper">
           <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
         </div>
@@ -149,7 +149,7 @@ function footerHtml() {
   return `
   <footer class="main-footer">
     <div class="footer-container">
-      <img src="/assets/logo_berrys_nature.jpg" alt="Berry's Nature" class="footer-logo" loading="lazy">
+      <img src="/assets/logo_berrys_nature-112.jpg" srcset="/assets/logo_berrys_nature-112.webp 1x, /assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy">
       <p class="footer-text">
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
         Hecho con rigor científico y amor natural en la Patagonia Argentina.
@@ -160,10 +160,10 @@ function footerHtml() {
         <a href="/terminos.html">Términos de uso</a>
       </p>
       <div class="footer-social">
-        <a href="https://instagram.com/berrysnature" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
           <i data-icon="instagram"></i>
         </a>
-        <a href="https://wa.me/5491168699757" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+        <a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
           <i data-icon="whatsapp"></i>
         </a>
       </div>
@@ -701,7 +701,7 @@ async function renderGuide(req, res, { id }) {
       publisher: {
         '@type': 'Organization',
         name: "Berry's Nature",
-        logo: { '@type': 'ImageObject', url: `${siteUrl()}/assets/logo_berrys_nature.jpg` }
+        logo: { '@type': 'ImageObject', url: `${siteUrl()}/assets/logo-512.jpg` }
       },
       isPartOf: { '@type': 'WebSite', name: "Berry's Nature", url: siteUrl() }
     });
