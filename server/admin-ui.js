@@ -35,18 +35,27 @@ function esc(str) {
 
 /**
  * Lee un asset del panel desde el disco.
+ * Prueba varias raíces porque en el bundle de Netlify el __dirname cambia
+ * (los archivos viajan con included_files). En dev/server local, ROOT alcanza.
  * @returns {{body:Buffer,type:string}|null}
  */
 function readAsset(name) {
   const asset = ASSETS[String(name || '').toLowerCase()];
   if (!asset) return null;
-  const full = path.join(ROOT, asset.file);
-  if (!full.startsWith(ROOT)) return null;
-  try {
-    return { body: fs.readFileSync(full), type: asset.type };
-  } catch (err) {
-    return null;
+  const candidatas = [
+    path.join(ROOT, asset.file),
+    path.join(__dirname, asset.file),
+    path.join(__dirname, '..', asset.file),
+    path.join(process.cwd(), asset.file)
+  ];
+  for (const full of candidatas) {
+    try {
+      return { body: fs.readFileSync(full), type: asset.type };
+    } catch (err) {
+      /* se prueba la siguiente */
+    }
   }
+  return null;
 }
 
 /**

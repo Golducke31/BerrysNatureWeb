@@ -1,0 +1,80 @@
+# ============================================================
+# Berry's Nature — deploy en Netlify
+# Web estática + API (Functions) en un solo hosting.
+# ============================================================
+
+[build]
+  # Paquete estático: solo archivos del sitio (el backend vive en Functions).
+  command = "mkdir -p dist && cp *.html robots.txt sitemap.xml dist/ && cp -r css js assets academia dist/"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  # El panel admin lee estos dos archivos desde la Function (ruta secreta).
+  included_files = ["css/admin.css", "js/admin.js"]
+
+# ---- API: todo /api/* va a la Function (mismo router que Vercel) ----
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# ---- URLs lindas renderizadas por el servidor (igual que en Vercel) ----
+[[redirects]]
+  from = "/guias/*"
+  to = "/.netlify/functions/api/guias/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/foro/hilo/*"
+  to = "/.netlify/functions/api/foro/hilo/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/perfil/*"
+  to = "/.netlify/functions/api/perfil/:splat"
+  status = 200
+  force = true
+
+# ---- Assets del panel: nunca públicos (se sirven por /api/<slug>/_/...) ----
+[[redirects]]
+  from = "/css/admin.css"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/js/admin.js"
+  to = "/404.html"
+  status = 404
+
+# ---- Cabeceras de seguridad (igual que vercel.json) ----
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' https://accounts.google.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; media-src 'self'; connect-src 'self' https://accounts.google.com https://challenges.cloudflare.com; frame-src https://accounts.google.com https://challenges.cloudflare.com; upgrade-insecure-requests"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, s-maxage=3600, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+    Cache-Control = "no-store, max-age=0"
