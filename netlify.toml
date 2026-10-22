@@ -10,6 +10,18 @@
   command = "npm run build"
   publish = "dist"
 
+# ---- Escaneo de secretos de Netlify ----
+# APP_URL es una URL PUBLICA: aparece a proposito en canonical, og:url,
+# JSON-LD y sitemap de las 14 paginas. Si Netlify la marca como "contains
+# secret values", el escaneo la encuentra en dist/ y bloquea el deploy
+# (falso positivo). El resto de las variables NO se omiten: DATABASE_URL,
+# ADMIN_SLUG, ADMIN_GATE_KEY y SESSION_SECRET siguen siendo escaneadas.
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "APP_URL"
+  # Los fixtures de tests usan secretos FALSOS (ej. 'testsessionsecret_...')
+  # y no se despliegan: no tiene sentido que bloqueen un deploy.
+  SECRETS_SCAN_OMIT_PATHS = "tests/**"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
