@@ -22,6 +22,7 @@ const authH = require('./handlers/auth');
 const threads = require('./handlers/threads');
 const reports = require('./handlers/reports');
 const payments = require('./handlers/payments');
+const products = require('./handlers/products');
 const admin = require('./handlers/admin');
 const pages = require('./handlers/pages');
 const adminUI = require('./admin-ui');
@@ -128,6 +129,15 @@ async function handleAdmin(req, res, method, seg) {
     return http.notFound(res);
   }
 
+  /* Catálogo de la tienda (CRUD del panel). */
+  if (a === 'products') {
+    if (!b && method === 'GET') return products.listAdmin(req, res);
+    if (!b && method === 'POST') return products.createProduct(req, res, await body(req));
+    if (b && method === 'PATCH') return products.updateProduct(req, res, { id: b }, await body(req));
+    if (b && method === 'DELETE') return products.deleteProduct(req, res, { id: b }, await body(req));
+    return http.notFound(res);
+  }
+
   /* Cola de reportes (Etapa 5, F9). Vive en el panel porque la decisión
      D9 deja la moderación en manos del dueño por ahora. */
   if (a === 'reports') {
@@ -217,6 +227,13 @@ async function handlePublic(req, res, method, seg) {
   if (a === 'guides') {
     if (!b && method === 'GET') return pub.listGuides(req, res);
     if (b && method === 'GET') return pub.getGuide(req, res, { id: b });
+    return http.notFound(res);
+  }
+
+  /* Catálogo público de la tienda (marca.html). */
+  if (a === 'products') {
+    if (!b && method === 'GET') return products.listPublic(req, res);
+    if (b && method === 'GET') return products.getPublic(req, res, { id: b });
     return http.notFound(res);
   }
 

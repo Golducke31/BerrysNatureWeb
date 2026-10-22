@@ -162,6 +162,7 @@
     { id: 'dashboard', label: 'Dashboard', icon: 'chart' },
     { id: 'metrics', label: 'Métricas', icon: 'eye' },
     { id: 'revenue', label: 'Ingresos', icon: 'bank' },
+    { id: 'products', label: 'Productos', icon: 'box' },
     { id: 'threads', label: 'Hilos del foro', icon: 'chat' },
     { id: 'guides', label: 'Guías', icon: 'book' },
     { id: 'users', label: 'Usuarios', icon: 'shield' },
@@ -219,6 +220,7 @@
       dashboard: renderDashboard,
       metrics: renderMetrics,
       revenue: renderRevenue,
+      products: renderProducts,
       threads: renderThreads,
       guides: renderGuides,
       users: renderUsers,
@@ -875,6 +877,201 @@
         $('#auditReload').addEventListener('click', renderAudit);
       })
       .catch(guard);
+  }
+
+  /* ============================================================
+     PRODUCTOS (tienda)
+     ============================================================ */
+  function precioTxt(n) {
+    return typeof n === 'number' ? '$ ' + n.toLocaleString('es-AR') : 'Consultar';
+  }
+
+  /* El panel vive en /api/<slug>, así que una ruta relativa como
+     "assets/productos/x.webp" resolvería a /api/assets/... (404).
+     La normalizamos a absoluta. */
+  function rutaImagen(p) {
+    var v = String(p || '').trim();
+    if (!v) return '';
+    if (v.charAt(0) === '/' || /^(https?:)?\/\//i.test(v)) return v;
+    return '/' + v;
+  }
+
+  function renderProducts() {
+    req('GET', '/products')
+      .then(function (data) {
+        var items = (data && data.items) || [];
+        state.cache.products = items;
+
+        var ocultos = items.filter(function (p) { return !p.disponible; }).length;
+        var sinStock = items.filter(function (p) { return p.stock === 0; }).length;
+
+        $('#adminMain').innerHTML =
+          '<div class="admin-topbar">' +
+            '<div><h1 class="admin-title">Productos de la tienda</h1>' +
+            '<p class="admin-subtitle">' + items.length + ' productos · ' + ocultos +
+              ' ocultos · ' + sinStock + ' sin stock</p></div>' +
+            '<button class="admin-btn admin-btn--primary" type="button" id="newProduct">' +
+              icon('plus') + ' Nuevo producto</button>' +
+          '</div>' +
+          '<div class="admin-panel"><div class="admin-table-wrap">' +
+            (items.length ? '<table class="admin-table"><thead><tr>' +
+              '<th></th><th>Producto</th><th>Categoría</th><th>Precio</th>' +
+              '<th>Stock</th><th>Estado</th><th></th>' +
+              '</tr></thead><tbody>' +
+              items.map(function (p) {
+                var estado = !p.disponible
+                  ? '<span class="admin-pill">Oculto</span>'
+                  : (p.stock === 0
+                    ? '<span class="admin-pill admin-pill--bad">Sin stock</span>'
+                    : '<span class="admin-pill admin-pill--ok">Publicado</span>');
+                return '<tr>' +
+                  '<td><span class="admin-thumb" style="background-image:url(\'' +
+                    escapeHtml(rutaImagen(p.imagen)) + '\')"></span></td>' +
+                  '<td class="admin-cell-title">' + escapeHtml(p.nombre) +
+                    (p.destacado ? ' <span class="admin-pill admin-pill--warn">Destacado</span>' : '') +
+                    (p.meta && p.meta.length
+                      ? '<br><small class="admin-muted">' + escapeHtml(p.meta.join(' · ')) + '</small>'
+                      : '') +
+                  '</td>' +
+                  '<td>' + escapeHtml(p.categoria) + '</td>' +
+                  '<td>' + precioTxt(p.precio) + '</td>' +
+                  '<td>' + (p.stock === null ? '—' : String(p.stock)) + '</td>' +
+                  '<td>' + estado + '</td>' +
+                  '<td><div class="admin-actions">' +
+                    '<button class="admin-btn" data-edit-product="' + escapeHtml(p.id) + '">Editar</button>' +
+                    '<button class="admin-btn" data-toggle-product="' + escapeHtml(p.id) + '">' +
+                      (p.disponible ? 'Ocultar' : 'Publicar') + '</button>' +
+                    '<button class="admin-btn admin-btn--danger" data-del-product="' +
+                      escapeHtml(p.id) + '">Eliminar</button>' +
+                  '</div></td>' +
+                '</tr>';
+              }).join('') + '</tbody></table>'
+              : '<p class="admin-empty">Todavía no hay productos. Creá el primero.</p>') +
+          '</div></div>';
+
+        $('#newProduct').addEventListener('click', function () { openProductEditor(null); });
+
+        $('#adminMain').addEventListener('click', function (e) {
+          var edit = e.target.closest('[data-edit-product]');
+          if (edit) {
+            var p = items.filter(function (x) { return x.id === edit.dataset.editProduct; })[0];
+            return openProductEditor(p);
+          }
+          var toggle = e.target.closest('[data-toggle-product]');
+          if (toggle) {
+            var p2 = items.filter(function (x) { return x.id === toggle.dataset.toggleProduct; })[0];
+            return req('PATCH', '/products/' + encodeURIComponent(p2.id), { disponible: !p2.disponible })
+              .then(function () {
+                toast(p2.disponible ? 'Producto oculto de la tienda.' : 'Producto publicado.');
+                renderProducts();
+              })
+              .catch(guard);
+          }
+          var del = e.target.closest('[data-del-product]');
+          if (del) {
+            if (!confirm('¿Eliminar este producto? No se puede deshacer.')) return;
+            return req('DELETE', '/products/' + encodeURIComponent(del.dataset.delProduct), {})
+              .then(function () { toast('Producto eliminado.'); renderProducts(); })
+              .catch(guard);
+          }
+        });
+      })
+      .catch(guard);
+  }
+
+  function openProductEditor(p) {
+    var isNew = !p;
+
+    /* Categorías ya usadas, para el autocompletado. */
+    var cats = [];
+    ((state.cache && state.cache.products) || []).forEach(function (x) {
+      if (x.categoria && cats.indexOf(x.categoria) === -1) cats.push(x.categoria);
+    });
+
+    var modal = buildModal(isNew ? 'Nuevo producto' : 'Editar producto',
+      '<div class="admin-form-grid">' +
+        field('pNombre', 'Nombre', 'text', 'Ej: Agua Micelar', p ? p.nombre : '') +
+        '<div class="admin-field"><label for="pCategoria">Categoría</label>' +
+          '<input type="text" id="pCategoria" list="pCatList" placeholder="Facial, Jabones, Cabello…" value="' +
+            escapeHtml(p ? p.categoria : '') + '">' +
+          '<datalist id="pCatList">' +
+            cats.map(function (c) {
+              return '<option value="' + escapeHtml(c) + '"></option>';
+            }).join('') +
+          '</datalist>' +
+        '</div>' +
+        field('pPrecio', 'Precio (ARS)', 'number', 'Vacío = consultar precio',
+          p && typeof p.precio === 'number' ? String(p.precio) : '') +
+        field('pStock', 'Stock', 'number', 'Vacío = sin control de stock',
+          p && typeof p.stock === 'number' ? String(p.stock) : '') +
+        field('pImagen', 'Imagen (ruta)', 'text', 'assets/productos/p18-agua-micelar.webp',
+          p ? p.imagen : '') +
+        field('pOrden', 'Orden en la grilla', 'number', '100', p ? String(p.orden) : '100') +
+        '<div class="admin-field admin-field--full"><label for="pDescripcion">Descripción</label>' +
+          '<textarea id="pDescripcion" style="min-height:110px" ' +
+            'placeholder="Qué es, para qué sirve, cómo se usa.">' +
+            escapeHtml(p ? p.descripcion : '') + '</textarea></div>' +
+        '<div class="admin-field admin-field--full"><label for="pMeta">' +
+          'Chips de la tarjeta (separados por coma)</label>' +
+          '<input type="text" id="pMeta" placeholder="100 g, Uso diario, Sin alcohol" value="' +
+            escapeHtml(p && p.meta ? p.meta.join(', ') : '') + '">' +
+          '<small class="admin-help">Se muestran como etiquetas en la tarjeta. Podés agregar o quitar los que quieras.</small>' +
+        '</div>' +
+        field('pActivos', 'Activos (separados por coma)', 'text',
+          'Manteca de karité, Aceite de argán',
+          p && p.activos ? p.activos.join(', ') : '') +
+        '<div class="admin-field admin-field--full"><label for="pMp">Link de MercadoPago</label>' +
+          '<input type="text" id="pMp" placeholder="https://mpago.la/... (vacío = checkout por WhatsApp)" value="' +
+            escapeHtml(p ? p.mp : '') + '"></div>' +
+        '<div class="admin-field admin-field--full"><div class="admin-checks">' +
+          '<label><input type="checkbox" id="pDisponible"' +
+            (!p || p.disponible ? ' checked' : '') + '> Visible en la tienda</label>' +
+          '<label><input type="checkbox" id="pDestacado"' +
+            (p && p.destacado ? ' checked' : '') + '> Destacado</label>' +
+        '</div></div>' +
+      '</div>',
+      function () {
+        var meta = $('#pMeta').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+        var activos = $('#pActivos').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+        var precioRaw = $('#pPrecio').value.trim();
+        var stockRaw = $('#pStock').value.trim();
+
+        var payload = {
+          nombre: $('#pNombre').value.trim(),
+          categoria: $('#pCategoria').value.trim(),
+          descripcion: $('#pDescripcion').value.trim(),
+          imagen: $('#pImagen').value.trim(),
+          mp: $('#pMp').value.trim(),
+          meta: meta,
+          activos: activos,
+          precio: precioRaw === '' ? null : Number(precioRaw),
+          stock: stockRaw === '' ? null : Number(stockRaw),
+          orden: Number($('#pOrden').value) || 100,
+          disponible: $('#pDisponible').checked,
+          destacado: $('#pDestacado').checked
+        };
+
+        if (payload.nombre.length < 2) return toast('El nombre necesita al menos 2 caracteres.');
+        if (!payload.categoria) return toast('Falta la categoría.');
+        if (precioRaw !== '' && (!Number.isFinite(payload.precio) || payload.precio < 0)) {
+          return toast('El precio tiene que ser un número positivo.');
+        }
+        if (stockRaw !== '' && (!Number.isFinite(payload.stock) || payload.stock < 0)) {
+          return toast('El stock tiene que ser un número positivo.');
+        }
+
+        var r = isNew
+          ? req('POST', '/products', payload)
+          : req('PATCH', '/products/' + encodeURIComponent(p.id), payload);
+
+        r.then(function () {
+          closeModal();
+          toast(isNew ? 'Producto creado.' : 'Producto actualizado.');
+          renderProducts();
+        }).catch(guard);
+      },
+      isNew ? 'Crear producto' : 'Guardar cambios');
+    modal.open();
   }
 
   /* ============================================================

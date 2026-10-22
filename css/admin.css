@@ -407,3 +407,94 @@
   .admin-chart { height: 130px; gap: 3px; }
   .admin-chart__label { font-size: 9px; }
 }
+
+/* ---- Productos: miniatura en la tabla y texto secundario ---- */
+.admin-thumb {
+  display: block;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background-color: var(--color-surface-alt, #f4efe9);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.admin-muted {
+  color: var(--color-text-muted);
+  font-size: 11.5px;
+}
+
+@media (max-width: 640px) {
+  .admin-thumb { width: 34px; height: 34px; }
+}
+
+/* ---- Modal del panel ----
+   El panel carga styles.css + admin.css, pero los estilos del modal viven
+   en sections.css (que solo carga el sitio público). Sin esto el modal se
+   renderiza al final del documento en vez de aparecer como overlay.
+   Afecta a TODOS los editores del panel (guías, hilos, usuarios, productos). */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(74, 63, 53, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.auth-modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.auth-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-card, #fff);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 26px;
+  padding: 34px 32px 28px;
+  box-shadow: 0 30px 70px rgba(74, 63, 53, 0.28);
+  transform: translateY(18px) scale(0.98);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.auth-modal-overlay.open .auth-modal {
+  transform: translateY(0) scale(1);
+}
+
+.auth-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(74, 63, 53, 0.06);
+  border-radius: 50%;
+  color: var(--color-text, #3c342e);
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s ease;
+}
+
+.auth-close-btn:hover { background: rgba(234, 184, 163, 0.35); }
+
+.auth-title {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 21px;
+  margin: 0 0 18px;
+  color: var(--color-text, #3c342e);
+}

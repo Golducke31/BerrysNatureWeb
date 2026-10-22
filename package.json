@@ -16,6 +16,8 @@
     "reset-password": "node scripts/reset-password.cjs",
     "db:check": "node scripts/db-check.cjs",
     "db:init": "node scripts/migrate.cjs",
+    "db:seed-products": "node scripts/seed-products.cjs",
+    "mail:check": "node scripts/mail-check.cjs",
     "db:migrate": "node scripts/migrate.cjs --only-migrations",
     "db:status": "node scripts/migrate.cjs --status",
     "db:rollback": "node scripts/migrate.cjs --rollback",

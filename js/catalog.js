@@ -69,11 +69,16 @@
     return '<span class="product-card__price is-consult">Consultar precio</span>';
   }
 
+  /* Chips de la tarjeta. Antes solo se mostraban los dos primeros; ahora
+     se renderizan todos los que cargue el panel (hasta 6), para que se
+     pueda agregar o quitar etiquetas libremente. */
   function metaHtml(p) {
     var m = p.meta || [];
     var out = '';
-    if (m[0]) out += '<span>' + icon('clock') + ' ' + escapeHtml(m[0]) + '</span>';
-    if (m[1]) out += '<span>' + icon('check') + ' ' + escapeHtml(m[1]) + '</span>';
+    for (var i = 0; i < m.length; i++) {
+      if (!m[i]) continue;
+      out += '<span>' + icon(i === 0 ? 'clock' : 'check') + ' ' + escapeHtml(m[i]) + '</span>';
+    }
     return out;
   }
 
@@ -310,12 +315,39 @@
     window.open(waLink(msg), '_blank', 'noopener');
   }
 
+  /* ---------------- Catálogo desde la base ---------------- */
+  /* El catálogo estático (js/catalog-data.js) se pinta al instante para
+     que la tienda nunca quede vacía. Después pedimos la versión de la
+     base: si el panel cambió precios, stock o disponibilidad, se
+     reemplaza. Si la API falla, se queda el estático. */
+  function firmaCatalogo(arr) {
+    return arr.map(function (p) {
+      return p.id + ':' + p.precio + ':' + p.disponible + ':' + p.nombre;
+    }).join('|');
+  }
+
+  function cargarDesdeApi() {
+    if (typeof fetch !== 'function') return;
+    fetch('/api/products', { headers: { Accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !Array.isArray(data.items) || !data.items.length) return;
+        if (firmaCatalogo(data.items) === firmaCatalogo(productos)) return;
+        productos = data.items;
+        renderFilters();
+        renderProducts();
+        renderCart();
+      })
+      .catch(function () { /* seguimos con el catálogo estático */ });
+  }
+
   /* ---------------- Init ---------------- */
   document.addEventListener('DOMContentLoaded', function () {
     productos = window.catalogProducts || [];
     renderFilters();
     renderProducts();
     renderCart();
+    cargarDesdeApi();
 
     var fab = $('#cartFab');
     if (fab) fab.addEventListener('click', openCart);

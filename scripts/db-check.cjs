@@ -23,7 +23,7 @@ const db = require('../server/lib/db');
 
 const TABLES = [
   'users', 'sessions', 'auth_attempts', 'forum_threads',
-  'forum_replies', 'forum_likes', 'guides', 'content_views', 'audit_log'
+  'forum_replies', 'forum_likes', 'guides', 'content_views', 'audit_log', 'products'
 ];
 
 /* ---------------- Chequeo de variables de entorno ---------------- */
@@ -115,7 +115,7 @@ async function checkCounts() {
   console.log(c.bold('  Contenido'));
 
   const counts = {};
-  for (const t of ['users', 'forum_threads', 'forum_replies', 'guides']) {
+  for (const t of ['users', 'forum_threads', 'forum_replies', 'guides', 'products']) {
     try {
       const row = await db.one(`SELECT count(*)::int AS n FROM ${t}`);
       counts[t] = row ? row.n : 0;
@@ -128,7 +128,8 @@ async function checkCounts() {
     users: 'Usuarios',
     forum_threads: 'Hilos del foro',
     forum_replies: 'Respuestas',
-    guides: 'Guías de la Academia'
+    guides: 'Guías de la Academia',
+    products: 'Productos de la tienda'
   };
   for (const [k, v] of Object.entries(counts)) {
     const value = v === null ? c.red('error') : String(v);

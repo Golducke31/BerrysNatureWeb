@@ -68,6 +68,18 @@ async function sendViaConsole(msg) {
   console.log('  Cuerpo:');
   console.log(String(msg.text || '').split('\n').map((l) => '    ' + l).join('\n'));
   console.log('─'.repeat(64) + '\n');
+
+  /* En producción, "imprimir en consola" es un fallo silencioso: el flujo
+     de recuperación de contraseña parece andar y el usuario nunca recibe
+     el mail. Devolvemos ok:false para que quede registrado como fallo en
+     la auditoría en vez de fingir éxito. */
+  if (IS_PROD) {
+    console.error(
+      '[mailer] MAIL_TRANSPORT=console en producción: el email NO salió. ' +
+      'Cambiá a MAIL_TRANSPORT=resend (con MAIL_API_KEY) o webhook.'
+    );
+    return { ok: false, error: 'console_transport_in_production' };
+  }
   return { ok: true, id: 'console' };
 }
 
