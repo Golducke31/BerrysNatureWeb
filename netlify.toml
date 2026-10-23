@@ -18,11 +18,15 @@
 #   APP_URL         https://berrysnature.com.ar → canonical, og:url, JSON-LD
 #   MAIL_TRANSPORT  "resend" → aparece en mailer.js, README, docs…
 #   MAIL_FROM       "Berry's Nature <no-reply@...>" → DEFAULT_FROM en mailer.js
+#   GOOGLE_CLIENT_ID / TURNSTILE_SITE_KEY → claves PÚBLICAS que van escritas
+#     a propósito en js/config.js (las lee el navegador). Si se marcan como
+#     secretas, el escaneo las encuentra en ese archivo y rompe el build.
 #
-# MAIL_API_KEY, DATABASE_URL, ADMIN_SLUG, ADMIN_GATE_KEY y SESSION_SECRET
-# SIGUEN escaneándose: son secretos reales y no deben filtrarse nunca.
+# MAIL_API_KEY, DATABASE_URL, ADMIN_SLUG, ADMIN_GATE_KEY, SESSION_SECRET,
+# TURNSTILE_SECRET_KEY y MERCADOPAGO_* SIGUEN escaneándose: son secretos
+# reales y no deben filtrarse nunca.
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "APP_URL,MAIL_TRANSPORT,MAIL_FROM"
+  SECRETS_SCAN_OMIT_KEYS = "APP_URL,MAIL_TRANSPORT,MAIL_FROM,GOOGLE_CLIENT_ID,TURNSTILE_SITE_KEY"
   # Los fixtures de tests usan secretos FALSOS (ej. 'testsessionsecret_...')
   # y no se despliegan: no tiene sentido que bloqueen un deploy.
   SECRETS_SCAN_OMIT_PATHS = "tests/**"
