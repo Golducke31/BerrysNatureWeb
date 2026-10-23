@@ -163,6 +163,7 @@
     { id: 'metrics', label: 'Métricas', icon: 'eye' },
     { id: 'revenue', label: 'Ingresos', icon: 'bank' },
     { id: 'products', label: 'Productos', icon: 'box' },
+    { id: 'about', label: 'Sobre Nosotros', icon: 'leaf' },
     { id: 'threads', label: 'Hilos del foro', icon: 'chat' },
     { id: 'guides', label: 'Guías', icon: 'book' },
     { id: 'users', label: 'Usuarios', icon: 'shield' },
@@ -221,6 +222,7 @@
       metrics: renderMetrics,
       revenue: renderRevenue,
       products: renderProducts,
+      about: renderAbout,
       threads: renderThreads,
       guides: renderGuides,
       users: renderUsers,
@@ -1172,6 +1174,49 @@
         ayuda.textContent = 'Imagen subida y lista. Guardá los cambios para aplicarla.';
         toast('Imagen subida.');
       });
+    });
+  }
+
+  /* ============================================================
+     SOBRE NOSOTROS (contenido editable de la portada)
+     ============================================================ */
+  function renderAbout() {
+    var main = $('#adminMain');
+    main.innerHTML =
+      '<div class="admin-card">' +
+        '<div class="admin-card__head">' +
+          '<h2>Sobre Nosotros</h2>' +
+          '<p class="admin-muted">Editá el título (se muestra en cursiva en la portada) ' +
+          'y el texto que aparece debajo, por separado.</p>' +
+        '</div>' +
+        '<div class="admin-form-grid">' +
+          field('aTitulo', 'Título (en cursiva)', 'text', 'Sobre Berry\'s Nature', '') +
+          '<div class="admin-field admin-field--full"><label for="aTexto">Texto</label>' +
+            '<textarea id="aTexto" style="min-height:170px" ' +
+            'placeholder="Contá de dónde nacen, qué hacen y por qué lo hacen."></textarea>' +
+            '<small class="admin-help">Separá párrafos con una línea en blanco. ' +
+            'El primer párrafo se destaca en la portada.</small>' +
+          '</div>' +
+        '</div>' +
+        '<div class="admin-actions">' +
+          '<button class="admin-btn admin-btn--primary" type="button" id="aGuardar">Guardar cambios</button>' +
+        '</div>' +
+      '</div>';
+
+    req('GET', '/content/about').then(function (d) {
+      if (d && d.title !== undefined) $('#aTitulo').value = d.title || '';
+      if (d && d.body !== undefined) $('#aTexto').value = d.body || '';
+    }).catch(function () { /* queda con el texto actual de respaldo */ });
+
+    $('#aGuardar').addEventListener('click', function () {
+      var payload = {
+        title: $('#aTitulo').value.trim(),
+        body: $('#aTexto').value
+      };
+      if (!payload.title) return toast('Poné un título.');
+      req('PATCH', '/content/about', payload)
+        .then(function () { toast('Sobre Nosotros actualizado.'); })
+        .catch(guard);
     });
   }
 

@@ -24,6 +24,7 @@ const reports = require('./handlers/reports');
 const payments = require('./handlers/payments');
 const products = require('./handlers/products');
 const images = require('./handlers/images');
+const content = require('./handlers/content');
 const admin = require('./handlers/admin');
 const pages = require('./handlers/pages');
 const adminUI = require('./admin-ui');
@@ -152,6 +153,13 @@ async function handleAdmin(req, res, method, seg) {
     return http.notFound(res);
   }
 
+  /* Contenido editable del sitio (p. ej. "Sobre Nosotros"). */
+  if (a === 'content') {
+    if (b && method === 'GET') return content.get(req, res, { key: b });
+    if (b && method === 'PATCH') return content.update(req, res, { key: b }, await body(req));
+    return http.notFound(res);
+  }
+
   /* Moderar respuestas (Etapa 5): ocultar/editar desde el panel. */
   if (a === 'replies') {
     if (b && method === 'PATCH') return admin.updateReply(req, res, { id: b }, await body(req));
@@ -242,6 +250,9 @@ async function handlePublic(req, res, method, seg) {
     if (b && method === 'GET') return products.getPublic(req, res, { id: b });
     return http.notFound(res);
   }
+
+  /* Contenido público del sitio (p. ej. "Sobre Nosotros"). */
+  if (a === 'content' && b && method === 'GET') return content.get(req, res, { key: b });
 
   /* Imágenes de producto subidas desde el panel. */
   if (a === 'img') {
