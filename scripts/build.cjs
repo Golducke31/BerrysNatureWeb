@@ -86,10 +86,47 @@ function versionAssetsInHtml(html) {
   });
 }
 
-/** Inyecta los interruptores de producto en el <head> y versiona los assets. */
+/* Asegura el link de Facebook en el footer de cada HTML estático (idempotente).
+   El footer del SSR (server/handlers/pages.js) ya lo incluye; este paso cubre
+   las páginas estáticas (academia, foro, glosario, tienda, cuenta, etc.) cuyo
+   footer está duplicado en el HTML y no traía Facebook. Se inserta justo después
+   del cierre del anchor de Instagram, dejando el orden Instagram · Facebook ·
+   WhatsApp igual que en index.html. */
+function ensureFacebookInFooter(html) {
+  if (html.includes('facebook.com/share/1JjL83dtQu')) return html; // ya lo tiene
+  const FB = `
+        <a href="https://www.facebook.com/share/1JjL83dtQu/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="22" height="22"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.43-4.94 8.43-9.94Z"/></svg>
+        </a>`;
+  return html.replace(
+    /(<a[^>]*aria-label="Instagram"[^>]*>[\s\S]*?<\/a>)/i,
+    (m) => m + FB
+  );
+}
+
+/* Clases de interruptor en <html>, para que el CSS (css/styles.css) pueda
+   ocultar los bloques SIN depender de que corra JS (evita el parpadeo y que
+   un JS cacheado deje la calculadora a la vista). */
+function flagsHtmlClass() {
+  const cls = [];
+  if (!FLAGS.calculator) cls.push('no-calculator');
+  if (!FLAGS.pro) cls.push('no-pro');
+  return cls.join(' ');
+}
+
+/** Inyecta los interruptores (clase en <html> + flags en <head>) y versiona los assets. */
 function processHtml(html) {
-  const withFlags = html.replace(/<head>/i, (m) => `${m}\n  ${flagsInline()}`);
-  return versionAssetsInHtml(withFlags);
+  let out = html.replace(/<html(\s[^>]*?)?>/i, (m, attrs) => {
+    const cls = flagsHtmlClass();
+    const a = attrs || '';
+    if (!cls) return m;
+    return /class=/i.test(a)
+      ? `<html${a.replace(/class="([^"]*)"/i, (mm, c) => `class="${c} ${cls}"`)}>`
+      : `<html${a} class="${cls}">`;
+  });
+  out = out.replace(/<head>/i, (m) => `${m}\n  ${flagsInline()}`);
+  out = ensureFacebookInFooter(out);
+  return versionAssetsInHtml(out);
 }
 
 /** Recorre dist/ y procesa (flags + cache-busting) todos los .html. */

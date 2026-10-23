@@ -1592,3 +1592,57 @@ a.hero-card-showcase:focus-visible {
   outline: 2px solid var(--color-cta);
   outline-offset: 4px;
 }
+
+/* ============================================================
+   Feature flags (calculadora / contenido PRO) — CSS de respaldo
+
+   El interruptor real es la clase que el build (scripts/build.cjs) y el
+   SSR (server/handlers/pages.js) ponen en <html>:
+     - CALCULATOR_ENABLED=true  -> sin "no-calculator" (visible)
+     - PRO_CONTENT_ENABLED=true -> sin "no-pro" (visible)
+   Con los flags apagados se agrega "no-calculator"/"no-pro" y TODO lo
+   abaixo se oculta al instante, sin depender de que corra JS (evita el
+   "parpadeo" y que un JS cacheado deje la calculadora a la vista).
+
+   Para prenderlo de nuevo: cambiar el env var a "true" y re-desplegar.
+   ============================================================ */
+
+/* --- Calculadora (bloque completo, video incluido, CTAs y botones) --- */
+html.no-calculator #calculadora,
+html.no-calculator .calculator-section,
+html.no-calculator .calc-video-layer,
+html.no-calculator .calc-video,
+html.no-calculator a[href*="calculadora"],
+html.no-calculator .formula-load-btn,
+html.no-calculator .guide-cta,
+html.no-calculator #formulas-acad {
+  display: none !important;
+}
+
+/* --- Contenido PRO (tarjetas, sidebar, badges, desbloqueo) --- */
+html.no-pro [data-pro],
+html.no-pro .guide-card--pro,
+html.no-pro .pro-item,
+html.no-pro .pro-only,
+html.no-pro .pro-badge,
+html.no-pro .unlock-copy,
+html.no-pro .side-panel--pro {
+  display: none !important;
+}
+
+/* Botón de Google: el botón OFICIAL (renderButton) se monta transparente
+   encima del botón propio (js/auth.js) para que el clic abra el selector de
+   cuenta de forma confiable en escritorio, manteniendo el diseño propio. */
+.google-btn-wrap { position: relative; }
+.google-btn-slot {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 5;
+  display: flex;
+  opacity: 0;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: inherit;
+}
+.google-btn-slot > div,
+.google-btn-slot iframe { width: 100% !important; }

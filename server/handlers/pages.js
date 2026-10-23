@@ -25,7 +25,7 @@ const S = require('../lib/serialize');
 const indexability = require('../lib/indexability');
 const features = require('../lib/features');
 const reputation = require('../lib/reputation');
-const { html, xml } = require('../lib/http');
+const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
 
 /* ---------------- Utilidades ---------------- */
@@ -165,6 +165,9 @@ function footerHtml() {
         <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
           <i data-icon="instagram"></i>
         </a>
+        <a href="https://www.facebook.com/share/1JjL83dtQu/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="22" height="22"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.43-4.94 8.43-9.94Z"/></svg>
+        </a>
         <a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
           <i data-icon="whatsapp"></i>
         </a>
@@ -214,10 +217,18 @@ function flagsInline() {
     `  <script src="/js/flags.js"></script>`;
 }
 
+/** Clases de interruptor en <html> (mismo criterio que el build). */
+function flagsHtmlClass() {
+  const cls = [];
+  if (!features.calculadora()) cls.push('no-calculator');
+  if (!features.contenidoPro()) cls.push('no-pro');
+  return cls.join(' ');
+}
+
 /** Layout completo de una página de contenido. */
 function layout({ title, description, canonical, robots, ogImage, jsonLdBlocks = [], body, extraHead = '', css = CSS_FORO, scripts = null }) {
   return `<!DOCTYPE html>
-<html lang="es">
+<html lang="es"${flagsHtmlClass() ? ` class="${flagsHtmlClass()}"` : ''}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

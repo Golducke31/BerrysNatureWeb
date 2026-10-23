@@ -337,8 +337,55 @@
         renderFilters();
         renderProducts();
         renderCart();
+        actualizarJsonLd();
       })
       .catch(function () { /* seguimos con el catálogo estático */ });
+  }
+
+  /* ---------------- JSON-LD del catálogo (SEO) ----------------
+     El <head> trae un ItemList estático SIN precios. Lo reconstruimos con
+     los productos reales (precio + disponibilidad desde /api/products) para
+     que Google muestre precio y stock en los resultados de búsqueda. */
+  function abs(url) {
+    var u = String(url || '');
+    if (!u) return u;
+    if (/^https?:\/\//i.test(u)) return u;
+    var origin = window.location.origin || 'https://berrysnature.com.ar';
+    return origin + (u.charAt(0) === '/' ? u : '/' + u);
+  }
+
+  function actualizarJsonLd() {
+    var el = document.getElementById('catalogoJsonLd');
+    if (!el || !productos.length) return;
+    var base = (window.location.origin || 'https://berrysnature.com.ar') + '/marca.html';
+    var data = {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Catálogo Berry\'s Nature',
+      itemListElement: productos.map(function (p, i) {
+        var item = {
+          '@type': 'Product',
+          name: p.nombre,
+          image: abs(p.imagen),
+          description: p.descripcion,
+          brand: { '@type': 'Brand', name: "Berry's Nature" },
+          category: p.categoria
+        };
+        if (typeof p.precio === 'number') {
+          item.offers = {
+            '@type': 'Offer',
+            price: p.precio,
+            priceCurrency: 'ARS',
+            availability: p.disponible
+              ? 'https://schema.org/InStock'
+              : 'https://schema.org/OutOfStock',
+            url: base
+          };
+        }
+        return { '@type': 'ListItem', position: i + 1, item: item };
+      })
+    };
+    try { el.textContent = JSON.stringify(data); } catch (e) { /* noop */ }
   }
 
   /* ---------------- Init ---------------- */
@@ -347,6 +394,7 @@
     renderFilters();
     renderProducts();
     renderCart();
+    actualizarJsonLd();
     cargarDesdeApi();
 
     var fab = $('#cartFab');

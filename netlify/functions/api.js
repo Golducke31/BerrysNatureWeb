@@ -12,29 +12,47 @@
 
 const { route } = require('../../server/router');
 
-/* La URL original (/api/...) puede llegar por event.rawUrl, por event.path,
+/* La URL que pidió el navegador puede llegar por event.rawUrl, por event.path,
    o el rewrite puede haber apuntado la petición a
-   /.netlify/functions/api/... Probamos las tres formas en orden. */
+   /.netlify/functions/api/... En Netlify, tras un rewrite (p. ej.
+   /foro/hilo/:id → /.netlify/functions/api/foro/hilo/:id) el evento suele
+   traer la URL ORIGINAL (/foro/hilo/:id), que NO empieza con /api. El router
+   espera todo bajo /api, así que normalizamos: /api/* pasa tal cual, el
+   prefijo /.netlify/functions/<fn> se recorta, y las URLs lindas
+   (/foro/hilo/*, /guias/*, /perfil/*) se prefijan con /api. */
+function queryOf(event) {
+  const qs = event.queryStringParameters || {};
+  const q = new URLSearchParams(qs).toString();
+  return q ? '?' + q : '';
+}
+
 function resolvePath(event) {
+  let pathname = '';
+  let search = '';
   if (event.rawUrl) {
     try {
       const u = new URL(event.rawUrl);
-      if (u.pathname.startsWith('/api')) return u.pathname + u.search;
-    } catch (e) { /* se prueba la siguiente fuente */ }
+      pathname = u.pathname;
+      search = u.search;
+    } catch (e) { /* se prueba event.path */ }
   }
-  if (event.path && event.path.startsWith('/api')) {
-    const qs = event.queryStringParameters || {};
-    const q = new URLSearchParams(qs).toString();
-    return event.path + (q ? '?' + q : '');
+  if (!pathname && event.path) pathname = event.path;
+
+  // 1) Si ya viene como /api/..., se usa tal cual.
+  if (pathname.startsWith('/api')) {
+    return pathname + (search || queryOf(event));
   }
-  if (event.rawUrl) {
-    try {
-      const u = new URL(event.rawUrl);
-      const m = u.pathname.match(/^\/\.netlify\/functions\/[^/]+(\/.*)?$/);
-      if (m) return '/api' + (m[1] || '') + u.search;
-    } catch (e) { /* cae al default */ }
+
+  // 2) Si vino como /.netlify/functions/<fn>/..., nos quedamos con el sub-path.
+  const fnMatch = pathname.match(/^\/\.netlify\/functions\/[^/]+(\/.*)?$/);
+  if (fnMatch) pathname = fnMatch[1] || '/';
+
+  // 3) Si tras lo anterior no empieza con /api, lo prefijamos (URLs lindas).
+  if (!pathname.startsWith('/api')) {
+    pathname = '/api' + (pathname === '/' ? '' : pathname);
   }
-  return '/api';
+
+  return pathname + (search || queryOf(event));
 }
 
 function buildReq(event) {

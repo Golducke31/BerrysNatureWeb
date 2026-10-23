@@ -67,8 +67,12 @@
     }
   }
 
+  function gisListo() {
+    return !!(window.google && window.google.accounts && window.google.accounts.id);
+  }
+
   function initGis() {
-    if (!window.google || !window.google.accounts || !window.google.accounts.id) return;
+    if (!gisListo()) return;
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleCredential,
@@ -77,21 +81,76 @@
   }
 
   function loadGis() {
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      initGis();
-      return;
-    }
+    if (gisListo()) { initGis(); return; }
     var s = document.createElement('script');
     s.src = 'https://accounts.google.com/gsi/client';
     s.async = true;
     s.defer = true;
     s.onload = initGis;
     s.onerror = function () {
-      var btn = document.getElementById('googleSignInBtn');
-      if (btn) btn.disabled = false;
       if (window.toast) window.toast('No se pudo cargar Google Sign-In (revisá tu conexión).');
     };
     document.head.appendChild(s);
+  }
+
+  /* El prompt() de One Tap ya no aparece de forma confiable en navegadores de
+     escritorio (transición a FedCM): al pulsar el botón "no pasaba nada".
+     Renderizamos el botón OFICIAL de Google de forma transparente ENCIMA del
+     nuestro: el usuario ve y pulsa el botón propio, pero el clic lo captura el
+     de Google, que abre el selector de cuenta de forma confiable. Se renderiza
+     cuando el modal ya está visible (si no, el botón tendría tamaño 0). */
+  function renderBotonRealGoogle() {
+    var btn = document.getElementById('googleSignInBtn');
+    if (!btn || !gisListo()) return;
+
+    var slot = document.getElementById('googleBtnSlot');
+    if (slot && (slot.querySelector('iframe') || slot.querySelector('div'))) return; // ya renderizado
+
+    var wrap = btn.parentNode;
+    if (!wrap || !wrap.classList.contains('google-btn-wrap')) {
+      wrap = document.createElement('div');
+      wrap.className = 'google-btn-wrap';
+      btn.parentNode.insertBefore(wrap, btn);
+      wrap.appendChild(btn);
+    }
+    if (!slot) {
+      slot = document.createElement('div');
+      slot.id = 'googleBtnSlot';
+      slot.className = 'google-btn-slot';
+      wrap.appendChild(slot);
+    }
+    var ancho = Math.max(220, Math.min(400, wrap.clientWidth || btn.offsetWidth || 280));
+    try {
+      window.google.accounts.id.renderButton(slot, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: 'continue_with',
+        shape: 'pill',
+        locale: 'es',
+        width: ancho
+      });
+    } catch (e) {
+      // Si falla, el clic en el botón propio cae al prompt() (fallback).
+    }
+  }
+
+  function observarAperturaModal() {
+    var modal = document.getElementById('authModal');
+    if (!modal) return;
+    var listo = false;
+    var alAbrir = function () {
+      if (modal.classList.contains('open') && !listo) {
+        listo = true;
+        // Un frame para que el layout del modal esté asentado antes de medir.
+        if (typeof requestAnimationFrame === 'function') requestAnimationFrame(renderBotonRealGoogle);
+        else setTimeout(renderBotonRealGoogle, 50);
+      }
+    };
+    if (typeof MutationObserver === 'function') {
+      new MutationObserver(alAbrir).observe(modal, { attributes: true, attributeFilter: ['class'] });
+    }
+    alAbrir();
   }
 
   function setupGoogle() {
@@ -102,7 +161,7 @@
       // Modo demo: sin Client ID real, guiamos al usuario.
       btn.addEventListener('click', function () {
         if (window.toast) {
-          window.toast('Para activar Google Sign-In, pegá tu Client ID en js/auth.js.', 'lock');
+          window.toast('Para activar Google Sign-In, configurá tu Client ID en js/config.js.', 'lock');
         }
       });
       return;
@@ -110,8 +169,23 @@
 
     loadGis();
 
+    // En cuanto GSI esté disponible, observamos el modal para renderizar el
+    // botón real al abrirlo.
+    if (gisListo()) {
+      observarAperturaModal();
+    } else {
+      var espera = setInterval(function () {
+        if (gisListo()) { clearInterval(espera); observarAperturaModal(); }
+      }, 150);
+      setTimeout(function () { clearInterval(espera); }, 10000);
+    }
+
+    // Fallback de clic: si el botón real no se montó (p. ej. GSI no cargó),
+    // intentamos el prompt() como antes.
     btn.addEventListener('click', function () {
-      if (window.google && window.google.accounts && window.google.accounts.id) {
+      var slot = document.getElementById('googleBtnSlot');
+      if (slot && (slot.querySelector('iframe') || slot.querySelector('div'))) return; // botón real encima
+      if (gisListo()) {
         window.google.accounts.id.prompt();
       } else if (window.toast) {
         window.toast('Cargando Google Sign-In…');
