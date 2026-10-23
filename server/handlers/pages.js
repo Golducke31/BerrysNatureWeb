@@ -204,6 +204,10 @@ function scriptsPerfil() {
 const CSS_FORO = ['styles', 'sections', 'academia', 'foro', 'niko-widget'];
 /** Hojas de estilo de una guía: reusa el layout de los artículos. */
 const CSS_GUIA = ['styles', 'sections', 'academia', 'guide-article', 'niko-widget'];
+/** Hojas de estilo de la página de producto (tienda). */
+const CSS_PRODUCTO = ['styles', 'sections', 'academia', 'catalog'];
+/** WhatsApp de la tienda (para el CTA "consultar" de la página de producto). */
+const WA_TIENDA = process.env.WHATSAPP_NUMBER || '5491156090265';
 
 /** Flags de producto inyectados en el <head> de las páginas SSR, igual que
  *  scripts/build.cjs hace para los HTML estáticos. Así flags.js y los demás
@@ -789,6 +793,157 @@ async function renderGuide(req, res, { id }) {
 }
 
 /* ============================================================
+   Página de producto (tienda) renderizada en el servidor
+
+   URL amigable /productos/<slug>. El id del producto YA es un slug
+   legible (idUnico() lo genera con V.slug a partir del nombre), así que
+   no hace falta una columna extra. Servimos el HTML completo con datos
+   estructurados Product + Offer para que Google muestre precio y
+   disponibilidad. El carrito vive en marca.html; acá ofrecemos consulta
+   por WhatsApp y, si el producto tiene, el link de pago de MercadoPago.
+   ============================================================ */
+
+/** URL canónica de un producto. */
+function productoUrl(id) {
+  return `${siteUrl()}/productos/${encodeURIComponent(id)}`;
+}
+
+/** Convierte una ruta de imagen (relativa o absoluta) en URL absoluta. */
+function absAsset(url) {
+  const u = String(url || '');
+  if (!u) return `${siteUrl()}/assets/og-image.jpg`;
+  if (/^https?:\/\//i.test(u)) return u;
+  return siteUrl() + (u.charAt(0) === '/' ? u : '/' + u);
+}
+
+async function renderProduct(req, res, { id }) {
+  let row = null;
+  try {
+    row = await db.one('SELECT * FROM products WHERE id = $1', [id]);
+  } catch (err) {
+    console.error('[producto] no se pudo leer el producto:', err && err.message);
+  }
+
+  // Inexistente o no disponible → 404 real (noindex), igual que los hilos.
+  if (!row || !row.disponible) {
+    return html(res, 404, layout({
+      title: "Producto no encontrado | Berry's Nature",
+      description: 'Este producto no existe o no está disponible.',
+      canonical: productoUrl(id),
+      robots: 'noindex, follow',
+      ogImage: `${siteUrl()}/assets/og-image.jpg`,
+      css: CSS_PRODUCTO,
+      body: `
+  <main>
+    <section class="product-detail-section">
+      <p class="product-detail__breadcrumb">
+        <a href="/">Inicio</a><span class="sep">/</span>
+        <a href="/marca.html">Tienda</a><span class="sep">/</span>
+        <span class="current">No encontrado</span>
+      </p>
+      <div class="community-empty">
+        <p>No encontramos este producto. Puede que se haya dejado de vender.</p>
+        <p><a href="/marca.html">Ver toda la tienda</a></p>
+      </div>
+    </section>
+  </main>`
+    }), { 'X-Robots-Tag': 'noindex, nofollow' });
+  }
+
+  const precio = (row.precio === null || row.precio === undefined) ? null : Number(row.precio);
+  // Stock null = sin control de stock → se considera disponible.
+  const enStock = (row.stock === null || row.stock === undefined) ? true : Number(row.stock) > 0;
+  const canonical = productoUrl(row.id);
+  const ogImage = absAsset(row.imagen);
+  const precioTxt = typeof precio === 'number'
+    ? '$ ' + precio.toLocaleString('es-AR')
+    : 'Consultar precio';
+  const meta = Array.isArray(row.meta) ? row.meta.filter(Boolean) : [];
+  const activos = Array.isArray(row.activos) ? row.activos.filter(Boolean) : [];
+
+  const waMsg = `¡Hola Berry's Nature! Me interesa *${row.nombre}*. ¿Me pasan precio y disponibilidad?`;
+  const waHref = `https://wa.me/${WA_TIENDA}?text=${encodeURIComponent(waMsg)}`;
+  const mpBtn = row.mp
+    ? `<a class="cta-button" href="${esc(row.mp)}" target="_blank" rel="noopener">Comprar en MercadoPago</a>`
+    : '';
+
+  // ---- Datos estructurados Product + Offer ----
+  const productLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: row.nombre,
+    image: [ogImage],
+    description: row.descripcion || `${row.nombre} — cosmética natural artesanal de Berry's Nature.`,
+    sku: row.id,
+    brand: { '@type': 'Brand', name: "Berry's Nature" }
+  };
+  if (row.categoria) productLd.category = row.categoria;
+  if (typeof precio === 'number') {
+    productLd.offers = {
+      '@type': 'Offer',
+      price: precio,
+      priceCurrency: 'ARS',
+      availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: canonical,
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@type': 'Organization', name: "Berry's Nature", url: siteUrl() }
+    };
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` },
+      { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${siteUrl()}/marca.html` },
+      { '@type': 'ListItem', position: 3, name: row.nombre, item: canonical }
+    ]
+  };
+
+  const markup = layout({
+    title: `${row.nombre} | Tienda Berry's Nature`,
+    description: recortar(row.descripcion || row.nombre, 155),
+    canonical,
+    robots: null, // indexable
+    ogImage,
+    jsonLdBlocks: [productLd, breadcrumbLd],
+    css: CSS_PRODUCTO,
+    body: `
+  <main>
+    <section class="product-detail-section">
+      <p class="product-detail__breadcrumb">
+        <a href="/">Inicio</a><span class="sep">/</span>
+        <a href="/marca.html">Tienda</a><span class="sep">/</span>
+        <span class="current">${esc(row.nombre)}</span>
+      </p>
+      <div class="product-detail">
+        <div class="product-detail__media" style="background-image:url('${esc(row.imagen || '')}')">
+          ${row.categoria ? `<span class="guide-card__cat">${esc(row.categoria)}</span>` : ''}
+        </div>
+        <div class="product-detail__info">
+          <h1 class="product-detail__title">${esc(row.nombre)}</h1>
+          <p class="product-card__price${typeof precio === 'number' ? '' : ' is-consult'}">${esc(precioTxt)}</p>
+          ${row.descripcion ? `<p class="product-detail__desc">${esc(row.descripcion)}</p>` : ''}
+          ${meta.length ? `<div class="product-detail__meta">${meta.map((m) => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
+          ${activos.length ? `<div class="product-detail__activos"><strong>Activos:</strong> ${activos.map((a) => esc(a)).join(' · ')}</div>` : ''}
+          <div class="product-detail__cta">
+            <a class="cta-button is-whatsapp" href="${waHref}" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+            ${mpBtn}
+            <a class="cta-button cta-outline" href="/marca.html">Ver toda la tienda</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>`
+  });
+
+  return html(res, 200, markup, {
+    'X-Robots-Tag': 'index, follow',
+    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600'
+  });
+}
+
+/* ============================================================
    Perfil público renderizado en el servidor (Etapa 5, F7)
 
    Decisión D6 — privacidad primero: mientras PERFILES_PUBLICOS no esté
@@ -1070,6 +1225,17 @@ async function hilosIndexables() {
     .map((f) => ({ path: `/foro/hilo/${encodeURIComponent(f.id)}`, lastmod: iso(f.updated_at) }));
 }
 
+/** Productos disponibles → sitemap con /productos/<slug> (id ya es un slug). */
+async function productosIndexables() {
+  const filas = await db.many(`
+    SELECT id, updated_at
+      FROM products
+     WHERE disponible = true
+     ORDER BY updated_at DESC
+     LIMIT 2000`);
+  return filas.map((f) => ({ path: `/productos/${encodeURIComponent(f.id)}`, lastmod: iso(f.updated_at) }));
+}
+
 /**
  * GET /sitemap.xml — servido por un rewrite a /api/sitemap.
  *
@@ -1080,6 +1246,7 @@ async function hilosIndexables() {
 async function renderSitemap(req, res) {
   let hilos = [];
   let guiasDinamicas = [];
+  let productos = [];
 
   try {
     hilos = await hilosIndexables();
@@ -1093,6 +1260,12 @@ async function renderSitemap(req, res) {
     guiasDinamicas = await guiasSinPagina();
   } catch (err) {
     console.error('[sitemap] no se pudieron leer las guías:', err && err.message);
+  }
+
+  try {
+    productos = await productosIndexables();
+  } catch (err) {
+    console.error('[sitemap] no se pudieron leer los productos:', err && err.message);
   }
 
   const guiasEstaticas = guiasConPagina();
@@ -1130,6 +1303,12 @@ async function renderSitemap(req, res) {
       lastmod: h.lastmod || hoy,
       changefreq: 'weekly',
       priority: '0.6'
+    })),
+    ...productos.map((p) => ({
+      loc: `${siteUrl()}${p.path}`,
+      lastmod: p.lastmod || hoy,
+      changefreq: 'weekly',
+      priority: '0.7'
     }))
   ];
 
@@ -1149,4 +1328,4 @@ ${entradas.map((e) => `  <url>
   });
 }
 
-module.exports = { renderThread, renderGuide, renderProfile, renderSitemap, threadUrl, guiaUrl, perfilUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };
+module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };

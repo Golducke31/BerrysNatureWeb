@@ -63,6 +63,21 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/productos/*"
+  to = "/.netlify/functions/api/productos/:splat"
+  status = 200
+  force = true
+
+# El sitemap ahora es dinámico (SSR /api/sitemap): lista productos, guías e
+# hilos desde la base. El archivo estático sitemap.xml queda sombreado por
+# este rewrite (force=true).
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/api/sitemap"
+  status = 200
+  force = true
+
 # ---- Assets del panel: nunca públicos (se sirven por /api/<slug>/_/...) ----
 [[redirects]]
   from = "/css/admin.css"

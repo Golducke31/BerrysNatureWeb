@@ -83,6 +83,7 @@
   }
 
   function cardHtml(p) {
+    var url = '/productos/' + encodeURIComponent(p.id);
     return '' +
       '<article class="guide-card product-card reveal" data-reveal data-product="' + escapeHtml(p.id) + '">' +
         '<div class="guide-card__media" style="background-image:url(\'' + escapeHtml(p.imagen) + '\')">' +
@@ -90,7 +91,7 @@
           precioHtml(p) +
         '</div>' +
         '<div class="guide-card__body">' +
-          '<h3 class="guide-card__title">' + escapeHtml(p.nombre) + '</h3>' +
+          '<h3 class="guide-card__title"><a href="' + url + '">' + escapeHtml(p.nombre) + '</a></h3>' +
           '<p class="guide-card__excerpt">' + escapeHtml(p.descripcion) + '</p>' +
           '<div class="guide-card__meta">' + metaHtml(p) + '</div>' +
           '<div class="product-card__actions">' +
@@ -357,7 +358,7 @@
   function actualizarJsonLd() {
     var el = document.getElementById('catalogoJsonLd');
     if (!el || !productos.length) return;
-    var base = (window.location.origin || 'https://berrysnature.com.ar') + '/marca.html';
+    var origin = window.location.origin || 'https://berrysnature.com.ar';
     var data = {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
@@ -379,7 +380,7 @@
             availability: p.disponible
               ? 'https://schema.org/InStock'
               : 'https://schema.org/OutOfStock',
-            url: base
+            url: origin + '/productos/' + encodeURIComponent(p.id)
           };
         }
         return { '@type': 'ListItem', position: i + 1, item: item };

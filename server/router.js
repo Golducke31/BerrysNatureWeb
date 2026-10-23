@@ -244,6 +244,11 @@ async function handlePublic(req, res, method, seg) {
     return http.notFound(res);
   }
 
+  /* Página de producto (tienda). Rewrite: /productos/:slug → /api/productos/:slug. */
+  if (a === 'productos' && b && method === 'GET') {
+    return pages.renderProduct(req, res, { id: b });
+  }
+
   /* Catálogo público de la tienda (marca.html). */
   if (a === 'products') {
     if (!b && method === 'GET') return products.listPublic(req, res);
