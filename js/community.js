@@ -33,6 +33,14 @@
     if (window.toast) window.toast(msg, icon);
   }
 
+  // Feature flags (calculadora / pro) inyectados por el build (scripts/build.cjs)
+  // y por el SSR (server/handlers/pages.js). Por defecto ambos true; en false
+  // ocultamos (vía flags.js) y aquí no wireamos los disparadores.
+  var FLAGS = window.BerrysFlags || {
+    calculator: (window.BERRYS_FLAGS || {}).calculator === true,
+    pro: (window.BERRYS_FLAGS || {}).pro === true
+  };
+
   function initial(name) {
     return escapeHtml(String(name || 'U').trim().charAt(0).toUpperCase() || 'U');
   }
@@ -330,6 +338,8 @@
   function setupUnlock() {
     var btn = $('#unlockCalcBtn');
     if (!btn) return;
+    // Contenido PRO o calculadora apagados: ocultamos y no wireamos el desbloqueo.
+    if (!FLAGS.pro || !FLAGS.calculator) { btn.style.display = 'none'; return; }
     btn.addEventListener('click', function () {
       if (!currentUser) {
         openAuthModal('register');
@@ -347,6 +357,7 @@
   /* ---- Cargar fórmula desde query param (?load=ID) ---- */
   function applyPendingFormulaFromQuery() {
     try {
+      if (!FLAGS.calculator) return; // calculadora apagada: nada que precargar
       var params = new URLSearchParams(window.location.search);
       var loadId = params.get('load');
       if (!loadId || typeof FORMULAS === 'undefined') return;

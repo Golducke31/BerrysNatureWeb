@@ -24,6 +24,18 @@
      que este archivo). Antes había una copia local acá y otra en community.js. */
   const toast = window.toast;
 
+  /* ---------------- Feature flags (calculadora / pro) ----------------
+     Ventana global inyectada por el build (scripts/build.cjs) y por
+     server/handlers/pages.js. Si CALCULATOR_ENABLED=false o
+     PRO_CONTENT_ENABLED=false en el entorno, ocultamos esas partes sin
+     borrar el código. Por defecto ambos true.
+     Leemos window.BerrysFlags (que deja lista flags.js) y, como respaldo,
+     window.BERRYS_FLAGS directamente (el inline del <head> corre antes). */
+  const FLAGS = window.BerrysFlags || {
+    calculator: (window.BERRYS_FLAGS || {}).calculator === true,
+    pro:        (window.BERRYS_FLAGS || {}).pro === true
+  };
+
   /* ---------------- Progreso (localStorage) ---------------- */
   const READ_KEY = 'berrys_read_posts';
   function getRead() {
@@ -61,11 +73,19 @@
   function cargarGuias() {
     const api = window.BerrysAPI;
     if (!api || !api.available) return Promise.resolve(false);
+    // Las guías extendidas viven como HTML aparte (academia/*.html) y su
+    // `url` sólo existe en la semilla (content-data.js). El backend no
+    // guarda `url`, así que lo rescatamos de la semilla antes de que el
+    // merge lo pise con la fila de la base (que no trae `url`).
+    const urlSemilla = {};
+    guias.forEach(g => { if (g && g.url) urlSemilla[g.id] = g.url; });
     return api.guides()
       .then(data => {
         const items = (data && data.items) || [];
         if (!items.length) return false;
         guias = api.mergeById(guias, items);
+        // Restauramos el enlace al HTML extendido cuando la base no lo trae.
+        guias.forEach(g => { if (g && !g.url && urlSemilla[g.id]) g.url = urlSemilla[g.id]; });
         return true;
       })
       .catch(() => false);
@@ -175,9 +195,9 @@
         </div>
       </article>`).join('');
 
-    // Tarjetas PRO bloqueadas al final
+    // Tarjetas PRO bloqueadas al final (solo si el contenido PRO está prendido)
     const proPosts = guias.filter(p => p.pro);
-    if (rutaActiva === 'Todas' && catActiva === 'Todas' && proPosts.length) {
+    if (FLAGS.pro && rutaActiva === 'Todas' && catActiva === 'Todas' && proPosts.length) {
       grid.insertAdjacentHTML('beforeend', proPosts.map(p => `
         <article class="guide-card guide-card--pro reveal" data-reveal data-id="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(p.titulo)} (PRO)">
           <div class="guide-card__media" style="background-image:url('${escapeHtml(p.imagen || 'assets/academia-square.webp')}')">
@@ -293,9 +313,11 @@
           <h4>Ingredientes</h4>
           <ul class="formula-ing-list">${rows}</ul>
         </div>
-        <button class="cta-button cta-outline formula-load-btn" type="button" data-load="${f.id}">
+        ${FLAGS.calculator
+          ? `<button class="cta-button cta-outline formula-load-btn" type="button" data-load="${f.id}">
           ${iconSvg('balance')} Cargar en la calculadora
-        </button>
+        </button>`
+          : ''}
       </article>`;
     }).join('');
 
@@ -400,6 +422,9 @@
   function renderPro() {
     const wrap = $('#proList');
     if (!wrap) return;
+    // Contenido PRO apagado: dejamos el sidebar vacío (flags.js ya oculta
+    // cualquier resto, y el botón de desbloqueo no se wirea en init).
+    if (!FLAGS.pro) { wrap.innerHTML = ''; return; }
     const pro = guias.filter(p => p.pro);
     wrap.innerHTML = pro.map(p => `
       <div class="pro-item">
@@ -454,10 +479,12 @@
       if (e.key === 'Escape' && $('#guideModal')?.classList.contains('open')) closeGuide();
     });
 
-    // Desbloquear PRO
-    $('#unlockProBtn')?.addEventListener('click', () => {
-      toast('El acceso PRO (pago único) estará disponible muy pronto. ¡Gracias por sumarte!', 'lock');
-    });
+    // Desbloquear PRO (solo si el contenido PRO está prendido)
+    if (FLAGS.pro) {
+      $('#unlockProBtn')?.addEventListener('click', () => {
+        toast('El acceso PRO (pago único) estará disponible muy pronto. ¡Gracias por sumarte!', 'lock');
+      });
+    }
 
     observeReveals();
 

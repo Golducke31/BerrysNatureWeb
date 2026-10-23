@@ -45,6 +45,13 @@ function noContent(res, extraHeaders = {}) {
   res.end();
 }
 
+/** Redirección 302 (o el código que se pase). Usada para guías con página estática propia. */
+function redirect(res, location, status = 302) {
+  res.setHeader('Location', location);
+  res.statusCode = status;
+  res.end();
+}
+
 /** Error JSON con forma estable: { error: { code, message } } */
 function fail(res, status, code, message) {
   json(res, status, { error: { code, message } });
@@ -150,7 +157,7 @@ function clearCookie(res, name, opts = {}) {
 }
 
 module.exports = {
-  json, html, xml, noContent, fail, notFound,
+  json, html, xml, noContent, fail, notFound, redirect,
   getPath, getQuery, parseCookies, getClientIp, readBody,
   setCookie, clearCookie
 };

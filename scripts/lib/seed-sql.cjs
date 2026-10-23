@@ -25,6 +25,7 @@ function guiaConflict(forceOverwrite) {
          title = EXCLUDED.title,
          summary = EXCLUDED.summary,
          body = EXCLUDED.body,
+         url = EXCLUDED.url,
          author = EXCLUDED.author,
          route = EXCLUDED.route,
          reading_minutes = EXCLUDED.reading_minutes,

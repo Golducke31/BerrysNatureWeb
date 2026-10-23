@@ -75,6 +75,7 @@ function guide(row, withBody = true) {
     titulo: row.title,
     resumen: row.summary,
     leerMas: withBody ? row.body : null,
+    url: row.url || null,
     autor: row.author,
     ruta: row.route,
     lectura: row.reading_minutes,

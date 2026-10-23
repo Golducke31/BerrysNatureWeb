@@ -15,9 +15,39 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { execSync } = require('node:child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
+
+/* Versión de build para cache-busting de assets (fuerza bajar el JS/CSS
+   nuevo después de cada deploy, en vez de servir una versión cacheada que
+   puede apuntar a rutas que ya no existen). Usa el sha corto del commit;
+   si no hay repo, cae a un timestamp. */
+function buildVersion() {
+  try {
+    const sha = execSync('git rev-parse --short HEAD', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString().trim();
+    if (sha) return sha;
+  } catch (e) { /* no git */ }
+  return String(Date.now());
+}
+
+const VERSION = buildVersion();
+
+/* Interruptores de producto (calculadora / contenido PRO). APAGADOS por
+   defecto; se prenden con CALCULATOR_ENABLED=true / PRO_CONTENT_ENABLED=true
+   en el entorno de Netlify y re-desplegando. Se inyectan en el <head> de cada
+   HTML para que el cliente (js/flags.js) sepa qué ocultar sin borrar código. */
+const flagsOn = (name) => process.env[name] === 'true';
+const FLAGS = { calculator: flagsOn('CALCULATOR_ENABLED'), pro: flagsOn('PRO_CONTENT_ENABLED') };
+
+function flagsInline() {
+  return `<script>window.BERRYS_FLAGS = window.BERRYS_FLAGS || {};` +
+    `window.BERRYS_FLAGS.calculator = ${FLAGS.calculator};` +
+    `window.BERRYS_FLAGS.pro = ${FLAGS.pro};</script>\n` +
+    `  <script src="/js/flags.js"></script>`;
+}
 
 /* Carpetas y archivos que forman parte del sitio público. */
 const DIRS = ['css', 'js', 'assets', 'academia'];
@@ -44,6 +74,34 @@ function sizeOf(dir) {
     total += entry.isDirectory() ? sizeOf(full) : fs.statSync(full).size;
   }
   return total;
+}
+
+/** Añade ?v=VERSION a src/href de .js/.css locales (cache-busting). */
+function versionAssetsInHtml(html) {
+  return html.replace(/(src|href)="([^"]+)"/g, (m, attr, url) => {
+    if (/^(https?:)?\/\//i.test(url)) return m;            // externo: no tocar
+    if (!/\.(?:js|css)(?:[?#]|$)/i.test(url)) return m;    // no es js/css
+    if (url.includes('?')) return m;                        // ya versionado
+    return `${attr}="${url}?v=${VERSION}"`;
+  });
+}
+
+/** Inyecta los interruptores de producto en el <head> y versiona los assets. */
+function processHtml(html) {
+  const withFlags = html.replace(/<head>/i, (m) => `${m}\n  ${flagsInline()}`);
+  return versionAssetsInHtml(withFlags);
+}
+
+/** Recorre dist/ y procesa (flags + cache-busting) todos los .html. */
+function versionAllHtml(dir) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      versionAllHtml(full);
+    } else if (entry.name.endsWith('.html')) {
+      fs.writeFileSync(full, processHtml(fs.readFileSync(full, 'utf8')));
+    }
+  }
 }
 
 function main() {
@@ -93,6 +151,15 @@ function main() {
     console.error(`\n  ✘ Faltan archivos críticos: ${missing.join(', ')}\n`);
     process.exit(1);
   }
+
+  /* Cache-busting: añade ?v=VERSION a los src/href de .js/.css locales en
+     todos los .html de dist/ (raíz y subcarpetas como academia/). Así cada
+     deploy cambia la URL del asset y el navegador nunca sirve un JS/CSS
+     viejo que apunte a rutas que ya no existen (ver Fix 2: 404 en like/comentario).
+     Las páginas renderizadas en el servidor (/foro/hilo/*, /guias/*, /perfil/*)
+     quedan cubiertas por la cabecera must-revalidate de /js/* y /css/* en netlify.toml. */
+  versionAllHtml(DIST);
+  console.log(`  cache-bust   ?v=${VERSION} aplicado a los .html`);
 
   console.log(`\n  ✔ dist/ listo — ${mb} MB\n`);
 }

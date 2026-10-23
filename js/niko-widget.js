@@ -23,6 +23,14 @@
     ]
   }, window.NIKO_CONFIG || {});
 
+  // Feature flags inyectados por el build (scripts/build.cjs) y por el SSR
+  // (server/handlers/pages.js). Si CALCULATOR_ENABLED=false, Niko no ofrece
+  // llevar fórmulas a la Calculadora de Berry's. Por defecto ambos true.
+  var FLAGS = window.BerrysFlags || {
+    calculator: (window.BERRYS_FLAGS || {}).calculator === true,
+    pro: (window.BERRYS_FLAGS || {}).pro === true
+  };
+
   // Kill switch: permite apagar a Niko sin tocar el HTML.
   // Se activa con NIKO_CONFIG.enabled = false o agregando ?niko=0 a la URL.
   // Util si el backend se cae o si queres hacer A/B sin redesplegar.
@@ -294,6 +302,8 @@
   function offerCalculator(el, md) {
     var formula = parseFormula(md);
     if (!formula) return;
+    // Calculadora apagada por flag de entorno: no ofrecemos el shortcut.
+    if (!FLAGS.calculator) return;
     // Solo si la Calculadora está disponible en esta página.
     if (typeof window.BerrysCalculator === 'undefined' || !window.BerrysCalculator.loadFormula) return;
 

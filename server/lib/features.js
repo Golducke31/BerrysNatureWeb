@@ -19,4 +19,26 @@ function perfilesPublicos() {
   return process.env.PERFILES_PUBLICOS === '1';
 }
 
-module.exports = { perfilesPublicos };
+/**
+ * Berry's Calculator (sección en el home + desbloqueo PRO).
+ *
+ * APAGADA por defecto. Se prende poniendo CALCULATOR_ENABLED=true en el
+ * entorno (Netlify) y re-desplegando: la sección, los CTAs y los botones
+ * que usan la calculadora vuelven a verse, sin borrar código.
+ */
+function calculadora() {
+  return process.env.CALCULATOR_ENABLED === 'true';
+}
+
+/**
+ * Contenido PRO (guías PRO + desbloqueo de paga única).
+ *
+ * APAGADO por defecto. Se prende poniendo PRO_CONTENT_ENABLED=true en el
+ * entorno: las guías PRO vuelven a listarse, el sidebar PRO y el modal de
+ * desbloqueo reaparecen, y /guias/<pro> deja de dar 404.
+ */
+function contenidoPro() {
+  return process.env.PRO_CONTENT_ENABLED === 'true';
+}
+
+module.exports = { perfilesPublicos, calculadora, contenidoPro };

@@ -51,6 +51,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-conservantes.webp',
     tags: ['conservantes', 'seguridad', 'challenge-test'],
     icon: 'flask',
+    url: 'academia/conservantes-cosmetica-natural.html',
     leerMas: 'Los conservantes se divididen en sistemas de amplio espectro (fenoxietanol + etilhexilglicerina, sorbato, benzoato) y sistemas "suaves". Ninguno es mágico: todos tienen un rango de pH y concentración óptimo. La regla de oro: si tu fórmula tiene fase acuosa, va conservante. Repasamos dosis típicas, incompatibilidades y cómo leer una ficha técnica sin dejarse intimidar.'
   },
   {
@@ -86,6 +87,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-envases.webp',
     tags: ['envases', 'packaging', 'compras'],
     icon: 'bottle',
+    url: 'academia/envases-packaging-margen.html',
     leerMas: 'El envase puede representar entre el 20% y el 45% de tu costo unitario. Comprar de a 12 te salva al arrancar, pero la caja de 100 suele ser un 40% más barata. Evaluamos vidrio vs PET vs bioplástico, dosificadores airless para fórmulas sensibles, y por qué el sobre-packaging espanta al comprador consciente.'
   },
   {
@@ -103,6 +105,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-controles.webp',
     tags: ['ph', 'estabilidad', 'control'],
     icon: 'beaker',
+    url: 'academia/controles-ph-viscosidad-estabilidad.html',
     leerMas: 'Todo cosmético con agua debe tener pH controlado (la piel está cerca de 5,5). Medimos con tiras o pH-metro, ajustamos con ácido cítrico o base. La viscosidad la evaluamos con viscosímetro casero o prueba de caída. La estabilidad: guardás muestras a 4°C, ambiente y 45°C durante 4 semanas y anotás cambios de color, olor, separación.'
   },
   {
@@ -120,6 +123,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-primer-lote.webp',
     tags: ['escalado', 'producción', 'lote'],
     icon: 'box',
+    url: 'academia/primer-lote-100-unidades.html',
     leerMas: 'A mayor volumen, el orden importa más: una pesada mal hecha se multiplica por 100. Documentamos el orden de incorporación, los tiempos de emulsión y enfriado, el registro de lote (fecha, lote, responsable, lotes de MP) y el muestreo para control de calidad. Incluimos una plantilla de hoja de lote lista para imprimir.'
   },
   {
@@ -155,6 +159,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-eco-natural.webp',
     tags: ['botánica', 'patagonia', 'activos'],
     icon: 'leaf',
+    url: 'academia/activos-botanicos-patagonicos.html',
     leerMas: 'La Rosa mosqueta aporta ácido linoleico y vitamina C; el calafate, antioxidantes; el mate, cafeína. Todos son activos reales, pero su concentración y estabilidad definen si aportan algo. Explicamos cómo usar extractos glicólicos y aceites de la región respetando las claims permitidas por normativa.'
   },
   {
@@ -172,6 +177,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-ph-ajuste.webp',
     tags: ['ph', 'irritacion', 'ajuste'],
     icon: 'beaker',
+    url: 'academia/ajuste-de-ph-cosmetica.html',
     leerMas: 'Un pH fuera de rango (muy ácido o muy alcalino) pica e inactiva activos. Medís en la fase acuosa tibia, corregís con ácido cítrico (bajar) o arginina/TEA (subir) de a gotas, y recontrolás. La trampa: ajustar después de agregar conservante puede alterarlo, así que siempre medí antes del cierre.'
   },
   {
@@ -189,6 +195,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-packaging-eco.webp',
     tags: ['packaging', 'eco', 'sostenible'],
     icon: 'bottle',
+    url: 'academia/packaging-eco-biopolimeros.html',
     leerMas: 'El vidrio es infinitamente reciclable pero pesado (costo de envío). Los bioplásticos (PLA, PHA) suenan bien pero necesitan compostaje industrial. El aluminio recicla bien y pesa poco. La clave es elegir según la fórmula y ser honesto en la comunicación: "reciclable" no es " compostable".'
   },
   {
@@ -206,6 +213,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-shelf-life.webp',
     tags: ['vida-util', 'challenge-test', 'seguridad'],
     icon: 'petri',
+    url: 'academia/vida-util-challenge-test.html',
     leerMas: 'El challenge test inocula microorganismos y mide si el conservante los controla a los 7, 14 y 28 días. Es el estándar industrial. A escala casera podés hacer un "test de observación" (olor, color, turbidez a 45°C) pero no reemplaza el laboratorio para venta en canales formales. Explicamos cuándo contratar el servicio.'
   },
   {
@@ -223,6 +231,7 @@ const BLOG_POSTS = [
     imagen: 'assets/academia/academia-marca-blanca.webp',
     tags: ['marca', 'precio', 'canal'],
     icon: 'gem',
+    url: 'academia/de-formula-a-marca.html',
     leerMas: 'Posicionamiento primero: ¿a quién le vendés y por qué te elige a vos? De ahí sale el nombre, el packaging y el precio. El canal define el margen: venta directa (mayor margen) vs Marketplace (menor margen, más alcance). Armamos un mini-canvas de marca en una página para no perderte.'
   },
 

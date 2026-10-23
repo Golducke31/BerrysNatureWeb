@@ -497,17 +497,18 @@ async function createGuide(req, res, body) {
   const titulo = V.str(body.titulo, { min: 8, max: 160, field: 'título' });
   const resumen = V.str(body.resumen, { min: 20, max: 600, field: 'resumen' });
   const cuerpo = V.str(body.leerMas, { min: 0, max: 20000, required: false });
+  const enlace = (typeof body.url === 'string' && body.url.trim()) ? body.url.trim().slice(0, 500) : null;
   const categoria = V.str(body.categoria, { min: 3, max: 40, field: 'categoría' });
   const ruta = V.oneOf(body.ruta, RUTAS, 'ruta');
 
   const id = V.makeId('post', titulo);
   const row = await db.one(
-    `INSERT INTO guides (id, category, title, summary, body, author, route, reading_minutes,
+    `INSERT INTO guides (id, category, title, summary, body, url, author, route, reading_minutes,
                          image, tags, icon, is_featured, is_pro, is_published)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
      RETURNING *`,
     [
-      id, categoria, titulo, resumen, cuerpo || null,
+      id, categoria, titulo, resumen, cuerpo || null, enlace,
       current.user.displayName || 'Equipo Berry\'s', ruta,
       V.int(body.lectura, { min: 1, max: 120, def: 6 }),
       V.clean(body.imagen) || null,
@@ -538,6 +539,7 @@ async function updateGuide(req, res, params, body) {
   if (body.titulo !== undefined) patch.title = V.str(body.titulo, { min: 8, max: 160, field: 'título' });
   if (body.resumen !== undefined) patch.summary = V.str(body.resumen, { min: 20, max: 600, field: 'resumen' });
   if (body.leerMas !== undefined) patch.body = V.str(body.leerMas, { max: 20000, required: false }) || null;
+  if (body.url !== undefined) patch.url = (typeof body.url === 'string' && body.url.trim()) ? body.url.trim().slice(0, 500) : null;
   if (body.categoria !== undefined) patch.category = V.str(body.categoria, { min: 3, max: 40, field: 'categoría' });
   if (body.ruta !== undefined) patch.route = V.oneOf(body.ruta, RUTAS, 'ruta');
   if (body.lectura !== undefined) patch.reading_minutes = V.int(body.lectura, { min: 1, max: 120, def: row.reading_minutes });

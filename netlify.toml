@@ -102,6 +102,22 @@
     X-Robots-Tag = "noindex, nofollow, noarchive"
     Cache-Control = "no-store, max-age=0"
 
+# El HTML de las páginas (incluidas las renderizadas en el servidor) ya va
+# con no-store, pero los assets de cliente (js/css) podían quedar cacheados
+# por el navegador y servir una versión vieja del sitio después de un deploy.
+# Forzamos revalidación para que cada deploy entregue el JS/CSS nuevo y no
+# se queden "pegadas" versiones anteriores (p. ej. un hilo.js que apuntaba a
+# una ruta que ya no existe y devolvía 404).
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Las imágenes subidas desde el panel NO son datos que cambian: la URL es
 # el hash del contenido, así que se pueden cachear para siempre. Sin esta
 # regla, el "no-store" de /api/* obligaría a bajar cada foto en cada visita.

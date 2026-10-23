@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS guides (
   title           text NOT NULL,
   summary         text NOT NULL,
   body            text,
+  url             text,
   author          text NOT NULL DEFAULT 'Equipo Berry''s',
   route           text NOT NULL CHECK (route IN ('Principiante', 'Intermedio', 'Avanzado')),
   reading_minutes int NOT NULL DEFAULT 5,

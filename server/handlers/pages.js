@@ -110,7 +110,9 @@ function authModalHtml() {
       </div>
 
       <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
-      <p class="auth-sub">Guardá tus fórmulas, participá del foro y desbloqueá la calculadora PRO.</p>
+      <p class="auth-sub">${features.contenidoPro()
+        ? 'Guardá tus fórmulas, participá del foro y desbloqueá la calculadora PRO.'
+        : 'Guardá tus fórmulas y participá del foro.'}</p>
 
       <button class="google-btn" id="googleSignInBtn" type="button">
         <span class="google-g" aria-hidden="true">G</span>
@@ -179,7 +181,7 @@ function scriptsHtml() {
   <script src="/js/app.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/community.js"></script>
-  <script src="/js/pro-unlock.js"></script>
+${features.contenidoPro() ? `  <script src="/js/pro-unlock.js"></script>` : ''}
   <script src="/js/mod-panel.js"></script>
   <script src="/js/hilo.js"></script>`;
 }
@@ -199,6 +201,18 @@ function scriptsPerfil() {
 const CSS_FORO = ['styles', 'sections', 'academia', 'foro', 'niko-widget'];
 /** Hojas de estilo de una guía: reusa el layout de los artículos. */
 const CSS_GUIA = ['styles', 'sections', 'academia', 'guide-article', 'niko-widget'];
+
+/** Flags de producto inyectados en el <head> de las páginas SSR, igual que
+ *  scripts/build.cjs hace para los HTML estáticos. Así flags.js y los demás
+ *  módulos saben si CALCULATOR_ENABLED / PRO_CONTENT_ENABLED están en false. */
+function flagsInline() {
+  const calculator = features.calculadora();
+  const pro = features.contenidoPro();
+  return `<script>window.BERRYS_FLAGS = window.BERRYS_FLAGS || {};` +
+    `window.BERRYS_FLAGS.calculator = ${calculator};` +
+    `window.BERRYS_FLAGS.pro = ${pro};</script>\n` +
+    `  <script src="/js/flags.js"></script>`;
+}
 
 /** Layout completo de una página de contenido. */
 function layout({ title, description, canonical, robots, ogImage, jsonLdBlocks = [], body, extraHead = '', css = CSS_FORO, scripts = null }) {
@@ -233,6 +247,7 @@ ${robots ? `  <meta name="robots" content="${esc(robots)}">\n` : ''}  <link rel=
 ${css.map((h) => `  <link rel="stylesheet" href="/css/${h}.css">`).join('\n')}
 ${extraHead}
 ${jsonLdBlocks.map((b) => `  <script type="application/ld+json">\n  ${jsonLd(b)}\n  </script>`).join('\n')}
+${flagsInline()}
 </head>
 <body class="page-forum">
 ${headerHtml()}
@@ -657,9 +672,44 @@ async function renderGuide(req, res, { id }) {
     }), { 'X-Robots-Tag': 'noindex, nofollow' });
   }
 
+  // Si el contenido PRO está apagado por flag de entorno y esta guía es PRO,
+  // la tratamos como inexistente: 404 (noindex) y nada que indexar.
+  if (Boolean(row.is_pro) && !features.contenidoPro()) {
+    return html(res, 404, layout({
+      title: "Guía PRO no disponible | Berry's Nature",
+      description: 'El contenido PRO está temporalmente desactivado.',
+      canonical: guiaUrl(id),
+      robots: 'noindex, follow',
+      ogImage: `${siteUrl()}/assets/og-image.jpg`,
+      css: CSS_GUIA,
+      body: `
+  <main>
+    <article class="guide-page">
+      <nav class="guide-breadcrumb" aria-label="Ruta de navegación">
+        <a href="/index.html">Inicio</a><span class="sep">/</span>
+        <a href="/academia.html">Academia</a><span class="sep">/</span>
+        <span class="current">Guía PRO</span>
+      </nav>
+      <h1 class="guide-h1">Contenido no disponible</h1>
+      <div class="guide-body">
+        <p>Esta guía PRO está temporalmente desactivada. Volvé pronto.</p>
+      </div>
+      <a class="guide-back" href="/academia.html">← Ver las guías disponibles</a>
+    </article>
+  </main>`
+    }), { 'X-Robots-Tag': 'noindex, nofollow' });
+  }
+
   const esPro = Boolean(row.is_pro);
   const g = S.guide(row, !esPro);
-  const urlEstatica = urlEstaticaDeGuia(row.id);
+  const urlEstatica = urlEstaticaDeGuia(row.id) ||
+    (row.url ? '/' + String(row.url).replace(/^\/+/, '') : null);
+
+  // Si la guía tiene una página estática extendida, no servimos el cuerpo
+  // corto de la base: redirigimos a ella (la canonical ya apuntaba ahí).
+  if (urlEstatica) {
+    return redirect(res, urlEstatica);
+  }
 
   // Cuándo NO se indexa:
   //  - PRO: el cuerpo está reservado a quien pagó; no queremos que el

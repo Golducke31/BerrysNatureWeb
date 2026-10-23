@@ -197,9 +197,9 @@ async function seedGuides(forceOverwrite) {
     const fecha = g.fecha ? new Date(`${g.fecha}T12:00:00Z`) : new Date();
     await db.query(
       `INSERT INTO guides
-         (id, category, title, summary, body, author, route, reading_minutes,
+         (id, category, title, summary, body, url, author, route, reading_minutes,
           views, image, tags, icon, is_featured, is_pro, is_published, created_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::text[],$12,$13,$14,true,$15)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::text[],$12,$13,$14,$15,true,$16)
        ${conflict}`,
       [
         g.id,
@@ -207,11 +207,11 @@ async function seedGuides(forceOverwrite) {
         g.titulo,
         g.resumen || '',
         g.leerMas || null,
+        g.url || null,
         g.autor || "Equipo Berry's",
         g.ruta || 'Principiante',
         Number(g.lectura) || 5,
         Number(g.vistas) || 0,
-        g.imagen || null,
         textArray(g.tags),
         g.icon || 'book',
         Boolean(g.destacado),
