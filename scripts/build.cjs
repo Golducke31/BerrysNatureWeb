@@ -51,7 +51,7 @@ function flagsInline() {
 
 /* Carpetas y archivos que forman parte del sitio público. */
 const DIRS = ['css', 'js', 'assets', 'academia'];
-const FILES = ['robots.txt', 'sitemap.xml'];
+const FILES = ['robots.txt', 'sitemap.xml', 'googlec9455e9c4623b814.html'];
 
 function rmrf(target) {
   fs.rmSync(target, { recursive: true, force: true });
