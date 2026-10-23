@@ -174,9 +174,12 @@ async function handleAdmin(req, res, method, seg) {
 async function handlePublic(req, res, method, seg) {
   const [a, b, c] = seg;
 
-  /* Sitemap dinámico. Se llega por un rewrite de vercel.json:
-     /sitemap.xml → /api/sitemap (el archivo estático ya no existe). */
-  if (a === 'sitemap' && !b && method === 'GET') return pages.renderSitemap(req, res);
+  /* Sitemap dinámico. Rewrite: /sitemap.xml → función. resolvePath() mapea la
+     URL original a /api/sitemap.xml, que al dividir por "/" queda como un solo
+     segmento (a === "sitemap.xml"); también aceptamos /api/sitemap directo. */
+  if ((a === 'sitemap' || a === 'sitemap.xml') && method === 'GET' && !b) {
+    return pages.renderSitemap(req, res);
+  }
 
   /* Página de guía renderizada en el servidor.
      Rewrite: /guias/:id → /api/guias/:id.
