@@ -479,9 +479,25 @@
     display: none;
   }
 
+  /* La tarjeta ocupa todo el ancho y las flechas bajan a una fila propia debajo
+     (antes quedaban absolute ENCIMA de la tarjeta y tapaban el texto en móvil). */
+  .glossary-main-card {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
   .glossary-card-stage {
+    order: 1;
+    flex-basis: 100%;
     max-width: 100%;
     min-height: auto;
+  }
+
+  .glossary-main-nav {
+    position: static;
+    transform: none;
+    order: 2;
   }
 
   .glossary-card {
@@ -492,9 +508,6 @@
   .g-card-title {
     font-size: 19px;
   }
-
-  .glossary-main-nav--prev { left: 8px; }
-  .glossary-main-nav--next { right: 8px; }
 
   .glossary-hero {
     min-height: 42vh;

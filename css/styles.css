@@ -1634,15 +1634,6 @@ html.no-pro .side-panel--pro {
    encima del botón propio (js/auth.js) para que el clic abra el selector de
    cuenta de forma confiable en escritorio, manteniendo el diseño propio. */
 .google-btn-wrap { position: relative; }
-.google-btn-slot {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 5;
-  display: flex;
-  opacity: 0;
-  overflow: hidden;
-  cursor: pointer;
-  border-radius: inherit;
-}
+.google-btn-slot { display: flex; justify-content: center; min-height: 44px; }
 .google-btn-slot > div,
-.google-btn-slot iframe { width: 100% !important; }
+.google-btn-slot iframe { width: 100% !important; max-width: 400px; }

@@ -63,6 +63,19 @@
   border-radius: 999px;
   letter-spacing: .3px;
 }
+.product-card__stock {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  background: var(--color-accent-botanical);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 999px;
+  letter-spacing: .3px;
+}
 .product-card__actions .cta-button:disabled { opacity: .5; cursor: not-allowed; }
 .product-detail__stockout {
   display: inline-block;
@@ -70,6 +83,16 @@
   font-weight: 700;
   color: var(--color-accent-terracota);
   background: rgba(185, 112, 90, .1);
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin: 0 0 16px;
+}
+.product-detail__stock {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-accent-botanical);
+  background: rgba(74, 124, 89, .12);
   padding: 5px 12px;
   border-radius: 999px;
   margin: 0 0 16px;

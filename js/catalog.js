@@ -74,6 +74,18 @@
     return p.stock === 0;
   }
 
+  /* Chip de stock: "Sin stock" (0), "N disponibles" (>0), nada (sin control). */
+  function stockChip(p) {
+    if (p.stock === 0) return '<span class="product-card__stockout">Sin stock</span>';
+    if (typeof p.stock === 'number' && p.stock > 0) return '<span class="product-card__stock">' + p.stock + ' disponibles</span>';
+    return '';
+  }
+
+  /* Tope del carrito según stock (null/undef = sin control → sin límite). */
+  function topeStock(p) {
+    return (p && typeof p.stock === 'number') ? p.stock : Infinity;
+  }
+
   /* Chips de la tarjeta. Antes solo se mostraban los dos primeros; ahora
      se renderizan todos los que cargue el panel (hasta 6), para que se
      pueda agregar o quitar etiquetas libremente. */
@@ -94,7 +106,7 @@
       '<article class="guide-card product-card reveal" data-reveal data-product="' + escapeHtml(p.id) + '">' +
         '<div class="guide-card__media" style="background-image:url(\'' + escapeHtml(p.imagen) + '\')">' +
           '<span class="guide-card__cat">' + escapeHtml(p.categoria) + '</span>' +
-          (agotado ? '<span class="product-card__stockout">Sin stock</span>' : '') +
+          stockChip(p) +
           precioHtml(p) +
         '</div>' +
         '<div class="guide-card__body">' +
@@ -172,11 +184,16 @@
 
   function addToCart(id) {
     var items = loadCart();
+    var p = producto(id);
     var found = items.find(function (i) { return i.id === id; });
+    var nueva = (found ? found.qty : 0) + 1;
+    if (nueva > topeStock(p)) {
+      notify('Solo hay ' + topeStock(p) + ' disponibles de ' + (p ? p.nombre : 'este producto') + '.', 'warning');
+      return;
+    }
     if (found) found.qty += 1;
     else items.push({ id: id, qty: 1 });
     saveCart(items);
-    var p = producto(id);
     notify((p ? p.nombre : 'Producto') + ' · agregado al carrito', 'check');
   }
 
@@ -264,7 +281,13 @@
       b.addEventListener('click', function () {
         var items2 = loadCart();
         var it = items2.find(function (x) { return x.id === b.getAttribute('data-inc'); });
-        if (it) { it.qty += 1; saveCart(items2); }
+        if (!it) return;
+        var tope = topeStock(producto(it.id));
+        if (it.qty + 1 > tope) {
+          notify('Solo hay ' + tope + ' disponibles.', 'warning');
+          return;
+        }
+        it.qty += 1; saveCart(items2);
       });
     });
     $$('[data-dec]').forEach(function (b) {

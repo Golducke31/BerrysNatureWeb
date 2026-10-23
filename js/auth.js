@@ -93,18 +93,18 @@
     document.head.appendChild(s);
   }
 
-  /* El prompt() de One Tap ya no aparece de forma confiable en navegadores de
-     escritorio (transición a FedCM): al pulsar el botón "no pasaba nada".
-     Renderizamos el botón OFICIAL de Google de forma transparente ENCIMA del
-     nuestro: el usuario ve y pulsa el botón propio, pero el clic lo captura el
-     de Google, que abre el selector de cuenta de forma confiable. Se renderiza
-     cuando el modal ya está visible (si no, el botón tendría tamaño 0). */
+  /* Renderizamos el botón OFICIAL de Google (renderButton), que es confiable en
+     escritorio Y móvil. Se muestra VISIBLE en lugar del botón propio: el clic
+     directo sobre el botón de Google abre el selector de cuenta. (Con un overlay
+     transparente, en escritorio el navegador a veces no abría el popup: "no pasaba
+     nada"; en móvil sí funcionaba.) Se renderiza cuando el modal está visible y se
+     reintenta hasta que GSI esté listo. Devuelve true si quedó renderizado. */
   function renderBotonRealGoogle() {
     var btn = document.getElementById('googleSignInBtn');
-    if (!btn || !gisListo()) return;
+    if (!btn || !gisListo()) return false;
 
     var slot = document.getElementById('googleBtnSlot');
-    if (slot && (slot.querySelector('iframe') || slot.querySelector('div'))) return; // ya renderizado
+    if (slot && (slot.querySelector('iframe') || slot.querySelector('div'))) return true; // ya
 
     var wrap = btn.parentNode;
     if (!wrap || !wrap.classList.contains('google-btn-wrap')) {
@@ -131,8 +131,12 @@
         width: ancho
       });
     } catch (e) {
-      // Si falla, el clic en el botón propio cae al prompt() (fallback).
+      return false;
     }
+
+    var ok = !!(slot.querySelector('iframe') || slot.querySelector('div'));
+    if (ok) btn.style.display = 'none'; // que se vea y se cliquee el botón de Google
+    return ok;
   }
 
   function observarAperturaModal() {
@@ -142,9 +146,12 @@
     var alAbrir = function () {
       if (modal.classList.contains('open') && !listo) {
         listo = true;
-        // Un frame para que el layout del modal esté asentado antes de medir.
-        if (typeof requestAnimationFrame === 'function') requestAnimationFrame(renderBotonRealGoogle);
-        else setTimeout(renderBotonRealGoogle, 50);
+        // Reintenta hasta que GSI esté listo y el botón se renderice (~6 s máx).
+        var intentos = 0;
+        (function intentar() {
+          if (renderBotonRealGoogle()) return;
+          if (intentos++ < 40) setTimeout(intentar, 150);
+        })();
       }
     };
     if (typeof MutationObserver === 'function') {
