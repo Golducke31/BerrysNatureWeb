@@ -863,7 +863,7 @@ async function renderProduct(req, res, { id }) {
 
   const waMsg = `¡Hola Berry's Nature! Me interesa *${row.nombre}*. ¿Me pasan precio y disponibilidad?`;
   const waHref = `https://wa.me/${WA_TIENDA}?text=${encodeURIComponent(waMsg)}`;
-  const mpBtn = row.mp
+  const mpBtn = (row.mp && enStock)
     ? `<a class="cta-button" href="${esc(row.mp)}" target="_blank" rel="noopener">Comprar en MercadoPago</a>`
     : '';
 
@@ -923,6 +923,7 @@ async function renderProduct(req, res, { id }) {
         <div class="product-detail__info">
           <h1 class="product-detail__title">${esc(row.nombre)}</h1>
           <p class="product-card__price${typeof precio === 'number' ? '' : ' is-consult'}">${esc(precioTxt)}</p>
+          ${!enStock ? '<p class="product-detail__stockout">Sin stock — escribinos por disponibilidad.</p>' : ''}
           ${row.descripcion ? `<p class="product-detail__desc">${esc(row.descripcion)}</p>` : ''}
           ${meta.length ? `<div class="product-detail__meta">${meta.map((m) => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
           ${activos.length ? `<div class="product-detail__activos"><strong>Activos:</strong> ${activos.map((a) => esc(a)).join(' · ')}</div>` : ''}

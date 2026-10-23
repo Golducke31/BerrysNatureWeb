@@ -69,6 +69,11 @@
     return '<span class="product-card__price is-consult">Consultar precio</span>';
   }
 
+  /* Stock 0 = sin stock (stock null = sin control de stock → disponible). */
+  function sinStock(p) {
+    return p.stock === 0;
+  }
+
   /* Chips de la tarjeta. Antes solo se mostraban los dos primeros; ahora
      se renderizan todos los que cargue el panel (hasta 6), para que se
      pueda agregar o quitar etiquetas libremente. */
@@ -84,10 +89,12 @@
 
   function cardHtml(p) {
     var url = '/productos/' + encodeURIComponent(p.id);
+    var agotado = sinStock(p);
     return '' +
       '<article class="guide-card product-card reveal" data-reveal data-product="' + escapeHtml(p.id) + '">' +
         '<div class="guide-card__media" style="background-image:url(\'' + escapeHtml(p.imagen) + '\')">' +
           '<span class="guide-card__cat">' + escapeHtml(p.categoria) + '</span>' +
+          (agotado ? '<span class="product-card__stockout">Sin stock</span>' : '') +
           precioHtml(p) +
         '</div>' +
         '<div class="guide-card__body">' +
@@ -95,7 +102,9 @@
           '<p class="guide-card__excerpt">' + escapeHtml(p.descripcion) + '</p>' +
           '<div class="guide-card__meta">' + metaHtml(p) + '</div>' +
           '<div class="product-card__actions">' +
-            '<button class="cta-button" type="button" data-add="' + escapeHtml(p.id) + '">' + icon('plus') + ' Agregar al carrito</button>' +
+            (agotado
+              ? '<button class="cta-button" type="button" disabled>' + icon('plus') + ' Agregar al carrito</button>'
+              : '<button class="cta-button" type="button" data-add="' + escapeHtml(p.id) + '">' + icon('plus') + ' Agregar al carrito</button>') +
             '<button class="cta-button cta-outline" type="button" data-consult="' + escapeHtml(p.id) + '">' + icon('whatsapp') + ' Consultar por WhatsApp</button>' +
           '</div>' +
         '</div>' +
