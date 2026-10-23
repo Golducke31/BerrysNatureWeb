@@ -18,7 +18,7 @@ window.BERRYS_CONFIG = {
      Termina en .apps.googleusercontent.com
      El MISMO valor tiene que estar en la variable de entorno
      GOOGLE_CLIENT_ID de Netlify (el servidor verifica el token). */
-  googleClientId: '',
+  googleClientId: '916082187052-e69acva50dqla8lnfdfb7jjr5m9rg9m2.apps.googleusercontent.com',
 
   /* ---- Cloudflare Turnstile (antispam) ----
      Cloudflare → Turnstile → tu widget → "Site Key" (la pública).
