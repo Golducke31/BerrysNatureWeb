@@ -61,7 +61,13 @@
       var token = csrf || cookie('berrys_admin_csrf');
       if (token) headers['X-CSRF-Token'] = token;
     }
-    return fetch(API + path + GATE, {
+    // GATE viene como "?k=...". Si `path` ya trae su propia query (p. ej.
+    // "/threads?limit=200"), concatenar con otro "?" rompe el parseo y el
+    // gate deja de reconocerse → el router responde 404. Unimos los
+    // parámetros correctamente: "&" si ya hay "?", si no "?".
+    var gate = String(GATE || '').replace(/^[?&]/, '');
+    var url = API + path + (gate ? (path.indexOf('?') === -1 ? '?' : '&') + gate : '');
+    return fetch(url, {
       method: method,
       headers: headers,
       credentials: 'same-origin',
