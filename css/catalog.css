@@ -52,7 +52,7 @@
 .store-grid .guide-card__title a:hover { text-decoration: underline; }
 .product-card__stockout {
   position: absolute;
-  top: 14px;
+  bottom: 14px;
   right: 14px;
   z-index: 2;
   background: var(--color-accent-terracota);
@@ -65,7 +65,7 @@
 }
 .product-card__stock {
   position: absolute;
-  top: 14px;
+  bottom: 14px;
   right: 14px;
   z-index: 2;
   background: var(--color-accent-botanical);
