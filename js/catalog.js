@@ -264,15 +264,10 @@
     }
     var noteEl = $('#cartNote');
     if (noteEl) {
-      var conLink = items.filter(function (i) {
-        var p = producto(i.id); return p && p.mp;
-      }).length;
       if (!items.length) {
-        noteEl.textContent = 'El pedido se coordina por WhatsApp o MercadoPago según el producto.';
-      } else if (items.length === 1 && conLink === 1) {
-        noteEl.textContent = 'Este producto tiene link de pago de MercadoPago: al finalizar te redirige para pagar de forma segura.';
+        noteEl.textContent = 'Sumá productos y finalizá la compra en MercadoPago.';
       } else {
-        noteEl.textContent = 'Armamos tu pedido por WhatsApp (y si los productos tienen link de MercadoPago te los pasamos para pagar online).';
+        noteEl.textContent = 'Pago seguro con MercadoPago (envío por zona o retiro sin costo). También podés enviarnos el pedido por WhatsApp.';
       }
     }
 
@@ -322,20 +317,308 @@
   }
 
   /* ---------------- Checkout ---------------- */
-  function checkout() {
+  /* Flujo: carrito → formulario (contacto + entrega) → MercadoPago.
+     El precio NUNCA se manda al servidor: la API lo recalcula desde la base.
+     Acá solo se manda qué producto y cuánta cantidad.
+
+     Idempotencia: cada intento lleva una clave única (Idempotency-Key). Si
+     el usuario hace doble clic, el servidor devuelve el MISMO pedido en vez
+     de crear dos. La clave se regenera solo si cambia el contenido del
+     carrito o si el pedido anterior ya se creó con éxito. */
+
+  var co = { el: null, zones: null, key: '', firma: '', enviando: false, orden: null };
+
+  function uuid() {
+    try {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        return window.crypto.randomUUID();
+      }
+    } catch (e) { /* sigue el fallback */ }
+    return 'ck-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+  }
+
+  function firmaCarrito(items) {
+    return items.map(function (i) { return i.id + 'x' + i.qty; }).sort().join('|');
+  }
+
+  function api() { return window.BerrysAPI; }
+
+  function buildCheckoutModal() {
+    if (co.el) return co.el;
+    var el = document.createElement('div');
+    el.className = 'checkout-overlay';
+    el.id = 'checkoutOverlay';
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = '' +
+      '<div class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="coTitle">' +
+        '<button class="checkout-modal__close" id="coClose" type="button" aria-label="Cerrar">&times;</button>' +
+        '<span class="section-label-tag">Pedido</span>' +
+        '<h2 class="checkout-modal__title" id="coTitle">Finalizar compra</h2>' +
+        '<p class="checkout-modal__sub">Necesitamos tus datos para coordinar la entrega.</p>' +
+        '<form id="coForm" novalidate>' +
+          '<div class="checkout-grid">' +
+            '<label class="checkout-field">' +
+              '<span>Nombre y apellido</span>' +
+              '<input type="text" id="coNombre" autocomplete="name" required maxlength="80">' +
+            '</label>' +
+            '<label class="checkout-field">' +
+              '<span>Email</span>' +
+              '<input type="email" id="coEmail" autocomplete="email" required maxlength="254">' +
+            '</label>' +
+            '<label class="checkout-field">' +
+              '<span>Teléfono (WhatsApp)</span>' +
+              '<input type="tel" id="coTel" autocomplete="tel" maxlength="30" placeholder="11 2345 6789">' +
+            '</label>' +
+          '</div>' +
+
+          '<fieldset class="checkout-zones-field">' +
+            '<legend>Cómo lo recibís</legend>' +
+            '<div class="checkout-zones" id="coZonas">' +
+              '<p class="checkout-loading">Cargando opciones de envío…</p>' +
+            '</div>' +
+          '</fieldset>' +
+
+          '<label class="checkout-field" id="coDirWrap" hidden>' +
+            '<span>Dirección de envío</span>' +
+            '<textarea id="coDir" rows="2" maxlength="300" placeholder="Calle, número, piso/depto, localidad, provincia y código postal"></textarea>' +
+          '</label>' +
+
+          '<label class="checkout-field">' +
+            '<span>Notas para el pedido <em>(opcional)</em></span>' +
+            '<textarea id="coNotas" rows="2" maxlength="600" placeholder="Horario de entrega, referencias, etc."></textarea>' +
+          '</label>' +
+
+          '<div class="checkout-resumen" id="coResumen"></div>' +
+
+          '<button class="cta-button checkout-submit" id="coPagar" type="submit">Pagar con MercadoPago</button>' +
+          '<p class="checkout-error" id="coError" hidden></p>' +
+          '<p class="checkout-note">Al continuar te redirigimos a MercadoPago. Tus datos de tarjeta no pasan por nuestro sitio.</p>' +
+        '</form>' +
+      '</div>';
+
+    document.body.appendChild(el);
+
+    el.addEventListener('click', function (e) {
+      if (e.target === el) closeCheckout();
+    });
+    el.querySelector('#coClose').addEventListener('click', closeCheckout);
+    el.querySelector('#coForm').addEventListener('submit', enviarPedido);
+    el.querySelector('#coZonas').addEventListener('change', actualizarEntrega);
+
+    co.el = el;
+    return el;
+  }
+
+  function openCheckout() {
+    var items = loadCart();
+    if (!items.length) { notify('Tu carrito está vacío', 'cart'); return; }
+
+    buildCheckoutModal();
+    co.el.classList.add('is-open');
+    co.el.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    // Clave nueva solo si el carrito cambió desde el último intento.
+    var firma = firmaCarrito(items);
+    if (firma !== co.firma) {
+      co.firma = firma;
+      co.key = uuid();
+      co.orden = null;
+    }
+
+    $('#coError').hidden = true;
+    actualizarResumen();
+    cargarZonas();
+    prefillContacto();
+
+    var foco = $('#coNombre');
+    if (foco) setTimeout(function () { foco.focus(); }, 60);
+  }
+
+  function closeCheckout() {
+    if (!co.el) return;
+    co.el.classList.remove('is-open');
+    co.el.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  /** Zonas de envío: se piden una vez y se cachean en memoria. */
+  function cargarZonas() {
+    var cont = $('#coZonas');
+    if (!cont) return;
+
+    if (co.zones && co.zones.length) { pintarZonas(co.zones); return; }
+
+    var cliente = api();
+    if (!cliente || !cliente.available) {
+      cont.innerHTML = '<p class="checkout-error">No pudimos cargar las opciones de envío.</p>';
+      return;
+    }
+
+    cliente.shippingZones()
+      .then(function (data) {
+        co.zones = (data && data.zones) || [];
+        pintarZonas(co.zones);
+      })
+      .catch(function () {
+        cont.innerHTML = '<p class="checkout-error">No pudimos cargar las opciones de envío. Recargá la página.</p>';
+      });
+  }
+
+  function pintarZonas(zones) {
+    var cont = $('#coZonas');
+    if (!cont) return;
+    if (!zones.length) {
+      cont.innerHTML = '<p class="checkout-error">No hay opciones de entrega disponibles.</p>';
+      return;
+    }
+
+    cont.innerHTML = zones.map(function (z, i) {
+      var gratis = Number(z.precio) === 0;
+      return '' +
+        '<label class="checkout-zone">' +
+          '<input type="radio" name="zona" value="' + escapeHtml(z.id) + '"' + (i === 0 ? ' checked' : '') + '>' +
+          '<span class="checkout-zone__body">' +
+            '<strong>' + escapeHtml(z.nombre) + '</strong>' +
+            (z.detalle ? '<small>' + escapeHtml(z.detalle) + '</small>' : '') +
+          '</span>' +
+          '<span class="checkout-zone__price">' + (gratis ? 'Gratis' : ars(z.precio)) + '</span>' +
+        '</label>';
+    }).join('');
+
+    actualizarEntrega();
+  }
+
+  /** Muestra/oculta la dirección y refresca el total al cambiar la zona. */
+  function actualizarEntrega() {
+    var sel = document.querySelector('#coZonas input[name="zona"]:checked');
+    var esRetiro = !sel || sel.value === 'retiro';
+    var wrap = $('#coDirWrap');
+    if (wrap) wrap.hidden = esRetiro;
+    actualizarResumen();
+  }
+
+  function zonaElegida() {
+    if (!co.zones) return null;
+    var sel = document.querySelector('#coZonas input[name="zona"]:checked');
+    if (!sel) return null;
+    return co.zones.filter(function (z) { return z.id === sel.value; })[0] || null;
+  }
+
+  function actualizarResumen() {
+    var cont = $('#coResumen');
+    if (!cont) return;
+    var items = loadCart();
+    var subtotal = cartTotal(items);
+    var z = zonaElegida();
+    var envio = z ? Number(z.precio) || 0 : 0;
+    var total = subtotal + envio;
+
+    cont.innerHTML = '' +
+      '<div class="checkout-resumen__row"><span>Productos</span><span>' + ars(subtotal) + '</span></div>' +
+      '<div class="checkout-resumen__row"><span>Envío' +
+        (z ? ' · ' + escapeHtml(z.nombre) : '') + '</span><span>' +
+        (z && envio === 0 ? 'Gratis' : ars(envio)) + '</span></div>' +
+      '<div class="checkout-resumen__row is-total"><span>Total</span><span>' + ars(total) + '</span></div>';
+  }
+
+  /** Si hay sesión, precarga nombre y email (compra como invitado sigue disponible). */
+  function prefillContacto() {
+    var cliente = api();
+    if (!cliente || !cliente.available) return;
+    cliente.session()
+      .then(function (data) {
+        var u = data && data.user;
+        if (!u) return;
+        var nombre = $('#coNombre');
+        var email = $('#coEmail');
+        if (nombre && !nombre.value && u.displayName) nombre.value = u.displayName;
+        if (email && !email.value && u.email) email.value = u.email;
+      })
+      .catch(function () { /* invitado: no pasa nada */ });
+  }
+
+  function mostrarError(msg) {
+    var el = $('#coError');
+    if (!el) { notify(msg, 'warning'); return; }
+    el.textContent = msg;
+    el.hidden = false;
+  }
+
+  function enviarPedido(e) {
+    e.preventDefault();
+    if (co.enviando) return;
+
+    var items = loadCart();
+    if (!items.length) { mostrarError('Tu carrito está vacío.'); return; }
+
+    var nombre = String($('#coNombre').value || '').trim();
+    var email = String($('#coEmail').value || '').trim();
+    var tel = String($('#coTel').value || '').trim();
+    var notas = String($('#coNotas').value || '').trim();
+    var z = zonaElegida();
+    var dir = String($('#coDir').value || '').trim();
+
+    if (nombre.length < 2) return mostrarError('Poné tu nombre y apellido.');
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) return mostrarError('Revisá el email: parece incompleto.');
+    if (!z) return mostrarError('Elegí cómo querés recibir el pedido.');
+    if (z.id !== 'retiro' && dir.length < 6) {
+      return mostrarError('Completá la dirección de envío (calle, número y localidad).');
+    }
+
+    var cliente = api();
+    if (!cliente || !cliente.available) {
+      mostrarError('No pudimos conectar con la tienda. Probá de nuevo o escribinos por WhatsApp.');
+      return;
+    }
+
+    co.enviando = true;
+    var btn = $('#coPagar');
+    if (btn) { btn.disabled = true; btn.textContent = 'Abriendo MercadoPago…'; }
+    var errEl = $('#coError');
+    if (errEl) errEl.hidden = true;
+
+    cliente.cartCheckout({
+      items: items.map(function (i) { return { id: i.id, qty: i.qty }; }),
+      nombre: nombre,
+      email: email,
+      telefono: tel,
+      notas: notas,
+      shippingZone: z.id,
+      shippingAddress: z.id === 'retiro' ? '' : dir
+    }, co.key)
+      .then(function (data) {
+        if (data && data.initPoint) { window.location.href = data.initPoint; return; }
+        if (data && data.yaPagado) {
+          saveCart([]);
+          closeCheckout();
+          notify('Este pedido ya estaba pagado · ' + (data.numero || ''), 'check');
+          return;
+        }
+        throw new Error('No pudimos iniciar el pago.');
+      })
+      .catch(function (err) {
+        co.enviando = false;
+        if (btn) { btn.disabled = false; btn.textContent = 'Pagar con MercadoPago'; }
+
+        var code = err && err.code;
+        if (code === 'payment_not_configured') {
+          mostrarError('El pago online todavía no está habilitado. Podés cerrar y pedirlo por WhatsApp.');
+          return;
+        }
+        if (code === 'too_many_requests') {
+          mostrarError('Recibimos varios pedidos seguidos. Esperá unos minutos y volvé a intentar.');
+          return;
+        }
+        mostrarError((err && err.message) || 'No pudimos iniciar el pago. Probá de nuevo.');
+      });
+  }
+
+  /** Pedido por WhatsApp: la alternativa cuando no se quiere pagar online. */
+  function pedidoWhatsapp() {
     var items = loadCart();
     if (!items.length) { notify('Tu carrito está vacío', 'whatsapp'); return; }
 
-    // Un solo producto con link de MercadoPago → pago directo
-    if (items.length === 1) {
-      var p = producto(items[0].id);
-      if (p && p.mp) {
-        window.location.href = p.mp;
-        return;
-      }
-    }
-
-    // Pedido por WhatsApp (multi-producto o producto sin link de MP)
     var lineas = items.map(function (i) {
       var p = producto(i.id);
       if (!p) return '';
@@ -346,6 +629,50 @@
     var msg = '¡Hola Berry\'s Nature! Quiero hacer este pedido:\n\n' + lineas + total +
       '\n\n¿Cómo seguimos con el pago y el envío?';
     window.open(waLink(msg), '_blank', 'noopener');
+  }
+
+  /** ¿Volvimos del checkout de MercadoPago? Muestra el resultado. */
+  function revisarRetornoDePago() {
+    var params;
+    try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
+
+    var estado = params.get('pago');
+    if (!estado) return;
+
+    var pedido = params.get('pedido');
+    var token = params.get('t');
+
+    if (estado === 'error') {
+      notify('El pago no se completó. Podés intentarlo de nuevo.', 'warning');
+      return;
+    }
+
+    saveCart([]);
+
+    var cliente = api();
+    var mensaje = estado === 'ok'
+      ? 'Pago recibido. Te enviamos el detalle por email.'
+      : 'Tu pago está pendiente de confirmación. Te avisamos por email.';
+    notify(mensaje, 'check');
+
+    if (!pedido || !cliente || !cliente.available) return;
+
+    /* El webhook puede tardar unos segundos: consultamos el estado real y,
+       si sigue pendiente, reintentamos un par de veces. */
+    var intentos = 4;
+    (function consultar() {
+      cliente.order(pedido, token)
+        .then(function (data) {
+          var o = data && data.order;
+          if (!o) return;
+          if (o.status === 'paid' || o.status === 'shipped') {
+            notify('Pedido ' + o.numero + ' confirmado', 'check');
+            return;
+          }
+          if (intentos-- > 0) setTimeout(consultar, 2500);
+        })
+        .catch(function () { /* silencioso: es solo informativo */ });
+    })();
   }
 
   /* ---------------- Catálogo desde la base ---------------- */
@@ -440,9 +767,12 @@
       if (e.key === 'Escape') closeCart();
     });
     var btnCheckout = $('#cartCheckout');
-    if (btnCheckout) btnCheckout.addEventListener('click', checkout);
+    if (btnCheckout) btnCheckout.addEventListener('click', openCheckout);
     var btnWa = $('#cartWhatsapp');
-    if (btnWa) btnWa.addEventListener('click', checkout);
+    if (btnWa) btnWa.addEventListener('click', pedidoWhatsapp);
+
+    // Si venimos de MercadoPago, mostramos el resultado del pago.
+    revisarRetornoDePago();
   });
 
   var productos = [];

@@ -18,6 +18,7 @@ const mp = require('../lib/mercadopago');
 const audit = require('../lib/audit');
 const events = require('../lib/events');
 const csrf = require('../lib/csrf');
+const orders = require('./orders');
 const { json, fail, getClientIp, getQuery } = require('../lib/http');
 
 const PRO_TITLE = "Berry's Calculator PRO — acceso de por vida";
@@ -202,6 +203,17 @@ async function webhook(req, res, body) {
 
   const status = String(payment.status || '');
   const userId = payment.external_reference ? String(payment.external_reference) : '';
+
+  /* --- ¿Es el pago de un PEDIDO de la tienda o el desbloqueo PRO? ---
+     Las preferencias de pedido llevan `metadata.kind = 'order'` y
+     `metadata.order_id`. Se distinguen ANTES de tocar la tabla `payments`,
+     porque ahí `user_id` es una FK a users y el id de un pedido es un uuid
+     de `orders` (fallaría la FK y ensuciaría el log con errores). */
+  const meta = (payment && payment.metadata) || {};
+  if (meta.kind === 'order' || meta.order_id) {
+    const resultado = await orders.confirmPayment(payment);
+    return json(res, 200, Object.assign({ ok: true, kind: 'order' }, resultado));
+  }
 
   await registrarPago({ userId, payment, status });
 

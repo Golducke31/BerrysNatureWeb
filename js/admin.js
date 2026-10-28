@@ -5,7 +5,8 @@
    /api/<ADMIN_SLUG>. No contiene secretos: sin una sesión de admin
    válida, la API responde 401 y esta interfaz no muestra nada.
 
-   Vistas: Dashboard · Hilos · Guías · Usuarios · Auditoría
+   Vistas: Dashboard · Métricas · Ingresos · Productos · Pedidos · Envíos
+           · Sobre Nosotros · Hilos · Guías · Usuarios · Reportes · Auditoría
    ============================================================ */
 (function () {
   'use strict';
@@ -169,6 +170,8 @@
     { id: 'metrics', label: 'Métricas', icon: 'eye' },
     { id: 'revenue', label: 'Ingresos', icon: 'bank' },
     { id: 'products', label: 'Productos', icon: 'box' },
+    { id: 'orders', label: 'Pedidos', icon: 'cart' },
+    { id: 'shipping', label: 'Envíos', icon: 'pin' },
     { id: 'about', label: 'Sobre Nosotros', icon: 'leaf' },
     { id: 'threads', label: 'Hilos del foro', icon: 'chat' },
     { id: 'guides', label: 'Guías', icon: 'book' },
@@ -228,6 +231,8 @@
       metrics: renderMetrics,
       revenue: renderRevenue,
       products: renderProducts,
+      orders: renderOrders,
+      shipping: renderShipping,
       about: renderAbout,
       threads: renderThreads,
       guides: renderGuides,
@@ -1224,6 +1229,228 @@
         .then(function () { toast('Sobre Nosotros actualizado.'); })
         .catch(guard);
     });
+  }
+
+  /* ============================================================
+     PEDIDOS (tienda)
+     ============================================================ */
+  var ESTADOS_PEDIDO = {
+    pending: ['warn', 'Pendiente'],
+    paid: ['ok', 'Pagado'],
+    shipped: ['ok', 'Enviado'],
+    delivered: ['ok', 'Entregado'],
+    rejected: ['bad', 'Rechazado'],
+    cancelled: ['bad', 'Cancelado'],
+    refunded: ['bad', 'Reembolsado'],
+    expired: ['', 'Expirado'],
+    failed: ['bad', 'Falló el pago']
+  };
+
+  function orderPill(status) {
+    var it = ESTADOS_PEDIDO[status] || ['', status];
+    return '<span class="admin-pill admin-pill--' + it[0] + '">' + escapeHtml(it[1]) + '</span>';
+  }
+
+  function entregaTxt(o) {
+    if (o.delivery === 'retiro') return 'Retiro en persona';
+    return o.shippingZone ? 'Envío · ' + o.shippingZone : 'Envío';
+  }
+
+  var filtroPedidos = '';
+
+  function renderOrders() {
+    req('GET', '/orders' + (filtroPedidos ? '?status=' + encodeURIComponent(filtroPedidos) : ''))
+      .then(function (data) {
+        var items = (data && data.orders) || [];
+        var t = (data && data.totales) || { pedidos: 0, pagados: 0, facturado: 0 };
+
+        var chips = [['', 'Todos']].concat(Object.keys(ESTADOS_PEDIDO).map(function (k) {
+          return [k, ESTADOS_PEDIDO[k][1]];
+        }));
+
+        $('#adminMain').innerHTML =
+          '<div class="admin-topbar">' +
+            '<div><h1 class="admin-title">Pedidos</h1>' +
+              '<p class="admin-subtitle">' + t.pedidos + ' pedidos · ' + t.pagados +
+                ' pagados · $ ' + Number(t.facturado).toLocaleString('es-AR') + ' facturado</p></div>' +
+            '<button class="admin-btn" type="button" id="refreshOrders">' + icon('refresh') + ' Actualizar</button>' +
+          '</div>' +
+          '<div class="admin-panel" style="margin-bottom:16px;padding:12px 16px">' +
+            '<div class="admin-actions" style="flex-wrap:wrap">' +
+              chips.map(function (c) {
+                return '<button class="admin-btn' + (filtroPedidos === c[0] ? ' admin-btn--primary' : '') +
+                  '" type="button" data-order-filter="' + escapeHtml(c[0]) + '">' + escapeHtml(c[1]) + '</button>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
+          '<div class="admin-panel"><div class="admin-table-wrap">' +
+            (items.length
+              ? '<table class="admin-table"><thead><tr>' +
+                  '<th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Estado</th><th></th>' +
+                '</tr></thead><tbody>' +
+                items.map(function (o) {
+                  return '<tr>' +
+                    '<td class="admin-cell-title">' + escapeHtml(o.numero) +
+                      '<br><small class="admin-muted">' + escapeHtml(fmtDate(o.createdAt)) + '</small>' +
+                      (o.backorder ? ' <span class="admin-pill admin-pill--bad">Sin stock</span>' : '') +
+                    '</td>' +
+                    '<td>' + escapeHtml(o.nombre || '—') +
+                      '<br><small class="admin-muted">' + escapeHtml(o.email) + '</small></td>' +
+                    '<td>' + escapeHtml(entregaTxt(o)) + '</td>' +
+                    '<td>' + precioTxt(o.total) + '</td>' +
+                    '<td>' + orderPill(o.status) + '</td>' +
+                    '<td><div class="admin-actions">' +
+                      '<button class="admin-btn" data-view-order="' + escapeHtml(o.id) + '">Ver</button>' +
+                      (o.status === 'paid'
+                        ? '<button class="admin-btn" data-order-status="shipped" data-order-id="' +
+                            escapeHtml(o.id) + '">Marcar enviado</button>'
+                        : '') +
+                      ((o.status === 'pending' || o.status === 'paid')
+                        ? '<button class="admin-btn admin-btn--danger" data-order-status="cancelled" data-order-id="' +
+                            escapeHtml(o.id) + '">Cancelar</button>'
+                        : '') +
+                    '</div></td>' +
+                  '</tr>';
+                }).join('') +
+                '</tbody></table>'
+              : '<p class="admin-empty">Todavía no hay pedidos.</p>') +
+          '</div></div>';
+
+        $('#refreshOrders').addEventListener('click', renderOrders);
+
+        $('#adminMain').addEventListener('click', function (e) {
+          var f = e.target.closest('[data-order-filter]');
+          if (f) { filtroPedidos = f.dataset.orderFilter; return renderOrders(); }
+
+          var ver = e.target.closest('[data-view-order]');
+          if (ver) return abrirPedido(ver.dataset.viewOrder);
+
+          var st = e.target.closest('[data-order-status]');
+          if (st) {
+            var nuevo = st.dataset.orderStatus;
+            var id = st.dataset.orderId;
+            var aviso = nuevo === 'cancelled'
+              ? '¿Cancelar este pedido? Se devuelve el stock si estaba pagado.'
+              : '¿Marcar el pedido como enviado?';
+            if (!confirm(aviso)) return;
+            return req('PATCH', '/orders/' + encodeURIComponent(id), { status: nuevo })
+              .then(function () {
+                toast(nuevo === 'cancelled' ? 'Pedido cancelado.' : 'Pedido marcado como enviado.');
+                renderOrders();
+              })
+              .catch(guard);
+          }
+        });
+      })
+      .catch(guard);
+  }
+
+  /** Detalle de un pedido en un modal (solo lectura). */
+  function abrirPedido(id) {
+    req('GET', '/orders/' + encodeURIComponent(id))
+      .then(function (data) {
+        var o = (data && data.order) || null;
+        if (!o) return toast('No encontramos el pedido.');
+
+        var filas = (o.items || []).map(function (it) {
+          return '<tr>' +
+            '<td>' + escapeHtml(it.nombre) +
+              (it.backorder ? ' <span class="admin-pill admin-pill--bad">Sin stock</span>' : '') + '</td>' +
+            '<td>' + it.qty + '</td>' +
+            '<td>' + precioTxt(it.precio * it.qty) + '</td>' +
+          '</tr>';
+        }).join('');
+
+        var cuerpo =
+          '<div class="admin-panel" style="margin-bottom:14px">' +
+            '<p style="margin:0 0 6px"><strong>' + escapeHtml(o.numero) + '</strong> · ' +
+              orderPill(o.status) + '</p>' +
+            '<p class="admin-muted" style="margin:0 0 10px">' + escapeHtml(fmtDate(o.createdAt)) +
+              ' · Pago: ' + escapeHtml(o.mpStatus || '—') + '</p>' +
+            '<p style="margin:0 0 4px"><strong>Cliente:</strong> ' + escapeHtml(o.nombre || '—') + '</p>' +
+            '<p style="margin:0 0 4px"><strong>Email:</strong> ' + escapeHtml(o.email) + '</p>' +
+            '<p style="margin:0 0 4px"><strong>Teléfono:</strong> ' + escapeHtml(o.telefono || '—') + '</p>' +
+            '<p style="margin:0 0 4px"><strong>Entrega:</strong> ' + escapeHtml(entregaTxt(o)) + '</p>' +
+            (o.shippingAddress
+              ? '<p style="margin:0 0 4px"><strong>Dirección:</strong> ' + escapeHtml(o.shippingAddress) + '</p>'
+              : '') +
+            (o.notas ? '<p style="margin:0 0 4px"><strong>Notas:</strong> ' + escapeHtml(o.notas) + '</p>' : '') +
+          '</div>' +
+          '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
+            '<th>Producto</th><th>Cant.</th><th>Subtotal</th>' +
+          '</tr></thead><tbody>' + filas + '</tbody></table></div>' +
+          '<div class="admin-panel" style="margin-top:14px">' +
+            '<p style="margin:0 0 4px;display:flex;justify-content:space-between"><span>Subtotal</span><span>' +
+              precioTxt(o.subtotal) + '</span></p>' +
+            '<p style="margin:0 0 4px;display:flex;justify-content:space-between"><span>Envío</span><span>' +
+              precioTxt(o.shipping) + '</span></p>' +
+            '<p style="margin:0;display:flex;justify-content:space-between;font-weight:700"><span>Total</span><span>' +
+              precioTxt(o.total) + '</span></p>' +
+          '</div>';
+
+        buildModal('Pedido ' + o.numero, cuerpo, closeModal, 'Cerrar').open();
+      })
+      .catch(guard);
+  }
+
+  /* ============================================================
+     ENVÍOS (zonas)
+     ============================================================ */
+  function renderShipping() {
+    req('GET', '/shipping')
+      .then(function (data) {
+        var zones = (data && data.zones) || [];
+
+        $('#adminMain').innerHTML =
+          '<div class="admin-topbar">' +
+            '<div><h1 class="admin-title">Envíos</h1>' +
+              '<p class="admin-subtitle">Costo por zona. "Retiro en persona" es siempre gratis.</p></div>' +
+          '</div>' +
+          '<div class="admin-panel"><div class="admin-table-wrap">' +
+            (zones.length
+              ? '<table class="admin-table"><thead><tr>' +
+                  '<th>Zona</th><th>Detalle</th><th>Costo (ARS)</th><th>Activa</th><th></th>' +
+                '</tr></thead><tbody>' +
+                zones.map(function (z) {
+                  return '<tr>' +
+                    '<td class="admin-cell-title">' + escapeHtml(z.nombre) + '</td>' +
+                    '<td><input type="text" class="admin-input" data-zone-detalle="' + escapeHtml(z.id) +
+                      '" value="' + escapeHtml(z.detalle) + '" maxlength="200"></td>' +
+                    '<td><input type="number" class="admin-input" style="width:120px" min="0" step="100" ' +
+                      'data-zone-precio="' + escapeHtml(z.id) + '" value="' + z.precio +
+                      '"' + (z.id === 'retiro' ? ' disabled' : '') + '></td>' +
+                    '<td><input type="checkbox" data-zone-activo="' + escapeHtml(z.id) + '"' +
+                      (z.activo ? ' checked' : '') + (z.id === 'retiro' ? ' disabled' : '') + '></td>' +
+                    '<td><div class="admin-actions">' +
+                      '<button class="admin-btn admin-btn--primary" data-zone-save="' +
+                        escapeHtml(z.id) + '">Guardar</button>' +
+                    '</div></td>' +
+                  '</tr>';
+                }).join('') +
+                '</tbody></table>'
+              : '<p class="admin-empty">No hay zonas de envío.</p>') +
+          '</div></div>' +
+          '<p class="admin-help" style="margin-top:12px">' +
+            'Si el pago online está activo, estos costos se suman al total del pedido.</p>';
+
+        $('#adminMain').addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-zone-save]');
+          if (!btn) return;
+          var id = btn.dataset.zoneSave;
+          var precio = document.querySelector('[data-zone-precio="' + id + '"]');
+          var detalle = document.querySelector('[data-zone-detalle="' + id + '"]');
+          var activo = document.querySelector('[data-zone-activo="' + id + '"]');
+
+          var payload = { detalle: detalle ? detalle.value : '' };
+          if (precio && !precio.disabled) payload.precio = Number(precio.value) || 0;
+          if (activo && !activo.disabled) payload.activo = activo.checked;
+
+          req('PATCH', '/shipping/' + encodeURIComponent(id), payload)
+            .then(function () { toast('Zona actualizada.'); renderShipping(); })
+            .catch(guard);
+        });
+      })
+      .catch(guard);
   }
 
   /* ============================================================

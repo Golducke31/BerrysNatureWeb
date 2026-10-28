@@ -536,3 +536,26 @@
   .admin-upload { flex-direction: column; }
   .admin-upload__preview { width: 100%; height: 140px; }
 }
+
+/* ---- Inputs dentro de tablas (sección Envíos) ----
+   Los campos del panel usan .admin-field, que ocupa todo el ancho. Dentro
+   de una celda necesitamos un input compacto que no rompa la tabla. */
+.admin-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  background: var(--bg-card);
+  border: 1px solid var(--color-line-warm);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+}
+.admin-input:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.admin-input:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}

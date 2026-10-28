@@ -26,15 +26,16 @@ Cargar en **Settings → Environment Variables** (Production y Preview). Nada de
 | Variable | Para qué | Notas |
 |---|---|---|
 | `DATABASE_URL` | Base de datos | Cadena **pooled** de Neon |
-| `APP_URL` | URL pública | `https://berrysnature.com` (sin barra final) |
+| `APP_URL` | URL pública | `https://berrysnature.com.ar` (sin barra final) |
 | `SESSION_SECRET` | Firma de sesiones/CSRF/hash de IP | 32+ bytes aleatorios |
 | `ADMIN_SLUG` | Ruta secreta del panel | 32+ bytes hex |
 | `ADMIN_GATE_KEY` | Segundo factor del panel (`?k=`) | Clave larga aleatoria |
 | `ADMIN_IP_ALLOWLIST` | IPs permitidas para el panel | Tu IP fija; **vacío = permitir todas** |
 | `MAIL_TRANSPORT` | Transporte de email | `resend` |
-| `MAIL_FROM` | Remitente | `Berry's Nature <no-reply@berrysnature.com>` |
+| `MAIL_FROM` | Remitente | `Berry's Nature <no-reply@berrysnature.com.ar>` |
 | `MAIL_API_KEY` | Clave de Resend | — |
-| `MERCADOPAGO_ACCESS_TOKEN` | Cobro del desbloqueo PRO | Credencial de **producción** |
+| `ORDER_NOTIFY_EMAIL` | Aviso interno de pedido pagado | `berrysnatureok@gmail.com` (default si falta) |
+| `MERCADOPAGO_ACCESS_TOKEN` | Cobro de la tienda **y** del desbloqueo PRO | Credencial de **producción** (`APP_USR-…`) |
 | `MERCADOPAGO_WEBHOOK_SECRET` | Validar la firma del webhook | Tus integraciones → Webhooks |
 | `PRO_PRICE_ARS` | Precio del desbloqueo | Solo números, ej. `9900` |
 | `GOOGLE_CLIENT_ID` | Ingreso con Google | Opcional |

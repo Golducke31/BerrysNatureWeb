@@ -87,6 +87,78 @@ async function createPreference({ userId, title, amount, appUrl }) {
   return data;
 }
 
+/**
+ * Crea una preferencia de Checkout Pro para un PEDIDO de la tienda.
+ *
+ * Diferencias con la del desbloqueo PRO:
+ *   - lleva varias líneas (`items`),
+ *   - el envío viaja como una línea más (así el cliente ve el costo
+ *     desglosado antes de pagar, y el total de MP coincide con el nuestro),
+ *   - `metadata.order_id` es lo que permite al webhook saber que este pago
+ *     es un pedido y no el PRO. Se usa metadata y no `external_reference`
+ *     porque MP devuelve metadata intacta en el objeto Payment.
+ *
+ * @param {{orderId:string, items:Array<{id:string,title:string,quantity:number,unit_price:number}>,
+ *          shipping?:number, shippingLabel?:string, email?:string, appUrl:string}} opts
+ * @returns {Promise<object>} la preferencia (incluye `init_point`)
+ */
+async function createOrderPreference({ orderId, items, shipping, shippingLabel, email, appUrl }) {
+  const token = accessToken();
+  if (!token) throw new Error('MERCADOPAGO_ACCESS_TOKEN no está configurado.');
+
+  const base = String(appUrl || '').replace(/\/+$/, '');
+  const lineas = (items || []).map((it) => ({
+    id: String(it.id),
+    title: String(it.title).slice(0, 250),
+    quantity: Number(it.quantity),
+    unit_price: Number(it.unit_price),
+    currency_id: 'ARS'
+  }));
+
+  const envio = Number(shipping) || 0;
+  if (envio > 0) {
+    lineas.push({
+      id: 'envio',
+      title: String(shippingLabel || 'Envío').slice(0, 250),
+      quantity: 1,
+      unit_price: envio,
+      currency_id: 'ARS'
+    });
+  }
+
+  const body = {
+    items: lineas,
+    external_reference: String(orderId),
+    metadata: { kind: 'order', order_id: String(orderId) },
+    notification_url: `${base}/api/webhooks/mercadopago`,
+    statement_descriptor: 'BERRYSNATURE',
+    back_urls: {
+      success: `${base}/marca.html?pago=ok&pedido=${encodeURIComponent(orderId)}`,
+      failure: `${base}/marca.html?pago=error&pedido=${encodeURIComponent(orderId)}`,
+      pending: `${base}/marca.html?pago=pendiente&pedido=${encodeURIComponent(orderId)}`
+    },
+    auto_return: 'approved'
+  };
+
+  /* Precargar el email del comprador le ahorra un paso en el checkout de MP
+     (y baja el abandono). Es opcional: si viene vacío, no se manda. */
+  if (email) body.payer = { email: String(email).slice(0, 254) };
+
+  const res = await fetch(`${API}/checkout/preferences`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((data && (data.message || data.error)) || `MercadoPago respondió ${res.status}`);
+  }
+  return data;
+}
+
 /** Trae un pago por id. Es la fuente de verdad del estado. */
 async function getPayment(paymentId) {
   const token = accessToken();
@@ -144,6 +216,6 @@ function verifySignature({ xSignature, xRequestId, dataId, secret } = {}) {
 
 module.exports = {
   isConfigured, webhookSecret, priceArs,
-  createPreference, getPayment,
+  createPreference, createOrderPreference, getPayment,
   parseSignatureHeader, verifySignature
 };

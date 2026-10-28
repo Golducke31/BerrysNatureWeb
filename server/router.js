@@ -22,6 +22,7 @@ const authH = require('./handlers/auth');
 const threads = require('./handlers/threads');
 const reports = require('./handlers/reports');
 const payments = require('./handlers/payments');
+const orders = require('./handlers/orders');
 const products = require('./handlers/products');
 const images = require('./handlers/images');
 const content = require('./handlers/content');
@@ -137,6 +138,21 @@ async function handleAdmin(req, res, method, seg) {
     if (!b && method === 'POST') return products.createProduct(req, res, await body(req));
     if (b && method === 'PATCH') return products.updateProduct(req, res, { id: b }, await body(req));
     if (b && method === 'DELETE') return products.deleteProduct(req, res, { id: b }, await body(req));
+    return http.notFound(res);
+  }
+
+  /* Pedidos de la tienda: listado, detalle y cambio de estado. */
+  if (a === 'orders') {
+    if (!b && method === 'GET') return orders.listAdmin(req, res);
+    if (b && method === 'GET') return orders.getAdmin(req, res, { id: b });
+    if (b && method === 'PATCH') return orders.updateAdmin(req, res, { id: b }, await body(req));
+    return http.notFound(res);
+  }
+
+  /* Zonas de envío: precio y disponibilidad. */
+  if (a === 'shipping') {
+    if (!b && method === 'GET') return orders.listZonesAdmin(req, res);
+    if (b && method === 'PATCH') return orders.updateZone(req, res, { id: b }, await body(req));
     return http.notFound(res);
   }
 
@@ -283,6 +299,23 @@ async function handlePublic(req, res, method, seg) {
   }
   if (a === 'webhooks' && b === 'mercadopago' && method === 'POST') {
     return payments.webhook(req, res, await body(req));
+  }
+
+  /* --- Tienda: checkout del carrito y consulta del pedido ---
+     El checkout acepta invitados (sin sesión), así que no exige CSRF de
+     sesión: se defiende con Origin + clave de idempotencia + tope por IP.
+     El detalle de un pedido se puede ver con el token público del pedido
+     (`?t=...`), que es lo que recibe el invitado en su email. */
+  if (a === 'cart' && b === 'checkout' && !c && method === 'POST') {
+    return orders.createCheckout(req, res, await body(req));
+  }
+  if (a === 'shipping' && b === 'zones' && !c && method === 'GET') {
+    return orders.listZones(req, res);
+  }
+  if (a === 'orders') {
+    if (!b && method === 'GET') return orders.listMine(req, res);
+    if (b && !c && method === 'GET') return orders.getOne(req, res, { id: b });
+    return http.notFound(res);
   }
 
   /* Reporte de contenido (Etapa 5, F9): cualquier usuario logueado. */

@@ -23,8 +23,10 @@ const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (ch) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 }[ch]));
 
-/** Layout común: tarjeta centrada con el mismo lenguaje visual del sitio. */
-function layout({ titulo, intro, cta, url, cierre }) {
+/** Layout común: tarjeta centrada con el mismo lenguaje visual del sitio.
+    `extra` se inyecta entre el texto de introducción y el botón (se usa
+    para la tabla de líneas del pedido y el desglose de importes). */
+function layout({ titulo, intro, cta, url, cierre, extra }) {
   return `<!DOCTYPE html>
 <html lang="es">
 <body style="margin:0;padding:24px;background:${T.bg};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${T.text};">
@@ -42,7 +44,7 @@ function layout({ titulo, intro, cta, url, cierre }) {
       <p style="margin:0 0 22px;font-size:15px;line-height:1.6;color:${T.text};">
         ${intro}
       </p>
-
+${extra ? '\n      ' + extra + '\n' : ''}
       <p style="margin:0 0 24px;">
         <a href="${esc(url)}"
            style="display:inline-block;background:${T.cta};color:${T.text};text-decoration:none;
@@ -182,4 +184,122 @@ function emailChangedNotice({ nombre, emailAnterior, emailNuevo, url }) {
   };
 }
 
-module.exports = { verifyEmail, resetPassword, confirmEmailChange, emailChangedNotice };
+/* ---------------- Pedidos de la tienda ---------------- */
+
+const ars = (n) => '$ ' + Number(n || 0).toLocaleString('es-AR');
+
+/** Tabla de líneas del pedido (HTML de email: estilos en línea). */
+function tablaItems(items) {
+  const filas = (items || []).map((it) => `
+      <tr>
+        <td style="padding:8px 0;border-bottom:1px solid rgba(74,63,53,.10);font-size:14px;color:${T.text};">
+          ${esc(it.nombre)}${it.backorder ? ' <em style="color:' + T.accent + ';">(a pedido)</em>' : ''}
+          <span style="color:${T.muted};">× ${esc(it.qty)}</span>
+        </td>
+        <td style="padding:8px 0;border-bottom:1px solid rgba(74,63,53,.10);font-size:14px;color:${T.text};text-align:right;white-space:nowrap;">
+          ${esc(ars(Number(it.precio) * Number(it.qty)))}
+        </td>
+      </tr>`).join('');
+
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
+    ${filas}
+  </table>`;
+}
+
+/** Cuerpo común con el desglose de importes. */
+function desglose(order) {
+  const envio = Number(order.shipping) > 0
+    ? esc(ars(order.shipping))
+    : (order.delivery === 'retiro' ? 'Retiro en persona (sin costo)' : 'Sin costo');
+
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;">
+    <tr>
+      <td style="font-size:14px;color:${T.muted};padding:4px 0;">Subtotal</td>
+      <td style="font-size:14px;color:${T.text};padding:4px 0;text-align:right;">${esc(ars(order.subtotal))}</td>
+    </tr>
+    <tr>
+      <td style="font-size:14px;color:${T.muted};padding:4px 0;">Envío</td>
+      <td style="font-size:14px;color:${T.text};padding:4px 0;text-align:right;">${envio}</td>
+    </tr>
+    <tr>
+      <td style="font-size:16px;color:${T.text};padding:10px 0 0;font-weight:700;border-top:1px solid rgba(74,63,53,.14);">Total</td>
+      <td style="font-size:16px;color:${T.text};padding:10px 0 0;text-align:right;font-weight:700;border-top:1px solid rgba(74,63,53,.14);">${esc(ars(order.total))}</td>
+    </tr>
+  </table>`;
+}
+
+/** Confirmación al comprador. */
+function orderConfirmation({ order, items, url }) {
+  const numero = String(order.numero || '').padStart(6, '0');
+  const saludo = order.nombre ? `¡Gracias, ${order.nombre}!` : '¡Gracias por tu compra!';
+  const entrega = order.delivery === 'retiro'
+    ? 'Retiro en persona en Hurlingham. Te escribimos para coordinar el día y la hora.'
+    : `Envío a ${order.shipping_address || 'la dirección que nos pasaste'}.`;
+
+  return {
+    subject: `Pedido BN-${numero} confirmado · Berry's Nature`,
+    text:
+      `${saludo}\n\n` +
+      `Recibimos tu pago. Tu pedido BN-${numero} ya está confirmado.\n\n` +
+      (items || []).map((it) => `• ${it.nombre} x${it.qty} — ${ars(it.precio * it.qty)}`).join('\n') +
+      `\n\nSubtotal: ${ars(order.subtotal)}\nEnvío: ${ars(order.shipping)}\nTotal: ${ars(order.total)}\n\n` +
+      `${entrega}\n\n` +
+      (order.notas ? `Tu nota: ${order.notas}\n\n` : '') +
+      `Podés ver el estado en: ${url}\n\n` +
+      "— El equipo de Berry's Nature",
+    html: layout({
+      titulo: `Pedido BN-${numero} confirmado`,
+      intro: `${esc(saludo)} Recibimos tu pago y ya estamos preparando tu pedido.`,
+      cta: 'Ver mi pedido',
+      url,
+      extra:
+        tablaItems(items) + desglose(order) +
+        `<p style="margin:0 0 22px;font-size:15px;line-height:1.6;color:${T.muted};">${esc(entrega)}</p>`,
+      cierre: 'Si tenés cualquier duda, respondé este email y te contestamos.'
+    })
+  };
+}
+
+/** Aviso interno: entró un pedido pagado. */
+function orderAdminNotice({ order, items, url }) {
+  const numero = String(order.numero || '').padStart(6, '0');
+  const backorder = Boolean(order.backorder);
+  const entrega = order.delivery === 'retiro'
+    ? 'Retiro en persona (Hurlingham)'
+    : `Envío — ${order.shipping_zone || 'zona sin definir'}: ${order.shipping_address || 'sin dirección'}`;
+
+  return {
+    subject: `[PEDIDO] BN-${numero} · ${ars(order.total)}${backorder ? ' · SIN STOCK' : ''}`,
+    text:
+      `Pedido BN-${numero}\n\n` +
+      `Cliente: ${order.nombre || '(sin nombre)'} <${order.email}>\n` +
+      `Teléfono: ${order.telefono || '—'}\n` +
+      `Entrega: ${entrega}\n` +
+      `Estado MP: ${order.mp_status || '—'}\n` +
+      (backorder ? '\n⚠️ ATENCIÓN: hay líneas sin stock (backorder).\n' : '') +
+      `\n` +
+      (items || []).map((it) => `• ${it.nombre} x${it.qty}${it.backorder ? ' [SIN STOCK]' : ''}`).join('\n') +
+      `\n\nSubtotal: ${ars(order.subtotal)}\nEnvío: ${ars(order.shipping)}\nTotal: ${ars(order.total)}\n\n` +
+      (order.notas ? `Nota del cliente: ${order.notas}\n\n` : '') +
+      `Panel: ${url}\n`,
+    html: layout({
+      titulo: `Pedido BN-${numero}${backorder ? ' · SIN STOCK' : ''}`,
+      intro:
+        `<strong>${esc(order.nombre || 'Sin nombre')}</strong> &lt;${esc(order.email)}&gt;<br>` +
+        `Tel: ${esc(order.telefono || '—')}<br>` +
+        `${esc(entrega)}` +
+        (backorder
+          ? `<br><strong style="color:${T.accent};">⚠️ Hay líneas sin stock: hay que producir.</strong>`
+          : ''),
+      cta: 'Abrir el panel',
+      url,
+      extra: tablaItems(items) + desglose(order),
+      cierre: 'Este aviso lo genera el webhook de MercadoPago al aprobarse el pago.'
+    })
+  };
+}
+
+module.exports = {
+  verifyEmail, resetPassword, confirmEmailChange, emailChangedNotice,
+  orderConfirmation, orderAdminNotice
+};

@@ -37,11 +37,16 @@
     return err;
   }
 
-  function request(method, path, body) {
+  function request(method, path, body, extraHeaders) {
     if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
 
     var headers = {};
     if (body !== undefined) headers['Content-Type'] = 'application/json';
+    if (extraHeaders) {
+      Object.keys(extraHeaders).forEach(function (k) {
+        if (extraHeaders[k] !== undefined && extraHeaders[k] !== null) headers[k] = extraHeaders[k];
+      });
+    }
 
     if (method !== 'GET') {
       var csrf = readCookie('berrys_csrf');
@@ -319,6 +324,33 @@
     checkout: function () {
       if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
       return request('POST', '/api/payments/checkout', {});
+    },
+
+    /* --- Tienda: carrito y pedidos ---
+       `idempotencyKey` es obligatoria: el servidor la usa para no crear dos
+       pedidos si el usuario hace doble clic o el navegador reintenta. Se
+       genera una por intento de checkout y se mantiene hasta que el pedido
+       queda creado (después se descarta). */
+    cartCheckout: function (payload, idempotencyKey) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('POST', '/api/cart/checkout', payload, {
+        'Idempotency-Key': idempotencyKey
+      });
+    },
+    /** Zonas de envío activas (precio y detalle). */
+    shippingZones: function () {
+      if (isFile) return Promise.resolve({ zones: [] });
+      return request('GET', '/api/shipping/zones');
+    },
+    /** Detalle de un pedido. Con `token` funciona para invitados. */
+    order: function (id, token) {
+      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
+      return request('GET', '/api/orders/' + encodeURIComponent(id) + qs({ t: token }));
+    },
+    /** Mis pedidos (requiere sesión). */
+    myOrders: function () {
+      if (isFile) return Promise.resolve({ orders: [] });
+      return request('GET', '/api/orders');
     },
 
     /* --- Eventos de producto (no espera respuesta) --- */
