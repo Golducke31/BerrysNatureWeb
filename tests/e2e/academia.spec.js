@@ -34,20 +34,20 @@ test.describe('Berry\'s Academy', () => {
     expect(after).toBeGreaterThanOrEqual(0);
   });
 
-  test('T1-A-04: Las fórmulas descargables se renderizan', async ({ page }) => {
-    const formulas = page.locator('#formulasGridAcad .formula-card--acad');
-    await expect(formulas.first()).toBeVisible();
-    await expect(page.locator('#formulasGridAcad .formula-load-btn').first()).toBeVisible();
+  test('T1-A-04: Las fórmulas se listan, pero sin botón de calculadora', async ({ page }) => {
+    // La calculadora está APAGADA por defecto (CALCULATOR_ENABLED != true), así
+    // que academia.js pinta las tarjetas pero omite el CTA "Cargar en la
+    // calculadora" (js/academia.js:316). Si algún día se prende el flag, este
+    // test tiene que cambiar para volver a exigir el botón.
+    await expect(page.locator('#formulasGridAcad .formula-card--acad').first()).toBeVisible();
+    await expect(page.locator('#formulasGridAcad .formula-load-btn')).toHaveCount(0);
   });
 
-  test('T1-A-05: "Cargar en la calculadora" navega a index con la fórmula', async ({ page }) => {
-    const btn = page.locator('#formulasGridAcad .formula-load-btn').first();
-    await expect(btn).toBeVisible();
-    await Promise.all([
-      page.waitForURL(/index\.html\?load=/),
-      btn.click()
-    ]);
-    expect(page.url()).toMatch(/index\.html\?load=/);
+  test('T1-A-05: La sección de fórmulas existe aunque la calculadora esté apagada', async ({ page }) => {
+    await expect(page.locator('#formulas-acad')).toHaveCount(1);
+    await expect(page.locator('#formulas-acad h2')).toContainText('Fórmulas descargables');
+    // Sin calculadora no hay ningún enlace que precargue una fórmula.
+    await expect(page.locator('.formula-load-btn')).toHaveCount(0);
   });
 
   test('T1-A-06: Proveedores y calculadora de lote ya no están publicados', async ({ page }) => {
@@ -73,14 +73,12 @@ test.describe('Berry\'s Academy', () => {
     await expect(page.locator('#guiasGridAcad .guide-card').first()).toBeVisible();
   });
 
-  test('T2-A-02: El modal "Leer más" abre y cierra', async ({ page }) => {
-    // Ojo: `.guide-card__btn` matchea tres cosas distintas — el <a> de las guías
-    // que ya tienen página propia, el <button data-open> que abre el modal, y el
-    // botón PRO. El modal solo lo abre el segundo, así que apuntamos a [data-open].
-    const openBtn = page.locator('#guiasGridAcad [data-open]').first();
-    await openBtn.click();
-    await expect(page.locator('#guideModal')).toHaveClass(/open/);
-    await page.locator('#guideModalClose').click();
+  test('T2-A-02: Ninguna guía abre el modal — todas tienen página propia', async ({ page }) => {
+    // El modal "Leer más" quedó sin uso: las 12 guías no-PRO tienen `url` en
+    // content-data.js y su CTA es un <a> a academia/<slug>.html (ver T2-A-04).
+    // Si aparece un [data-open] nuevo es porque se agregó una guía sin página
+    // propia, y en ese caso hay que decidir si vuelve el modal o se le crea HTML.
+    await expect(page.locator('#guiasGridAcad [data-open]')).toHaveCount(0);
     await expect(page.locator('#guideModal')).not.toHaveClass(/open/);
   });
 

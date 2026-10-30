@@ -171,9 +171,11 @@ function filaGuia(id, over = {}) {
 
 test.describe('Sitemap — guías dinámicas', () => {
   test('S15: incluye las guías publicadas sin página propia como /guias/<id>', async () => {
-    // `post-conservantes` NO tiene página estática en content-data.js.
-    const res = await sitemap([], [filaGuia('post-conservantes')]);
-    expect(locs(res.body)).toContain('https://berrysnature.com.ar/guias/post-conservantes');
+    // `post-dinamica` NO existe en content-data.js, así que no tiene página
+    // estática y debe listarse como /guias/<id>. (Las 12 guías reales ya
+    // tienen `url` y se listan por su HTML — ver S16.)
+    const res = await sitemap([], [filaGuia('post-dinamica')]);
+    expect(locs(res.body)).toContain('https://berrysnature.com.ar/guias/post-dinamica');
   });
 
   test('S16: NO duplica una guía que ya tiene página estática', async () => {

@@ -74,12 +74,20 @@ test.describe('Desbloqueo PRO (pago único)', () => {
     await page.reload();
   });
 
-  test('T1-PR-01: Sin sesión, "Desbloquear" abre el modal de registro', async ({ page }) => {
-    // Clic por JS para evitar la carrera overlay/cursor en WebKit.
-    await page.evaluate(() => document.querySelector('#unlockCalcBtn').click());
-    await expect(page.locator('#authModal')).toHaveClass(/open/);
-    await expect(page.locator('#authModal')).toHaveAttribute('data-mode', 'register');
-    await expect(page.locator('#authNameField')).toBeVisible();
+  test('T1-PR-01: Con la calculadora apagada, el CTA de desbloqueo está oculto', async ({ page }) => {
+    // community.js:342 oculta el botón y NO cablea el click cuando los flags
+    // (calculator / pro) están apagados. Antes este test exigía que el botón
+    // abriera el modal de registro; hoy eso solo pasa con CALCULATOR_ENABLED
+    // y PRO_CONTENT_ENABLED en true.
+    const btn = page.locator('#unlockCalcBtn');
+    await expect(btn).toBeHidden();
+
+    // Y aunque se lo invoque por JS, no debe abrir nada.
+    await page.evaluate(() => {
+      const el = document.querySelector('#unlockCalcBtn');
+      if (el) el.click();
+    });
+    await expect(page.locator('#authModal')).not.toHaveClass(/open/);
   });
 });
 

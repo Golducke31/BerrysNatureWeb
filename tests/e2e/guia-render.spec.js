@@ -6,9 +6,16 @@ const { test, expect } = require('@playwright/test');
   Misma técnica que `hilo-render.spec.js`: se parchea `server/lib/db` y se
   llama al handler con un `res` mínimo.
 
-  Lo más importante que se verifica acá son las DOS razones por las que una
-  guía NO se indexa: porque es PRO (el cuerpo está reservado) o porque ya
-  tiene página estática propia (duplicaría contenido).
+  Hay dos caminos posibles, y los tests cubren los dos:
+
+    1. La guía NO tiene página estática → se renderiza el HTML completo
+       (canonical /guias/<id>, Article + BreadcrumbList, caché con revalidación).
+    2. La guía SÍ tiene página estática en `academia/` → se responde un 302
+       hacia esa página. Servir el cuerpo corto de la base duplicaría contenido,
+       así que la dinámica cede.
+
+  El fixture usa un id que NO está en `js/content-data.js` (`post-dinamica`),
+  porque las 12 guías reales ya tienen página propia y siempre redirigen.
 */
 
 const db = require('../../server/lib/db');
@@ -18,6 +25,9 @@ let filaGuia = null;
 db.one = async (sql) => (/FROM guides/i.test(sql) ? filaGuia : null);
 
 const pages = require('../../server/handlers/pages');
+
+/* Id de prueba que no existe en content-data.js → no tiene página estática. */
+const ID_DINAMICA = 'post-dinamica';
 
 function resFalsa() {
   return {
@@ -31,7 +41,7 @@ function resFalsa() {
 
 async function render(over = {}) {
   filaGuia = Object.assign({
-    id: 'post-conservantes',
+    id: ID_DINAMICA,
     category: 'Formulación',
     title: 'Conservantes: qué funciona de verdad',
     summary: 'Una guía honesta sobre conservantes en cosmética natural.',
@@ -55,6 +65,18 @@ async function render(over = {}) {
   return res;
 }
 
+/** Prende el contenido PRO solo durante `fn` (los flags se leen en cada llamada). */
+async function conContenidoPro(fn) {
+  const previo = process.env.PRO_CONTENT_ENABLED;
+  process.env.PRO_CONTENT_ENABLED = 'true';
+  try {
+    return await fn();
+  } finally {
+    if (previo === undefined) delete process.env.PRO_CONTENT_ENABLED;
+    else process.env.PRO_CONTENT_ENABLED = previo;
+  }
+}
+
 /* ---------------- Indexación ---------------- */
 
 test.describe('Página de guía — indexación', () => {
@@ -66,21 +88,20 @@ test.describe('Página de guía — indexación', () => {
     expect(res.headers['x-indexability-reason']).toBeUndefined();
   });
 
-  test('G2: una guía con página estática NO se indexa y cede el canonical', async () => {
+  test('G2: una guía con página estática redirige a ella (302)', async () => {
     // `post-costo-real` ya vive en /academia/costo-real-crema-margen.html.
+    // Antes se servía con noindex + canonical a la estática; ahora se redirige
+    // directamente, que es más limpio para el usuario y para el buscador.
     const res = await render({ id: 'post-costo-real' });
 
-    expect(res.statusCode).toBe(200);
-    expect(res.headers['x-robots-tag']).toContain('noindex');
-    expect(res.headers['x-indexability-reason']).toBe('tiene_pagina_propia');
-    // El canonical apunta a la estática: la dinámica no compite.
-    expect(res.body).toContain(
-      '<link rel="canonical" href="https://berrysnature.com.ar/academia/costo-real-crema-margen.html">'
-    );
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe('/academia/costo-real-crema-margen.html');
   });
 
   test('G3: una guía PRO no se indexa y no expone el cuerpo', async () => {
-    const res = await render({ id: 'post-pro-masterclass', is_pro: true });
+    const res = await conContenidoPro(() =>
+      render({ id: 'post-pro-masterclass', is_pro: true })
+    );
 
     expect(res.statusCode).toBe(200);
     expect(res.headers['x-robots-tag']).toContain('noindex');
@@ -88,6 +109,15 @@ test.describe('Página de guía — indexación', () => {
     // El cuerpo reservado NO viaja al cliente.
     expect(res.body).not.toContain('Primer párrafo del cuerpo');
     expect(res.body).toContain('Contenido PRO');
+  });
+
+  test('G3b: con el contenido PRO apagado, una guía PRO devuelve 404', async () => {
+    // features.contenidoPro() lee PRO_CONTENT_ENABLED en cada llamada.
+    const res = await render({ id: 'post-pro-masterclass', is_pro: true });
+
+    expect(res.statusCode).toBe(404);
+    expect(res.headers['x-robots-tag']).toContain('noindex');
+    expect(res.body).toContain('Contenido no disponible');
   });
 
   test('G4: una guía inexistente devuelve 404', async () => {
@@ -138,7 +168,7 @@ test.describe('Página de guía — contenido y metadatos', () => {
 
   test('G9: el canonical de una guía dinámica es /guias/<id>', async () => {
     const res = await render();
-    const esperado = 'https://berrysnature.com.ar/guias/post-conservantes';
+    const esperado = `https://berrysnature.com.ar/guias/${ID_DINAMICA}`;
 
     expect(res.body).toContain(`<link rel="canonical" href="${esperado}">`);
     expect(res.body).toContain(`<meta property="og:url" content="${esperado}">`);
@@ -169,7 +199,7 @@ test.describe('Página de guía — contenido y metadatos', () => {
   });
 
   test('G12: una guía no indexable no lleva Article (sería contradictorio)', async () => {
-    const res = await render({ is_pro: true });
+    const res = await conContenidoPro(() => render({ is_pro: true }));
 
     const bloques = [...res.body.matchAll(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/g)];
     const parseados = bloques.map((b) => JSON.parse(b[1]));
