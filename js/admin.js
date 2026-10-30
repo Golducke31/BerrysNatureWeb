@@ -280,6 +280,36 @@
     '</div>';
   }
 
+  /** Embudo de conversión: tienda → producto → checkout → compra. */
+  function embudoHtml(e) {
+    e = e || {};
+    var pasos = [
+      ['Visitas a la tienda', Number(e.tienda) || 0],
+      ['Productos vistos', Number(e.productos) || 0],
+      ['Checkouts iniciados', Number(e.checkouts) || 0],
+      ['Compras', Number(e.compras) || 0]
+    ];
+    var max = pasos[0][1] || 1;
+
+    if (!pasos.some(function (p) { return p[1] > 0; })) {
+      return '<p class="admin-empty">Todavía no hay datos del embudo. ' +
+        'Se empieza a llenar cuando la gente entra a la tienda.</p>';
+    }
+
+    return '<div class="admin-funnel">' +
+      pasos.map(function (p) {
+        var pct = Math.round((p[1] / max) * 100);
+        var ancho = p[1] > 0 ? Math.max(pct, 2) : 0;
+        return '<div class="admin-funnel__row">' +
+          '<span class="admin-funnel__label">' + escapeHtml(p[0]) + '</span>' +
+          '<span class="admin-funnel__bar"><span style="width:' + ancho + '%"></span></span>' +
+          '<span class="admin-funnel__value">' + p[1] +
+            ' <small>' + pct + '%</small></span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
   function renderMetrics() {
     $('#adminMain').innerHTML = '<div class="admin-loading"><div class="admin-spinner"></div><p>Cargando métricas…</p></div>';
 
@@ -313,6 +343,11 @@
                 '<div class="admin-card__label">' + escapeHtml(c[0]) + '</div>' +
                 '<p class="admin-help">' + escapeHtml(c[2]) + '</p></div>';
             }).join('') +
+          '</div>' +
+
+          '<div class="admin-panel">' +
+            '<div class="admin-panel__head"><h2>Embudo (' + s.diasTotales + ' días)</h2></div>' +
+            embudoHtml(s.embudo) +
           '</div>' +
 
           '<div class="admin-panel">' +

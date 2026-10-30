@@ -818,7 +818,7 @@ const COMUNIDAD_CATEGORIAS = ['Todos', 'Formulación', 'Negocio', 'Taller', 'Pro
 const MI_MARCA = {
   nombre: 'Berry\'s Nature',
   tagline: 'La tienda oficial',
-  url: 'marca.html',
+  url: 'tienda.html',
   textoBoton: "Tienda Berry's Nature"
 };
 

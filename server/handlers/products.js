@@ -3,7 +3,7 @@
 
    Dos caras en el mismo módulo:
 
-   PÚBLICA (sin sesión, la usa marca.html)
+   PÚBLICA (sin sesión, la usa tienda.html)
      GET /api/products           → solo disponibles
      GET /api/products/:id       → uno
 

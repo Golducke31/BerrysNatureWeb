@@ -750,6 +750,12 @@
 
   /* ---------------- Init ---------------- */
   document.addEventListener('DOMContentLoaded', function () {
+    /* Primer paso del embudo: la visita a la tienda. El servidor deduplica
+       (1 vista por IP y contenido cada 6 h), así que recargar no infla. */
+    if (window.BerrysAPI && window.BerrysAPI.available) {
+      window.BerrysAPI.view('store', 'tienda').catch(function () {});
+    }
+
     productos = window.catalogProducts || [];
     renderFilters();
     renderProducts();

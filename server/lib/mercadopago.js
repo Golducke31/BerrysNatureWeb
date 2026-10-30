@@ -160,9 +160,9 @@ async function createOrderPreference({ orderId, items, shipping, shippingLabel, 
     notification_url: `${base}/api/webhooks/mercadopago`,
     statement_descriptor: 'BERRYSNATURE',
     back_urls: {
-      success: `${base}/marca.html?pago=ok&pedido=${encodeURIComponent(orderId)}`,
-      failure: `${base}/marca.html?pago=error&pedido=${encodeURIComponent(orderId)}`,
-      pending: `${base}/marca.html?pago=pendiente&pedido=${encodeURIComponent(orderId)}`
+      success: `${base}/tienda.html?pago=ok&pedido=${encodeURIComponent(orderId)}`,
+      failure: `${base}/tienda.html?pago=error&pedido=${encodeURIComponent(orderId)}`,
+      pending: `${base}/tienda.html?pago=pendiente&pedido=${encodeURIComponent(orderId)}`
     },
     auto_return: 'approved'
   };

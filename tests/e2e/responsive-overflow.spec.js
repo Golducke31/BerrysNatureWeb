@@ -21,7 +21,7 @@ const PAGES = [
   'privacidad.html',
   'terminos.html',
   'normas.html',
-  'marca.html',
+  'tienda.html',
   '404.html'
 ];
 const WIDTHS = [320, 375, 768, 1024, 1280];

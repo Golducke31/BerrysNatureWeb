@@ -268,7 +268,7 @@ async function handlePublic(req, res, method, seg) {
     return pages.renderProduct(req, res, { id: b });
   }
 
-  /* Catálogo público de la tienda (marca.html). */
+  /* Catálogo público de la tienda (tienda.html). */
   if (a === 'products') {
     if (!b && method === 'GET') return products.listPublic(req, res);
     if (b && method === 'GET') return products.getPublic(req, res, { id: b });

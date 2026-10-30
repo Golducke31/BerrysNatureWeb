@@ -75,7 +75,7 @@ test.describe('Sitemap — qué incluye', () => {
     expect(urls).toContain('https://berrysnature.com.ar/academia.html');
     expect(urls).toContain('https://berrysnature.com.ar/foro.html');
     expect(urls).toContain('https://berrysnature.com.ar/glosario.html');
-    expect(urls).toContain('https://berrysnature.com.ar/marca.html');
+    expect(urls).toContain('https://berrysnature.com.ar/tienda.html');
   });
 
   test('S2: incluye las guías con página propia, leídas de content-data.js', async () => {

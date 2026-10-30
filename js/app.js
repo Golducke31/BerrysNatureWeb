@@ -59,6 +59,18 @@ window.addEventListener('load', function () {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  /* --- Registro de vista (embudo) ---
+     Las páginas renderizadas en el servidor (producto, guía, hilo, perfil)
+     declaran qué se está viendo en el <body>. Se registra desde el navegador
+     y no desde el servidor para no contar bots ni previews de redes. */
+  (function registrarVista() {
+    const tipo = document.body.getAttribute('data-view-type');
+    const id = document.body.getAttribute('data-view-id');
+    if (!tipo || !id) return;
+    if (!window.BerrysAPI || !window.BerrysAPI.available) return;
+    window.BerrysAPI.view(tipo, id).catch(() => {});
+  })();
+
   // --- Elements ---
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const navMenuMobile = document.getElementById('navMenuMobile');

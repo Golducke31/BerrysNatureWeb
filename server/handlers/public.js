@@ -144,10 +144,20 @@ async function getGuide(req, res, params) {
   json(res, 200, { guia: S.guide(row, !row.is_pro) });
 }
 
-/* ---------------- Vistas ---------------- */
+/* ---------------- Vistas ----------------
+   `content_views` alimenta el embudo: tienda → producto → checkout → compra.
+   Los tipos válidos están en la lista blanca y también en el CHECK de la
+   tabla (migración 011). Cualquier otro valor se descarta. */
+
+const TIPOS_VISTA = ['guide', 'thread', 'product', 'store'];
 
 async function registerView(req, res, body) {
-  const type = body && body.type === 'guide' ? 'guide' : 'thread';
+  const type = String((body && body.type) || '');
+  if (!TIPOS_VISTA.includes(type)) {
+    /* Antes cualquier tipo desconocido se guardaba como 'thread', lo que
+       inflaba las vistas del foro con datos basura. Mejor rechazarlo. */
+    return fail(res, 400, 'invalid_type', 'Tipo de vista inválido.');
+  }
   const id = String((body && body.id) || '').slice(0, 120);
   if (!id) return fail(res, 400, 'invalid_input', 'Falta el id del contenido.');
 
@@ -167,9 +177,11 @@ async function registerView(req, res, body) {
       'INSERT INTO content_views (content_type, content_id, ip_hash) VALUES ($1, $2, $3)',
       [type, id, ipHash]
     );
+    /* Solo guías e hilos tienen contador propio en su tabla. Las vistas de
+       tienda y producto se agregan desde `content_views` en el panel. */
     if (type === 'guide') {
       await db.query('UPDATE guides SET views = views + 1 WHERE id = $1', [id]);
-    } else {
+    } else if (type === 'thread') {
       await db.query(
         'UPDATE forum_threads SET views_count = views_count + 1 WHERE id = $1',
         [id]

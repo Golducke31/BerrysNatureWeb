@@ -170,14 +170,14 @@ async function demasiadosIntentos(ipHash) {
 
 function urlPedido(orderId, token) {
   const base = String(process.env.APP_URL || 'https://berrysnature.com.ar').replace(/\/+$/, '');
-  return `${base}/marca.html?pedido=${encodeURIComponent(orderId)}&t=${encodeURIComponent(token || '')}`;
+  return `${base}/tienda.html?pedido=${encodeURIComponent(orderId)}&t=${encodeURIComponent(token || '')}`;
 }
 
 function urlPanel() {
   const base = String(process.env.APP_URL || 'https://berrysnature.com.ar').replace(/\/+$/, '');
   const slug = process.env.ADMIN_SLUG || '';
   const gate = process.env.ADMIN_GATE_KEY ? `?k=${encodeURIComponent(process.env.ADMIN_GATE_KEY)}` : '';
-  return slug ? `${base}/api/${slug}${gate}` : `${base}/marca.html`;
+  return slug ? `${base}/api/${slug}${gate}` : `${base}/tienda.html`;
 }
 
 /* ============================================================

@@ -182,7 +182,7 @@ function main() {
   const mb = (bytes / 1024 / 1024).toFixed(1);
 
   /* Verificación mínima: sin esto el deploy queda roto y no se nota. */
-  const mustHave = ['index.html', 'marca.html', 'academia.html', 'foro.html'];
+  const mustHave = ['index.html', 'tienda.html', 'academia.html', 'foro.html'];
   const missing = mustHave.filter((f) => !fs.existsSync(path.join(DIST, f)));
   if (missing.length) {
     console.error(`\n  ✘ Faltan archivos críticos: ${missing.join(', ')}\n`);

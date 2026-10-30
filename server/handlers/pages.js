@@ -230,7 +230,7 @@ function flagsHtmlClass() {
 }
 
 /** Layout completo de una página de contenido. */
-function layout({ title, description, canonical, robots, ogImage, jsonLdBlocks = [], body, extraHead = '', css = CSS_FORO, scripts = null }) {
+function layout({ title, description, canonical, robots, ogImage, jsonLdBlocks = [], body, extraHead = '', css = CSS_FORO, scripts = null, bodyAttrs = '' }) {
   return `<!DOCTYPE html>
 <html lang="es"${flagsHtmlClass() ? ` class="${flagsHtmlClass()}"` : ''}>
 <head>
@@ -264,7 +264,7 @@ ${extraHead}
 ${jsonLdBlocks.map((b) => `  <script type="application/ld+json">\n  ${jsonLd(b)}\n  </script>`).join('\n')}
 ${flagsInline()}
 </head>
-<body class="page-forum">
+<body class="page-forum"${bodyAttrs}>
 ${headerHtml()}
 ${body}
 ${authModalHtml()}
@@ -799,7 +799,7 @@ async function renderGuide(req, res, { id }) {
    legible (idUnico() lo genera con V.slug a partir del nombre), así que
    no hace falta una columna extra. Servimos el HTML completo con datos
    estructurados Product + Offer para que Google muestre precio y
-   disponibilidad. El carrito vive en marca.html; acá ofrecemos consulta
+   disponibilidad. El carrito vive en tienda.html; acá ofrecemos consulta
    por WhatsApp y, si el producto tiene, el link de pago de MercadoPago.
    ============================================================ */
 
@@ -838,12 +838,12 @@ async function renderProduct(req, res, { id }) {
     <section class="product-detail-section">
       <p class="product-detail__breadcrumb">
         <a href="/">Inicio</a><span class="sep">/</span>
-        <a href="/marca.html">Tienda</a><span class="sep">/</span>
+        <a href="/tienda.html">Tienda</a><span class="sep">/</span>
         <span class="current">No encontrado</span>
       </p>
       <div class="community-empty">
         <p>No encontramos este producto. Puede que se haya dejado de vender.</p>
-        <p><a href="/marca.html">Ver toda la tienda</a></p>
+        <p><a href="/tienda.html">Ver toda la tienda</a></p>
       </div>
     </section>
   </main>`
@@ -895,7 +895,7 @@ async function renderProduct(req, res, { id }) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` },
-      { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${siteUrl()}/marca.html` },
+      { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${siteUrl()}/tienda.html` },
       { '@type': 'ListItem', position: 3, name: row.nombre, item: canonical }
     ]
   };
@@ -908,12 +908,16 @@ async function renderProduct(req, res, { id }) {
     ogImage,
     jsonLdBlocks: [productLd, breadcrumbLd],
     css: CSS_PRODUCTO,
+    /* La vista se registra desde el navegador (js/app.js lee estos atributos).
+       Contarla en el servidor incluiría a Googlebot y a los previews de redes
+       sociales, y el embudo quedaría inflado. */
+    bodyAttrs: ` data-view-type="product" data-view-id="${esc(row.id)}"`,
     body: `
   <main>
     <section class="product-detail-section">
       <p class="product-detail__breadcrumb">
         <a href="/">Inicio</a><span class="sep">/</span>
-        <a href="/marca.html">Tienda</a><span class="sep">/</span>
+        <a href="/tienda.html">Tienda</a><span class="sep">/</span>
         <span class="current">${esc(row.nombre)}</span>
       </p>
       <div class="product-detail">
@@ -930,7 +934,7 @@ async function renderProduct(req, res, { id }) {
           <div class="product-detail__cta">
             <a class="cta-button is-whatsapp" href="${waHref}" target="_blank" rel="noopener">Consultar por WhatsApp</a>
             ${mpBtn}
-            <a class="cta-button cta-outline" href="/marca.html">Ver toda la tienda</a>
+            <a class="cta-button cta-outline" href="/tienda.html">Ver toda la tienda</a>
           </div>
         </div>
       </div>
@@ -1114,7 +1118,7 @@ async function renderProfile(req, res, { usuario }) {
 const PAGINAS_FIJAS = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
   { path: '/academia.html', changefreq: 'weekly', priority: '0.9' },
-  { path: '/marca.html', changefreq: 'weekly', priority: '0.9' },
+  { path: '/tienda.html', changefreq: 'weekly', priority: '0.9' },
   { path: '/foro.html', changefreq: 'daily', priority: '0.8' },
   { path: '/glosario.html', changefreq: 'monthly', priority: '0.7' },
   { path: '/normas.html', changefreq: 'monthly', priority: '0.4' }

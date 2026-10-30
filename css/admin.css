@@ -559,3 +559,54 @@
   opacity: .55;
   cursor: not-allowed;
 }
+
+/* ---- Embudo de conversión (Métricas) ----
+   Barras horizontales: cada paso relativo al primero. El ancho mínimo del 2%
+   es para que un paso con 1 visita no quede invisible. */
+.admin-funnel { display: flex; flex-direction: column; gap: 12px; padding: 6px 0 2px; }
+
+.admin-funnel__row {
+  display: grid;
+  grid-template-columns: 170px 1fr 90px;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-funnel__label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.admin-funnel__bar {
+  display: block;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-surface-alt, #efe4db);
+  overflow: hidden;
+}
+
+.admin-funnel__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-cta, #EAB8A3);
+  transition: width .4s ease;
+}
+
+.admin-funnel__value {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.admin-funnel__value small {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 720px) {
+  .admin-funnel__row { grid-template-columns: 1fr; gap: 4px; }
+  .admin-funnel__value { text-align: left; }
+}

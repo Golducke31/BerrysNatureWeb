@@ -270,7 +270,7 @@ async function stats(req, res) {
   const current = await guards.requireRole(req, res, 'admin', 'admin');
   if (!current) return;
 
-  const [vistasPorDia, vistasTotal, eventosPorNombre, eventosPorDia, ventasPorDia, ventasTotal] = await Promise.all([
+  const [vistasPorDia, vistasTotal, eventosPorNombre, eventosPorDia, ventasPorDia, ventasTotal, vistasPorTipo] = await Promise.all([
     // Serie diaria de lecturas. generate_series garantiza que los días sin
     // actividad aparezcan con 0 en vez de faltar (si no, el gráfico miente).
     db.query(
@@ -345,8 +345,34 @@ async function stats(req, res) {
           AND status IN ('paid', 'shipped', 'delivered')
           AND paid_at > now() - ($1 || ' days')::interval`,
       [String(DIAS_TOTALES)]
-    ), { pedidos: 0, monto: 0 })
+    ), { pedidos: 0, monto: 0 }),
+    /* Vistas por tipo: es la base del embudo. Las de tienda y producto son
+       nuevas (migración 011); antes solo existían guía e hilo. */
+    consultarTolerante(() => db.query(
+      `SELECT content_type, count(*)::int AS n
+         FROM content_views
+        WHERE created_at > now() - ($1 || ' days')::interval
+        GROUP BY 1`,
+      [String(DIAS_TOTALES)]
+    ), [])
   ]);
+
+  /* Embudo: cuántos miraron, cuántos abrieron un producto, cuántos llegaron
+     al checkout y cuántos compraron. Los dos últimos salen de `events`, que
+     ya se consultó arriba. */
+  const porTipo = {};
+  (vistasPorTipo || []).forEach((r) => { porTipo[r.content_type] = Number(r.n) || 0; });
+  const porEvento = {};
+  (eventosPorNombre || []).forEach((r) => { porEvento[r.event_name] = Number(r.n) || 0; });
+
+  const embudo = {
+    tienda: porTipo.store || 0,
+    productos: porTipo.product || 0,
+    checkouts: porEvento.checkout_iniciado || 0,
+    compras: porEvento.compra_confirmada || 0,
+    guias: porTipo.guide || 0,
+    hilos: porTipo.thread || 0
+  };
 
   json(res, 200, {
     dias: DIAS_SERIE,
@@ -364,6 +390,7 @@ async function stats(req, res) {
       pedidos: Number((ventasTotal && ventasTotal.pedidos) || 0),
       monto: Number((ventasTotal && ventasTotal.monto) || 0)
     },
+    embudo,
     eventos: {
       porNombre: eventosPorNombre.map((r) => ({
         nombre: r.event_name,

@@ -37,6 +37,17 @@
   # El panel admin lee estos dos archivos desde la Function (ruta secreta).
   included_files = ["css/admin.css", "js/admin.js"]
 
+# ---- La tienda cambió de URL ----
+# /marca.html → /tienda.html. 301 permanente (no 302) para que Google
+# transfiera la autoridad de la URL vieja y los links ya compartidos sigan
+# funcionando. force = true porque el archivo viejo ya no existe: si no,
+# Netlify intentaría servirlo y devolvería 404.
+[[redirects]]
+  from = "/marca.html"
+  to = "/tienda.html"
+  status = 301
+  force = true
+
 # ---- API: todo /api/* va a la Function (mismo router que Vercel) ----
 [[redirects]]
   from = "/api/*"

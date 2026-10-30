@@ -11,6 +11,9 @@
       }
     }
   },
+  "redirects": [
+    { "source": "/marca.html", "destination": "/tienda.html", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/guias/:id", "destination": "/api/guias/:id" },
