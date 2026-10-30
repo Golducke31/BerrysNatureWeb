@@ -1,5 +1,5 @@
 /* ============================================================
-   js/catalog-data.js — Catálogo Berry's Nature (Mi Marca Personal)
+   js/catalog-data.js — Catálogo Berry's Nature
 
    CÓMO EDITAR (sin tocar código):
    - precio: null        → la tarjeta muestra "Consultar precio"

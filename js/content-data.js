@@ -813,7 +813,7 @@ const COMUNIDAD_HILOS = [
 const COMUNIDAD_CATEGORIAS = ['Todos', 'Formulación', 'Negocio', 'Taller', 'Proveedores', 'Legal'];
 
 /* ------------------------------------------------------------
-   5. VÍNCULO A LA MARCA PERSONAL (tienda externa)
+   5. VÍNCULO A LA TIENDA
    ------------------------------------------------------------ */
 const MI_MARCA = {
   nombre: 'Berry\'s Nature',

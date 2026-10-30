@@ -1,5 +1,5 @@
 /* ============================================================
-   js/catalog.js — Tienda Berry's Nature (Mi Marca Personal)
+   js/catalog.js — Tienda Berry's Nature
 
    Render del catálogo (tarjetas con el mismo estilo que la Academia),
    carrito con persistencia local, consulta por WhatsApp y checkout:
