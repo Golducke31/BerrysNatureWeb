@@ -55,7 +55,7 @@ async function createCheckout(req, res, body) {
     return fail(res, 502, 'payment_error', 'No pudimos iniciar el pago. Probá de nuevo en un momento.');
   }
 
-  const initPoint = pref.init_point || pref.sandbox_init_point;
+  const initPoint = mp.initPointDe(pref);
   if (!initPoint) {
     console.error('[payments] la preferencia no trajo init_point');
     return fail(res, 502, 'payment_error', 'No pudimos iniciar el pago.');

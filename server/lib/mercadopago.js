@@ -38,6 +38,33 @@ function isConfigured() {
   return Boolean(accessToken());
 }
 
+/** ¿Las credenciales son de prueba? (`TEST-...` en vez de `APP_USR-...`) */
+function isSandbox() {
+  return accessToken().startsWith('TEST-');
+}
+
+/**
+ * Elige el link de pago correcto según el tipo de credencial.
+ *
+ * MercadoPago devuelve DOS links en la preferencia:
+ *   - `init_point`         → checkout de PRODUCCIÓN (cobra de verdad)
+ *   - `sandbox_init_point` → checkout de PRUEBA (tarjetas de test)
+ *
+ * Con credenciales de test hay que usar el de sandbox: el `init_point` de
+ * producción rechaza las credenciales `TEST-`. Con credenciales reales, al
+ * revés. Preferir siempre `init_point` (como se hacía antes) rompía las
+ * pruebas en sandbox.
+ *
+ * @returns {string} el link a usar, o '' si la preferencia no trajo ninguno
+ */
+function initPointDe(pref) {
+  if (!pref) return '';
+  const punto = isSandbox()
+    ? (pref.sandbox_init_point || pref.init_point)
+    : (pref.init_point || pref.sandbox_init_point);
+  return punto ? String(punto) : '';
+}
+
 /** Precio del desbloqueo PRO, en ARS. */
 function priceArs() {
   const n = Number(process.env.PRO_PRICE_ARS);
@@ -215,7 +242,7 @@ function verifySignature({ xSignature, xRequestId, dataId, secret } = {}) {
 }
 
 module.exports = {
-  isConfigured, webhookSecret, priceArs,
-  createPreference, createOrderPreference, getPayment,
+  isConfigured, isSandbox, webhookSecret, priceArs,
+  createPreference, createOrderPreference, getPayment, initPointDe,
   parseSignatureHeader, verifySignature
 };
