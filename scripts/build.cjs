@@ -35,6 +35,42 @@ function buildVersion() {
 
 const VERSION = buildVersion();
 
+/* Fecha del último commit → <lastmod> del sitemap.
+   Antes el sitemap calculaba `new Date()` en CADA request, así que todas las
+   URLs decían "modificada ahora" siempre, con hora exacta. Google documenta
+   que un lastmod no confiable se ignora: el sitemap dejaba de servir para lo
+   único que sirve, pedir recrawl. Acá se fija en el build, que es cuando el
+   contenido realmente cambia.
+   Se escribe un módulo JS (no JSON) para que esbuild lo empaquete dentro de
+   la Function sin configuración extra. */
+function commitDate() {
+  try {
+    const fecha = execSync('git log -1 --format=%cI', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString().trim();
+    if (fecha) return fecha;
+  } catch (e) { /* no git */ }
+  return '';
+}
+
+function escribirBuildInfo() {
+  /* Sin git (o clon sin historia) se usa la hora del build: sigue siendo una
+     fecha real del deploy, no la del request. */
+  const fecha = commitDate() || new Date().toISOString();
+  const destino = path.join(ROOT, 'server', 'lib', 'build-info.js');
+  const contenido =
+    '/* GENERADO POR scripts/build.cjs — no editar a mano. */\n' +
+    "'use strict';\n\n" +
+    'module.exports = {\n' +
+    `  sha: ${JSON.stringify(VERSION)},\n` +
+    `  date: ${JSON.stringify(fecha)}\n` +
+    '};\n';
+  fs.mkdirSync(path.dirname(destino), { recursive: true });
+  fs.writeFileSync(destino, contenido, 'utf8');
+  return fecha;
+}
+
+const BUILD_DATE = escribirBuildInfo();
+
 /* Interruptores de producto (calculadora / contenido PRO). APAGADOS por
    defecto; se prenden con CALCULATOR_ENABLED=true / PRO_CONTENT_ENABLED=true
    en el entorno de Netlify y re-desplegando. Se inyectan en el <head> de cada

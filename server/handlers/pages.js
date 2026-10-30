@@ -28,6 +28,14 @@ const reputation = require('../lib/reputation');
 const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
 
+/* Fecha del último commit, escrita por scripts/build.cjs. Puede no existir en
+   desarrollo (si nadie corrió el build): en ese caso el sitemap omite
+   <lastmod> en vez de inventar la fecha actual. */
+let FECHA_BUILD = '';
+try {
+  FECHA_BUILD = require('../lib/build-info').date || '';
+} catch (e) { /* sin build-info */ }
+
 /* ---------------- Utilidades ---------------- */
 
 function siteUrl() {
@@ -1274,7 +1282,9 @@ async function renderSitemap(req, res) {
   }
 
   const guiasEstaticas = guiasConPagina();
-  const hoy = new Date().toISOString();
+  /* Sin build-info (desarrollo) queda vacío y las entradas estáticas salen
+     SIN <lastmod>, en lugar de mentir con la fecha del request. */
+  const hoy = FECHA_BUILD;
 
   const entradas = [
     ...PAGINAS_FIJAS.map((p) => ({
@@ -1321,8 +1331,7 @@ async function renderSitemap(req, res) {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${entradas.map((e) => `  <url>
     <loc>${escXml(e.loc)}</loc>
-    <lastmod>${escXml(e.lastmod)}</lastmod>
-    <changefreq>${e.changefreq}</changefreq>
+${e.lastmod ? `    <lastmod>${escXml(e.lastmod)}</lastmod>\n` : ''}    <changefreq>${e.changefreq}</changefreq>
     <priority>${e.priority}</priority>
   </url>`).join('\n')}
 </urlset>

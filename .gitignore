@@ -46,3 +46,9 @@ Screenshot_*.jpg
 
 # Build local (npm run build) — se genera en Netlify, no se versiona
 dist/
+
+# Generado por scripts/build.cjs (fecha del commit para el sitemap)
+server/lib/build-info.js
+
+# Generado por scripts/build.cjs (fecha del commit para el sitemap)
+server/lib/build-info.js
