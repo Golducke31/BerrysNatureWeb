@@ -1,0 +1,274 @@
+/* ============================================================
+   css/reviews.css — Reseñas de producto (tienda)
+
+   Se carga solo en la página de producto (CSS_PRODUCTO). Los colores
+   y sombras siguen la paleta neumorfista del resto del sitio.
+   ============================================================ */
+
+.reviews-section {
+  max-width: 1080px;
+  margin: 56px auto 0;
+  padding: 0 24px 64px;
+}
+
+.reviews-title {
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--color-accent-dark);
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+/* ---- Resumen (promedio + distribución) ---- */
+.reviews-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-soft, #f6f1ec);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 32px;
+}
+
+.reviews-summary__score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+}
+
+.reviews-summary__avg {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--color-accent-dark);
+}
+
+.reviews-summary__stars {
+  color: var(--color-accent-terracota);
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+  margin: 6px 0 2px;
+}
+
+.reviews-summary__count {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.reviews-dist {
+  flex: 1 1 280px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reviews-dist__row {
+  display: grid;
+  grid-template-columns: 44px 1fr 32px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.reviews-dist__bar {
+  height: 8px;
+  background: var(--shadow-soft, #e6ddd6);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.reviews-dist__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--color-accent-botanical);
+  border-radius: var(--radius-pill);
+}
+
+.reviews-dist__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Lista de reseñas ---- */
+.reviews-body {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.reviews-subtitle {
+  font-size: 1.1rem;
+  color: var(--color-accent-dark);
+  margin: 0 0 16px;
+}
+
+.reviews-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.review {
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card-flat);
+  padding: 18px 20px;
+}
+
+.review__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.review__stars {
+  color: var(--color-accent-terracota);
+  letter-spacing: 1px;
+  font-size: 1rem;
+}
+
+.review__author {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.review__verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--color-accent-botanical);
+  background: rgba(130, 150, 107, 0.12);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.review__body {
+  color: var(--color-text);
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+.review__date {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ---- Formulario ---- */
+.review-form-wrap {
+  background: var(--bg-soft, #f6f1ec);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: sticky;
+  top: 96px;
+}
+
+.review-form__title {
+  font-size: 1.1rem;
+  color: var(--color-accent-dark);
+  margin: 0 0 6px;
+}
+
+.review-form__hint {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0 0 14px;
+}
+
+.review-form__rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.review-star {
+  cursor: pointer;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--shadow-soft, #d8cfc8);
+  transition: color 0.12s ease;
+}
+
+.review-star input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Hover y selección: se pintan la estrella y las anteriores (row-reverse). */
+.review-star:hover span,
+.review-star:hover ~ .review-star span,
+.review-star:has(input:checked) span,
+.review-star:has(input:checked) ~ .review-star span {
+  color: var(--color-accent-terracota);
+}
+
+#reviewForm .form-group {
+  margin-bottom: 14px;
+}
+
+#reviewForm textarea {
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font: inherit;
+  color: var(--color-text);
+  background: #fff;
+  box-shadow: var(--shadow-soft-sunken);
+  resize: vertical;
+}
+
+#reviewForm textarea:focus {
+  outline: 2px solid var(--color-accent-terracota);
+  outline-offset: 1px;
+}
+
+/* ---- Rating en tarjetas del catálogo ---- */
+.product-card__rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin: -4px 0 8px;
+}
+
+.product-card__stars {
+  color: var(--color-accent-terracota);
+  letter-spacing: 1px;
+}
+
+.product-card__rating-val {
+  font-weight: 600;
+  color: var(--color-accent-dark);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 760px) {
+  .reviews-body {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .review-form-wrap {
+    position: static;
+  }
+  .reviews-summary {
+    flex-direction: column;
+    text-align: center;
+  }
+}

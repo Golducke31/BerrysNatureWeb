@@ -27,6 +27,7 @@ const features = require('../lib/features');
 const reputation = require('../lib/reputation');
 const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
+const reviews = require('./reviews');
 
 /* Fecha del último commit, escrita por scripts/build.cjs. Puede no existir en
    desarrollo (si nadie corrió el build): en ese caso el sitemap omite
@@ -213,7 +214,7 @@ const CSS_FORO = ['styles', 'sections', 'academia', 'foro', 'niko-widget'];
 /** Hojas de estilo de una guía: reusa el layout de los artículos. */
 const CSS_GUIA = ['styles', 'sections', 'academia', 'guide-article', 'niko-widget'];
 /** Hojas de estilo de la página de producto (tienda). */
-const CSS_PRODUCTO = ['styles', 'sections', 'academia', 'catalog'];
+const CSS_PRODUCTO = ['styles', 'sections', 'academia', 'catalog', 'reviews'];
 /** WhatsApp de la tienda (para el CTA "consultar" de la página de producto). */
 const WA_TIENDA = process.env.WHATSAPP_NUMBER || '5491156090265';
 
@@ -824,6 +825,106 @@ function absAsset(url) {
   return siteUrl() + (u.charAt(0) === '/' ? u : '/' + u);
 }
 
+/* ---------------- Reseñas de producto ---------------- */
+
+/** Estrellas como texto (★/☆) para el SSR y lectores de pantalla. */
+function starsHtml(rating) {
+  const r = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+  let out = '';
+  for (let i = 1; i <= 5; i++) out += i <= r ? '★' : '☆';
+  return out;
+}
+
+/**
+ * Sección de reseñas renderizada en el servidor (SEO + carga instantánea).
+ * js/producto.js se encarga de revelar el formulario si hay sesión y de
+ * re-renderizar al enviar una nueva reseña.
+ */
+function reviewsSectionHtml(productId, nombre, resenas) {
+  const { resumen, items } = resenas;
+  const tiene = resumen.total > 0;
+
+  const resumenHtml = tiene
+    ? `<div class="reviews-summary">
+        <div class="reviews-summary__score">
+          <span class="reviews-summary__avg" data-avg>${esc(resumen.promedio.toFixed(1))}</span>
+          <span class="reviews-summary__stars" aria-hidden="true" data-stars>${starsHtml(resumen.promedio)}</span>
+          <span class="reviews-summary__count" data-count>${resumen.total} ${resumen.total === 1 ? 'reseña' : 'reseñas'}</span>
+        </div>
+        <div class="reviews-dist">
+          ${[5, 4, 3, 2, 1].map((star) => {
+            const c = resumen.distribucion[5 - star] || 0;
+            const pct = resumen.total ? Math.round((c / resumen.total) * 100) : 0;
+            return `<div class="reviews-dist__row">
+                <span class="reviews-dist__label">${star} ★</span>
+                <span class="reviews-dist__bar"><span style="width:${pct}%"></span></span>
+                <span class="reviews-dist__num">${c}</span>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`
+    : '';
+
+  const listaHtml = items.length
+    ? `<ul class="reviews-list" data-list>${items.map((r) => `
+        <li class="review" data-review>
+          <div class="review__head">
+            <span class="review__stars" aria-hidden="true">${starsHtml(r.rating)}</span>
+            <span class="review__author">${esc(r.autor)}</span>
+            ${r.verificada ? '<span class="review__verified"><i data-icon="check"></i> Compra verificada</span>' : ''}
+          </div>
+          <p class="review__body">${esc(r.cuerpo).replace(/\n/g, '<br>')}</p>
+          <p class="review__date">${esc(fechaCorta(r.fecha))}</p>
+        </li>`).join('')}</ul>`
+    : `<p class="community-empty" data-empty>Todavía no hay reseñas de este producto. ¡Sé quien dé el primer paso!</p>`;
+
+  const formHtml = `
+    <div class="review-form-wrap" id="reviewFormWrap">
+      <h3 class="review-form__title">Dejá tu reseña</h3>
+      <p class="review-form__hint" id="reviewHint">Ingresá para dejar tu opinión.</p>
+      <form id="reviewForm" class="auth-form" novalidate hidden>
+        <div class="review-form__rating" role="radiogroup" aria-label="Tu puntaje">
+          ${[5, 4, 3, 2, 1].map((s) => `<label class="review-star"><input type="radio" name="rating" value="${s}"><span aria-hidden="true">★</span></label>`).join('')}
+        </div>
+        <div class="form-group">
+          <label for="reviewCuerpo" class="visually-hidden">Tu reseña</label>
+          <textarea id="reviewCuerpo" rows="4" maxlength="1200"
+            placeholder="¿Qué te pareció? Contá tu experiencia (mínimo 20 caracteres)."></textarea>
+        </div>
+        <button class="cta-button auth-submit" id="reviewSubmit" type="submit">Publicar reseña</button>
+      </form>
+      <button class="cta-button" type="button" id="reviewLoginBtn" hidden>
+        <i data-icon="lock"></i> Ingresá para opinar
+      </button>
+    </div>`;
+
+  return `
+    <section class="reviews-section" id="reviews" data-product-id="${esc(productId)}">
+      <h2 class="reviews-title">Opiniones de quienes probaron ${esc(nombre)}</h2>
+      ${resumenHtml}
+      <div class="reviews-body">
+        <div class="reviews-list-wrap">
+          <h3 class="reviews-subtitle">Lo que dicen</h3>
+          ${listaHtml}
+        </div>
+        ${formHtml}
+      </div>
+    </section>`;
+}
+
+/* Scripts de la página de producto: base + el de reseñas. hilo.js y
+   mod-panel.js no aportan acá, así que no los cargamos. */
+function scriptsProducto() {
+  return `
+  <script src="/js/icons.js"></script>
+  <script src="/js/content-data.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/auth.js"></script>
+${features.contenidoPro() ? '  <script src="/js/pro-unlock.js"></script>' : ''}
+  <script src="/js/producto.js"></script>`;
+}
+
 async function renderProduct(req, res, { id }) {
   let row = null;
   try {
@@ -869,6 +970,19 @@ async function renderProduct(req, res, { id }) {
   const meta = Array.isArray(row.meta) ? row.meta.filter(Boolean) : [];
   const activos = Array.isArray(row.activos) ? row.activos.filter(Boolean) : [];
 
+  // ---- Reseñas del producto (prueba social + AggregateRating) ----
+  // Si la base falla, el producto sigue renderizando: las reseñas son
+  // un adorno, no una condición para mostrar la página.
+  let resenas = {
+    resumen: { total: 0, promedio: 0, distribucion: [0, 0, 0, 0, 0] },
+    items: []
+  };
+  try {
+    resenas = await reviews.obtener(row.id, 50);
+  } catch (err) {
+    console.error('[producto] no se pudieron leer reseñas:', err && err.message);
+  }
+
   const waMsg = `¡Hola Berry's Nature! Me interesa *${row.nombre}*. ¿Me pasan precio y disponibilidad?`;
   const waHref = `https://wa.me/${WA_TIENDA}?text=${encodeURIComponent(waMsg)}`;
   const mpBtn = (row.mp && enStock)
@@ -898,6 +1012,17 @@ async function renderProduct(req, res, { id }) {
     };
   }
 
+  // Prueba social visible para Google: promedio + cantidad de reseñas.
+  if (resenas.resumen.total > 0) {
+    productLd.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: resenas.resumen.promedio,
+      reviewCount: resenas.resumen.total,
+      bestRating: 5,
+      worstRating: 1
+    };
+  }
+
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -916,6 +1041,7 @@ async function renderProduct(req, res, { id }) {
     ogImage,
     jsonLdBlocks: [productLd, breadcrumbLd],
     css: CSS_PRODUCTO,
+    scripts: scriptsProducto(),
     /* La vista se registra desde el navegador (js/app.js lee estos atributos).
        Contarla en el servidor incluiría a Googlebot y a los previews de redes
        sociales, y el embudo quedaría inflado. */
@@ -947,6 +1073,7 @@ async function renderProduct(req, res, { id }) {
         </div>
       </div>
     </section>
+    ${reviewsSectionHtml(row.id, row.nombre, resenas)}
   </main>`
   });
 

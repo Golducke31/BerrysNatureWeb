@@ -292,6 +292,14 @@
     },
     updateReply: function (id, data) { return request('PATCH', '/api/replies/' + encodeURIComponent(id), data); },
     deleteReply: function (id) { return request('DELETE', '/api/replies/' + encodeURIComponent(id), {}); },
+
+    /* ---- Reseñas de producto ---- */
+    productReviews: function (productId, params) {
+      return request('GET', '/api/products/' + encodeURIComponent(productId) + '/reviews' + qs(params || {}));
+    },
+    createProductReview: function (productId, data) {
+      return request('POST', '/api/products/' + encodeURIComponent(productId) + '/reviews', data);
+    },
     like: function (targetType, targetId) {
       return request('POST', '/api/likes', { targetType: targetType, targetId: targetId });
     },

@@ -52,3 +52,6 @@ server/lib/build-info.js
 
 # Generado por scripts/build.cjs (fecha del commit para el sitemap)
 server/lib/build-info.js
+
+# screenshots (fuera del repo)
+capturas-tienda/

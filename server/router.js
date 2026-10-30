@@ -24,6 +24,7 @@ const reports = require('./handlers/reports');
 const payments = require('./handlers/payments');
 const orders = require('./handlers/orders');
 const products = require('./handlers/products');
+const reviews = require('./handlers/reviews');
 const images = require('./handlers/images');
 const content = require('./handlers/content');
 const admin = require('./handlers/admin');
@@ -182,6 +183,14 @@ async function handleAdmin(req, res, method, seg) {
     return http.notFound(res);
   }
 
+  /* Reseñas de producto: moderación desde el panel. */
+  if (a === 'reviews') {
+    if (!b && method === 'GET') return reviews.listAdmin(req, res);
+    if (b && method === 'PATCH') return reviews.updateAdmin(req, res, { id: b }, await body(req));
+    if (b && method === 'DELETE') return reviews.deleteAdmin(req, res, { id: b });
+    return http.notFound(res);
+  }
+
   return http.notFound(res);
 }
 
@@ -270,6 +279,11 @@ async function handlePublic(req, res, method, seg) {
 
   /* Catálogo público de la tienda (tienda.html). */
   if (a === 'products') {
+    if (b && c === 'reviews') {
+      if (method === 'GET') return reviews.listForProduct(req, res, { id: b });
+      if (method === 'POST') return reviews.create(req, res, { id: b }, await body(req));
+      return http.notFound(res);
+    }
     if (!b && method === 'GET') return products.listPublic(req, res);
     if (b && method === 'GET') return products.getPublic(req, res, { id: b });
     return http.notFound(res);

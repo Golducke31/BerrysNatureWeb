@@ -177,6 +177,7 @@
     { id: 'guides', label: 'Guías', icon: 'book' },
     { id: 'users', label: 'Usuarios', icon: 'shield' },
     { id: 'reports', label: 'Reportes', icon: 'flag' },
+    { id: 'reviews', label: 'Reseñas', icon: 'star' },
     { id: 'audit', label: 'Auditoría', icon: 'clipboard' }
   ];
 
@@ -238,6 +239,7 @@
       guides: renderGuides,
       users: renderUsers,
       reports: renderReports,
+      reviews: renderReviews,
       audit: renderAudit
     };
     (renderers[view] || renderDashboard)();
@@ -902,6 +904,77 @@
     return req('PATCH', '/reports/' + encodeURIComponent(id), { status: status })
       .then(function () { toast('Reporte actualizado.'); renderReports(); })
       .catch(guard);
+  }
+
+  /* ---------------- Reseñas de producto ---------------- */
+
+  function renderReviews() {
+    req('GET', '/reviews?limit=200')
+      .then(function (data) {
+        var items = (data && data.items) || [];
+        $('#adminMain').innerHTML =
+          '<div class="admin-topbar">' +
+            '<div><h1 class="admin-title">Reseñas</h1>' +
+            '<p class="admin-subtitle">Opiniones de productos · ' + items.length + ' en total.</p></div>' +
+            '<button class="admin-btn" type="button" id="reviewsReload">' + icon('eye') + ' Actualizar</button>' +
+          '</div>' +
+          '<div class="admin-panel"><div class="admin-table-wrap">' +
+            (items.length ? '<table class="admin-table"><thead><tr>' +
+              '<th>Producto</th><th>Autor</th><th>Puntaje</th><th>Reseña</th><th>Estado</th><th></th>' +
+              '</tr></thead><tbody>' +
+              items.map(function (r) {
+                var oculta = !r.aprobada;
+                return '<tr data-review-row="' + escapeHtml(r.id) + '">' +
+                  '<td>' + escapeHtml(r.productoNombre) + '<br><small><code>' + escapeHtml(r.productoId) + '</code></small></td>' +
+                  '<td>' + escapeHtml(r.autor) +
+                    (r.verificada ? ' <span class="admin-tag admin-tag--ok">verificada</span>' : '') + '</td>' +
+                  '<td>' + r.rating + ' ★</td>' +
+                  '<td>' + escapeHtml((r.cuerpo || '').slice(0, 140)) + '</td>' +
+                  '<td>' + (oculta
+                    ? '<span class="admin-tag admin-tag--warn">oculta</span>'
+                    : '<span class="admin-tag admin-tag--ok">visible</span>') + '</td>' +
+                  '<td><div class="admin-actions">' +
+                    (oculta
+                      ? '<button class="admin-btn admin-btn--primary" data-act="show-review" data-id="' + escapeHtml(r.id) + '">Mostrar</button>'
+                      : '<button class="admin-btn" data-act="hide-review" data-id="' + escapeHtml(r.id) + '">Ocultar</button>') +
+                    '<button class="admin-btn admin-btn--danger" data-act="delete-review" data-id="' + escapeHtml(r.id) + '">Borrar</button>' +
+                  '</div></td>' +
+                '</tr>';
+              }).join('') + '</tbody></table>'
+              : '<p class="admin-empty">Todavía no hay reseñas.</p>') +
+          '</div></div>';
+
+        $('#reviewsReload').addEventListener('click', renderReviews);
+
+        var main = $('#adminMain');
+        if (!main.dataset.reviewsBound) {
+          main.addEventListener('click', onReviewsClick);
+          main.dataset.reviewsBound = '1';
+        }
+      })
+      .catch(guard);
+  }
+
+  function onReviewsClick(e) {
+    var btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    var act = btn.dataset.act;
+    var id = btn.dataset.id;
+
+    if (act === 'hide-review') {
+      req('PATCH', '/reviews/' + encodeURIComponent(id), { aprobada: false })
+        .then(function () { toast('Reseña oculta.'); renderReviews(); })
+        .catch(guard);
+    } else if (act === 'show-review') {
+      req('PATCH', '/reviews/' + encodeURIComponent(id), { aprobada: true })
+        .then(function () { toast('Reseña visible.'); renderReviews(); })
+        .catch(guard);
+    } else if (act === 'delete-review') {
+      if (!window.confirm('¿Borrar esta reseña para siempre?')) return;
+      req('DELETE', '/reviews/' + encodeURIComponent(id))
+        .then(function () { toast('Reseña borrada.'); renderReviews(); })
+        .catch(guard);
+    }
   }
 
   function renderAudit() {

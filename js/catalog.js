@@ -99,6 +99,20 @@
     return out;
   }
 
+  /* Promedio de reseñas en la tarjeta (si el producto tiene opiniones). */
+  function ratingHtml(p) {
+    var r = p.resenas;
+    if (!r || !r.total || !(r.promedio > 0)) return '';
+    var stars = '';
+    var rounded = Math.round(r.promedio);
+    for (var i = 1; i <= 5; i++) stars += i <= rounded ? '★' : '☆';
+    return '<div class="product-card__rating" title="' + r.total + ' reseña(s)">' +
+      '<span class="product-card__stars" aria-hidden="true">' + stars + '</span>' +
+      '<span class="product-card__rating-val">' + Number(r.promedio).toFixed(1) + '</span>' +
+      '<span class="product-card__rating-count">(' + r.total + ')</span>' +
+    '</div>';
+  }
+
   function cardHtml(p) {
     var url = '/productos/' + encodeURIComponent(p.id);
     var agotado = sinStock(p);
@@ -111,6 +125,7 @@
         '</div>' +
         '<div class="guide-card__body">' +
           '<h3 class="guide-card__title"><a href="' + url + '">' + escapeHtml(p.nombre) + '</a></h3>' +
+          ratingHtml(p) +
           '<p class="guide-card__excerpt">' + escapeHtml(p.descripcion) + '</p>' +
           '<div class="guide-card__meta">' + metaHtml(p) + '</div>' +
           '<div class="product-card__actions">' +

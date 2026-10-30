@@ -19,6 +19,7 @@
 'use strict';
 
 const db = require('../lib/db');
+const reviews = require('./reviews');
 const V = require('../lib/validate');
 const audit = require('../lib/audit');
 const csrf = require('../lib/csrf');
@@ -96,13 +97,25 @@ async function listPublic(req, res) {
       WHERE disponible = true
       ORDER BY orden ASC, nombre ASC`
   );
-  json(res, 200, { items: rows.map(toProduct) });
+  const resenasMap = await reviews.resumenesPara(rows.map((r) => r.id)).catch(() => ({}));
+  json(res, 200, {
+    items: rows.map((r) => Object.assign(
+      toProduct(r),
+      { resenas: resenasMap[r.id] || { total: 0, promedio: 0 } }
+    ))
+  });
 }
 
 async function getPublic(req, res, params) {
   const row = await db.one('SELECT * FROM products WHERE id = $1', [params.id]);
   if (!row || !row.disponible) return notFound(res);
-  json(res, 200, { producto: toProduct(row) });
+  const resenasMap = await reviews.resumenesPara([row.id]).catch(() => ({}));
+  json(res, 200, {
+    producto: Object.assign(
+      toProduct(row),
+      { resenas: resenasMap[row.id] || { total: 0, promedio: 0 } }
+    )
+  });
 }
 
 /* ============================================================
