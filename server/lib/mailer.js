@@ -16,6 +16,7 @@
    Variables:
      MAIL_TRANSPORT   console | resend | webhook   (default: console)
      MAIL_FROM        remitente, ej: "Berry's Nature <hola@berrysnature.com.ar>"
+     MAIL_REPLY_TO    buzón real para las respuestas (opcional)
      MAIL_API_KEY     clave del proveedor (resend / webhook)
      MAIL_ENDPOINT    URL del POST (solo webhook)
 
@@ -41,6 +42,17 @@ function transportName() {
 
 function from() {
   return String(process.env.MAIL_FROM || '').trim() || DEFAULT_FROM;
+}
+
+/**
+ * Dirección de respuesta (Reply-To).
+ *
+ * El remitente es `no-reply@…`, así que si un cliente responde el email de
+ * su pedido, el mensaje se pierde. Con MAIL_REPLY_TO las respuestas caen en
+ * un buzón real. Es opcional: sin la variable, no se envía el header.
+ */
+function replyTo() {
+  return String(process.env.MAIL_REPLY_TO || '').trim();
 }
 
 /** URL pública del sitio, para armar los enlaces de los emails. */
@@ -84,19 +96,23 @@ async function sendViaConsole(msg) {
 }
 
 async function sendViaResend(msg) {
+  const cuerpo = {
+    from: from(),
+    to: [msg.to],
+    subject: msg.subject,
+    text: msg.text,
+    html: msg.html
+  };
+  // Solo se agrega si está configurado: Resend rechaza un reply_to vacío.
+  if (replyTo()) cuerpo.reply_to = replyTo();
+
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.MAIL_API_KEY}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      from: from(),
-      to: [msg.to],
-      subject: msg.subject,
-      text: msg.text,
-      html: msg.html
-    })
+    body: JSON.stringify(cuerpo)
   });
 
   if (!res.ok) {
@@ -113,6 +129,15 @@ async function sendViaResend(msg) {
  *   { from, to, subject, text, html }
  */
 async function sendViaWebhook(msg) {
+  const cuerpo = {
+    from: from(),
+    to: msg.to,
+    subject: msg.subject,
+    text: msg.text,
+    html: msg.html
+  };
+  if (replyTo()) cuerpo.reply_to = replyTo();
+
   const res = await fetch(process.env.MAIL_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -121,13 +146,7 @@ async function sendViaWebhook(msg) {
         ? { 'Authorization': `Bearer ${process.env.MAIL_API_KEY}` }
         : {})
     },
-    body: JSON.stringify({
-      from: from(),
-      to: msg.to,
-      subject: msg.subject,
-      text: msg.text,
-      html: msg.html
-    })
+    body: JSON.stringify(cuerpo)
   });
 
   if (!res.ok) {
@@ -168,4 +187,4 @@ async function send(msg) {
   }
 }
 
-module.exports = { send, isConfigured, transportName, appUrl, from, IS_PROD };
+module.exports = { send, isConfigured, transportName, appUrl, from, replyTo, IS_PROD };
