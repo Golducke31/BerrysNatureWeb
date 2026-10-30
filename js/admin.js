@@ -288,11 +288,16 @@
         var porNombre = {};
         s.eventos.porNombre.forEach(function (e) { porNombre[e.nombre] = e.n; });
 
+        var ventas = s.ventas || { porDia: [], pedidos: 0, monto: 0 };
+        var checkouts = porNombre.checkout_iniciado || 0;
+        var compras = porNombre.compra_confirmada || 0;
+        var conv = checkouts ? Math.round((compras / checkouts) * 100) : 0;
+
         var cards = [
           ['Vistas (' + s.diasTotales + ' días)', s.vistas.total, 'Lecturas de guías e hilos'],
-          ['Cuentas creadas', porNombre.registro || 0, 'Conversión a registro'],
-          ['Hilos publicados', porNombre.hilo_creado || 0, 'Contenido de la comunidad'],
-          ['Desbloqueos PRO', porNombre.pro_desbloqueado || 0, 'El pago todavía es simulado']
+          ['Pedidos pagados', ventas.pedidos, fmtMoney(ventas.monto) + ' facturado'],
+          ['Checkouts iniciados', checkouts, compras + ' llegaron al pago'],
+          ['Conversión', conv + '%', compras + ' de ' + checkouts + ' checkouts']
         ];
 
         $('#adminMain').innerHTML =
@@ -308,6 +313,11 @@
                 '<div class="admin-card__label">' + escapeHtml(c[0]) + '</div>' +
                 '<p class="admin-help">' + escapeHtml(c[2]) + '</p></div>';
             }).join('') +
+          '</div>' +
+
+          '<div class="admin-panel">' +
+            '<div class="admin-panel__head"><h2>Ventas por día (' + s.dias + ' días) · ' + fmtMoney(ventas.monto) + '</h2></div>' +
+            barras(ventas.porDia, { unidad: 'pedidos', ariaLabel: 'Pedidos pagados por día' }) +
           '</div>' +
 
           '<div class="admin-panel">' +
@@ -347,18 +357,6 @@
     catch (e) { return '$ ' + v; }
   }
 
-  function estadoPago(status) {
-    var map = {
-      approved: ['ok', 'Aprobado'],
-      pending: ['warn', 'Pendiente'],
-      in_process: ['warn', 'En proceso'],
-      rejected: ['bad', 'Rechazado'],
-      refunded: ['bad', 'Reembolsado']
-    };
-    var it = map[status] || ['', status || '—'];
-    return '<span class="admin-pill admin-pill--' + it[0] + '">' + escapeHtml(it[1]) + '</span>';
-  }
-
   function renderRevenue() {
     $('#adminMain').innerHTML = '<div class="admin-loading"><div class="admin-spinner"></div><p>Cargando ingresos…</p></div>';
 
@@ -366,29 +364,31 @@
       .then(function (d) {
         d = d || {};
         var cards = [
-          ['Ingresos (30 días)', fmtMoney(d.total), 'Pagos aprobados, en ARS'],
-          ['Desbloqueos PRO', d.aprobados || 0, 'Compras acreditadas'],
-          ['Accesos PRO activos', d.pro || 0, 'Cuentas con el permiso'],
-          ['Pagos pendientes', d.pendientes || 0, 'Iniciados sin acreditar']
+          ['Ingresos (30 días)', fmtMoney(d.total), 'Pedidos de la tienda + PRO'],
+          ['Pedidos pagados', d.pedidos || 0, 'Ticket promedio ' + fmtMoney(d.ticket)],
+          ['Pendientes', d.pendientes || 0, 'Checkouts sin acreditar'],
+          ['Sin stock', d.backorder || 0, 'Vendidos en backorder']
         ];
 
         var serie = (d.serie || []).map(function (x) { return { dia: x.dia, n: x.n }; });
 
-        var filas = (d.ultimos || []).map(function (p) {
+        var filas = (d.ultimos || []).map(function (o) {
           return '<tr>' +
-            '<td>' + fmtDate(p.updated_at || p.created_at) + '</td>' +
-            '<td class="admin-cell-title">' + escapeHtml(p.usuario || '—') + '</td>' +
-            '<td>' + escapeHtml(p.email || '') + '</td>' +
-            '<td>' + fmtMoney(p.amount) + '</td>' +
-            '<td>' + estadoPago(p.status) + '</td>' +
-            '<td><code>' + escapeHtml(String(p.payment_id || '—')) + '</code></td>' +
+            '<td>' + fmtDate(o.paidAt || o.createdAt) + '</td>' +
+            '<td class="admin-cell-title">' + escapeHtml(o.numero) +
+              (o.backorder ? ' <span class="admin-pill admin-pill--bad">Sin stock</span>' : '') + '</td>' +
+            '<td>' + escapeHtml(o.nombre || '—') +
+              '<br><small class="admin-muted">' + escapeHtml(o.email || '') + '</small></td>' +
+            '<td>' + escapeHtml(o.delivery === 'retiro' ? 'Retiro' : 'Envío') + '</td>' +
+            '<td>' + fmtMoney(o.total) + '</td>' +
+            '<td>' + orderPill(o.status) + '</td>' +
           '</tr>';
         }).join('');
 
         $('#adminMain').innerHTML =
           '<div class="admin-topbar">' +
             '<div><h1 class="admin-title">Ingresos</h1>' +
-            '<p class="admin-subtitle">Desbloqueo PRO (pago único) vía MercadoPago.</p></div>' +
+            '<p class="admin-subtitle">Ventas de la tienda vía MercadoPago. El detalle operativo está en Pedidos.</p></div>' +
             '<button class="admin-btn" type="button" id="revenueReload">Actualizar</button>' +
           '</div>' +
 
@@ -401,18 +401,22 @@
           '</div>' +
 
           '<div class="admin-panel">' +
-            '<div class="admin-panel__head"><h2>Desbloqueos por día (30 días)</h2></div>' +
-            barras(serie, { unidad: 'desbloqueos', ariaLabel: 'Desbloqueos PRO por día' }) +
+            '<div class="admin-panel__head"><h2>Ventas por día (30 días) · ' + fmtMoney(d.facturado) + '</h2></div>' +
+            barras(serie, { unidad: 'pedidos', ariaLabel: 'Pedidos pagados por día' }) +
           '</div>' +
 
           '<div class="admin-panel">' +
-            '<div class="admin-panel__head"><h2>Últimos pagos</h2></div>' +
+            '<div class="admin-panel__head"><h2>Últimos pedidos</h2></div>' +
             ((d.ultimos || []).length
               ? '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
-                  '<th>Fecha</th><th>Cuenta</th><th>Email</th><th>Monto</th><th>Estado</th><th>Pago MP</th>' +
+                  '<th>Fecha</th><th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Monto</th><th>Estado</th>' +
                 '</tr></thead><tbody>' + filas + '</tbody></table></div>'
-              : '<p class="admin-empty">Todavía no hay pagos registrados.</p>') +
-          '</div>';
+              : '<p class="admin-empty">Todavía no hay pedidos.</p>') +
+          '</div>' +
+
+          '<p class="admin-help" style="margin-top:12px">' +
+            'Desbloqueo PRO: ' + (d.proPagos || 0) + ' pago(s) · ' + fmtMoney(d.proTotal || 0) +
+            ' · ' + (d.pro || 0) + ' cuenta(s) con acceso.</p>';
 
         var reload = $('#revenueReload');
         if (reload) reload.addEventListener('click', renderRevenue);
@@ -423,11 +427,13 @@
   function renderDashboard() {
     req('GET', '/metrics')
       .then(function (m) {
+        var v = m.ventas || { pagados: 0, pendientes: 0, monto: 0 };
         var cards = [
           ['Hilos', m.hilos.total, m.hilos.ocultos + ' ocultos · ' + m.hilos.resueltos + ' resueltos'],
           ['Guías', m.guias.total, m.guias.publicadas + ' publicadas · ' + m.guias.pro + ' PRO'],
           ['Usuarios', m.usuarios.total, m.usuarios.moderadores + ' moderadores · ' + m.usuarios.baneados + ' baneados'],
-          ['Vistas (30 días)', m.vistas.mes, m.vistas.hoy + ' hoy · ' + m.vistas.semana + ' esta semana']
+          ['Vistas (30 días)', m.vistas.mes, m.vistas.hoy + ' hoy · ' + m.vistas.semana + ' esta semana'],
+          ['Ventas', v.pagados, fmtMoney(v.monto) + ' · ' + v.pendientes + ' pendientes']
         ];
 
         $('#adminMain').innerHTML =

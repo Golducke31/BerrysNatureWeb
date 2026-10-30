@@ -183,7 +183,7 @@ async function metrics(req, res) {
   const current = await guards.requireRole(req, res, 'admin', 'admin');
   if (!current) return;
 
-  const [threads, guides, users, views, topThreads, topGuides, recentAudit] = await Promise.all([
+  const [threads, guides, users, views, topThreads, topGuides, recentAudit, ventas] = await Promise.all([
     db.one(`SELECT
               count(*)::int AS total,
               count(*) FILTER (WHERE is_hidden)::int AS ocultos,
@@ -208,7 +208,16 @@ async function metrics(req, res) {
               FROM content_views`),
     db.query('SELECT * FROM forum_threads ORDER BY views_count DESC LIMIT 5'),
     db.query('SELECT * FROM guides ORDER BY views DESC LIMIT 5'),
-    audit.list({ limit: 10 })
+    audit.list({ limit: 10 }),
+    /* Ventas de la tienda. Tolerante: si la migración 010 no está aplicada
+       (entorno local viejo), el dashboard muestra ceros en vez de romperse. */
+    consultarTolerante(() => db.one(
+      `SELECT
+         count(*) FILTER (WHERE status IN ('paid', 'shipped', 'delivered'))::int AS pagados,
+         count(*) FILTER (WHERE status = 'pending')::int AS pendientes,
+         coalesce(sum(total) FILTER (WHERE status IN ('paid', 'shipped', 'delivered')), 0)::float AS monto
+       FROM orders`
+    ), { pagados: 0, pendientes: 0, monto: 0 })
   ]);
 
   json(res, 200, {
@@ -216,6 +225,11 @@ async function metrics(req, res) {
     guias: guides,
     usuarios: users,
     vistas: (views && views[0]) || { hoy: 0, semana: 0, mes: 0 },
+    ventas: {
+      pagados: Number((ventas && ventas.pagados) || 0),
+      pendientes: Number((ventas && ventas.pendientes) || 0),
+      monto: Number((ventas && ventas.monto) || 0)
+    },
     topHilos: topThreads.map(S.thread),
     topGuias: topGuides.map(g => S.guide(g, true)),
     auditoria: recentAudit
@@ -256,7 +270,7 @@ async function stats(req, res) {
   const current = await guards.requireRole(req, res, 'admin', 'admin');
   if (!current) return;
 
-  const [vistasPorDia, vistasTotal, eventosPorNombre, eventosPorDia] = await Promise.all([
+  const [vistasPorDia, vistasTotal, eventosPorNombre, eventosPorDia, ventasPorDia, ventasTotal] = await Promise.all([
     // Serie diaria de lecturas. generate_series garantiza que los días sin
     // actividad aparezcan con 0 en vez de faltar (si no, el gráfico miente).
     db.query(
@@ -298,7 +312,40 @@ async function stats(req, res) {
         GROUP BY 1, 2
         ORDER BY 1`,
       [String(DIAS_TOTALES)]
-    ), [])
+    ), []),
+    /* Ventas por día (por fecha de PAGO, no de creación: un pedido creado el
+       lunes y pagado el martes es ingreso del martes). */
+    consultarTolerante(() => db.query(
+      `SELECT to_char(d.dia, 'YYYY-MM-DD') AS dia,
+              COALESCE(v.n, 0)::int AS n,
+              COALESCE(v.monto, 0)::float AS monto
+         FROM generate_series(
+                (now() - ($1 || ' days')::interval)::date,
+                now()::date,
+                interval '1 day'
+              ) AS d(dia)
+         LEFT JOIN (
+           SELECT paid_at::date AS dia,
+                  count(*)::int AS n,
+                  sum(total)::float AS monto
+             FROM orders
+            WHERE paid_at IS NOT NULL
+              AND status IN ('paid', 'shipped', 'delivered')
+              AND paid_at > now() - ($1 || ' days')::interval
+            GROUP BY 1
+         ) v ON v.dia = d.dia
+        ORDER BY d.dia`,
+      [String(DIAS_SERIE)]
+    ), []),
+    consultarTolerante(() => db.one(
+      `SELECT count(*)::int AS pedidos,
+              COALESCE(sum(total), 0)::float AS monto
+         FROM orders
+        WHERE paid_at IS NOT NULL
+          AND status IN ('paid', 'shipped', 'delivered')
+          AND paid_at > now() - ($1 || ' days')::interval`,
+      [String(DIAS_TOTALES)]
+    ), { pedidos: 0, monto: 0 })
   ]);
 
   json(res, 200, {
@@ -307,6 +354,15 @@ async function stats(req, res) {
     vistas: {
       porDia: vistasPorDia.map((r) => ({ dia: r.dia, n: r.n })),
       total: (vistasTotal && vistasTotal.n) || 0
+    },
+    ventas: {
+      porDia: (ventasPorDia || []).map((r) => ({
+        dia: r.dia,
+        n: r.n,
+        monto: Number(r.monto) || 0
+      })),
+      pedidos: Number((ventasTotal && ventasTotal.pedidos) || 0),
+      monto: Number((ventasTotal && ventasTotal.monto) || 0)
     },
     eventos: {
       porNombre: eventosPorNombre.map((r) => ({
@@ -706,16 +762,29 @@ async function revenue(req, res) {
   const q = getQuery(req);
   const dias = Math.min(Math.max(Number(q.get('dias')) || 30, 7), 180);
 
-  const vacio = { total: 0, aprobados: 0, pendientes: 0, registros: 0, pro: 0, serie: [], ultimos: [] };
+  const vacio = {
+    total: 0, facturado: 0, proTotal: 0, pedidos: 0, pendientes: 0,
+    backorder: 0, ticket: 0, pro: 0, serie: [], ultimos: []
+  };
 
   try {
-    const total = await db.one(
+    /* Pedidos de la tienda. Es la fuente principal de ingresos desde que
+       existe el checkout; antes esta vista solo miraba `payments`, que es
+       exclusivamente del desbloqueo PRO, y por eso mostraba $0. */
+    const pedidos = await db.one(
       `SELECT
-         coalesce(sum(amount) FILTER (WHERE status = 'approved'), 0)::float AS total,
-         count(*) FILTER (WHERE status = 'approved')::int AS aprobados,
-         count(*) FILTER (WHERE status = 'pending')::int  AS pendientes,
-         count(*)::int AS registros
-       FROM payments`
+         coalesce(sum(total) FILTER (WHERE status IN ('paid', 'shipped', 'delivered')), 0)::float AS facturado,
+         count(*) FILTER (WHERE status IN ('paid', 'shipped', 'delivered'))::int AS pagados,
+         count(*) FILTER (WHERE status = 'pending')::int AS pendientes,
+         count(*) FILTER (WHERE status IN ('paid', 'shipped', 'delivered') AND backorder)::int AS backorder
+       FROM orders`
+    );
+
+    /* PRO: pagos registrados en la tabla `payments` + cuentas con el permiso. */
+    const proPagos = await db.one(
+      `SELECT coalesce(sum(amount) FILTER (WHERE status = 'approved'), 0)::float AS monto,
+              count(*) FILTER (WHERE status = 'approved')::int AS n
+         FROM payments`
     );
 
     const pro = await db.one(
@@ -723,38 +792,62 @@ async function revenue(req, res) {
         WHERE (permissions->>'calculadora_pro')::boolean IS TRUE`
     );
 
+    /* Serie por fecha de PAGO (no de creación): un pedido creado el lunes y
+       pagado el martes es ingreso del martes. */
     const serie = await db.query(
       `SELECT to_char(d, 'YYYY-MM-DD') AS dia,
-              coalesce(count(p.id) FILTER (WHERE p.status = 'approved'), 0)::int AS n,
-              coalesce(sum(p.amount) FILTER (WHERE p.status = 'approved'), 0)::float AS monto
+              coalesce(count(o.id), 0)::int AS n,
+              coalesce(sum(o.total), 0)::float AS monto
          FROM generate_series(current_date - ($1::int - 1), current_date, interval '1 day') AS d
-         LEFT JOIN payments p
-           ON p.status = 'approved' AND p.updated_at::date = d::date
+         LEFT JOIN orders o
+           ON o.paid_at IS NOT NULL
+          AND o.paid_at::date = d::date
+          AND o.status IN ('paid', 'shipped', 'delivered')
         GROUP BY d
         ORDER BY d`,
       [dias]
     );
 
     const ultimos = await db.query(
-      `SELECT p.id, p.status, p.amount, p.currency, p.payment_id, p.created_at, p.updated_at,
-              u.display_name AS usuario, u.email AS email
-         FROM payments p
-         LEFT JOIN users u ON u.id = p.user_id
-        ORDER BY p.created_at DESC
+      `SELECT numero, email, nombre, total, status, paid_at, created_at, delivery, backorder
+         FROM orders
+        ORDER BY created_at DESC
         LIMIT 20`
     );
 
+    const facturado = Number((pedidos && pedidos.facturado) || 0);
+    const proTotal = Number((proPagos && proPagos.monto) || 0);
+    const pagados = Number((pedidos && pedidos.pagados) || 0);
+
     return json(res, 200, {
-      total: (total && total.total) || 0,
-      aprobados: (total && total.aprobados) || 0,
-      pendientes: (total && total.pendientes) || 0,
-      registros: (total && total.registros) || 0,
-      pro: (pro && pro.n) || 0,
-      serie: serie || [],
-      ultimos: ultimos || []
+      total: facturado + proTotal,
+      facturado,
+      proTotal,
+      pedidos: pagados,
+      pendientes: Number((pedidos && pedidos.pendientes) || 0),
+      backorder: Number((pedidos && pedidos.backorder) || 0),
+      ticket: pagados ? Math.round(facturado / pagados) : 0,
+      pro: Number((pro && pro.n) || 0),
+      proPagos: Number((proPagos && proPagos.n) || 0),
+      serie: (serie || []).map((r) => ({
+        dia: r.dia,
+        n: r.n,
+        monto: Number(r.monto) || 0
+      })),
+      ultimos: (ultimos || []).map((r) => ({
+        numero: 'BN-' + String(r.numero).padStart(6, '0'),
+        numeroRaw: Number(r.numero),
+        email: r.email,
+        nombre: r.nombre,
+        total: Number(r.total),
+        status: r.status,
+        delivery: r.delivery,
+        backorder: Boolean(r.backorder),
+        paidAt: r.paid_at,
+        createdAt: r.created_at
+      }))
     });
   } catch (err) {
-    // Migración 006 pendiente: el panel muestra ceros.
     console.error('[admin] no se pudo leer ingresos:', err && err.message);
     return json(res, 200, vacio);
   }
