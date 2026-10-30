@@ -182,6 +182,17 @@
 }
 .store-hero__trust .icon { width: 1em; height: 1em; color: var(--color-accent-botanical); }
 
+/* CTA del hero: ancla al catálogo. El contenedor ya está centrado con
+   text-align, así que alcanza con el margen superior para separarlo de los
+   badges. */
+.store-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+}
+.store-hero__cta .icon { width: 1.1em; height: 1.1em; }
+
 /* ---- Precio sobre la imagen (espejo del chip de categoría) ---- */
 .product-card__price {
   position: absolute;
