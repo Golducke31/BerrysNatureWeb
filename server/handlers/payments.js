@@ -19,6 +19,7 @@ const audit = require('../lib/audit');
 const events = require('../lib/events');
 const csrf = require('../lib/csrf');
 const orders = require('./orders');
+const lab = require('./lab');
 const { json, fail, getClientIp, getQuery } = require('../lib/http');
 
 const PRO_TITLE = "Berry's Calculator PRO — acceso de por vida";
@@ -213,6 +214,14 @@ async function webhook(req, res, body) {
   if (meta.kind === 'order' || meta.order_id) {
     const resultado = await orders.confirmPayment(payment);
     return json(res, 200, Object.assign({ ok: true, kind: 'order' }, resultado));
+  }
+
+  /* Venta de Berry's Lab: no toca `payments` (esa tabla tiene FK a users y
+     acá se compra como invitado). lab.confirmPayment emite la licencia y
+     manda el mail con la descarga. */
+  if (meta.kind === 'lab' || String(payment.external_reference || '').startsWith('lab:')) {
+    const resultado = await lab.confirmPayment(payment);
+    return json(res, 200, Object.assign({ ok: true, kind: 'lab' }, resultado));
   }
 
   await registrarPago({ userId, payment, status });

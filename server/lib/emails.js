@@ -299,7 +299,73 @@ function orderAdminNotice({ order, items, url }) {
   };
 }
 
+/** Entrega de Berry's Lab: descarga + clave de licencia. */
+function labEntrega({ nombre, clave, expira, descargaUrl, renovacion }) {
+  const saludo = nombre ? `¡Gracias, ${nombre}!` : '¡Gracias por tu compra!';
+  const titulo = renovacion ? 'Tu licencia está renovada' : 'Tu Berry\'s Lab está listo';
+  const detalleLicencia =
+    `Tu clave de licencia es:\n${clave}\n\n` +
+    `Vence el ${expira}. Guardala: la vas a necesitar si reinstalás el programa.\n\n`;
+
+  return {
+    subject: `${titulo} · Berry's Lab`,
+    text:
+      `${saludo}\n\n` +
+      `${titulo}. Ya podés descargar el programa desde acá:\n${descargaUrl}\n\n` +
+      detalleLicencia +
+      `Cómo instalarlo: descomprimí el ZIP y ejecutá BerrysLab.exe. No hace falta instalar nada más.\n\n` +
+      `Al abrirlo por primera vez te va a pedir la clave de licencia: pegala y listo.\n\n` +
+      `— El equipo de Berry's Nature`,
+    html: layout({
+      titulo,
+      intro:
+        `${esc(saludo)} ${renovacion ? 'Renovamos tu licencia de Berry\'s Lab.' : 'Tu compra de Berry\'s Lab está confirmada.'} ` +
+        'Descargá el programa y activalo con la clave de abajo.',
+      cta: 'Descargar Berry\'s Lab',
+      url: descargaUrl,
+      extra:
+        `<p style="margin:0 0 10px;font-size:14px;color:${T.muted};">Tu clave de licencia</p>` +
+        `<p style="margin:0 0 8px;padding:12px;background:${T.bg};border-radius:10px;font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all;color:${T.text};">${esc(clave)}</p>` +
+        `<p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:${T.muted};">` +
+        `Vence el <strong>${esc(expira)}</strong>. Guardala: la vas a necesitar si reinstalás el programa.<br>` +
+        `Para instalarlo: descomprimí el ZIP y ejecutá <strong>BerrysLab.exe</strong>.` +
+        `</p>`,
+      cierre: 'Si el link no funciona o perdiste tu clave, respondé este email y te ayudamos.'
+    })
+  };
+}
+
+/** Aviso interno de una venta de Berry's Lab. */
+function labAdminNotice({ nombre, email, amount, paymentId, clave, expira, renovacion }) {
+  return {
+    subject: `${renovacion ? 'Renovación' : 'Venta'} Berry's Lab · ${ars(amount)}`,
+    text:
+      `Se ${renovacion ? 'renovó' : 'vendió'} una licencia de Berry's Lab.\n\n` +
+      `Cliente: ${nombre || '—'}\n` +
+      `Email: ${email}\n` +
+      `Monto: ${ars(amount)}\n` +
+      `Pago: ${paymentId}\n` +
+      `Licencia: ${clave}\n` +
+      `Vence: ${expira}\n`,
+    html: layout({
+      titulo: `${renovacion ? 'Renovación' : 'Venta'} de Berry's Lab`,
+      intro:
+        `<strong>${esc(nombre || 'Sin nombre')}</strong> &lt;${esc(email)}&gt;<br>` +
+        `Monto: <strong>${esc(ars(amount))}</strong><br>` +
+        `Pago: ${esc(paymentId)}`,
+      cta: 'Abrir el panel',
+      url: 'https://berrysnature.com.ar/',
+      extra:
+        `<p style="margin:0 0 22px;font-size:13px;line-height:1.6;color:${T.muted};">` +
+        `Licencia emitida (vence ${esc(expira)}):<br>` +
+        `<span style="font-family:ui-monospace,Consolas,monospace;font-size:11px;word-break:break-all;">${esc(clave)}</span>` +
+        `</p>`,
+      cierre: 'La descarga y la clave ya le llegaron al cliente automáticamente.'
+    })
+  };
+}
+
 module.exports = {
   verifyEmail, resetPassword, confirmEmailChange, emailChangedNotice,
-  orderConfirmation, orderAdminNotice
+  orderConfirmation, orderAdminNotice, labEntrega, labAdminNotice
 };

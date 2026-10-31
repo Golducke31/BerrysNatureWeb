@@ -23,6 +23,7 @@ const threads = require('./handlers/threads');
 const reports = require('./handlers/reports');
 const payments = require('./handlers/payments');
 const orders = require('./handlers/orders');
+const lab = require('./handlers/lab');
 const products = require('./handlers/products');
 const reviews = require('./handlers/reviews');
 const images = require('./handlers/images');
@@ -313,6 +314,20 @@ async function handlePublic(req, res, method, seg) {
   }
   if (a === 'webhooks' && b === 'mercadopago' && method === 'POST') {
     return payments.webhook(req, res, await body(req));
+  }
+
+  /* --- Berry's Lab: venta digital (licencia anual) ---
+     Todo público: se compra como invitado y el pedido se consulta con el
+     token que viaja en la URL de vuelta de MercadoPago. El webhook entra
+     por /api/webhooks/mercadopago y deriva acá con metadata.kind = 'lab'. */
+  if (a === 'lab') {
+    if ((!b || b === 'info') && method === 'GET') return lab.info(req, res);
+    if (b === 'checkout' && !c && method === 'POST') {
+      return lab.createCheckout(req, res, await body(req));
+    }
+    if (b === 'order' && c && method === 'GET') return lab.estadoPedido(req, res, { id: c });
+    if (b === 'descarga' && c && method === 'GET') return lab.descargar(req, res, { id: c });
+    return http.notFound(res);
   }
 
   /* --- Tienda: checkout del carrito y consulta del pedido ---

@@ -186,6 +186,62 @@ async function createOrderPreference({ orderId, items, shipping, shippingLabel, 
   return data;
 }
 
+/**
+ * Preferencia para la venta de Berry's Lab (licencia anual, sin envío).
+ *
+ * `metadata.kind = 'lab'` es lo que le dice al webhook que este pago no es
+ * un pedido de la tienda ni el desbloqueo PRO, sino una venta del programa.
+ * Las `back_urls` vuelven a la landing con el id del pedido y su token, así
+ * la página puede mostrar la descarga sin que el comprador inicie sesión.
+ *
+ * @param {{orderId:string|number, token:string, email?:string, amount:number,
+ *          title?:string, appUrl:string}} opts
+ */
+async function createLabPreference({ orderId, token, email, amount, title, appUrl }) {
+  const accessTokenValue = accessToken();
+  if (!accessTokenValue) throw new Error('MERCADOPAGO_ACCESS_TOKEN no está configurado.');
+
+  const base = String(appUrl || '').replace(/\/+$/, '');
+  const pedido = encodeURIComponent(String(orderId));
+  const t = encodeURIComponent(String(token));
+
+  const body = {
+    items: [{
+      id: 'berrys-lab-licencia',
+      title: String(title || "Berry's Lab — licencia anual").slice(0, 250),
+      quantity: 1,
+      unit_price: Number(amount),
+      currency_id: 'ARS'
+    }],
+    external_reference: `lab:${orderId}`,
+    metadata: { kind: 'lab', lab_order_id: String(orderId) },
+    notification_url: `${base}/api/webhooks/mercadopago`,
+    statement_descriptor: 'BERRYSLAB',
+    back_urls: {
+      success: `${base}/berrys-lab.html?pago=ok&pedido=${pedido}&t=${t}`,
+      failure: `${base}/berrys-lab.html?pago=error&pedido=${pedido}&t=${t}`,
+      pending: `${base}/berrys-lab.html?pago=pendiente&pedido=${pedido}&t=${t}`
+    },
+    auto_return: 'approved'
+  };
+
+  if (email) body.payer = { email: String(email).slice(0, 254) };
+
+  const res = await fetch(`${API}/checkout/preferences`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessTokenValue}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((data && (data.message || data.error)) || `MercadoPago respondió ${res.status}`);
+  }
+  return data;
+}
+
 /** Trae un pago por id. Es la fuente de verdad del estado. */
 async function getPayment(paymentId) {
   const token = accessToken();
@@ -243,6 +299,6 @@ function verifySignature({ xSignature, xRequestId, dataId, secret } = {}) {
 
 module.exports = {
   isConfigured, isSandbox, webhookSecret, priceArs,
-  createPreference, createOrderPreference, getPayment, initPointDe,
+  createPreference, createOrderPreference, createLabPreference, getPayment, initPointDe,
   parseSignatureHeader, verifySignature
 };
