@@ -1282,7 +1282,8 @@ const PAGINAS_FIJAS = [
   { path: '/berrys-lab.html', changefreq: 'weekly', priority: '0.9' },
   { path: '/foro.html', changefreq: 'daily', priority: '0.8' },
   { path: '/glosario.html', changefreq: 'monthly', priority: '0.7' },
-  { path: '/normas.html', changefreq: 'monthly', priority: '0.4' }
+  { path: '/normas.html', changefreq: 'monthly', priority: '0.4' },
+  { path: '/devoluciones.html', changefreq: 'yearly', priority: '0.3' }
 ];
 
 /* Páginas legales.
