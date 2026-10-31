@@ -215,6 +215,65 @@ img {
   margin: 0 auto;
 }
 
+/* ============================================================
+   Berry's Lab — band destacado en la home (producto top)
+   Producto de mayor ticket y rentabilidad: se promociona justo
+   debajo del hero con jerarquía alta y captura del programa.
+============================================================ */
+.lab-featured {
+  background: linear-gradient(135deg, #fef6ef 0%, #eef4ec 100%);
+  padding: clamp(48px, 7vw, 88px) var(--space-lg);
+}
+.lab-featured__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(28px, 5vw, 56px);
+  align-items: center;
+}
+.lab-featured__lead {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+  margin: var(--space-md) 0 var(--space-lg);
+}
+.lab-featured__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-lg);
+  display: grid;
+  gap: var(--space-sm);
+}
+.lab-featured__list li {
+  position: relative;
+  padding-left: 30px;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+  color: var(--color-text);
+}
+.lab-featured__list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 800;
+  color: var(--color-accent-botanical);
+}
+.lab-featured__media img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: 0 22px 48px rgba(74, 63, 53, 0.18);
+  border: 6px solid var(--color-white);
+}
+@media (max-width: 860px) {
+  .lab-featured__inner { grid-template-columns: 1fr; }
+  .lab-featured__media { order: -1; max-width: 460px; margin: 0 auto var(--space-lg); }
+}
+
 /* 4. Sticky Header with Glassmorphism */
 .sticky-header {
   position: sticky;
