@@ -624,3 +624,125 @@
     justify-content: center;
   }
 }
+
+/* ---------------- ¿Para quién sirve? ---------------- */
+.lab-audience__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  margin-top: 8px;
+}
+
+.lab-audience__card {
+  background: var(--bg-card);
+  border-radius: var(--radius, 22px);
+  padding: 26px 24px;
+  box-shadow: var(--shadow-card-flat);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.lab-audience__card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-flat), 0 10px 24px rgba(140, 74, 47, 0.12);
+}
+
+.lab-audience__icon {
+  font-size: 1.9rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.lab-audience__card h3 {
+  font-family: var(--font-title);
+  font-size: var(--text-xl);
+  color: var(--color-accent-dark);
+  margin: 0 0 8px;
+}
+
+.lab-audience__card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: var(--leading-body);
+}
+
+/* ---------------- Garantía de satisfacción ---------------- */
+.lab-guarantee {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  max-width: 760px;
+  margin: 0 auto 34px;
+  padding: 22px 26px;
+  background: linear-gradient(135deg, #fff7f2, #fdeee6);
+  border: 1px solid var(--color-line-warm);
+  border-radius: var(--radius, 22px);
+  box-shadow: var(--shadow-card-flat);
+}
+
+.lab-guarantee__seal {
+  flex: 0 0 auto;
+  width: 96px;
+  height: 96px;
+}
+
+.lab-seal {
+  width: 96px;
+  height: 96px;
+  display: block;
+}
+
+.lab-seal__ring {
+  fill: none;
+  stroke: var(--color-accent-terracota);
+  stroke-width: 2;
+}
+
+.lab-seal__core {
+  fill: var(--color-accent-terracota);
+}
+
+.lab-seal__text {
+  fill: var(--color-accent-terracota);
+  font-family: var(--font-body);
+  font-size: 9.2px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+
+.lab-seal__check {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lab-guarantee__title {
+  font-family: var(--font-title);
+  font-size: var(--text-xl);
+  color: var(--color-accent-dark);
+  margin: 0 0 6px;
+}
+
+.lab-guarantee__text {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: var(--leading-body);
+}
+
+.lab-guarantee__text strong {
+  color: var(--color-accent-dark);
+}
+
+@media (max-width: 640px) {
+  .lab-audience__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lab-guarantee {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+    padding: 22px 18px;
+  }
+}

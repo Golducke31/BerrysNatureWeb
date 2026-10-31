@@ -1712,3 +1712,86 @@ html.no-pro .side-panel--pro {
 .google-btn-slot { display: flex; justify-content: center; min-height: 44px; }
 .google-btn-slot > div,
 .google-btn-slot iframe { width: 100% !important; max-width: 400px; }
+
+/* ============================================================
+   Botón flotante de WhatsApp — global (todas las páginas)
+   Se inyecta por JS (js/app.js) y se estila aquí para que viva en
+   la misma paleta neumórfica de la marca. Verde WhatsApp para
+   reconocimiento inmediato.
+   ============================================================ */
+.wa-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  width: 58px;
+  height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #25D366;
+  color: #ffffff;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
+  transition: transform .2s ease, box-shadow .2s ease;
+  animation: wa-pulse 2.6s infinite;
+}
+
+.wa-float:hover,
+.wa-float:focus-visible {
+  transform: scale(1.06);
+  box-shadow: 0 8px 22px rgba(37, 211, 102, 0.55);
+  outline: none;
+}
+
+.wa-float svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.wa-float__label {
+  position: absolute;
+  right: 70px;
+  background: var(--bg-card, #FFFCF9);
+  color: var(--color-text, #4A3F35);
+  font-family: var(--font-body, 'Nunito', sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 13px;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-card-flat, 0 4px 12px rgba(0,0,0,.12));
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.wa-float:hover .wa-float__label,
+.wa-float:focus-visible .wa-float__label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@keyframes wa-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.50); }
+  70%  { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+@media (max-width: 520px) {
+  .wa-float {
+    right: 14px;
+    bottom: 14px;
+    width: 52px;
+    height: 52px;
+  }
+  .wa-float svg { width: 27px; height: 27px; }
+  .wa-float__label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wa-float { animation: none; }
+}
