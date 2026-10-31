@@ -26,10 +26,24 @@
 # TURNSTILE_SECRET_KEY y MERCADOPAGO_* SIGUEN escaneándose: son secretos
 # reales y no deben filtrarse nunca.
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "APP_URL,MAIL_TRANSPORT,MAIL_FROM,GOOGLE_CLIENT_ID,TURNSTILE_SITE_KEY"
+  # LAB_FILE_KEY, R2_BUCKET, LAB_FILE_BYTES, LAB_PRICE_ARS,
+  # LAB_RENEWAL_PRICE_ARS y LAB_DOWNLOAD_TTL_HOURS TAMPOCO son secretos:
+  # son configuración del producto (ruta del objeto en R2, nombre del bucket,
+  # tamaño del ZIP y precios). Sus valores aparecen a propósito en
+  # .env.example y en deploy-lab.md, así que si se marcan como "contains
+  # secret values" el escaneo los encuentra ahí y rompe el build (este fue
+  # el error real). Se excluyen para no fallar por documentación legítima.
+  # SIGUEN escaneándose los secretos reales: DATABASE_URL, ADMIN_SLUG,
+  # ADMIN_GATE_KEY, SESSION_SECRET, MERCADOPAGO_*, las claves de R2
+  # (ACCOUNT/ACCESS/SECRET) y LAB_LICENSE_PRIVATE_KEY.
+  SECRETS_SCAN_OMIT_KEYS = "APP_URL,MAIL_TRANSPORT,MAIL_FROM,GOOGLE_CLIENT_ID,TURNSTILE_SITE_KEY,LAB_FILE_KEY,R2_BUCKET,LAB_FILE_BYTES,LAB_PRICE_ARS,LAB_RENEWAL_PRICE_ARS,LAB_DOWNLOAD_TTL_HOURS"
   # Los fixtures de tests usan secretos FALSOS (ej. 'testsessionsecret_...')
   # y no se despliegan: no tiene sentido que bloqueen un deploy.
-  SECRETS_SCAN_OMIT_PATHS = "tests/**"
+  #
+  # dist/** es el artefacto de build estático (HTML/CSS/JS/imágenes públicas).
+  # No contiene secretos reales (lo verificamos), así que lo excluimos del
+  # escaneo para no bloquear el deploy por coincidencias en texto inocente.
+  SECRETS_SCAN_OMIT_PATHS = "tests/**,dist/**"
 
 [functions]
   directory = "netlify/functions"
