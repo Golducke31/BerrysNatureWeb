@@ -54,7 +54,7 @@ const MAX_LINEAS = 20;        // productos distintos por pedido
 const MAX_QTY = 20;           // unidades por producto
 const MAX_SUBTOTAL = 50000000; // $50.000.000: corta payloads absurdos
 const MAX_PEDIDOS_10MIN = 8;  // por IP, contra spam de pedidos
-const EMAIL_NOTIF = () => String(process.env.ORDER_NOTIFY_EMAIL || '').trim() || 'f17051992@gmail.com';
+const EMAIL_NOTIF = () => String(process.env.ORDER_NOTIFY_EMAIL || '').trim() || 'berrysnatureok@gmail.com';
 
 /* ============================================================
    Helpers

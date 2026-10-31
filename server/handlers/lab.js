@@ -57,7 +57,7 @@ function baseUrl() {
 }
 
 function emailAdmin() {
-  return process.env.ORDER_NOTIFY_EMAIL || 'f17051992@gmail.com';
+  return process.env.ORDER_NOTIFY_EMAIL || 'berrysnatureok@gmail.com';
 }
 
 function hashIp(req) {

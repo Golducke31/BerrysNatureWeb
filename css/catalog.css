@@ -349,6 +349,32 @@
 }
 .cart-fab.is-empty .cart-fab__count { display: none; }
 
+/* El botón global de WhatsApp (css/styles.css) también vive abajo a la
+   derecha, así que en la tienda se superponía con "Mi carrito". Acá lo
+   subimos por encima del carrito y lo dejamos por debajo del overlay y
+   del drawer (z-index 950/960) para que no flote sobre el panel abierto.
+   Se acota a .page-store (el body de tienda.html) porque este CSS también
+   se carga en 404.html y berrys-lab.html, que no tienen carrito. */
+.page-store .wa-float {
+  right: 22px;
+  bottom: 96px;
+  z-index: 940;
+}
+
+@media (max-width: 760px) {
+  .page-store .wa-float {
+    right: 16px;
+    bottom: 88px;
+  }
+}
+
+@media (max-width: 520px) {
+  .page-store .wa-float {
+    right: 16px;
+    bottom: 82px;
+  }
+}
+
 /* Overlay + panel */
 .cart-overlay {
   position: fixed;

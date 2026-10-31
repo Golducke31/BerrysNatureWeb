@@ -55,7 +55,7 @@ const FOOTER =
       ${FOOTER_LOGO}
       <p class="footer-text">
         &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
-        Hecho con amor y rigor artesanal en Hurlingham, Buenos Aires.
+        Hecho con amor y rigor artesanal en Argentina, Buenos Aires.
       </p>
       <p class="footer-legal">
         <a href="../privacidad.html">Política de privacidad</a>

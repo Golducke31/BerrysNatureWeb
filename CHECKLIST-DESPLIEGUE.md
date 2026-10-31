@@ -33,9 +33,9 @@ Cargar en **Settings → Environment Variables** (Production y Preview). Nada de
 | `ADMIN_IP_ALLOWLIST` | IPs permitidas para el panel | Tu IP fija; **vacío = permitir todas** |
 | `MAIL_TRANSPORT` | Transporte de email | `resend` |
 | `MAIL_FROM` | Remitente | `Berry's Nature <no-reply@berrysnature.com.ar>` |
-| `MAIL_REPLY_TO` | Buzón real para las respuestas | `f17051992@gmail.com` |
+| `MAIL_REPLY_TO` | Buzón real para las respuestas | `berrysnatureok@gmail.com` |
 | `MAIL_API_KEY` | Clave de Resend | — |
-| `ORDER_NOTIFY_EMAIL` | Aviso interno de pedido pagado | `f17051992@gmail.com` (default si falta) |
+| `ORDER_NOTIFY_EMAIL` | Aviso interno de pedido pagado | `berrysnatureok@gmail.com` (default si falta) |
 | `MERCADOPAGO_ACCESS_TOKEN` | Cobro de la tienda **y** del desbloqueo PRO | Credencial de **producción** (`APP_USR-…`) |
 | `MERCADOPAGO_WEBHOOK_SECRET` | Validar la firma del webhook | Tus integraciones → Webhooks |
 | `PRO_PRICE_ARS` | Precio del desbloqueo | Solo números, ej. `9900` |
