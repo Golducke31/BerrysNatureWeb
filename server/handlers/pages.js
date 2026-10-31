@@ -1026,6 +1026,28 @@ async function renderProduct(req, res, { id }) {
     };
   }
 
+  // Reseñas individuales (además del promedio): completa el campo opcional
+  // `review` que Search Console marcaba como faltante y da contexto en los
+  // resultados enriquecidos. Se limitan a 10 para no inflar el HTML.
+  if (Array.isArray(resenas.items) && resenas.items.length) {
+    productLd.review = resenas.items.slice(0, 10).map((r) => {
+      const rev = {
+        '@type': 'Review',
+        author: { '@type': 'Person', name: String(r.autor || 'Cliente').slice(0, 80) },
+        reviewBody: String(r.cuerpo || '').slice(0, 1200),
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: Number(r.rating),
+          bestRating: 5,
+          worstRating: 1
+        }
+      };
+      const d = iso(r.fecha);
+      if (d) rev.datePublished = d;
+      return rev;
+    });
+  }
+
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -1619,4 +1641,65 @@ async function renderTienda(req, res) {
   return html(res, 200, markup);
 }
 
-module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderTienda, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };
+/**
+ * Feed RSS 2.0 para Google Merchant Center (Google Shopping).
+ * GET /feed.xml  (rewrite → /api/feed)
+ *
+ * Solo incluye productos disponibles y CON precio: Google exige `g:price`
+ * y un producto "consultar precio" rompería la validación del feed.
+ * El formato de precio es "16000.00 ARS" (importe + moneda), como pide
+ * la especificación de Merchant Center.
+ */
+async function renderFeed(req, res) {
+  let rows = [];
+  try {
+    rows = await db.query(
+      'SELECT * FROM products WHERE disponible = true AND precio IS NOT NULL ORDER BY orden ASC, nombre ASC'
+    );
+  } catch (err) {
+    // Sin base devolvemos un feed válido (vacío) en vez de un 500: el
+    // fetcher de Merchant reintenta y no se rompe la validación del canal.
+    console.error('[feed] no se pudo leer el catálogo:', err && err.message);
+  }
+
+  const base = siteUrl();
+  const productos = rows.map(productoParaLd).filter((p) => typeof p.precio === 'number');
+
+  const items = productos.map((p) => {
+    const enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
+    const link = `${base}/productos/${encodeURIComponent(p.id)}`;
+    const desc = String(
+      p.descripcion || `${p.nombre} — cosmética natural artesanal de Berry's Nature.`
+    ).slice(0, 5000);
+    return `    <item>
+      <g:id>${escXml(p.id)}</g:id>
+      <g:title>${escXml(String(p.nombre).slice(0, 150))}</g:title>
+      <g:description>${escXml(desc)}</g:description>
+      <g:link>${escXml(link)}</g:link>
+      <g:image_link>${escXml(absAsset(p.imagen))}</g:image_link>
+      <g:price>${Number(p.precio).toFixed(2)} ARS</g:price>
+      <g:availability>${enStock ? 'in stock' : 'out of stock'}</g:availability>
+      <g:condition>new</g:condition>
+      <g:brand>Berry's Nature</g:brand>
+      <g:mpn>${escXml(p.id)}</g:mpn>
+      <g:product_type>${escXml(p.categoria || 'Cosmética natural')}</g:product_type>
+    </item>`;
+  }).join('\n');
+
+  const cuerpo = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Berry's Nature — Catálogo</title>
+    <link>${escXml(base + '/tienda.html')}</link>
+    <description>Cosmética natural artesanal de Argentina, Buenos Aires.</description>
+${items}
+  </channel>
+</rss>
+`;
+
+  return xml(res, 200, cuerpo, {
+    'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400'
+  });
+}
+
+module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderTienda, renderFeed, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };

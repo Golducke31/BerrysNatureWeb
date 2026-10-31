@@ -207,6 +207,12 @@ async function handlePublic(req, res, method, seg) {
     return pages.renderSitemap(req, res);
   }
 
+  /* Feed de productos para Google Merchant Center (Google Shopping).
+     Rewrite: /feed.xml → /api/feed. */
+  if ((a === 'feed' || a === 'feed.xml') && method === 'GET' && !b) {
+    return pages.renderFeed(req, res);
+  }
+
   /* Página de guía renderizada en el servidor.
      Rewrite: /guias/:id → /api/guias/:id.
      OJO: no confundir con `/api/guides/:id` (la API JSON, en inglés). */

@@ -115,6 +115,14 @@
   status = 200
   force = true
 
+# Feed de productos para Google Merchant Center (Google Shopping).
+# Mismo patrón que el sitemap: se genera desde la BD en la Function.
+[[redirects]]
+  from = "/feed.xml"
+  to = "/.netlify/functions/api/feed"
+  status = 200
+  force = true
+
 # ---- Assets del panel: nunca públicos (se sirven por /api/<slug>/_/...) ----
 [[redirects]]
   from = "/css/admin.css"

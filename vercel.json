@@ -18,6 +18,7 @@
   "rewrites": [
     { "source": "/tienda.html", "destination": "/api/tienda" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/feed.xml", "destination": "/api/feed" },
     { "source": "/guias/:id", "destination": "/api/guias/:id" },
     { "source": "/foro/hilo/:id", "destination": "/api/foro/hilo/:id" },
     { "source": "/perfil/:usuario", "destination": "/api/perfil/:usuario" },
