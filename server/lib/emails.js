@@ -314,13 +314,13 @@ function labEntrega({ nombre, clave, expira, descargaUrl, renovacion }) {
       `${titulo}. Ya podés descargar el programa desde acá:\n${descargaUrl}\n\n` +
       detalleLicencia +
       `Cómo instalarlo: descomprimí el ZIP y ejecutá BerrysLab.exe. No hace falta instalar nada más.\n\n` +
-      `Al abrirlo por primera vez te va a pedir la clave de licencia: pegala y listo.\n\n` +
+      `Al abrirlo por primera vez: pegá la clave de licencia y luego creá tu usuario y contraseña (es el administrador de tu instalación; después podés sumar operadores desde el módulo Usuarios). Si tu versión te pide usuario y contraseña directo sin opción de crear, usá admin / admin123.\n\n` +
       `— El equipo de Berry's Nature`,
     html: layout({
       titulo,
       intro:
         `${esc(saludo)} ${renovacion ? 'Renovamos tu licencia de Berry\'s Lab.' : 'Tu compra de Berry\'s Lab está confirmada.'} ` +
-        'Descargá el programa y activalo con la clave de abajo.',
+        'Descargá el programa y activalo con la clave de abajo. La primera vez que lo abras, creá tu usuario y contraseña (es el administrador de tu instalación).',
       cta: 'Descargar Berry\'s Lab',
       url: descargaUrl,
       extra:
