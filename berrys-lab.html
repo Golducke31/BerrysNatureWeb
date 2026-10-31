@@ -247,6 +247,26 @@
     </section>
 
     <!-- ============================
+         VIDEO PROMOCIONAL
+    ============================== -->
+    <section class="lab-video" id="video">
+      <div class="section-header-wrapper">
+        <span class="section-label-tag">Mirá cómo funciona</span>
+        <h2 class="section-title">Berry's Lab en acción</h2>
+        <p class="section-subtitle">De la fórmula al precio, en 30 segundos.</p>
+      </div>
+
+      <figure class="lab-video__frame">
+        <video class="lab-video__player" controls playsinline preload="metadata"
+               poster="assets/lab/01-inicio.webp" width="1920" height="1080">
+          <source src="assets/lab/berryslab.mp4" type="video/mp4">
+          Tu navegador no soporta la reproducción de video.
+        </video>
+        <figcaption>Un recorrido real por el programa: fórmulas, producción y precio de venta.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============================
          QUÉ ES
     ============================== -->
     <section class="academy-section lab-intro" id="que-es">
@@ -259,24 +279,36 @@
         </p>
       </div>
 
-      <div class="lab-intro__grid">
-        <p>
-          Si hoy llevás tus fórmulas en un cuaderno y tus costos en una planilla de Excel,
-          Berry's Lab junta las dos cosas. Escribís los gramos de cada ingrediente y el
-          programa calcula los porcentajes, el costo real y —con un clic— la lista INCI
-          ordenada para pegar en el rótulo.
-        </p>
-        <p>
-          Cuando producís, escalás a los gramos que necesites y el stock se descuenta solo,
-          con el número de lote que queda registrado para siempre. Y antes de vender, el
-          módulo de precios te dice cuánto te cuesta cada unidad y a qué precio conviene
-          venderla para el margen que buscás.
-        </p>
-        <p>
-          Todo pasa en tu computadora: sin cuentas en la nube, sin depender de una conexión
-          y sin que tus fórmulas salgan de tu taller. Los datos quedan en tu equipo y
-          sobreviven a las actualizaciones del programa.
-        </p>
+      <div class="lab-pillars">
+        <article class="lab-pillar">
+          <span class="lab-pillar__num" aria-hidden="true">01</span>
+          <h3>Del cuaderno a la fórmula</h3>
+          <p>
+            Si hoy llevás tus fórmulas en un cuaderno y tus costos en una planilla de Excel,
+            Berry's Lab junta las dos cosas. Escribís los gramos de cada ingrediente y el
+            programa calcula los porcentajes, el costo real y —con un clic— la lista INCI
+            ordenada para pegar en el rótulo.
+          </p>
+        </article>
+        <article class="lab-pillar">
+          <span class="lab-pillar__num" aria-hidden="true">02</span>
+          <h3>Producir y costear sin planillas</h3>
+          <p>
+            Cuando producís, escalás a los gramos que necesites y el stock se descuenta solo,
+            con el número de lote que queda registrado para siempre. Y antes de vender, el
+            módulo de precios te dice cuánto te cuesta cada unidad y a qué precio conviene
+            venderla para el margen que buscás.
+          </p>
+        </article>
+        <article class="lab-pillar">
+          <span class="lab-pillar__num" aria-hidden="true">03</span>
+          <h3>Todo en tu computadora</h3>
+          <p>
+            Sin cuentas en la nube, sin depender de una conexión y sin que tus fórmulas
+            salgan de tu taller. Los datos quedan en tu equipo y sobreviven a las
+            actualizaciones del programa.
+          </p>
+        </article>
       </div>
     </section>
 
@@ -463,34 +495,6 @@
     ============================== -->
     <section class="lab-license" id="licencia">
 
-      <!-- ============================
-           SOPORTE GARANTIZADO
-      ============================== -->
-      <div class="lab-guarantee" id="garantia" role="note">
-        <div class="lab-guarantee__seal" aria-hidden="true">
-          <svg viewBox="0 0 120 120" class="lab-seal">
-            <defs>
-              <path id="labSealPath" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
-            </defs>
-            <circle cx="60" cy="60" r="57" class="lab-seal__ring" />
-            <circle cx="60" cy="60" r="34" class="lab-seal__core" />
-            <text class="lab-seal__text">
-              <textPath href="#labSealPath" startOffset="0">SOPORTE GARANTIZADO · BERRY'S LAB · </textPath>
-            </text>
-            <path class="lab-seal__check" d="M45,61 l11,11 l20,-25" />
-          </svg>
-        </div>
-        <div class="lab-guarantee__body">
-          <h3 class="lab-guarantee__title">Soporte garantizado, cuando lo necesites</h3>
-          <p class="lab-guarantee__text">
-            No quedás solo después de comprar: mientras tu licencia esté activa, tenés
-            <strong>soporte por WhatsApp</strong> para instalar, activar y sacarte cualquier duda.
-            Si algo no funciona como esperás, lo resolvemos. Porque el software de verdad ayuda
-            cuando alguien te acompaña para sacarle provecho.
-          </p>
-        </div>
-      </div>
-
       <div class="lab-license__card">
         <div class="lab-license__head">
           <span class="section-label-tag">Licencia anual</span>
@@ -565,17 +569,44 @@
         </details>
       </div>
 
-      <aside class="lab-req">
-        <h3>Requisitos</h3>
-        <ul>
-          <li><strong>Sistema:</strong> Windows 10 u 11, 64 bits</li>
-          <li><strong>Espacio:</strong> ~300 MB</li>
-          <li><strong>Instalación:</strong> no hace falta; se descomprime y se ejecuta</li>
-          <li><strong>Internet:</strong> solo para comprar o renovar</li>
-          <li><strong>Idioma:</strong> español e inglés</li>
-          <li><strong>Datos:</strong> en tu equipo, con backup en un clic</li>
-        </ul>
-      </aside>
+      <div class="lab-license__aside">
+        <div class="lab-guarantee" id="garantia" role="note">
+          <div class="lab-guarantee__seal" aria-hidden="true">
+            <svg viewBox="0 0 120 120" class="lab-seal">
+              <defs>
+                <path id="labSealPath" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
+              </defs>
+              <circle cx="60" cy="60" r="57" class="lab-seal__ring" />
+              <circle cx="60" cy="60" r="34" class="lab-seal__core" />
+              <text class="lab-seal__text">
+                <textPath href="#labSealPath" startOffset="0">SOPORTE GARANTIZADO · BERRY'S LAB · </textPath>
+              </text>
+              <path class="lab-seal__check" d="M45,61 l11,11 l20,-25" />
+            </svg>
+          </div>
+          <div class="lab-guarantee__body">
+            <h3 class="lab-guarantee__title">Soporte garantizado, cuando lo necesites</h3>
+            <p class="lab-guarantee__text">
+              No quedás solo después de comprar: mientras tu licencia esté activa, tenés
+              <strong>soporte por WhatsApp</strong> para instalar, activar y sacarte cualquier duda.
+              Si algo no funciona como esperás, lo resolvemos. Porque el software de verdad ayuda
+              cuando alguien te acompaña para sacarle provecho.
+            </p>
+          </div>
+        </div>
+
+        <aside class="lab-req">
+          <h3>Requisitos</h3>
+          <ul>
+            <li><strong>Sistema:</strong> Windows 10 u 11, 64 bits</li>
+            <li><strong>Espacio:</strong> ~300 MB</li>
+            <li><strong>Instalación:</strong> no hace falta; se descomprime y se ejecuta</li>
+            <li><strong>Internet:</strong> solo para comprar o renovar</li>
+            <li><strong>Idioma:</strong> español e inglés</li>
+            <li><strong>Datos:</strong> en tu equipo, con backup en un clic</li>
+          </ul>
+        </aside>
+      </div>
     </section>
 
     <!-- ============================
