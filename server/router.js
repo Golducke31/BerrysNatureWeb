@@ -278,6 +278,14 @@ async function handlePublic(req, res, method, seg) {
     return pages.renderProduct(req, res, { id: b });
   }
 
+  /* Catálogo de la tienda renderizado en el servidor: el ItemList JSON-LD
+     se genera desde la BD con precio y stock reales (antes salía sin `price`
+     y Google marcaba todos los productos como inválidos).
+     Rewrite: /tienda.html → /api/tienda (o /api/tienda.html). */
+  if ((a === 'tienda' || a === 'tienda.html') && !b && (method === 'GET' || method === 'HEAD')) {
+    return pages.renderTienda(req, res);
+  }
+
   /* Catálogo público de la tienda (tienda.html). */
   if (a === 'products') {
     if (b && c === 'reviews') {

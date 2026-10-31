@@ -20,6 +20,9 @@
    ============================================================ */
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
+
 const db = require('../lib/db');
 const S = require('../lib/serialize');
 const indexability = require('../lib/indexability');
@@ -1470,4 +1473,150 @@ ${e.lastmod ? `    <lastmod>${escXml(e.lastmod)}</lastmod>\n` : ''}    <changefr
   });
 }
 
-module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };
+/* ============================================================
+   Catálogo de la tienda (tienda.html) renderizado en el servidor
+
+   Antes el HTML estático de la tienda traía un ItemList JSON-LD SIN
+   `price`; el precio solo se inyectaba con JavaScript en el navegador.
+   Google lee el HTML crudo, así que marcaba TODOS los productos como
+   inválidos en Search Console ("Se debe especificar price").
+
+   Acá se sirve el mismo tienda.html pero con el bloque JSON-LD
+   reconstruido desde la base: precio, moneda, stock y (si hay)
+   AggregateRating reales. Si la BD falla, se sirve el HTML estático
+   tal cual para que la página nunca se caiga.
+   ============================================================ */
+
+const STATIC_ROOT = path.resolve(__dirname, '..', '..');
+
+/**
+ * Lee el HTML estático de la tienda. En Netlify el archivo viaja dentro
+ * del bundle de la Function (included_files), así que se prueban varias
+ * raíces, igual que admin-ui.readAsset().
+ * @returns {{html:string, ruta:string}|null}
+ */
+function leerTiendaHtml() {
+  const candidatos = [
+    path.join(STATIC_ROOT, 'tienda.html'),
+    path.join(__dirname, '..', '..', 'tienda.html'),
+    path.join(process.cwd(), 'tienda.html'),
+    path.join(process.cwd(), 'dist', 'tienda.html'),
+    path.join(STATIC_ROOT, 'dist', 'tienda.html')
+  ];
+  for (const full of candidatos) {
+    try {
+      return { html: fs.readFileSync(full, 'utf8'), ruta: full };
+    } catch (e) { /* se prueba la siguiente */ }
+  }
+  return null;
+}
+
+/** Fila de la BD → producto mínimo para el JSON-LD. */
+function productoParaLd(r) {
+  return {
+    id: r.id,
+    nombre: r.nombre,
+    categoria: r.categoria,
+    descripcion: r.descripcion,
+    imagen: r.imagen,
+    precio: (r.precio === null || r.precio === undefined) ? null : Number(r.precio),
+    stock: (r.stock === null || r.stock === undefined) ? null : Number(r.stock)
+  };
+}
+
+/**
+ * ItemList JSON-LD del catálogo con precio y disponibilidad reales.
+ * `resenasMap` es { [id]: { total, promedio } } (puede venir vacío).
+ */
+function buildCatalogoJsonLd(productos, resenasMap) {
+  const base = siteUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: "Catálogo Berry's Nature",
+    itemListElement: productos.map((p, i) => {
+      const item = {
+        '@type': 'Product',
+        name: p.nombre,
+        image: [absAsset(p.imagen)],
+        description: p.descripcion || `${p.nombre} — cosmética natural artesanal de Berry's Nature.`,
+        sku: p.id,
+        brand: { '@type': 'Brand', name: "Berry's Nature" }
+      };
+      if (p.categoria) item.category = p.categoria;
+
+      // stock null = sin control de stock → disponible.
+      const enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
+      if (typeof p.precio === 'number') {
+        item.offers = {
+          '@type': 'Offer',
+          price: p.precio,
+          priceCurrency: 'ARS',
+          availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          url: `${base}/productos/${encodeURIComponent(p.id)}`,
+          itemCondition: 'https://schema.org/NewCondition',
+          seller: { '@type': 'Organization', name: "Berry's Nature", url: base }
+        };
+      }
+
+      const r = resenasMap && resenasMap[p.id];
+      if (r && Number(r.total) > 0 && Number(r.promedio) > 0) {
+        item.aggregateRating = {
+          '@type': 'AggregateRating',
+          ratingValue: Number(r.promedio),
+          reviewCount: Number(r.total),
+          bestRating: 5,
+          worstRating: 1
+        };
+      }
+
+      return { '@type': 'ListItem', position: i + 1, item };
+    })
+  };
+}
+
+const RE_JSONLD_CATALOGO = /<script type="application\/ld\+json" id="catalogoJsonLd">[\s\S]*?<\/script>/;
+
+/** Reemplaza el bloque JSON-LD del catálogo dentro del HTML. */
+function inyectarJsonLdCatalogo(htmlDoc, data) {
+  const bloque = `<script type="application/ld+json" id="catalogoJsonLd">\n${jsonLd(data)}\n  </script>`;
+  if (RE_JSONLD_CATALOGO.test(htmlDoc)) {
+    return htmlDoc.replace(RE_JSONLD_CATALOGO, bloque);
+  }
+  // HTML inesperado sin el bloque: lo insertamos antes de </head>.
+  return htmlDoc.replace(/<\/head>/i, `  ${bloque}\n</head>`);
+}
+
+/**
+ * GET /tienda.html  (rewrite → /api/tienda)
+ *
+ * Sirve la tienda con el JSON-LD del catálogo generado desde la BD.
+ * Si la consulta falla, devuelve el HTML estático sin tocar (degradación
+ * limpia: la tienda sigue funcionando aunque la base no responda).
+ */
+async function renderTienda(req, res) {
+  const estatico = leerTiendaHtml();
+  if (!estatico) {
+    console.error('[tienda] no se encontró tienda.html en el bundle');
+    return html(res, 500, '<h1>Error</h1><p>No se pudo cargar la tienda.</p>');
+  }
+
+  let markup = estatico.html;
+  try {
+    const rows = await db.query(
+      'SELECT * FROM products WHERE disponible = true ORDER BY orden ASC, nombre ASC'
+    );
+    if (rows.length) {
+      const productos = rows.map(productoParaLd);
+      const resenasMap = await reviews.resumenesPara(productos.map((p) => p.id))
+        .catch(() => ({}));
+      markup = inyectarJsonLdCatalogo(markup, buildCatalogoJsonLd(productos, resenasMap));
+    }
+  } catch (err) {
+    console.error('[tienda] no se pudo generar el JSON-LD desde la BD:', err && err.message);
+  }
+
+  return html(res, 200, markup);
+}
+
+module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderTienda, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };

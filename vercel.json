@@ -7,7 +7,8 @@
       "memory": 512,
       "includeFiles": {
         "css/admin.css": "css/admin.css",
-        "js/admin.js": "js/admin.js"
+        "js/admin.js": "js/admin.js",
+        "tienda.html": "tienda.html"
       }
     }
   },
@@ -15,6 +16,7 @@
     { "source": "/marca.html", "destination": "/tienda.html", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/tienda.html", "destination": "/api/tienda" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/guias/:id", "destination": "/api/guias/:id" },
     { "source": "/foro/hilo/:id", "destination": "/api/foro/hilo/:id" },

@@ -59,7 +59,9 @@
   }
   </script>
 
-  <!-- JSON-LD: ItemList del catálogo (se reconstruye con precios desde /api/products en js/catalog.js) -->
+  <!-- JSON-LD: ItemList del catálogo. El servidor (SSR /api/tienda) lo
+       regenera con precios y stock reales desde la BD; este bloque es el
+       respaldo estático si la página se sirve sin la Function. -->
   <script type="application/ld+json" id="catalogoJsonLd">
 {
   "@context": "https://schema.org",

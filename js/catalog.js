@@ -718,9 +718,10 @@
   }
 
   /* ---------------- JSON-LD del catálogo (SEO) ----------------
-     El <head> trae un ItemList estático SIN precios. Lo reconstruimos con
-     los productos reales (precio + disponibilidad desde /api/products) para
-     que Google muestre precio y stock en los resultados de búsqueda. */
+     El servidor ya entrega el <script id="catalogoJsonLd"> con precios
+     reales (SSR desde la BD). Acá lo mantenemos al día cuando el panel
+     cambia precios/stock y la API devuelve datos distintos, con la misma
+     forma rica (sku, offer con url, AggregateRating si hay reseñas). */
   function abs(url) {
     var u = String(url || '');
     if (!u) return u;
@@ -741,20 +742,32 @@
         var item = {
           '@type': 'Product',
           name: p.nombre,
-          image: abs(p.imagen),
+          image: [abs(p.imagen)],
           description: p.descripcion,
+          sku: p.id,
           brand: { '@type': 'Brand', name: "Berry's Nature" },
           category: p.categoria
         };
+        var enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
         if (typeof p.precio === 'number') {
           item.offers = {
             '@type': 'Offer',
             price: p.precio,
             priceCurrency: 'ARS',
-            availability: p.disponible
-              ? 'https://schema.org/InStock'
-              : 'https://schema.org/OutOfStock',
-            url: origin + '/productos/' + encodeURIComponent(p.id)
+            availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            url: origin + '/productos/' + encodeURIComponent(p.id),
+            itemCondition: 'https://schema.org/NewCondition',
+            seller: { '@type': 'Organization', name: "Berry's Nature", url: origin }
+          };
+        }
+        var r = p.resenas;
+        if (r && r.total > 0 && r.promedio > 0) {
+          item.aggregateRating = {
+            '@type': 'AggregateRating',
+            ratingValue: Number(r.promedio),
+            reviewCount: Number(r.total),
+            bestRating: 5,
+            worstRating: 1
           };
         }
         return { '@type': 'ListItem', position: i + 1, item: item };
