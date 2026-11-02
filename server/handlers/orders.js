@@ -247,6 +247,36 @@ async function createCheckout(req, res, body) {
   const items = normalizarItems(body && body.items);
   const lineas = await resolverLineas(items);
 
+  /* ---- Reserva de stock (20 minutos) ----
+     Disponible = stock físico − unidades reservadas por otros pedidos
+     pendientes cuya reserva todavía no venció. Excluimos este mismo
+     idempotency_key para que un reintento no se bloquee a sí mismo. */
+  const ids = lineas.map((l) => l.product_id);
+  const disp = await db.query(
+    `SELECT p.id, p.nombre, p.stock,
+            COALESCE((
+              SELECT SUM(i.qty)
+                FROM order_items i
+                JOIN orders o ON o.id = i.order_id
+               WHERE i.product_id = p.id
+                 AND o.status = 'pending'
+                 AND o.reserved_until > now()
+                 AND o.idempotency_key <> $2
+            ), 0)::int AS reservado
+       FROM products p
+      WHERE p.id = ANY($1::text[])`,
+    [ids, key]
+  );
+  const porId = new Map(disp.map((r) => [r.id, r]));
+  for (const l of lineas) {
+    const r = porId.get(l.product_id);
+    if (!r || r.stock === null) continue;
+    const libre = Number(r.stock) - Number(r.reservado || 0);
+    if (l.qty > libre) {
+      return fail(res, 409, 'out_of_stock', `No hay stock suficiente de ${l.nombre}.`);
+    }
+  }
+
   const subtotal = lineas.reduce((t, l) => t + l.precio * l.qty, 0);
   if (subtotal <= 0) V.fail('El total del pedido no puede ser cero.', 'items');
   if (subtotal > MAX_SUBTOTAL) V.fail('El pedido supera el máximo permitido online.', 'items');
@@ -306,8 +336,10 @@ async function createCheckout(req, res, body) {
     `WITH nueva AS (
        INSERT INTO orders (
          user_id, email, nombre, telefono, delivery, shipping_zone, shipping_address,
-         notas, subtotal, shipping, total, idempotency_key, public_token, ip_hash
-       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+         notas, subtotal, shipping, total, idempotency_key, public_token, ip_hash,
+         reserved_until
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
+                 now() + interval '20 minutes')
        ON CONFLICT (idempotency_key) DO NOTHING
        RETURNING id, numero, public_token
      ), lineas AS (
@@ -351,6 +383,13 @@ async function createCheckout(req, res, body) {
         token: existente.public_token
       });
     }
+    // Renovamos la reserva si el pedido sigue pendiente (reintento del comprador).
+    await db.query(
+      `UPDATE orders SET reserved_until = now() + interval '20 minutes'
+        WHERE id = $1 AND status = 'pending'`,
+      [existente.id]
+    ).catch(() => {});
+
     if (existente.init_point) {
       return json(res, 200, {
         initPoint: existente.init_point,
@@ -447,10 +486,8 @@ async function createCheckout(req, res, body) {
  */
 async function confirmPayment(payment) {
   const meta = (payment && payment.metadata) || {};
-  /* Solo `metadata.order_id`. NO se usa `external_reference` como respaldo:
-     los pagos del desbloqueo PRO también llevan external_reference (el id de
-     usuario), y tomarlo como id de pedido haría que un pago de PRO entrara
-     por este camino. Las preferencias de pedido siempre mandan metadata. */
+  /* Solo `metadata.order_id`: las preferencias de pedido siempre mandan
+     metadata. `external_reference` no alcanza como respaldo. */
   const orderId = meta.order_id;
   if (!orderId) return { handled: false };
 
@@ -464,7 +501,7 @@ async function confirmPayment(payment) {
       `WITH pagado AS (
          UPDATE orders
             SET status = 'paid', paid_at = now(), payment_id = $1,
-                mp_status = $2, updated_at = now()
+                mp_status = $2, reserved_until = NULL, updated_at = now()
           WHERE id = $3 AND status = 'pending'
           RETURNING id
        ), descontado AS (

@@ -258,6 +258,13 @@
     if (found) found.qty += 1;
     else items.push({ id: id, qty: 1 });
     saveCart(items);
+    if (window.BerrysAnalytics && p) {
+      window.BerrysAnalytics.track('add_to_cart', {
+        currency: 'ARS',
+        value: Number(p.precio) || 0,
+        items: [window.BerrysAnalytics.itemParams(p, 1)]
+      });
+    }
     notify((p ? p.nombre : 'Producto') + ' · agregado al carrito', 'check');
   }
 
@@ -319,6 +326,32 @@
         noteEl.textContent = 'Sumá productos y finalizá la compra en MercadoPago.';
       } else {
         noteEl.textContent = 'Pago seguro con MercadoPago (envío por zona o retiro sin costo).';
+      }
+    }
+
+    // Barra de envío gratis
+    var freeEl = $('#cartFreeShip');
+    if (freeEl) {
+      if (!items.length || !cartHasPrices(items)) {
+        freeEl.hidden = true;
+      } else {
+        var subtotalCarrito = cartTotal(items);
+        var umbral = co.freeThreshold || 30000;
+        if (umbral > 0 && subtotalCarrito < umbral) {
+          var falta = umbral - subtotalCarrito;
+          var pct = Math.max(4, Math.min(100, Math.round((subtotalCarrito / umbral) * 100)));
+          freeEl.hidden = false;
+          freeEl.innerHTML =
+            '<div class="cart-freeship__text">Te faltan <strong>' + ars(falta) + '</strong> para envío gratis</div>' +
+            '<div class="cart-freeship__bar"><span style="width:' + pct + '%"></span></div>';
+        } else if (umbral > 0) {
+          freeEl.hidden = false;
+          freeEl.innerHTML =
+            '<div class="cart-freeship__text is-ok">¡Tenés <strong>envío gratis</strong>!</div>' +
+            '<div class="cart-freeship__bar"><span style="width:100%"></span></div>';
+        } else {
+          freeEl.hidden = true;
+        }
       }
     }
 
@@ -469,6 +502,17 @@
     co.el.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
 
+    if (window.BerrysAnalytics) {
+      window.BerrysAnalytics.track('begin_checkout', {
+        currency: 'ARS',
+        value: cartTotal(items),
+        items: items.map(function (i) {
+          var p = producto(i.id);
+          return p ? window.BerrysAnalytics.itemParams(p, i.qty) : null;
+        }).filter(Boolean)
+      });
+    }
+
     // Clave nueva solo si el carrito cambió desde el último intento.
     var firma = firmaCarrito(items);
     if (firma !== co.firma) {
@@ -496,24 +540,29 @@
   /** Zonas de envío: se piden una vez y se cachean en memoria. */
   function cargarZonas() {
     var cont = $('#coZonas');
-    if (!cont) return;
 
-    if (co.zones && co.zones.length) { pintarZonas(co.zones); return; }
+    if (co.zones && co.zones.length) {
+      if (cont) pintarZonas(co.zones);
+      return Promise.resolve(co.zones);
+    }
 
     var cliente = api();
     if (!cliente || !cliente.available) {
-      cont.innerHTML = '<p class="checkout-error">No pudimos cargar las opciones de envío.</p>';
-      return;
+      if (cont) cont.innerHTML = '<p class="checkout-error">No pudimos cargar las opciones de envío.</p>';
+      return Promise.resolve([]);
     }
 
-    cliente.shippingZones()
+    return cliente.shippingZones()
       .then(function (data) {
         co.zones = (data && data.zones) || [];
         co.freeThreshold = Number(data && data.freeThreshold) || 0;
-        pintarZonas(co.zones);
+        if (cont) pintarZonas(co.zones);
+        renderCart(); // actualiza la barra de envío gratis del carrito
+        return co.zones;
       })
       .catch(function () {
-        cont.innerHTML = '<p class="checkout-error">No pudimos cargar las opciones de envío. Recargá la página.</p>';
+        if (cont) cont.innerHTML = '<p class="checkout-error">No pudimos cargar las opciones de envío. Recargá la página.</p>';
+        return [];
       });
   }
 
@@ -703,6 +752,27 @@
           var o = data && data.order;
           if (!o) return;
           if (o.status === 'paid' || o.status === 'shipped') {
+            if (window.BerrysAnalytics && o.status === 'paid') {
+              var pkey = 'berrys_purchase_' + o.id;
+              var fired = false;
+              try { fired = localStorage.getItem(pkey) === '1'; } catch (e) {}
+              if (!fired) {
+                try { localStorage.setItem(pkey, '1'); } catch (e) {}
+                window.BerrysAnalytics.track('purchase', {
+                  transaction_id: o.numero || o.id,
+                  currency: 'ARS',
+                  value: Number(o.total) || 0,
+                  items: (o.items || []).map(function (it) {
+                    return {
+                      item_id: it.productId,
+                      item_name: it.nombre,
+                      price: Number(it.precio) || 0,
+                      quantity: it.qty
+                    };
+                  })
+                });
+              }
+            }
             notify('Pedido ' + o.numero + ' confirmado', 'check');
             return;
           }
@@ -810,6 +880,7 @@
     renderFilters();
     renderProducts();
     renderCart();
+    cargarZonas();
     actualizarJsonLd();
     cargarDesdeApi();
 

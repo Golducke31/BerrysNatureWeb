@@ -983,3 +983,26 @@
   padding: 0;
 }
 .product-gallery__thumb.is-active { border-color: var(--color-accent-terracota); }
+
+/* ---- Barra de envío gratis en el carrito ---- */
+.cart-freeship { margin: 0 0 12px; }
+.cart-freeship__text {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+.cart-freeship__text strong { color: var(--color-accent-dark); }
+.cart-freeship__text.is-ok { color: #5f7a4a; }
+.cart-freeship__bar {
+  height: 7px;
+  border-radius: 999px;
+  background: #efe4db;
+  overflow: hidden;
+}
+.cart-freeship__bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #b9705a, #eab8a3);
+  transition: width 0.35s ease;
+}

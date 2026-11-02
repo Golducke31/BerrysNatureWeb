@@ -891,6 +891,8 @@ function scriptsProducto() {
   <script src="/js/api-client.js"></script>
   <script src="/js/app.js"></script>
   <script src="/js/auth.js"></script>
+  <script src="/js/analytics-config.js"></script>
+  <script src="/js/analytics.js"></script>
   <script src="/js/producto.js"></script>`;
 }
 
@@ -1067,6 +1069,7 @@ async function renderProduct(req, res, { id }) {
     bodyAttrs: ` data-view-type="product" data-view-id="${esc(row.id)}"`,
     body: `
   <main>
+    <script type="application/json" id="analyticsProduct">${JSON.stringify({ id: row.id, nombre: row.nombre, precio }).replace(/</g, '\\u003c')}</script>
     <section class="product-detail-section">
       <p class="product-detail__breadcrumb">
         <a href="/">Inicio</a><span class="sep">/</span>
