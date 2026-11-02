@@ -98,7 +98,9 @@
     Array.prototype.forEach.call(thumbs, function (btn) {
       btn.addEventListener('click', function () {
         var url = btn.getAttribute('data-gallery-thumb');
-        main.style.backgroundImage = "url('" + url + "')";
+        var img = main.querySelector('img');
+        if (img) img.src = url;
+        else main.style.backgroundImage = "url('" + url + "')";
         Array.prototype.forEach.call(thumbs, function (b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
       });

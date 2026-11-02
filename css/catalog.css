@@ -41,6 +41,15 @@
   background-color: var(--bg-card);
 }
 .store-grid .guide-card__media::after { display: none; }
+.store-grid .product-card__img,
+.store-grid .product-carousel__slide img,
+.store-grid .product-carousel__hover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: var(--bg-card);
+}
 .store-grid .guide-card__title { font-size: 19px; }
 .store-grid .guide-card__excerpt {
   font-size: 13.5px;
@@ -466,8 +475,8 @@
   width: 76px;
   height: 76px;
   border-radius: 12px;
-  background-size: cover;
-  background-position: center;
+  object-fit: cover;
+  display: block;
   background-color: var(--color-line-warm);
 }
 .cart-item__name {
@@ -663,6 +672,14 @@
   box-shadow: 0 12px 34px rgba(0, 0, 0, .10);
 }
 .product-detail__media .guide-card__cat { position: absolute; top: 14px; left: 14px; }
+.product-detail__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
 .product-detail__title {
   font-size: 30px;
   line-height: 1.2;
@@ -958,6 +975,18 @@
 }
 .product-carousel__dot.is-active { background: #fff; }
 
+/* Segunda imagen al hover (desktop); en mobile manda el swipe. */
+.product-carousel__hover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.product-carousel:hover .product-carousel__hover { opacity: 1; }
+.product-carousel.is-manual .product-carousel__hover { opacity: 0 !important; }
+
 @media (max-width: 520px) {
   .product-carousel__arrow { width: 26px; height: 26px; font-size: 17px; }
 }
@@ -1006,3 +1035,113 @@
   background: linear-gradient(90deg, #b9705a, #eab8a3);
   transition: width 0.35s ease;
 }
+
+/* ---- Acordeón de la ficha (descripción / INCI / envíos) ---- */
+.product-accordion {
+  margin: 18px 0 22px;
+  border-top: 1px solid rgba(74, 63, 53, 0.12);
+}
+.product-accordion__item {
+  border-bottom: 1px solid rgba(74, 63, 53, 0.12);
+}
+.product-accordion__item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 14px 0;
+  font-family: var(--font-title);
+  font-size: 17px;
+  color: var(--color-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.product-accordion__item summary::-webkit-details-marker { display: none; }
+.product-accordion__item summary::after {
+  content: '+';
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-accent-terracota);
+}
+.product-accordion__item[open] summary::after { content: '−'; }
+.product-accordion__body { padding: 0 0 16px; }
+.product-accordion__body p {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+.product-inci {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+  letter-spacing: 0.01em;
+  background: rgba(234, 184, 163, 0.10);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.product-inci__note {
+  font-size: 12px !important;
+  color: var(--color-text-muted);
+}
+
+/* ---- Cross-sell y sellos de confianza del carrito ---- */
+.cart-cross { margin: 0 0 14px; }
+.cart-cross__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+.cart-cross__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(234, 184, 163, 0.10);
+  margin-bottom: 8px;
+}
+.cart-cross__img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--bg-card);
+  flex: 0 0 auto;
+}
+.cart-cross__info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cart-cross__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cart-cross__price { font-size: 12px; color: var(--color-text-muted); }
+.cart-cross__add {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-cta);
+  color: #4A3F35;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.cart-trust { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
+.cart-trust span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
+.cart-trust i { color: var(--color-accent-terracota); }

@@ -1208,6 +1208,12 @@
           '<textarea id="pDescripcion" style="min-height:110px" ' +
             'placeholder="Qué es, para qué sirve, cómo se usa.">' +
             escapeHtml(p ? p.descripcion : '') + '</textarea></div>' +
+        '<div class="admin-field admin-field--full"><label for="pInci">Composición (INCI)</label>' +
+          '<textarea id="pInci" style="min-height:90px" ' +
+            'placeholder="Aqua, Butyrospermum Parkii Butter, Glycerin, ...">' +
+            escapeHtml(p ? p.inci : '') + '</textarea>' +
+          '<small class="admin-help">Lista completa separada por comas. Tiene que coincidir con la etiqueta.</small>' +
+        '</div>' +
         '<div class="admin-field admin-field--full"><label for="pMeta">' +
           'Chips de la tarjeta (separados por coma)</label>' +
           '<input type="text" id="pMeta" placeholder="100 g, Uso diario, Sin alcohol" value="' +
@@ -1237,6 +1243,7 @@
           nombre: $('#pNombre').value.trim(),
           categoria: $('#pCategoria').value.trim(),
           descripcion: $('#pDescripcion').value.trim(),
+          inci: $('#pInci').value.trim(),
           imagen: imagenes[0] || '',
           imagenes: imagenes,
           mp: $('#pMp').value.trim(),

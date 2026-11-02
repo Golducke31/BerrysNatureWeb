@@ -992,12 +992,19 @@ async function renderProduct(req, res, { id }) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: row.nombre,
-    image: [ogImage],
+    image: imagenes.length ? imagenes.map((u) => absAsset(u)) : [ogImage],
     description: row.descripcion || `${row.nombre} — cosmética natural artesanal de Berry's Nature.`,
     sku: row.id,
     brand: { '@type': 'Brand', name: "Berry's Nature" }
   };
   if (row.categoria) productLd.category = row.categoria;
+  if (row.inci) {
+    productLd.additionalProperty = [{
+      '@type': 'PropertyValue',
+      name: 'INCI',
+      value: row.inci
+    }];
+  }
   if (typeof precio === 'number') {
     productLd.offers = {
       '@type': 'Offer',
@@ -1078,7 +1085,8 @@ async function renderProduct(req, res, { id }) {
       </p>
       <div class="product-detail">
         <div class="product-gallery" data-gallery>
-          <div class="product-detail__media" id="productGalleryMain" style="background-image:url('${esc(imagenes[0] || '')}')">
+          <div class="product-detail__media" id="productGalleryMain">
+            <img class="product-detail__img" src="${esc(imagenes[0] || '')}" alt="${esc(row.nombre)}" loading="eager" fetchpriority="high" decoding="async">
             ${row.categoria ? `<span class="guide-card__cat">${esc(row.categoria)}</span>` : ''}
           </div>
           ${imagenes.length > 1 ? `<div class="product-gallery__thumbs">${imagenes.map((u, i) => `<button type="button" class="product-gallery__thumb${i === 0 ? ' is-active' : ''}" data-gallery-thumb="${esc(u)}" style="background-image:url('${esc(u)}')" aria-label="Imagen ${i + 1}"></button>`).join('')}</div>` : ''}
@@ -1087,7 +1095,25 @@ async function renderProduct(req, res, { id }) {
           <h1 class="product-detail__title">${esc(row.nombre)}</h1>
           <p class="product-card__price${typeof precio === 'number' ? '' : ' is-consult'}">${esc(precioTxt)}</p>
           ${!enStock ? '<p class="product-detail__stockout">Sin stock — escribinos por disponibilidad.</p>' : (typeof row.stock === 'number' && row.stock > 0 ? '<p class="product-detail__stock">' + row.stock + ' disponibles</p>' : '')}
-          ${row.descripcion ? `<p class="product-detail__desc">${esc(row.descripcion)}</p>` : ''}
+          <div class="product-accordion">
+            ${row.descripcion ? `<details class="product-accordion__item" open>
+              <summary>Descripción</summary>
+              <div class="product-accordion__body"><p>${esc(row.descripcion)}</p></div>
+            </details>` : ''}
+            ${row.inci ? `<details class="product-accordion__item">
+              <summary>Composición (INCI)</summary>
+              <div class="product-accordion__body">
+                <p class="product-inci">${esc(row.inci)}</p>
+                <p class="product-inci__note">Corresponde a la fórmula vigente; puede variar entre lotes.</p>
+              </div>
+            </details>` : ''}
+            <details class="product-accordion__item">
+              <summary>Envío y devoluciones</summary>
+              <div class="product-accordion__body">
+                <p>Enviamos a todo el país y podés retirar sin cargo. <a href="/envios.html">Ver envíos</a> · <a href="/devoluciones.html">Devoluciones</a>.</p>
+              </div>
+            </details>
+          </div>
           ${meta.length ? `<div class="product-detail__meta">${meta.map((m) => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
           ${activos.length ? `<div class="product-detail__activos"><strong>Activos:</strong> ${activos.map((a) => esc(a)).join(' · ')}</div>` : ''}
           <div class="product-detail__cta">

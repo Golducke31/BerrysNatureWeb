@@ -116,14 +116,18 @@
   function mediaHtml(p) {
     var imgs = (Array.isArray(p.imagenes) && p.imagenes.length) ? p.imagenes.slice() : [p.imagen];
     imgs = imgs.filter(Boolean);
+    var alt = escapeHtml(p.nombre || '');
     if (imgs.length < 2) {
-      return '<div class="guide-card__media" style="background-image:url(\'' + escapeHtml(imgs[0] || '') + '\')">' +
+      return '<div class="guide-card__media">' +
+        '<img class="product-card__img" src="' + escapeHtml(imgs[0] || '') + '" alt="' + alt + '" loading="lazy" decoding="async">' +
         '<span class="guide-card__cat">' + escapeHtml(p.categoria) + '</span>' +
         stockChip(p) + precioHtml(p) +
       '</div>';
     }
-    var slides = imgs.map(function (u) {
-      return '<div class="product-carousel__slide" style="background-image:url(\'' + escapeHtml(u) + '\')"></div>';
+    var slides = imgs.map(function (u, i) {
+      return '<div class="product-carousel__slide">' +
+        '<img src="' + escapeHtml(u) + '" alt="' + alt + ' — imagen ' + (i + 1) + '" loading="lazy" decoding="async">' +
+      '</div>';
     }).join('');
     var dots = imgs.map(function (_, i) {
       return '<button type="button" class="product-carousel__dot' + (i === 0 ? ' is-active' : '') +
@@ -131,6 +135,9 @@
     }).join('');
     return '<div class="guide-card__media product-carousel" data-carousel>' +
       '<div class="product-carousel__track">' + slides + '</div>' +
+      '<div class="product-carousel__hover" aria-hidden="true">' +
+        '<img src="' + escapeHtml(imgs[1]) + '" alt="" loading="lazy" decoding="async">' +
+      '</div>' +
       '<button type="button" class="product-carousel__arrow product-carousel__arrow--prev" data-carousel-prev aria-label="Imagen anterior">‹</button>' +
       '<button type="button" class="product-carousel__arrow product-carousel__arrow--next" data-carousel-next aria-label="Imagen siguiente">›</button>' +
       '<div class="product-carousel__dots">' + dots + '</div>' +
@@ -176,11 +183,12 @@
       }
       var prev = car.querySelector('[data-carousel-prev]');
       var next = car.querySelector('[data-carousel-next]');
-      if (prev) prev.addEventListener('click', function (e) { e.stopPropagation(); go(idx - 1); });
-      if (next) next.addEventListener('click', function (e) { e.stopPropagation(); go(idx + 1); });
+      if (prev) prev.addEventListener('click', function (e) { e.stopPropagation(); car.classList.add('is-manual'); go(idx - 1); });
+      if (next) next.addEventListener('click', function (e) { e.stopPropagation(); car.classList.add('is-manual'); go(idx + 1); });
       Array.prototype.forEach.call(dots, function (d) {
-        d.addEventListener('click', function (e) { e.stopPropagation(); go(Number(d.getAttribute('data-dot'))); });
+        d.addEventListener('click', function (e) { e.stopPropagation(); car.classList.add('is-manual'); go(Number(d.getAttribute('data-dot'))); });
       });
+      car.addEventListener('mouseleave', function () { car.classList.remove('is-manual'); });
       var x0 = null;
       car.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
       car.addEventListener('touchend', function (e) {
@@ -297,7 +305,7 @@
             : 'Consultar precio';
           return '' +
             '<div class="cart-item" data-cart-item="' + escapeHtml(i.id) + '">' +
-              '<div class="cart-item__img" style="background-image:url(\'' + escapeHtml(p.imagen) + '\')"></div>' +
+              '<img class="cart-item__img" src="' + escapeHtml(p.imagen) + '" alt="' + escapeHtml(p.nombre) + '" loading="lazy" decoding="async">' +
               '<div>' +
                 '<div class="cart-item__name">' + escapeHtml(p.nombre) + '</div>' +
                 '<div class="cart-item__price">' + precio + '</div>' +
@@ -354,6 +362,40 @@
         }
       }
     }
+
+    // Cross-sell "Sumá algo más"
+    var crossEl = $('#cartCrossSell');
+    if (crossEl) {
+      if (!items.length) {
+        crossEl.hidden = true;
+      } else {
+        var ids = items.map(function (i) { return i.id; });
+        var sug = productos.filter(function (p) {
+          return p && p.disponible && !sinStock(p) && ids.indexOf(p.id) === -1;
+        }).slice(0, 2);
+        if (!sug.length) {
+          crossEl.hidden = true;
+        } else {
+          crossEl.hidden = false;
+          crossEl.innerHTML =
+            '<div class="cart-cross__title">Sumá algo más</div>' +
+            sug.map(function (p) {
+              return '<div class="cart-cross__item">' +
+                '<img class="cart-cross__img" src="' + escapeHtml(p.imagen) + '" alt="' + escapeHtml(p.nombre) + '" loading="lazy" decoding="async">' +
+                '<div class="cart-cross__info"><span class="cart-cross__name">' + escapeHtml(p.nombre) + '</span>' +
+                  '<span class="cart-cross__price">' + (typeof p.precio === 'number' ? ars(p.precio) : 'Consultar') + '</span></div>' +
+                '<button type="button" class="cart-cross__add" data-cross-add="' + escapeHtml(p.id) + '" aria-label="Agregar ' + escapeHtml(p.nombre) + '">+</button>' +
+              '</div>';
+            }).join('');
+        }
+      }
+    }
+
+    $$('[data-cross-add]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        addToCart(b.getAttribute('data-cross-add'));
+      });
+    });
 
     // Eventos del drawer
     $$('[data-inc]').forEach(function (b) {

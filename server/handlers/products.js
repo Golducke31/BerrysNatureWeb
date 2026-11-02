@@ -35,6 +35,7 @@ function toProduct(r) {
     nombre: r.nombre,
     categoria: r.categoria,
     descripcion: r.descripcion,
+    inci: r.inci || '',
     activos: Array.isArray(r.activos) ? r.activos : [],
     precio: r.precio === null ? null : Number(r.precio),
     imagen: r.imagen,
@@ -165,8 +166,8 @@ async function createProduct(req, res, body) {
   const row = await db.one(
     `INSERT INTO products
        (id, nombre, categoria, descripcion, activos, precio, imagen, imagenes, meta,
-        origen, destacado, disponible, stock, mp, orden)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+        origen, destacado, disponible, stock, mp, orden, inci)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
      RETURNING *`,
     [
       id,
@@ -183,7 +184,8 @@ async function createProduct(req, res, body) {
       V.bool(body.disponible, true),
       stockOpcional(body.stock),
       V.clean(body.mp).slice(0, 500),
-      V.int(body.orden, { min: 0, max: 9999, def: 100 })
+      V.int(body.orden, { min: 0, max: 9999, def: 100 }),
+      V.str(body.inci, { max: 4000, required: false })
     ]
   );
 
@@ -206,6 +208,7 @@ async function updateProduct(req, res, params, body) {
   if (body.nombre !== undefined) patch.nombre = V.str(body.nombre, { min: 2, max: 120, field: 'nombre' });
   if (body.categoria !== undefined) patch.categoria = V.str(body.categoria, { min: 2, max: 40, field: 'categoría' });
   if (body.descripcion !== undefined) patch.descripcion = V.str(body.descripcion, { max: 2000, required: false });
+  if (body.inci !== undefined) patch.inci = V.str(body.inci, { max: 4000, required: false });
   if (body.activos !== undefined) patch.activos = JSON.stringify(listaTexto(body.activos, 8, 60));
   if (body.precio !== undefined) patch.precio = precioOpcional(body.precio);
   if (body.imagen !== undefined) patch.imagen = V.clean(body.imagen).slice(0, 300);
