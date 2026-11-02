@@ -39,12 +39,8 @@
 
   <link rel="stylesheet" href="css/styles.css?v=3">
   <link rel="stylesheet" href="css/sections.css">
-  <link rel="stylesheet" href="css/catalog-calc.css?v=3">
   <link rel="stylesheet" href="css/academia.css?v=3">
   <link rel="stylesheet" href="css/catalog.css?v=3">
-  <!-- NIKO desactivado temporalmente. Backup intacto: css/niko-widget.css + js/niko-*.js.
-       Para reactivarlo, descomentar estas 3 líneas. -->
-  <!-- <link rel="stylesheet" href="css/niko-widget.css"> -->
 
   <!-- JSON-LD: Organization -->
   <script type="application/ld+json">
@@ -511,7 +507,7 @@
     "inLanguage": "es-AR",
     "mainEntity": [
       {"@type":"Question","name":"¿Cómo hago un pedido?","acceptedAnswer":{"@type":"Answer","text":"Elegí los productos en el catálogo, sumalos al carrito y tocá \"Finalizar compra\". Si preferís, escribinos por WhatsApp y te armamos el pedido a mano."}},
-      {"@type":"Question","name":"¿Qué medios de pago aceptan?","acceptedAnswer":{"@type":"Answer","text":"MercadoPago (tarjetas de crédito y débito, dinero en cuenta y cuotas según disponibilidad). También podés coordinar el pago por WhatsApp."}},
+      {"@type":"Question","name":"¿Qué medios de pago aceptan?","acceptedAnswer":{"@type":"Answer","text":"MercadoPago (tarjetas de crédito y débito, dinero en cuenta y cuotas según disponibilidad)."}},
       {"@type":"Question","name":"¿Hacen envíos?","acceptedAnswer":{"@type":"Answer","text":"Sí. Coordinamos el envío por WhatsApp según tu zona. También podés retirar en las ferias holísticas donde participamos."}},
       {"@type":"Question","name":"¿Los productos son cruelty free?","acceptedAnswer":{"@type":"Answer","text":"Sí: no testeamos en animales y trabajamos con ingredientes de origen vegetal y aceites esenciales."}},
       {"@type":"Question","name":"¿Sirven para pieles sensibles?","acceptedAnswer":{"@type":"Answer","text":"Nuestra línea está pensada para pieles sensibles: fórmulas simples, sin fragancias agresivas. Si tenés una condición particular, consultanos antes de comprar."}}
@@ -625,17 +621,17 @@
         <div class="store-step">
           <div class="store-step__num">1</div>
           <h3>Elegí tus productos</h3>
-          <p>Sumá al carrito todo lo que quieras del catálogo. Si tenés dudas, consultanos por WhatsApp antes de comprar.</p>
+          <p>Sumá al carrito todo lo que quieras del catálogo.</p>
         </div>
         <div class="store-step">
           <div class="store-step__num">2</div>
           <h3>Pagá con MercadoPago</h3>
-          <p>Finalizá la compra online con MercadoPago (tarjetas, dinero en cuenta y cuotas) o coordiná el pago por WhatsApp.</p>
+          <p>Finalizá la compra online con MercadoPago (tarjetas, dinero en cuenta y cuotas).</p>
         </div>
         <div class="store-step">
           <div class="store-step__num">3</div>
           <h3>Recibí en casa</h3>
-          <p>Coordinamos el envío por WhatsApp. También nos encontrás en las ferias holísticas con la línea completa.</p>
+          <p>Coordinamos el envío según tu zona. También nos encontrás en las ferias holísticas con la línea completa.</p>
         </div>
       </div>
       </div>
@@ -690,7 +686,7 @@
           </details>
           <details class="faq-item">
             <summary>¿Qué medios de pago aceptan?</summary>
-            <p>MercadoPago (tarjetas de crédito y débito, dinero en cuenta y cuotas según disponibilidad). También podés coordinar el pago por WhatsApp.</p>
+            <p>MercadoPago (tarjetas de crédito y débito, dinero en cuenta y cuotas según disponibilidad).</p>
           </details>
           <details class="faq-item">
             <summary>¿Hacen envíos?</summary>
@@ -721,7 +717,7 @@
       </div>
 
       <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
-      <p class="auth-sub">Guardá tus fórmulas, participá del foro y desbloqueá la calculadora PRO.</p>
+      <p class="auth-sub">Guardá tus fórmulas y participá del foro.</p>
 
       <button class="google-btn" id="googleSignInBtn" type="button">
         <svg class="google-g" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -779,11 +775,9 @@
         <span class="cart-total__value" id="cartTotalValue">$ 0</span>
       </div>
       <p class="cart-note" id="cartNote"></p>
-      <button class="cta-button" id="cartCheckout" type="button">
-        Finalizar compra · MercadoPago
-      </button>
-      <button class="cta-button is-whatsapp" id="cartWhatsapp" type="button">
-        <i data-icon="whatsapp"></i> Enviar pedido por WhatsApp
+      <button class="cta-button cta-mp" id="cartCheckout" type="button">
+        <img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" loading="lazy">
+        Finalizar compra
       </button>
     </div>
   </aside>
@@ -836,9 +830,6 @@
   <script src="js/community.js?v=3"></script>
   <script src="js/catalog.js?v=3"></script>
 
-  <!-- Niko — asistente conversacional de Berry's Nature -->
-  <!-- <script src="js/niko-config.js"></script> -->
-  <!-- <script src="js/niko-widget.js"></script> -->
 
 </body>
 </html>

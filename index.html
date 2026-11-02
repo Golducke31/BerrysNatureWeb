@@ -38,11 +38,7 @@
   <link rel="stylesheet" href="css/fonts.css">
 
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/catalog-calc.css">
   <link rel="stylesheet" href="css/sections.css">
-  <!-- NIKO desactivado temporalmente. Backup intacto: css/niko-widget.css + js/niko-*.js.
-       Para reactivarlo, descomentar estas 3 líneas. -->
-  <!-- <link rel="stylesheet" href="css/niko-widget.css"> -->
 
   <!-- JSON-LD: Organization (marca global — igual en las 3 páginas) -->
   <script type="application/ld+json">
@@ -94,7 +90,6 @@
           <li><a href="#inicio"       class="nav-link active">Inicio</a></li>
           <li><a href="academia.html" class="nav-link">Academia</a></li>
           <li><a href="glosario.html" class="nav-link">Glosario</a></li>
-          <li><a href="#calculadora"  class="nav-link">Berry's Calculator</a></li>
           <li><a href="#sobre-nosotros" class="nav-link">Sobre Nosotros</a></li>
           <li><a href="#contacto"     class="nav-link">Contacto</a></li>
         </ul>
@@ -132,7 +127,6 @@
         </ul>
       </li>
       <li><a href="glosario.html" class="mobile-nav-link">Glosario</a></li>
-      <li><a href="#calculadora" class="mobile-nav-link">Calculadora</a></li>
       <li><a href="#sobre-nosotros" class="mobile-nav-link">Sobre Nosotros</a></li>
       <li><a href="#contacto" class="mobile-nav-link">Contacto</a></li>
     </ul>
@@ -180,7 +174,6 @@
             <a href="tienda.html" class="cta-button" data-magnetic="5"><i data-icon="cart"></i> Tienda Berry's Nature</a>
             <a href="academia.html" class="cta-button" data-magnetic="5"><i data-icon="leaf"></i> Explorar la Academia</a>
             <a href="foro.html" class="cta-button cta-outline" data-magnetic="5"><i data-icon="chat"></i> Comunidad</a>
-            <a href="#calculadora" class="cta-button cta-outline" data-magnetic="5"><i data-icon="balance"></i> Probar Calculadora</a>
           </div>
           <a href="glosario.html" class="hero-text-link">Explorar el glosario de ingredientes <span aria-hidden="true">→</span></a>
           <ul class="hero-trust-row">
@@ -224,164 +217,7 @@
          El menú apunta allí con anclas internas.
     ============================================================= -->
 
-    <!-- ============================
-         CATALOG SECTION
-    ============================== -->
-    <!-- ============================
-         CALCULATOR SECTION
-    ============================== -->
-    <section id="calculadora" class="calculator-section" tabindex="-1">
-      <!-- Video de fondo de la calculadora -->
-      <div class="calc-video-layer" aria-hidden="true">
-        <video class="calc-video" autoplay muted loop playsinline preload="none" data-lazy-video data-src="assets/calc-oil-pour.mp4" data-src-webm="assets/calc-oil-pour.webm"></video>
-        <div class="calc-video-overlay"></div>
-      </div>
 
-      <div class="section-header-wrapper reveal" data-parallax="0.05">
-        <span class="section-label-tag">Herramienta Profesional</span>
-        <h2 class="section-title">Berry's Calculator</h2>
-        <p class="section-subtitle">Calculadora de formulación cosmética para profesionales y entusiastas</p>
-      </div>
-
-      <div class="calculator-card reveal reveal-delay-1">
-
-        <!-- Nombre de la fórmula -->
-        <div class="calc-field-group">
-          <label class="calc-label" for="formulaName">Nombre de la fórmula</label>
-          <div class="calc-input-wrap">
-            <input
-              class="calc-input"
-              type="text"
-              id="formulaName"
-              placeholder="Ej. Crema base Berry"
-              autocomplete="off"
-              aria-describedby="formulaNameTip">
-            <!-- Tooltip flotante: aparece al enfocar el campo -->
-            <div class="calc-tooltip" id="formulaNameTip" role="tooltip">
-              Así llamarás a tu creación. Ej: <em>“Sérum de Noche”</em>
-            </div>
-          </div>
-        </div>
-
-        <!-- Toggle switch de modo -->
-        <div class="calc-toggle-row">
-          <span class="toggle-label" id="labelGramsToPercent">Gramos → %</span>
-          <div
-            class="toggle-switch"
-            id="calcModeToggle"
-            role="switch"
-            aria-checked="false"
-            tabindex="0"
-            aria-label="Cambiar modo de cálculo">
-            <div class="toggle-thumb"></div>
-          </div>
-          <span class="toggle-label" id="labelPercentToGrams">% → Gramos</span>
-        </div>
-
-        <!-- Cantidad total -->
-        <div class="calc-field-group">
-          <label class="calc-label" for="totalQuantity">
-            Cantidad total (<span id="totalUnit">gramos</span>)
-          </label>
-          <input
-            class="calc-input"
-            type="number"
-            id="totalQuantity"
-            min="0"
-            step="0.01"
-            placeholder="Ej. 100">
-        </div>
-
-        <!-- Cabecera de ingredientes -->
-        <div class="ingredients-header">
-          <span>Ingrediente</span>
-          <span id="ingredientColHeader">Porcentaje (%)</span>
-          <span></span>
-        </div>
-
-        <!-- Lista dinámica de ingredientes -->
-        <div class="ingredients-list" id="ingredientsList" role="list" aria-label="Lista de ingredientes"></div>
-
-        <!-- Botón agregar -->
-        <button class="add-ingredient-btn" id="addIngredientBtn" type="button">
-          ＋ Agregar ingrediente
-        </button>
-
-        <!-- Total acumulado -->
-        <div class="calc-total-bar">
-          <div class="total-label">Total acumulado</div>
-          <div class="total-display">
-            <span id="calcTotalValue">0.00</span>
-            <span id="calcTotalUnit">%</span>
-            <span class="total-status" id="totalStatus"></span>
-          </div>
-        </div>
-
-        <!-- Barra de progreso -->
-        <div class="calc-progress-wrapper" id="calcProgressWrapper" role="progressbar"
-             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
-             aria-label="Progreso del total de la fórmula">
-          <div class="calc-progress-bar" id="calcProgressBar" style="width:0%"></div>
-        </div>
-
-        <!-- Método de Pago — Próximamente -->
-        <div class="payment-coming-soon">
-          <div class="coming-soon-badge"><i data-icon="lock" class="icon-sm"></i> Próximamente</div>
-          <h3 class="payment-title">Integración de Método de Pago</h3>
-          <p class="payment-desc">
-            Sistema de pago con MercadoPago y Stripe en desarrollo.
-            Próximamente podrás adquirir tu fórmula lista para producción directamente desde aquí.
-          </p>
-          <div class="payment-preview">
-            <div class="payment-preview-item">
-              <span><i data-icon="card" class="icon-sm"></i> Tarjeta de crédito / débito</span>
-              <span class="coming-badge">Pronto</span>
-            </div>
-            <div class="payment-preview-item">
-              <span><i data-icon="phone" class="icon-sm"></i> MercadoPago</span>
-              <span class="coming-badge">Pronto</span>
-            </div>
-            <div class="payment-preview-item">
-              <span><i data-icon="bank" class="icon-sm"></i> Transferencia bancaria</span>
-              <span class="coming-badge">Pronto</span>
-            </div>
-          </div>
-          <button class="payment-btn-disabled" disabled type="button">
-            Proceder al pago — Próximamente
-          </button>
-        </div>
-
-        <!-- Desbloqueo PRO con pago único -->
-        <div class="calc-unlock">
-          <div class="unlock-copy">
-            <strong>Acceso PRO · Pago único</strong>
-            <span>Guardá fórmulas ilimitadas, exportalas a PDF y sumate a los cursos de formulación.</span>
-          </div>
-          <button class="cta-button" id="unlockCalcBtn" type="button" data-magnetic="5">
-            Desbloquear para siempre
-          </button>
-        </div>
-
-        <!-- Acciones PRO (se revelan al desbloquear) -->
-        <div class="calc-pro-actions">
-          <button class="cta-button cta-outline pro-only" type="button" data-action="save" hidden>
-            <i data-icon="clipboard"></i> Guardar fórmula
-          </button>
-          <button class="cta-button cta-outline pro-only" type="button" data-action="export" hidden>
-            <i data-icon="box"></i> Exportar a PDF
-          </button>
-        </div>
-
-        <!-- Disclaimer -->
-        <div class="calc-disclaimer">
-          <p>
-            <i data-icon="warning" class="icon-sm"></i> <strong>Licencia de uso individual.</strong> Los cálculos son orientativos y no reemplazan
-            asesoramiento cosmetológico profesional certificado. Berry's Nature® reserva todos los derechos.
-          </p>
-        </div>
-
-      </div>
-    </section>
 
     <!-- ============================
          SOBRE NOSOTROS
@@ -538,7 +374,7 @@
       </div>
 
       <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
-      <p class="auth-sub">Guardá tus fórmulas, participá del foro y desbloqueá la calculadora.</p>
+      <p class="auth-sub">Guardá tus fórmulas y participá del foro.</p>
 
       <button class="google-btn" id="googleSignInBtn" type="button">
         <svg class="google-g" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -620,18 +456,13 @@
   <script src="js/icons.js"></script>
   <script src="js/content-data.js"></script>
   <script src="js/api-client.js"></script>
-  <script src="js/calculator.js"></script>
   <script src="js/app.js"></script>
   <script src="js/motion.js"></script>
   <script src="js/community.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/pro-unlock.js"></script>
   <script src="js/mod-panel.js"></script>
   <script src="js/about.js"></script>
 
-  <!-- Niko — asistente conversacional de Berry's Nature -->
-  <!-- <script src="js/niko-config.js"></script> -->
-  <!-- <script src="js/niko-widget.js"></script> -->
 
 </body>
 </html>

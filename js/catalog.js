@@ -132,7 +132,6 @@
             (agotado
               ? '<button class="cta-button" type="button" disabled>' + icon('plus') + ' Agregar al carrito</button>'
               : '<button class="cta-button" type="button" data-add="' + escapeHtml(p.id) + '">' + icon('plus') + ' Agregar al carrito</button>') +
-            '<button class="cta-button cta-outline" type="button" data-consult="' + escapeHtml(p.id) + '">' + icon('whatsapp') + ' Consultar por WhatsApp</button>' +
           '</div>' +
         '</div>' +
       '</article>';
@@ -162,12 +161,6 @@
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
         addToCart(btn.getAttribute('data-add'));
-      });
-    });
-    $$('[data-consult]', grid).forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        consultProducto(btn.getAttribute('data-consult'));
       });
     });
   }
@@ -210,19 +203,6 @@
     else items.push({ id: id, qty: 1 });
     saveCart(items);
     notify((p ? p.nombre : 'Producto') + ' · agregado al carrito', 'check');
-  }
-
-  function waLink(mensaje) {
-    var cfg = window.catalogConfig || {};
-    var tel = String(cfg.whatsapp || '').replace(/[^0-9]/g, '');
-    return 'https://wa.me/' + tel + '?text=' + encodeURIComponent(mensaje);
-  }
-
-  function consultProducto(id) {
-    var p = producto(id);
-    if (!p) return;
-    var msg = '¡Hola Berry\'s Nature! Me interesa *' + p.nombre + '* (' + (p.meta[0] || '') + '). ¿Me pasan precio y disponibilidad?';
-    window.open(waLink(msg), '_blank', 'noopener');
   }
 
   /* ---------------- Drawer del carrito ---------------- */
@@ -282,7 +262,7 @@
       if (!items.length) {
         noteEl.textContent = 'Sumá productos y finalizá la compra en MercadoPago.';
       } else {
-        noteEl.textContent = 'Pago seguro con MercadoPago (envío por zona o retiro sin costo). También podés enviarnos el pedido por WhatsApp.';
+        noteEl.textContent = 'Pago seguro con MercadoPago (envío por zona o retiro sin costo).';
       }
     }
 
@@ -405,7 +385,7 @@
 
           '<div class="checkout-resumen" id="coResumen"></div>' +
 
-          '<button class="cta-button checkout-submit" id="coPagar" type="submit">Pagar con MercadoPago</button>' +
+          '<button class="cta-button checkout-submit cta-mp" id="coPagar" type="submit"><img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" loading="lazy"> Pagar con MercadoPago</button>' +
           '<p class="checkout-error" id="coError" hidden></p>' +
           '<p class="checkout-note">Al continuar te redirigimos a MercadoPago. Tus datos de tarjeta no pasan por nuestro sitio.</p>' +
         '</form>' +
@@ -629,23 +609,6 @@
       });
   }
 
-  /** Pedido por WhatsApp: la alternativa cuando no se quiere pagar online. */
-  function pedidoWhatsapp() {
-    var items = loadCart();
-    if (!items.length) { notify('Tu carrito está vacío', 'whatsapp'); return; }
-
-    var lineas = items.map(function (i) {
-      var p = producto(i.id);
-      if (!p) return '';
-      var precio = typeof p.precio === 'number' ? ' — ' + ars(p.precio) + ' c/u' : '';
-      return '• ' + p.nombre + ' x' + i.qty + precio;
-    }).filter(Boolean).join('\n');
-    var total = cartHasPrices(items) ? '\n\nTotal estimado: ' + ars(cartTotal(items)) : '';
-    var msg = '¡Hola Berry\'s Nature! Quiero hacer este pedido:\n\n' + lineas + total +
-      '\n\n¿Cómo seguimos con el pago y el envío?';
-    window.open(waLink(msg), '_blank', 'noopener');
-  }
-
   /** ¿Volvimos del checkout de MercadoPago? Muestra el resultado. */
   function revisarRetornoDePago() {
     var params;
@@ -802,8 +765,6 @@
     });
     var btnCheckout = $('#cartCheckout');
     if (btnCheckout) btnCheckout.addEventListener('click', openCheckout);
-    var btnWa = $('#cartWhatsapp');
-    if (btnWa) btnWa.addEventListener('click', pedidoWhatsapp);
 
     // Si venimos de MercadoPago, mostramos el resultado del pago.
     revisarRetornoDePago();

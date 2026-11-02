@@ -32,7 +32,7 @@ const BLOG_POSTS = [
     vistas: 1840,
     imagen: 'assets/academia/academia-costo-real.webp',
     tags: ['precios', 'margen', 'costos'],
-    icon: 'calculator',
+    icon: 'flask',
     url: 'academia/costo-real-crema-margen.html',
     leerMas: 'Sumar el precio del frasco es el error número uno de quien arranca. El costo real incluye materia prima, envase, etiqueta, mermas de producción (siempre hay), el tiempo tuyo valuado, y un margen para imprevistos y crecimiento. En esta guía armamos una planilla base que podés replicar en Google Sheets: costo unitario = (MP + envase + etiqueta + mano de obra + mermas) / unidades del lote. De ahí sacás tu precio mínimo de venta y tu margen real.'
   },

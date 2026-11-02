@@ -122,9 +122,7 @@ function authModalHtml() {
       </div>
 
       <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
-      <p class="auth-sub">${features.contenidoPro()
-        ? 'Guardá tus fórmulas, participá del foro y desbloqueá la calculadora PRO.'
-        : 'Guardá tus fórmulas y participá del foro.'}</p>
+      <p class="auth-sub">Guardá tus fórmulas y participá del foro.</p>
 
       <button class="google-btn" id="googleSignInBtn" type="button">
         <span class="google-g" aria-hidden="true">G</span>
@@ -196,7 +194,6 @@ function scriptsHtml() {
   <script src="/js/app.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/community.js"></script>
-${features.contenidoPro() ? `  <script src="/js/pro-unlock.js"></script>` : ''}
   <script src="/js/mod-panel.js"></script>
   <script src="/js/hilo.js"></script>`;
 }
@@ -213,38 +210,16 @@ function scriptsPerfil() {
 }
 
 /** Hojas de estilo del foro (por defecto). */
-const CSS_FORO = ['styles', 'sections', 'academia', 'foro', 'niko-widget'];
+const CSS_FORO = ['styles', 'sections', 'academia', 'foro'];
 /** Hojas de estilo de una guía: reusa el layout de los artículos. */
-const CSS_GUIA = ['styles', 'sections', 'academia', 'guide-article', 'niko-widget'];
+const CSS_GUIA = ['styles', 'sections', 'academia', 'guide-article'];
 /** Hojas de estilo de la página de producto (tienda). */
 const CSS_PRODUCTO = ['styles', 'sections', 'academia', 'catalog', 'reviews'];
-/** WhatsApp de la tienda (para el CTA "consultar" de la página de producto). */
-const WA_TIENDA = process.env.WHATSAPP_NUMBER || '5491156090265';
-
-/** Flags de producto inyectados en el <head> de las páginas SSR, igual que
- *  scripts/build.cjs hace para los HTML estáticos. Así flags.js y los demás
- *  módulos saben si CALCULATOR_ENABLED / PRO_CONTENT_ENABLED están en false. */
-function flagsInline() {
-  const calculator = features.calculadora();
-  const pro = features.contenidoPro();
-  return `<script>window.BERRYS_FLAGS = window.BERRYS_FLAGS || {};` +
-    `window.BERRYS_FLAGS.calculator = ${calculator};` +
-    `window.BERRYS_FLAGS.pro = ${pro};</script>\n` +
-    `  <script src="/js/flags.js"></script>`;
-}
-
-/** Clases de interruptor en <html> (mismo criterio que el build). */
-function flagsHtmlClass() {
-  const cls = [];
-  if (!features.calculadora()) cls.push('no-calculator');
-  if (!features.contenidoPro()) cls.push('no-pro');
-  return cls.join(' ');
-}
 
 /** Layout completo de una página de contenido. */
 function layout({ title, description, canonical, robots, ogImage, jsonLdBlocks = [], body, extraHead = '', css = CSS_FORO, scripts = null, bodyAttrs = '' }) {
   return `<!DOCTYPE html>
-<html lang="es"${flagsHtmlClass() ? ` class="${flagsHtmlClass()}"` : ''}>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -274,7 +249,6 @@ ${robots ? `  <meta name="robots" content="${esc(robots)}">\n` : ''}  <link rel=
 ${css.map((h) => `  <link rel="stylesheet" href="/css/${h}.css">`).join('\n')}
 ${extraHead}
 ${jsonLdBlocks.map((b) => `  <script type="application/ld+json">\n  ${jsonLd(b)}\n  </script>`).join('\n')}
-${flagsInline()}
 </head>
 <body class="page-forum"${bodyAttrs}>
 ${headerHtml()}
@@ -610,7 +584,7 @@ function cuerpoGuia(texto) {
     .join('\n        ');
 }
 
-function bodyGuia(g, { esPro }) {
+function bodyGuia(g) {
   const imagen = rutaImagenSegura(g.imagen);
   const hero = imagen
     ? `<div class="guide-hero-media" style="background-image:url('${imagen}')" role="img" aria-label="${esc(g.titulo)}"></div>`
@@ -620,13 +594,7 @@ function bodyGuia(g, { esPro }) {
     ? `<div class="guide-tags">${(g.tags || []).map((t) => `<span class="chip">${esc(t)}</span>`).join('')}</div>`
     : '';
 
-  // Las guías PRO no exponen el cuerpo: se muestra el resumen y el CTA.
-  const contenido = esPro
-    ? `<div class="guide-disclaimer">
-         <strong>Contenido PRO.</strong> Esta guía se desbloquea con el pago único de la
-         calculadora. <a href="/index.html#calculadora">Ver cómo desbloquear</a>.
-       </div>`
-    : cuerpoGuia(g.leerMas);
+  const contenido = cuerpoGuia(g.leerMas);
 
   return `
   <main>
@@ -699,12 +667,11 @@ async function renderGuide(req, res, { id }) {
     }), { 'X-Robots-Tag': 'noindex, nofollow' });
   }
 
-  // Si el contenido PRO está apagado por flag de entorno y esta guía es PRO,
-  // la tratamos como inexistente: 404 (noindex) y nada que indexar.
-  if (Boolean(row.is_pro) && !features.contenidoPro()) {
+  // Las guías marcadas como PRO quedan fuera de línea.
+  if (Boolean(row.is_pro)) {
     return html(res, 404, layout({
-      title: "Guía PRO no disponible | Berry's Nature",
-      description: 'El contenido PRO está temporalmente desactivado.',
+      title: "Guía no disponible | Berry's Nature",
+      description: 'Este contenido no está disponible.',
       canonical: guiaUrl(id),
       robots: 'noindex, follow',
       ogImage: `${siteUrl()}/assets/og-image.jpg`,
@@ -792,7 +759,7 @@ async function renderGuide(req, res, { id }) {
     ogImage,
     jsonLdBlocks: bloques,
     css: CSS_GUIA,
-    body: bodyGuia(g, { esPro })
+    body: bodyGuia(g)
   });
 
   const headers = {
@@ -924,8 +891,28 @@ function scriptsProducto() {
   <script src="/js/api-client.js"></script>
   <script src="/js/app.js"></script>
   <script src="/js/auth.js"></script>
-${features.contenidoPro() ? '  <script src="/js/pro-unlock.js"></script>' : ''}
   <script src="/js/producto.js"></script>`;
+}
+
+/** Datos de envío y devolución para los Offer (Google Merchant/Product). */
+function merchantPolicies() {
+  return {
+    hasMerchantReturnPolicy: {
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'AR',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted'
+    },
+    shippingDetails: {
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: 4500, currency: 'ARS' },
+      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'AR' },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: 2, maxValue: 7, unitCode: 'DAY' }
+      }
+    }
+  };
 }
 
 async function renderProduct(req, res, { id }) {
@@ -986,10 +973,8 @@ async function renderProduct(req, res, { id }) {
     console.error('[producto] no se pudieron leer reseñas:', err && err.message);
   }
 
-  const waMsg = `¡Hola Berry's Nature! Me interesa *${row.nombre}*. ¿Me pasan precio y disponibilidad?`;
-  const waHref = `https://wa.me/${WA_TIENDA}?text=${encodeURIComponent(waMsg)}`;
   const mpBtn = (row.mp && enStock)
-    ? `<a class="cta-button" href="${esc(row.mp)}" target="_blank" rel="noopener">Comprar en MercadoPago</a>`
+    ? `<a class="cta-button cta-mp" href="${esc(row.mp)}" target="_blank" rel="noopener"><img class="mp-logo" src="/assets/pagos/mercadopago-color.svg" alt="MercadoPago" loading="lazy"> Comprar</a>`
     : '';
 
   // ---- Datos estructurados Product + Offer ----
@@ -1011,7 +996,8 @@ async function renderProduct(req, res, { id }) {
       availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       url: canonical,
       itemCondition: 'https://schema.org/NewCondition',
-      seller: { '@type': 'Organization', name: "Berry's Nature", url: siteUrl() }
+      seller: { '@type': 'Organization', name: "Berry's Nature", url: siteUrl() },
+      ...merchantPolicies()
     };
   }
 
@@ -1091,7 +1077,6 @@ async function renderProduct(req, res, { id }) {
           ${meta.length ? `<div class="product-detail__meta">${meta.map((m) => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
           ${activos.length ? `<div class="product-detail__activos"><strong>Activos:</strong> ${activos.map((a) => esc(a)).join(' · ')}</div>` : ''}
           <div class="product-detail__cta">
-            <a class="cta-button is-whatsapp" href="${waHref}" target="_blank" rel="noopener">Consultar por WhatsApp</a>
             ${mpBtn}
             <a class="cta-button cta-outline" href="/tienda.html">Ver toda la tienda</a>
           </div>
@@ -1578,7 +1563,8 @@ function buildCatalogoJsonLd(productos, resenasMap) {
           availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
           url: `${base}/productos/${encodeURIComponent(p.id)}`,
           itemCondition: 'https://schema.org/NewCondition',
-          seller: { '@type': 'Organization', name: "Berry's Nature", url: base }
+          seller: { '@type': 'Organization', name: "Berry's Nature", url: base },
+          ...merchantPolicies()
         };
       }
 

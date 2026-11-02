@@ -405,44 +405,6 @@
   color: var(--color-text-muted);
 }
 
-.formula-load-btn {
-  margin-top: auto;
-  width: 100%;
-}
-
-/* ------------------------------------------------------------
-   4. DESBLOQUEO PRO (pago único)
-   ------------------------------------------------------------ */
-.calc-unlock {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  background: linear-gradient(120deg, rgba(234, 184, 163, 0.22) 0%, rgba(255, 252, 249, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 18px;
-  padding: 20px 24px;
-  margin-top: 8px;
-}
-
-.unlock-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.unlock-copy strong {
-  font-family: var(--font-title);
-  font-size: 17px;
-  color: var(--color-text);
-}
-
-.unlock-copy span {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
 /* ------------------------------------------------------------
    5. ESTADO VACÍO
    Las tarjetas de hilo (.thread-*) se movieron a css/foro.css, que

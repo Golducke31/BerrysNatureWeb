@@ -327,13 +327,6 @@
     /* --- Métricas de vistas --- */
     view: function (type, id) { return request('POST', '/api/views', { type: type, id: id }); },
 
-    /* --- Pagos (desbloqueo PRO) ---
-       Devuelve el link de MercadoPago (initPoint) o { yaEsPro: true }. */
-    checkout: function () {
-      if (isFile) return Promise.reject(ApiError('Sin backend (file://)', 0, 'offline'));
-      return request('POST', '/api/payments/checkout', {});
-    },
-
     /* --- Tienda: carrito y pedidos ---
        `idempotencyKey` es obligatoria: el servidor la usa para no crear dos
        pedidos si el usuario hace doble clic o el navegador reintenta. Se

@@ -33,14 +33,6 @@
     if (window.toast) window.toast(msg, icon);
   }
 
-  // Feature flags (calculadora / pro) inyectados por el build (scripts/build.cjs)
-  // y por el SSR (server/handlers/pages.js). Por defecto ambos true; en false
-  // ocultamos (vía flags.js) y aquí no wireamos los disparadores.
-  var FLAGS = window.BerrysFlags || {
-    calculator: (window.BERRYS_FLAGS || {}).calculator === true,
-    pro: (window.BERRYS_FLAGS || {}).pro === true
-  };
-
   function initial(name) {
     return escapeHtml(String(name || 'U').trim().charAt(0).toUpperCase() || 'U');
   }
@@ -334,59 +326,6 @@
     ensureTurnstile();
   }
 
-  /* ---- Desbloqueo de la calculadora PRO (pago único) ---- */
-  function setupUnlock() {
-    var btn = $('#unlockCalcBtn');
-    if (!btn) return;
-    // Contenido PRO o calculadora apagados: ocultamos y no wireamos el desbloqueo.
-    if (!FLAGS.pro || !FLAGS.calculator) { btn.style.display = 'none'; return; }
-    btn.addEventListener('click', function () {
-      if (!currentUser) {
-        openAuthModal('register');
-        toast('Creá tu cuenta para desbloquear la calculadora PRO');
-        return;
-      }
-      if (window.BerrysPro && typeof window.BerrysPro.openPayment === 'function') {
-        window.BerrysPro.openPayment();
-      } else {
-        toast('Pasarela de pago (MercadoPago/Stripe) pendiente de integración.', 'lock');
-      }
-    });
-  }
-
-  /* ---- Cargar fórmula desde query param (?load=ID) ---- */
-  function applyPendingFormulaFromQuery() {
-    try {
-      if (!FLAGS.calculator) return; // calculadora apagada: nada que precargar
-      var params = new URLSearchParams(window.location.search);
-      var loadId = params.get('load');
-      if (!loadId || typeof FORMULAS === 'undefined') return;
-      var f = FORMULAS.filter(function (x) { return x.id === loadId; })[0];
-      if (!f) return;
-      if (window.BerrysCalculator && typeof window.BerrysCalculator.loadFormula === 'function') {
-        window.BerrysCalculator.loadFormula({
-          name: f.titulo,
-          total: 100,
-          ingredients: f.ingredientes.filter(function (i) { return i.valor > 0; })
-            .map(function (i) { return { name: i.nombre, value: i.valor }; })
-        });
-        var target = document.getElementById('calculadora');
-        if (target) {
-          var header = document.querySelector('.sticky-header');
-          var offset = (header && header.offsetHeight) || 80;
-          window.scrollTo({
-            top: target.getBoundingClientRect().top + window.scrollY - offset,
-            behavior: 'smooth'
-          });
-        }
-      } else {
-        try {
-          localStorage.setItem('berrys_pending_formula', JSON.stringify({ id: f.id, time: Date.now() }));
-        } catch (e) { /* ignora */ }
-      }
-    } catch (e) { /* ignora */ }
-  }
-
   /* ============================================================
      REPORTE DE CONTENIDO (Etapa 5, F9)
 
@@ -545,10 +484,8 @@
   function init() {
     paintSession();                 // pinta ya, sin esperar la red
     setupAuthModal();
-    setupUnlock();
     setupReport();
     injectStoreInDrawer();
-    applyPendingFormulaFromQuery();
     loadSession();                  // y confirma contra el servidor
 
     if (window.BerrysMotion) {

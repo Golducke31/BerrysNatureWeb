@@ -24,18 +24,6 @@
      que este archivo). Antes había una copia local acá y otra en community.js. */
   const toast = window.toast;
 
-  /* ---------------- Feature flags (calculadora / pro) ----------------
-     Ventana global inyectada por el build (scripts/build.cjs) y por
-     server/handlers/pages.js. Si CALCULATOR_ENABLED=false o
-     PRO_CONTENT_ENABLED=false en el entorno, ocultamos esas partes sin
-     borrar el código. Por defecto ambos true.
-     Leemos window.BerrysFlags (que deja lista flags.js) y, como respaldo,
-     window.BERRYS_FLAGS directamente (el inline del <head> corre antes). */
-  const FLAGS = window.BerrysFlags || {
-    calculator: (window.BERRYS_FLAGS || {}).calculator === true,
-    pro:        (window.BERRYS_FLAGS || {}).pro === true
-  };
-
   /* ---------------- Progreso (localStorage) ---------------- */
   const READ_KEY = 'berrys_read_posts';
   function getRead() {
@@ -197,24 +185,6 @@
 
     // Tarjetas PRO bloqueadas al final (solo si el contenido PRO está prendido)
     const proPosts = guias.filter(p => p.pro);
-    if (FLAGS.pro && rutaActiva === 'Todas' && catActiva === 'Todas' && proPosts.length) {
-      grid.insertAdjacentHTML('beforeend', proPosts.map(p => `
-        <article class="guide-card guide-card--pro reveal" data-reveal data-id="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(p.titulo)} (PRO)">
-          <div class="guide-card__media" style="background-image:url('${escapeHtml(p.imagen || 'assets/academia-square.webp')}')">
-            <span class="pro-badge">${iconSvg('lock')} PRO</span>
-            <span class="guide-card__lockicon">${iconSvg('lock')}</span>
-            <span class="guide-card__cat" style="left:auto;right:14px;">${escapeHtml(p.categoria)}</span>
-          </div>
-          <div class="guide-card__body">
-            <h3 class="guide-card__title">${escapeHtml(p.titulo)}</h3>
-            <p class="guide-card__excerpt">${escapeHtml(p.resumen)}</p>
-            <button class="cta-button guide-card__btn" type="button" data-pro="${p.id}">
-              ${iconSvg('lock')} Desbloquear PRO
-            </button>
-          </div>
-        </article>`).join(''));
-    }
-
     // Eventos
     grid.querySelectorAll('[data-open]').forEach(btn =>
       btn.addEventListener('click', e => { e.stopPropagation(); openGuide(btn.dataset.open); })
@@ -234,13 +204,6 @@
       card.addEventListener('click', () => openGuide(card.dataset.id));
       card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGuide(card.dataset.id); } });
     });
-    grid.querySelectorAll('[data-pro]').forEach(btn =>
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        toast('El contenido PRO se desbloquea con el pago único. ¡Muy pronto!', 'lock');
-      })
-    );
-
     observeReveals();
   }
 
@@ -313,21 +276,8 @@
           <h4>Ingredientes</h4>
           <ul class="formula-ing-list">${rows}</ul>
         </div>
-        ${FLAGS.calculator
-          ? `<button class="cta-button cta-outline formula-load-btn" type="button" data-load="${f.id}">
-          ${iconSvg('balance')} Cargar en la calculadora
-        </button>`
-          : ''}
       </article>`;
     }).join('');
-
-    grid.querySelectorAll('[data-load]').forEach(btn =>
-      btn.addEventListener('click', () => {
-        const id = btn.dataset.load;
-        toast('Abriendo la calculadora con la fórmula precargada…', 'balance');
-        window.location.href = 'index.html?load=' + encodeURIComponent(id) + '#calculadora';
-      })
-    );
 
     observeReveals();
   }
@@ -419,23 +369,6 @@
     });
   }
 
-  function renderPro() {
-    const wrap = $('#proList');
-    if (!wrap) return;
-    // Contenido PRO apagado: dejamos el sidebar vacío (flags.js ya oculta
-    // cualquier resto, y el botón de desbloqueo no se wirea en init).
-    if (!FLAGS.pro) { wrap.innerHTML = ''; return; }
-    const pro = guias.filter(p => p.pro);
-    wrap.innerHTML = pro.map(p => `
-      <div class="pro-item">
-        <span class="pro-item__icon">${iconSvg(p.icon)}</span>
-        <div>
-          <div class="pro-item__t">${escapeHtml(p.titulo)}</div>
-          <div class="pro-item__d">${escapeHtml(p.resumen)}</div>
-        </div>
-      </div>`).join('');
-  }
-
   /* ============================================================
      9. REVEAL ON SCROLL
      ============================================================ */
@@ -469,7 +402,6 @@
     // renderProveedores();
     // setupBatchCalc();
     renderPopular();
-    renderPro();
     updateProgress();
 
     // Modal
@@ -478,13 +410,6 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && $('#guideModal')?.classList.contains('open')) closeGuide();
     });
-
-    // Desbloquear PRO (solo si el contenido PRO está prendido)
-    if (FLAGS.pro) {
-      $('#unlockProBtn')?.addEventListener('click', () => {
-        toast('El acceso PRO (pago único) estará disponible muy pronto. ¡Gracias por sumarte!', 'lock');
-      });
-    }
 
     observeReveals();
 
@@ -496,7 +421,6 @@
       renderCatFilters();
       renderGuias();
       renderPopular();
-      renderPro();
       updateProgress();
       observeReveals();
     });

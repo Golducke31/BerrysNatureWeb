@@ -71,20 +71,6 @@ function escribirBuildInfo() {
 
 const BUILD_DATE = escribirBuildInfo();
 
-/* Interruptores de producto (calculadora / contenido PRO). APAGADOS por
-   defecto; se prenden con CALCULATOR_ENABLED=true / PRO_CONTENT_ENABLED=true
-   en el entorno de Netlify y re-desplegando. Se inyectan en el <head> de cada
-   HTML para que el cliente (js/flags.js) sepa qué ocultar sin borrar código. */
-const flagsOn = (name) => process.env[name] === 'true';
-const FLAGS = { calculator: flagsOn('CALCULATOR_ENABLED'), pro: flagsOn('PRO_CONTENT_ENABLED') };
-
-function flagsInline() {
-  return `<script>window.BERRYS_FLAGS = window.BERRYS_FLAGS || {};` +
-    `window.BERRYS_FLAGS.calculator = ${FLAGS.calculator};` +
-    `window.BERRYS_FLAGS.pro = ${FLAGS.pro};</script>\n` +
-    `  <script src="/js/flags.js"></script>`;
-}
-
 /* Carpetas y archivos que forman parte del sitio público. */
 const DIRS = ['css', 'js', 'assets', 'academia'];
 const FILES = ['robots.txt', 'sitemap.xml', 'googlec9455e9c4623b814.html'];
@@ -140,28 +126,9 @@ function ensureFacebookInFooter(html) {
   );
 }
 
-/* Clases de interruptor en <html>, para que el CSS (css/styles.css) pueda
-   ocultar los bloques SIN depender de que corra JS (evita el parpadeo y que
-   un JS cacheado deje la calculadora a la vista). */
-function flagsHtmlClass() {
-  const cls = [];
-  if (!FLAGS.calculator) cls.push('no-calculator');
-  if (!FLAGS.pro) cls.push('no-pro');
-  return cls.join(' ');
-}
-
-/** Inyecta los interruptores (clase en <html> + flags en <head>) y versiona los assets. */
+/** Asegura el footer y versiona los assets. */
 function processHtml(html) {
-  let out = html.replace(/<html(\s[^>]*?)?>/i, (m, attrs) => {
-    const cls = flagsHtmlClass();
-    const a = attrs || '';
-    if (!cls) return m;
-    return /class=/i.test(a)
-      ? `<html${a.replace(/class="([^"]*)"/i, (mm, c) => `class="${c} ${cls}"`)}>`
-      : `<html${a} class="${cls}">`;
-  });
-  out = out.replace(/<head>/i, (m) => `${m}\n  ${flagsInline()}`);
-  out = ensureFacebookInFooter(out);
+  let out = ensureFacebookInFooter(html);
   return versionAssetsInHtml(out);
 }
 
