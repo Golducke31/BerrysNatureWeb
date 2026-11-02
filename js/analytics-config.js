@@ -8,6 +8,6 @@
    - Meta Pixel: Meta Events Manager → Orígenes de datos → ID del píxel.
    ============================================================ */
 window.BERRYS_ANALYTICS = {
-  ga4: '',
+  ga4: 'G-4CMT7PCJDC',
   metaPixel: ''
 };
