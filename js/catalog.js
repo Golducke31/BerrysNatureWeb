@@ -429,17 +429,55 @@
     });
   }
 
+  /* --- Historial de overlays (botón atrás) ---
+     Al abrir el carrito o el checkout empujamos un estado. El atrás del
+     navegador cierra el overlay y deja al usuario en la tienda, en vez de
+     salir a la página anterior. */
+  var overlayDepth = 0;
+  var overlayBase = '';
+
+  function pushOverlay(hash) {
+    if (overlayDepth === 0) overlayBase = location.pathname + location.search;
+    overlayDepth += 1;
+    try { history.pushState({ berryOverlay: overlayDepth }, '', hash); } catch (e) {}
+  }
+
+  function popOverlay() {
+    if (overlayDepth <= 0) return;
+    overlayDepth -= 1;
+    if (overlayDepth === 0) {
+      try { history.replaceState(null, '', overlayBase || (location.pathname + location.search)); } catch (e) {}
+    }
+  }
+
+  window.addEventListener('popstate', function () {
+    if (overlayDepth <= 0) return;
+    if (co.el && co.el.classList.contains('is-open')) {
+      closeCheckout(true);
+    } else {
+      closeCart(true);
+    }
+    overlayDepth -= 1;
+    if (overlayDepth <= 0) {
+      overlayDepth = 0;
+      try { history.replaceState(null, '', overlayBase || (location.pathname + location.search)); } catch (e) {}
+    }
+  });
+
   function openCart() {
     var d = $('#cartDrawer'), o = $('#cartOverlay');
+    if (d && d.classList.contains('is-open')) return;
     if (d) d.classList.add('is-open');
     if (o) o.classList.add('is-open');
     document.body.style.overflow = 'hidden';
+    pushOverlay('#carrito');
   }
-  function closeCart() {
+  function closeCart(fromHistory) {
     var d = $('#cartDrawer'), o = $('#cartOverlay');
     if (d) d.classList.remove('is-open');
     if (o) o.classList.remove('is-open');
     document.body.style.overflow = '';
+    if (!fromHistory) popOverlay();
   }
 
   /* ---------------- Checkout ---------------- */
@@ -540,6 +578,8 @@
     if (!items.length) { notify('Tu carrito está vacío', 'cart'); return; }
 
     buildCheckoutModal();
+    closeCart(); // el carrito no queda detrás: atrás vuelve a la tienda
+    pushOverlay('#checkout');
     co.el.classList.add('is-open');
     co.el.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -572,11 +612,12 @@
     if (foco) setTimeout(function () { foco.focus(); }, 60);
   }
 
-  function closeCheckout() {
+  function closeCheckout(fromHistory) {
     if (!co.el) return;
     co.el.classList.remove('is-open');
     co.el.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (!fromHistory) popOverlay();
   }
 
   /** Zonas de envío: se piden una vez y se cachean en memoria. */

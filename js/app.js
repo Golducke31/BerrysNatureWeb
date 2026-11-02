@@ -223,8 +223,11 @@ document.addEventListener('DOMContentLoaded', () => {
             targetElement.focus({ preventScroll: true });
           }, 800);
 
-          // Update URL hash without causing a page jump
-          history.pushState(null, null, targetId);
+          // Update URL hash without causing a page jump.
+          // replaceState (no pushState): navegar entre secciones no debe
+          // llenar el historial. Así el botón atrás vuelve a la página
+          // anterior, no a cada sección por la que pasaste.
+          history.replaceState(null, null, targetId);
         }
       }
     });
