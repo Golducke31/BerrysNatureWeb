@@ -182,6 +182,13 @@ async function handleAdmin(req, res, method, seg) {
 
   /* Licencias de Berry's Lab: listado y soporte. */
   if (a === 'lab') {
+    if (b === 'upload-url' && !c && method === 'POST') return labAdmin.uploadUrl(req, res, await body(req));
+    if (b === 'publish' && !c && method === 'POST') return labAdmin.publish(req, res, await body(req));
+    if (b === 'rollback' && !c && method === 'POST') return labAdmin.rollback(req, res, await body(req));
+    if (b === 'version' && !c && method === 'GET') return labAdmin.version(req, res);
+    if (b === 'coupons' && !c && method === 'GET') return labAdmin.listCoupons(req, res);
+    if (b === 'coupons' && !c && method === 'POST') return labAdmin.createCoupon(req, res, await body(req));
+    if (b === 'coupons' && c && method === 'PATCH') return labAdmin.updateCoupon(req, res, { id: c }, await body(req));
     if (b === 'licenses' && !c && method === 'GET') return labAdmin.list(req, res);
     if (b === 'licenses' && c && !d && method === 'GET') return labAdmin.getOne(req, res, { id: c });
     if (b === 'licenses' && c && d === 'resend' && method === 'POST') return labAdmin.resend(req, res, { id: c }, await body(req));

@@ -32,6 +32,12 @@ function isConfigured() {
   return Boolean(c.account && c.accessKey && c.secretKey && c.bucket && c.fileKey);
 }
 
+/** Para subir: no hace falta una clave fija, se genera por archivo. */
+function isStorageConfigured() {
+  const c = config();
+  return Boolean(c.account && c.accessKey && c.secretKey && c.bucket);
+}
+
 function sha256Hex(texto) {
   return crypto.createHash('sha256').update(texto, 'utf8').digest('hex');
 }
@@ -52,12 +58,13 @@ function rutaCodificada(bucket, key) {
  *          secretKey:string, region?:string, expira?:number, amzDate?:string}} opts
  * @returns {string} URL firmada
  */
-function presign({ host, bucket, key, accessKey, secretKey, region, expira, amzDate, path }) {
+function presign({ host, bucket, key, accessKey, secretKey, region, expira, amzDate, path, method }) {
   const ahora = amzDate || new Date().toISOString().replace(/[:-]|\.\d{3}/g, ''); // YYYYMMDDTHHMMSSZ
   const fecha = ahora.slice(0, 8);
   const zona = region || 'auto';
   const alcance = `${fecha}/${zona}/s3/aws4_request`;
   const segundos = Math.max(60, Number(expira) || 48 * 3600);
+  const metodo = String(method || 'GET').toUpperCase();
 
   // Orden alfabético: es requisito del canonical query string.
   const query = new URLSearchParams({
@@ -72,7 +79,7 @@ function presign({ host, bucket, key, accessKey, secretKey, region, expira, amzD
   // por defecto se usa path-style, que es como se arma la URL de R2.
   const ruta = path || rutaCodificada(bucket, key);
   const canonicalRequest = [
-    'GET',
+    metodo,
     ruta,
     query.toString(),
     `host:${host}\n`,
@@ -100,19 +107,66 @@ function presign({ host, bucket, key, accessKey, secretKey, region, expira, amzD
  * URL firmada para descargar el archivo.
  * @returns {string|null} null si falta configuración.
  */
-function urlDeDescarga(ttlSegundos) {
+function urlDeDescarga(ttlSegundos, key) {
   const c = config();
-  if (!isConfigured()) return null;
+  const objeto = String(key || c.fileKey || '').trim();
+  if (!isStorageConfigured() || !objeto) return null;
 
   return presign({
     host: `${c.account}.r2.cloudflarestorage.com`,
     bucket: c.bucket,
-    key: c.fileKey,
+    key: objeto,
     accessKey: c.accessKey,
     secretKey: c.secretKey,
     region: 'auto',
     expira: Number(ttlSegundos) || c.ttlHoras * 3600
   });
+}
+
+/** URL firmada para subir un archivo (PUT directo del navegador a R2). */
+function urlDeSubida(key, ttlSegundos) {
+  const c = config();
+  const objeto = String(key || '').trim();
+  if (!isStorageConfigured() || !objeto) return null;
+
+  return presign({
+    host: `${c.account}.r2.cloudflarestorage.com`,
+    bucket: c.bucket,
+    key: objeto,
+    accessKey: c.accessKey,
+    secretKey: c.secretKey,
+    region: 'auto',
+    expira: Number(ttlSegundos) || 900,
+    method: 'PUT'
+  });
+}
+
+/** HEAD al objeto: sirve para confirmar que la subida terminó y leer el tamaño. */
+async function infoObjeto(key) {
+  const c = config();
+  if (!isStorageConfigured() || !key) return null;
+
+  const url = presign({
+    host: `${c.account}.r2.cloudflarestorage.com`,
+    bucket: c.bucket,
+    key,
+    accessKey: c.accessKey,
+    secretKey: c.secretKey,
+    region: 'auto',
+    expira: 60,
+    method: 'HEAD'
+  });
+
+  try {
+    const r = await fetch(url, { method: 'HEAD' });
+    if (!r.ok) return null;
+    return {
+      bytes: Number(r.headers.get('content-length') || 0),
+      etag: r.headers.get('etag') || ''
+    };
+  } catch (e) {
+    return null;
+  }
 }
 
 /** Tamaño legible del archivo, si está configurado en el entorno. */
@@ -123,4 +177,4 @@ function pesoLegible() {
   return `${mb.toFixed(0)} MB`;
 }
 
-module.exports = { isConfigured, urlDeDescarga, pesoLegible, config, presign };
+module.exports = { isConfigured, isStorageConfigured, urlDeDescarga, urlDeSubida, infoObjeto, pesoLegible, config, presign };

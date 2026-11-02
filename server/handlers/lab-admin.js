@@ -312,4 +312,207 @@ async function health(req, res) {
   });
 }
 
-module.exports = { list, getOne, resend, regenerate, extend, revoke, notes, remind, health };
+/* ---------------- POST /lab/upload-url ---------------- */
+async function uploadUrl(req, res, body) {
+  const current = await requireAdmin(req, res);
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+  if (!r2.isStorageConfigured()) {
+    return fail(res, 503, 'storage_not_configured', 'Falta configurar R2 (account, bucket y credenciales).');
+  }
+
+  const filename = String(body.filename || '').trim().slice(0, 120);
+  if (!/\.(zip|exe)$/i.test(filename)) {
+    return fail(res, 400, 'invalid_file', 'Subí un archivo .zip o .exe.');
+  }
+  const safe = filename.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-80);
+  const key = `berrys-lab/berrys-lab-${Date.now()}-${safe}`;
+  const url = r2.urlDeSubida(key, 900);
+  if (!url) return fail(res, 503, 'storage_not_configured', 'No se pudo firmar la subida.');
+
+  json(res, 200, { url, key, expires: 900 });
+}
+
+/* ---------------- POST /lab/publish ---------------- */
+async function publish(req, res, body) {
+  const current = await requireAdmin(req, res);
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+
+  const key = V.str(body.key, { min: 3, max: 300, field: 'archivo' });
+  const version = V.str(body.version, { min: 1, max: 40, field: 'versión' });
+  const changelog = V.str(body.changelog, { max: 4000, required: false, field: 'novedades' });
+
+  const info = await r2.infoObjeto(key);
+  if (!info) {
+    return fail(res, 400, 'file_missing',
+      'No encontramos el archivo en R2. Revisá el CORS del bucket y que el token tenga permiso de escritura.');
+  }
+
+  const row = await db.one("SELECT value FROM site_content WHERE key = 'lab'");
+  const cur = (row && row.value) || {};
+  const previous = cur.fileKey
+    ? {
+        fileKey: cur.fileKey,
+        fileBytes: Number(cur.fileBytes) || 0,
+        version: cur.version || '',
+        changelog: cur.changelog || '',
+        publishedAt: cur.publishedAt || null
+      }
+    : (cur.previous || null);
+
+  const value = Object.assign({}, cur, {
+    fileKey: key,
+    fileBytes: info.bytes,
+    version,
+    changelog: changelog || '',
+    publishedAt: new Date().toISOString(),
+    previous
+  });
+
+  await db.query(
+    `INSERT INTO site_content (key, value) VALUES ('lab', $1::jsonb)
+     ON CONFLICT (key) DO UPDATE SET value = $1::jsonb, updated_at = now()`,
+    [JSON.stringify(value)]
+  );
+  await audit.log({
+    actor: current.user, action: 'admin.lab.publish', entityType: 'lab', entityId: 'lab',
+    payload: { version, key, bytes: info.bytes }, ip: getClientIp(req)
+  });
+  json(res, 200, { ok: true, version, fileKey: key, fileBytes: info.bytes });
+}
+
+/* ---------------- POST /lab/rollback ---------------- */
+async function rollback(req, res, body) {
+  const current = await requireAdmin(req, res);
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+
+  const row = await db.one("SELECT value FROM site_content WHERE key = 'lab'");
+  const cur = (row && row.value) || {};
+  const prev = cur.previous;
+  if (!prev || !prev.fileKey) {
+    return fail(res, 400, 'no_previous', 'No hay una versión anterior para volver.');
+  }
+
+  const value = Object.assign({}, cur, {
+    fileKey: prev.fileKey,
+    fileBytes: prev.fileBytes || 0,
+    version: prev.version || '',
+    changelog: prev.changelog || '',
+    publishedAt: prev.publishedAt || null,
+    previous: {
+      fileKey: cur.fileKey,
+      fileBytes: Number(cur.fileBytes) || 0,
+      version: cur.version || '',
+      changelog: cur.changelog || '',
+      publishedAt: cur.publishedAt || null
+    }
+  });
+
+  await db.query(
+    `INSERT INTO site_content (key, value) VALUES ('lab', $1::jsonb)
+     ON CONFLICT (key) DO UPDATE SET value = $1::jsonb, updated_at = now()`,
+    [JSON.stringify(value)]
+  );
+  await audit.log({
+    actor: current.user, action: 'admin.lab.rollback', entityType: 'lab', entityId: 'lab',
+    payload: { version: value.version }, ip: getClientIp(req)
+  });
+  json(res, 200, { ok: true, version: value.version, fileKey: value.fileKey });
+}
+
+/* ---------------- GET /lab/version ---------------- */
+async function version(req, res) {
+  const current = await requireAdmin(req, res);
+  if (!current) return;
+
+  const row = await db.one("SELECT value FROM site_content WHERE key = 'lab'");
+  const v = (row && row.value) || {};
+  json(res, 200, {
+    price: Number(v.price) || 175500,
+    renewalPrice: Number(v.renewalPrice) || Number(v.price) || 175500,
+    version: v.version || '',
+    changelog: v.changelog || '',
+    eula: v.eula || '',
+    fileKey: v.fileKey || '',
+    fileBytes: Number(v.fileBytes) || 0,
+    publishedAt: v.publishedAt || null,
+    previous: v.previous || null
+  });
+}
+
+/* ---------------- Cupones ---------------- */
+function toCoupon(r) {
+  return {
+    id: String(r.id),
+    code: r.code,
+    percent: Number(r.percent) || 0,
+    amount: Number(r.amount) || 0,
+    maxUses: r.max_uses == null ? null : Number(r.max_uses),
+    usedCount: Number(r.used_count) || 0,
+    expiresAt: r.expires_at,
+    active: Boolean(r.active),
+    createdAt: r.created_at
+  };
+}
+
+async function listCoupons(req, res) {
+  const current = await requireAdmin(req, res);
+  if (!current) return;
+  const rows = await db.query('SELECT * FROM lab_coupons ORDER BY created_at DESC');
+  json(res, 200, { items: rows.map(toCoupon) });
+}
+
+async function createCoupon(req, res, body) {
+  const current = await requireAdmin(req, res);
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+
+  const raw = V.str(body.code, { min: 3, max: 40, field: 'código' });
+  const code = raw.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+  if (code.length < 3) return fail(res, 400, 'invalid_code', 'El código necesita al menos 3 caracteres.');
+
+  const tipo = String(body.type || 'percent');
+  const valor = V.int(body.value, { min: 1, max: 99999999, def: 10 });
+  const maxUses = body.maxUses ? V.int(body.maxUses, { min: 1, max: 100000, def: 100 }) : null;
+  const expiresAt = body.expiresAt ? V.str(body.expiresAt, { max: 40, required: false }) : null;
+
+  const percent = tipo === 'percent' ? Math.min(valor, 100) : null;
+  const amount = tipo === 'amount' ? valor : null;
+
+  const row = await db.one(
+    `INSERT INTO lab_coupons (code, percent, amount, max_uses, expires_at)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [code, percent, amount, maxUses, expiresAt]
+  );
+  await audit.log({
+    actor: current.user, action: 'admin.lab.coupon.create', entityType: 'lab_coupon',
+    entityId: String(row.id), payload: { code }, ip: getClientIp(req)
+  });
+  json(res, 201, toCoupon(row));
+}
+
+async function updateCoupon(req, res, { id }, body) {
+  const current = await requireAdmin(req, res);
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+  if (body.active === undefined) return fail(res, 400, 'invalid_input', 'Falta el estado.');
+
+  const row = await db.one(
+    'UPDATE lab_coupons SET active = $2, updated_at = now() WHERE id = $1 RETURNING *',
+    [id, Boolean(body.active)]
+  );
+  if (!row) return notFound(res);
+  await audit.log({
+    actor: current.user, action: 'admin.lab.coupon.update', entityType: 'lab_coupon',
+    entityId: String(id), payload: { active: Boolean(body.active) }, ip: getClientIp(req)
+  });
+  json(res, 200, toCoupon(row));
+}
+
+module.exports = {
+  list, getOne, resend, regenerate, extend, revoke, notes, remind, health,
+  uploadUrl, publish, rollback, version,
+  listCoupons, createCoupon, updateCoupon
+};

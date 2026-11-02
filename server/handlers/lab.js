@@ -67,6 +67,24 @@ async function precioRenovacionArs() {
   return precioArs();
 }
 
+async function getLabContent() {
+  try {
+    const row = await db.one("SELECT value FROM site_content WHERE key = 'lab'");
+    return (row && row.value) || {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function aplicarCupon(monto, cupon) {
+  let out = Number(monto) || 0;
+  const pct = Number(cupon.percent);
+  const fijo = Number(cupon.amount);
+  if (Number.isFinite(pct) && pct > 0) out = Math.round(out * (1 - Math.min(pct, 100) / 100));
+  else if (Number.isFinite(fijo) && fijo > 0) out = out - Math.min(fijo, out - 1);
+  return Math.max(1, out);
+}
+
 function baseUrl() {
   const raw = String(process.env.APP_URL || '').trim().replace(/\/+$/, '');
   return raw || 'https://berrysnature.com.ar';
@@ -114,12 +132,17 @@ function urlDescarga(id, token) {
 
 /* ---------------- GET /api/lab/info ---------------- */
 async function info(req, res) {
+  const lab = await getLabContent();
+  const bytes = Number(lab.fileBytes) || Number(process.env.LAB_FILE_BYTES) || 0;
   json(res, 200, {
     precio: await precioArs(),
     precioRenovacion: await precioRenovacionArs(),
     moneda: 'ARS',
-    descargaInmediata: r2.isConfigured(),
-    peso: r2.pesoLegible() || null,
+    descargaInmediata: r2.isStorageConfigured(),
+    peso: bytes ? `${(bytes / (1024 * 1024)).toFixed(0)} MB` : (r2.pesoLegible() || null),
+    version: lab.version || '',
+    changelog: lab.changelog || '',
+    eula: lab.eula || '',
     pagosDisponibles: mp.isConfigured()
   }, { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' });
 }
@@ -156,6 +179,24 @@ async function createCheckout(req, res, body) {
     monto = await precioArs();
   }
 
+  let cupon = null;
+  const codigoCupon = String(datos.coupon || '').trim().toUpperCase().slice(0, 40);
+  if (codigoCupon) {
+    try {
+      cupon = await db.one(
+        `SELECT * FROM lab_coupons
+          WHERE upper(code) = $1 AND active = true
+            AND (expires_at IS NULL OR expires_at > now())
+            AND (max_uses IS NULL OR used_count < max_uses)`,
+        [codigoCupon]
+      );
+    } catch (e) {
+      return fail(res, 503, 'coupons_unavailable', 'Los cupones no están disponibles.');
+    }
+    if (!cupon) return fail(res, 400, 'coupon_invalid', 'El cupón no es válido o venció.');
+    monto = aplicarCupon(monto, cupon);
+  }
+
   // El cobro se chequea después de validar: así el usuario ve primero qué
   // le falta completar y no un "pago no disponible" que no explica nada.
   if (!mp.isConfigured()) {
@@ -182,6 +223,15 @@ async function createCheckout(req, res, body) {
        RETURNING id, public_token`,
       [email, nombre || null, monto, token, ip, renovacionDe]
     );
+
+    if (cupon) {
+      // La columna coupon_code llega con la migración 020; si todavía no
+      // está, el checkout igual funciona y el cupón se cuenta igual.
+      try {
+        await db.query('UPDATE lab_orders SET coupon_code = $2 WHERE id = $1', [fila.id, cupon.code]);
+      } catch (e) { /* columna sin migrar */ }
+      await db.query('UPDATE lab_coupons SET used_count = used_count + 1 WHERE id = $1', [cupon.id]);
+    }
 
     const preferencia = await mp.createLabPreference({
       orderId: fila.id,
@@ -239,12 +289,14 @@ async function estadoPedido(req, res, { id }) {
   };
 
   if (aprobado) {
+    const lab = await getLabContent();
+    const bytes = Number(lab.fileBytes) || Number(process.env.LAB_FILE_BYTES) || 0;
     salida.descargaUrl = urlDescarga(fila.id, fila.public_token);
     salida.clave = fila.licencia_key || null;
     salida.expira = fechaISO(fila.licencia_expira);
     salida.expiraTexto = fechaLinda(fila.licencia_expira);
-    salida.peso = r2.pesoLegible() || null;
-    salida.descargaDisponible = r2.isConfigured();
+    salida.peso = bytes ? `${(bytes / (1024 * 1024)).toFixed(0)} MB` : (r2.pesoLegible() || null);
+    salida.descargaDisponible = r2.isStorageConfigured();
     salida.descargas = Number(fila.download_count || 0);
   }
 
@@ -265,7 +317,8 @@ async function descargar(req, res, { id }) {
     return fail(res, 403, 'sin_pago', 'Este pedido todavía no está pago.');
   }
 
-  const url = r2.urlDeDescarga(3600);
+  const lab = await getLabContent();
+  const url = r2.urlDeDescarga(3600, lab.fileKey || process.env.LAB_FILE_KEY);
   if (!url) {
     return fail(res, 503, 'sin_storage',
       'La descarga automática no está disponible. Escribinos por WhatsApp y te lo enviamos.');

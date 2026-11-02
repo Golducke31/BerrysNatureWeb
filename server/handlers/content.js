@@ -35,7 +35,13 @@ async function get(req, res, params) {
   if (key === 'lab') {
     return json(res, 200, {
       price: Number(v.price) || 175500,
-      renewalPrice: Number(v.renewalPrice) || Number(v.price) || 175500
+      renewalPrice: Number(v.renewalPrice) || Number(v.price) || 175500,
+      version: typeof v.version === 'string' ? v.version : '',
+      changelog: typeof v.changelog === 'string' ? v.changelog : '',
+      eula: typeof v.eula === 'string' ? v.eula : '',
+      fileBytes: Number(v.fileBytes) || 0,
+      publishedAt: v.publishedAt || null,
+      hasFile: Boolean(v.fileKey)
     });
   }
 
@@ -72,18 +78,39 @@ async function update(req, res, params, body) {
   }
 
   if (key === 'lab') {
-    const price = V.int(body.price, { min: 1, max: 99999999, def: 175500 });
-    const renewalPrice = V.int(body.renewalPrice, { min: 1, max: 99999999, def: price });
+    const row = await db.one("SELECT value FROM site_content WHERE key = 'lab'");
+    const cur = (row && row.value) || {};
+
+    const price = V.int(body.price, { min: 1, max: 99999999, def: Number(cur.price) || 175500 });
+    const renewalPrice = V.int(body.renewalPrice, { min: 1, max: 99999999, def: Number(cur.renewalPrice) || price });
+    const eula = body.eula !== undefined
+      ? V.str(body.eula, { max: 8000, required: false })
+      : (typeof cur.eula === 'string' ? cur.eula : '');
+    const version = body.version !== undefined
+      ? V.str(body.version, { max: 40, required: false })
+      : (typeof cur.version === 'string' ? cur.version : '');
+    const changelog = body.changelog !== undefined
+      ? V.str(body.changelog, { max: 4000, required: false })
+      : (typeof cur.changelog === 'string' ? cur.changelog : '');
+
+    const value = Object.assign({}, cur, {
+      price,
+      renewalPrice,
+      eula: eula || '',
+      version: version || '',
+      changelog: changelog || ''
+    });
+
     await db.query(
       `INSERT INTO site_content (key, value) VALUES ($1, $2::jsonb)
        ON CONFLICT (key) DO UPDATE SET value = $2::jsonb, updated_at = now()`,
-      [key, JSON.stringify({ price, renewalPrice })]
+      [key, JSON.stringify(value)]
     );
     await audit.log({
       actor: current.user, action: 'admin.content.update', entityType: 'content',
-      entityId: key, payload: { price, renewalPrice }, ip: getClientIp(req)
+      entityId: key, payload: { price, renewalPrice, version: version || '' }, ip: getClientIp(req)
     });
-    return json(res, 200, { price, renewalPrice });
+    return json(res, 200, value);
   }
 
   const title = V.str(body.title, { min: 1, max: 160, field: 'título' });

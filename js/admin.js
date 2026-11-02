@@ -175,6 +175,7 @@
     { id: 'about', label: 'Sobre Nosotros', icon: 'leaf' },
     { id: 'lab', label: "Berry's Lab", icon: 'box' },
     { id: 'labLicenses', label: 'Licencias Lab', icon: 'shield' },
+    { id: 'labCoupons', label: 'Cupones Lab', icon: 'flag' },
     { id: 'threads', label: 'Hilos del foro', icon: 'chat' },
     { id: 'guides', label: 'Guías', icon: 'book' },
     { id: 'users', label: 'Usuarios', icon: 'shield' },
@@ -239,6 +240,7 @@
       about: renderAbout,
       lab: renderLab,
       labLicenses: renderLabLicenses,
+      labCoupons: renderLabCoupons,
       threads: renderThreads,
       guides: renderGuides,
       users: renderUsers,
@@ -1421,30 +1423,65 @@
     var main = $('#adminMain');
     main.innerHTML =
       '<div class="admin-card">' +
-        '<div class="admin-card__head">' +
-          '<h2>Berry\'s Lab</h2>' +
-          '<p class="admin-muted">Precios que se muestran en la landing y se cobran por MercadoPago.</p>' +
-        '</div>' +
+        '<div class="admin-card__head"><h2>Berry\'s Lab</h2>' +
+          '<p class="admin-muted">Precios que se muestran en la landing y se cobran por MercadoPago.</p></div>' +
         '<div class="admin-form-grid">' +
           field('labPrecio', 'Precio de la licencia (ARS)', 'number', '175500', '') +
           field('labRenewal', 'Precio de renovación (ARS)', 'number', '175500', '') +
         '</div>' +
-        '<div class="admin-actions">' +
-          '<button class="admin-btn admin-btn--primary" type="button" id="labGuardar">Guardar precios</button>' +
-        '</div>' +
+        '<div class="admin-actions"><button class="admin-btn admin-btn--primary" type="button" id="labGuardar">Guardar precios</button></div>' +
       '</div>' +
       '<div class="admin-card" style="margin-top:16px">' +
-        '<div class="admin-card__head">' +
-          '<h2>Estado del Lab</h2>' +
-          '<p class="admin-muted">Integraciones y última venta.</p>' +
+        '<div class="admin-card__head"><h2>Versión y archivo</h2>' +
+          '<p class="admin-muted">El ZIP se sube directo a R2 y se publica la versión.</p></div>' +
+        '<div id="labVersionInfo" class="admin-muted">Cargando…</div>' +
+        '<div class="admin-form-grid" style="margin-top:10px">' +
+          field('labVersion', 'Versión', 'text', '1.2.0', '') +
+          '<div class="admin-field admin-field--full"><label for="labChangelog">Novedades</label>' +
+            '<textarea id="labChangelog" style="min-height:90px" placeholder="Qué cambia en esta versión."></textarea></div>' +
+          '<div class="admin-field admin-field--full"><label for="labFile">Archivo (.zip o .exe)</label>' +
+            '<input type="file" id="labFile" accept=".zip,.exe"></div>' +
         '</div>' +
+        '<div class="admin-actions" style="margin-top:10px">' +
+          '<button class="admin-btn admin-btn--primary" type="button" id="labUploadBtn">Subir y publicar</button>' +
+          '<button class="admin-btn" type="button" id="labSaveVersion">Guardar versión/novedades</button>' +
+          '<button class="admin-btn" type="button" id="labRollback">Volver a la anterior</button>' +
+        '</div>' +
+        '<div style="margin-top:10px"><div style="height:8px;background:#eee;border-radius:999px;overflow:hidden">' +
+          '<div id="labUploadBar" style="height:100%;width:0;background:#b9705a;transition:width .2s"></div></div>' +
+          '<small id="labUploadPct" class="admin-muted"></small></div>' +
+      '</div>' +
+      '<div class="admin-card" style="margin-top:16px">' +
+        '<div class="admin-card__head"><h2>Términos de la licencia (EULA)</h2>' +
+          '<p class="admin-muted">Se muestran en la landing.</p></div>' +
+        '<div class="admin-field admin-field--full"><textarea id="labEula" style="min-height:160px" placeholder="Texto de los términos..."></textarea></div>' +
+        '<div class="admin-actions"><button class="admin-btn admin-btn--primary" type="button" id="labSaveEula">Guardar términos</button></div>' +
+      '</div>' +
+      '<div class="admin-card" style="margin-top:16px">' +
+        '<div class="admin-card__head"><h2>Estado del Lab</h2>' +
+          '<p class="admin-muted">Integraciones y última venta.</p></div>' +
         '<div id="labHealth" class="admin-muted">Cargando…</div>' +
       '</div>';
 
     req('GET', '/content/lab').then(function (d) {
       if (d && d.price !== undefined) $('#labPrecio').value = String(d.price);
       if (d && d.renewalPrice !== undefined) $('#labRenewal').value = String(d.renewalPrice);
+      if (d && d.eula !== undefined) $('#labEula').value = d.eula || '';
+      if (d && d.version !== undefined) $('#labVersion').value = d.version || '';
+      if (d && d.changelog !== undefined) $('#labChangelog').value = d.changelog || '';
     }).catch(function () { /* queda el placeholder */ });
+
+    req('GET', '/lab/version').then(function (v) {
+      $('#labVersion').value = v.version || '';
+      $('#labChangelog').value = v.changelog || '';
+      $('#labEula').value = v.eula || '';
+      $('#labVersionInfo').innerHTML =
+        'Actual: <strong>' + escapeHtml(v.version || 'sin versión') + '</strong>' +
+        (v.fileBytes ? ' · ' + Math.round(v.fileBytes / 1048576) + ' MB' : '') +
+        (v.publishedAt ? ' · ' + escapeHtml(fmtDate(v.publishedAt)) : '') +
+        (v.previous && v.previous.fileKey ? ' · anterior: ' + escapeHtml(v.previous.version || '—') : '');
+      $('#labRollback').disabled = !(v.previous && v.previous.fileKey);
+    }).catch(function () { $('#labVersionInfo').textContent = 'No se pudo leer la versión.'; });
 
     req('GET', '/lab/health').then(function (h) {
       function pill(ok, label) {
@@ -1472,6 +1509,145 @@
         .then(function () { toast('Precios del software actualizados.'); })
         .catch(guard);
     });
+
+    $('#labSaveVersion').addEventListener('click', function () {
+      var version = $('#labVersion').value.trim();
+      if (!version) return toast('Poné una versión.');
+      req('PATCH', '/content/lab', { version: version, changelog: $('#labChangelog').value })
+        .then(function () { toast('Versión y novedades guardadas.'); })
+        .catch(guard);
+    });
+
+    $('#labSaveEula').addEventListener('click', function () {
+      req('PATCH', '/content/lab', { eula: $('#labEula').value })
+        .then(function () { toast('Términos guardados.'); })
+        .catch(guard);
+    });
+
+    $('#labUploadBtn').addEventListener('click', function () {
+      var file = $('#labFile').files[0];
+      var version = $('#labVersion').value.trim();
+      if (!file) return toast('Elegí el archivo .zip o .exe.');
+      if (!version) return toast('Poné la versión.');
+      if (!/\.(zip|exe)$/i.test(file.name)) return toast('El archivo tiene que ser .zip o .exe.');
+
+      var btn = $('#labUploadBtn');
+      btn.disabled = true;
+
+      req('POST', '/lab/upload-url', { filename: file.name })
+        .then(function (d) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('PUT', d.url);
+          xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+          xhr.upload.onprogress = function (e) {
+            if (!e.lengthComputable) return;
+            var pct = Math.round((e.loaded / e.total) * 100);
+            $('#labUploadBar').style.width = pct + '%';
+            $('#labUploadPct').textContent = pct + '%';
+          };
+          xhr.onload = function () {
+            if (xhr.status < 200 || xhr.status >= 300) {
+              btn.disabled = false;
+              return toast('Falló la subida a R2 (' + xhr.status + '). Revisá CORS y el token de escritura.');
+            }
+            req('POST', '/lab/publish', {
+              key: d.key,
+              version: version,
+              changelog: $('#labChangelog').value,
+              bytes: file.size
+            })
+              .then(function () { toast('Versión publicada.'); renderLab(); })
+              .catch(function (e) { btn.disabled = false; guard(e); });
+          };
+          xhr.onerror = function () {
+            btn.disabled = false;
+            toast('Error de red subiendo el archivo (revisá el CORS del bucket).');
+          };
+          xhr.send(file);
+        })
+        .catch(function (e) { btn.disabled = false; guard(e); });
+    });
+
+    $('#labRollback').addEventListener('click', function () {
+      if (!confirm('¿Volver a la versión anterior?')) return;
+      req('POST', '/lab/rollback', {})
+        .then(function () { toast('Versión anterior restaurada.'); renderLab(); })
+        .catch(guard);
+    });
+  }
+
+  function renderLabCoupons() {
+    var main = $('#adminMain');
+    main.innerHTML =
+      '<div class="admin-topbar"><div><h1 class="admin-title">Cupones Berry\'s Lab</h1>' +
+        '<p class="admin-subtitle">Descuentos para la licencia y la renovación.</p></div></div>' +
+      '<div class="admin-card" style="margin-bottom:16px">' +
+        '<div class="admin-card__head"><h2>Nuevo cupón</h2></div>' +
+        '<div class="admin-form-grid">' +
+          field('cupCode', 'Código', 'text', 'LANZAMIENTO', '') +
+          '<div class="admin-field"><label for="cupType">Tipo</label>' +
+            '<select id="cupType"><option value="percent">Porcentaje (%)</option><option value="amount">Monto fijo ($)</option></select></div>' +
+          field('cupValue', 'Valor', 'number', '10', '') +
+          field('cupMax', 'Usos máximos (vacío = ilimitado)', 'number', '', '') +
+          '<div class="admin-field"><label for="cupExp">Vence (opcional)</label><input type="date" id="cupExp"></div>' +
+        '</div>' +
+        '<div class="admin-actions"><button class="admin-btn admin-btn--primary" type="button" id="cupCrear">Crear cupón</button></div>' +
+      '</div>' +
+      '<div class="admin-panel"><div id="cupLista"><p class="admin-muted" style="padding:20px">Cargando…</p></div></div>';
+
+    function cargar() {
+      req('GET', '/lab/coupons').then(function (d) { pintar(d.items || []); }).catch(guard);
+    }
+
+    function pintar(items) {
+      var cont = $('#cupLista');
+      if (!items.length) {
+        cont.innerHTML = '<p class="admin-muted" style="padding:20px">No hay cupones.</p>';
+        return;
+      }
+      cont.innerHTML =
+        '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
+          '<th>Código</th><th>Descuento</th><th>Usos</th><th>Vence</th><th>Estado</th><th></th>' +
+        '</tr></thead><tbody>' +
+        items.map(function (c) {
+          var desc = c.percent ? c.percent + '%' : (c.amount ? precioTxt(c.amount) : '—');
+          var usos = c.usedCount + (c.maxUses ? ' / ' + c.maxUses : '');
+          return '<tr>' +
+            '<td class="admin-cell-title">' + escapeHtml(c.code) + '</td>' +
+            '<td>' + desc + '</td>' +
+            '<td>' + usos + '</td>' +
+            '<td>' + (c.expiresAt ? escapeHtml(fmtDate(c.expiresAt)) : '—') + '</td>' +
+            '<td><span class="admin-pill admin-pill--' + (c.active ? 'ok' : 'bad') + '">' +
+              (c.active ? 'Activo' : 'Inactivo') + '</span></td>' +
+            '<td><button class="admin-btn" data-cup-toggle="' + c.id + '" data-active="' + (c.active ? '0' : '1') + '">' +
+              (c.active ? 'Desactivar' : 'Activar') + '</button></td>' +
+          '</tr>';
+        }).join('') + '</tbody></table></div>';
+    }
+
+    $('#cupCrear').addEventListener('click', function () {
+      var code = $('#cupCode').value.trim();
+      var type = $('#cupType').value;
+      var value = Number($('#cupValue').value);
+      var maxUses = $('#cupMax').value ? Number($('#cupMax').value) : null;
+      var expiresAt = $('#cupExp').value || null;
+      if (code.length < 3) return toast('El código necesita al menos 3 caracteres.');
+      if (!Number.isFinite(value) || value <= 0) return toast('Poné un valor válido.');
+      req('POST', '/lab/coupons', { code: code, type: type, value: value, maxUses: maxUses, expiresAt: expiresAt })
+        .then(function () { toast('Cupón creado.'); $('#cupCode').value = ''; cargar(); })
+        .catch(guard);
+    });
+
+    $('#cupLista').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cup-toggle]');
+      if (!b) return;
+      var active = b.getAttribute('data-active') === '1';
+      req('PATCH', '/lab/coupons/' + b.getAttribute('data-cup-toggle'), { active: active })
+        .then(function () { toast(active ? 'Cupón activado.' : 'Cupón desactivado.'); cargar(); })
+        .catch(guard);
+    });
+
+    cargar();
   }
 
   function renderLabLicenses() {

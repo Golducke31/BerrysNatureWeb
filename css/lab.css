@@ -830,3 +830,22 @@
     padding: 22px 18px;
   }
 }
+
+/* Términos de la licencia (EULA) */
+.lab-eula {
+  margin: 18px 0;
+  border-top: 1px solid rgba(74, 63, 53, 0.12);
+}
+.lab-eula summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 12px 0;
+  color: var(--color-text);
+}
+.lab-eula__text {
+  white-space: pre-line;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  padding-bottom: 12px;
+}

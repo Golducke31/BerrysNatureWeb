@@ -49,6 +49,11 @@
     $$('[data-lab-renew-price]').forEach(function (el) {
       el.textContent = pesos(info.precioRenovacion || info.precio);
     });
+    $$('[data-lab-version]').forEach(function (el) {
+      if (info.version) el.textContent = info.version;
+    });
+    var eula = $('[data-lab-eula]');
+    if (eula) eula.textContent = info.eula || 'No hay términos cargados.';
   }
 
   function cargarInfo() {
@@ -90,7 +95,11 @@
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre: nombre, email: email })
+      body: JSON.stringify({
+        nombre: nombre,
+        email: email,
+        coupon: (($('#labCoupon') && $('#labCoupon').value) || '').trim()
+      })
     }).then(function (r) {
       if (r.ok && r.data && r.data.init_point) {
         window.location.href = r.data.init_point;
