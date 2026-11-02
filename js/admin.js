@@ -173,6 +173,7 @@
     { id: 'orders', label: 'Pedidos', icon: 'cart' },
     { id: 'shipping', label: 'Envíos', icon: 'pin' },
     { id: 'about', label: 'Sobre Nosotros', icon: 'leaf' },
+    { id: 'lab', label: "Berry's Lab", icon: 'box' },
     { id: 'threads', label: 'Hilos del foro', icon: 'chat' },
     { id: 'guides', label: 'Guías', icon: 'book' },
     { id: 'users', label: 'Usuarios', icon: 'shield' },
@@ -235,6 +236,7 @@
       orders: renderOrders,
       shipping: renderShipping,
       about: renderAbout,
+      lab: renderLab,
       threads: renderThreads,
       guides: renderGuides,
       users: renderUsers,
@@ -1413,6 +1415,35 @@
   /* ============================================================
      SOBRE NOSOTROS (contenido editable de la portada)
      ============================================================ */
+  function renderLab() {
+    var main = $('#adminMain');
+    main.innerHTML =
+      '<div class="admin-card">' +
+        '<div class="admin-card__head">' +
+          '<h2>Berry\'s Lab</h2>' +
+          '<p class="admin-muted">Precio de la licencia anual que se muestra en la landing y se cobra por MercadoPago.</p>' +
+        '</div>' +
+        '<div class="admin-form-grid">' +
+          field('labPrecio', 'Precio de la licencia (ARS)', 'number', '175500', '') +
+        '</div>' +
+        '<div class="admin-actions">' +
+          '<button class="admin-btn admin-btn--primary" type="button" id="labGuardar">Guardar precio</button>' +
+        '</div>' +
+      '</div>';
+
+    req('GET', '/content/lab').then(function (d) {
+      if (d && d.price !== undefined) $('#labPrecio').value = String(d.price);
+    }).catch(function () { /* queda el placeholder */ });
+
+    $('#labGuardar').addEventListener('click', function () {
+      var price = Number($('#labPrecio').value);
+      if (!Number.isFinite(price) || price <= 0) return toast('Poné un precio válido.');
+      req('PATCH', '/content/lab', { price: price })
+        .then(function () { toast('Precio del software actualizado.'); })
+        .catch(guard);
+    });
+  }
+
   function renderAbout() {
     var main = $('#adminMain');
     main.innerHTML =

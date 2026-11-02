@@ -41,14 +41,23 @@ const TITULO = "Berry's Lab — licencia anual";
 const MAX_POR_IP = 6;
 const VENTANA_MINUTOS = 10;
 
-function precioArs() {
+/** Precio vigente: primero el panel (site_content), después el env. */
+async function precioArs() {
+  try {
+    const row = await db.one("SELECT value FROM site_content WHERE key = 'lab'");
+    const v = (row && row.value) || {};
+    const n = Number(v.price);
+    if (Number.isFinite(n) && n > 0) return Math.round(n);
+  } catch (e) { /* fallback al env */ }
+
   const valor = Number(process.env.LAB_PRICE_ARS || 175500);
   return Number.isFinite(valor) && valor > 0 ? Math.round(valor) : 175500;
 }
 
-function precioRenovacionArs() {
+async function precioRenovacionArs() {
   const valor = Number(process.env.LAB_RENEWAL_PRICE_ARS || 0);
-  return Number.isFinite(valor) && valor > 0 ? Math.round(valor) : precioArs();
+  if (Number.isFinite(valor) && valor > 0) return Math.round(valor);
+  return precioArs();
 }
 
 function baseUrl() {
@@ -99,13 +108,13 @@ function urlDescarga(id, token) {
 /* ---------------- GET /api/lab/info ---------------- */
 async function info(req, res) {
   json(res, 200, {
-    precio: precioArs(),
-    precioRenovacion: precioRenovacionArs(),
+    precio: await precioArs(),
+    precioRenovacion: await precioRenovacionArs(),
     moneda: 'ARS',
     descargaInmediata: r2.isConfigured(),
     peso: r2.pesoLegible() || null,
     pagosDisponibles: mp.isConfigured()
-  }, { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' });
+  }, { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' });
 }
 
 /* ---------------- POST /api/lab/checkout ---------------- */
@@ -126,7 +135,7 @@ async function createCheckout(req, res, body) {
       return fail(res, 400, 'licencia_invalida', 'Esa clave no es válida. Revisá que esté completa.');
     }
     email = estado.email;
-    monto = precioRenovacionArs();
+    monto = await precioRenovacionArs();
     renovacionDe = renovacion;
   } else {
     email = String(datos.email || '').trim().toLowerCase();
@@ -137,7 +146,7 @@ async function createCheckout(req, res, body) {
     if (nombre.length < 2) {
       return fail(res, 400, 'nombre_invalido', 'Poné tu nombre.');
     }
-    monto = precioArs();
+    monto = await precioArs();
   }
 
   // El cobro se chequea después de validar: así el usuario ve primero qué
