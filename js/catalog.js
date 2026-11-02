@@ -332,6 +332,8 @@
     if (noteEl) {
       if (!items.length) {
         noteEl.textContent = 'Sumá productos y finalizá la compra en MercadoPago.';
+      } else if (cartHasPrices(items) && cartTotal(items) >= 50000) {
+        noteEl.textContent = 'Pago seguro con MercadoPago · Hasta 3 cuotas.';
       } else {
         noteEl.textContent = 'Pago seguro con MercadoPago (envío por zona o retiro sin costo).';
       }
@@ -705,7 +707,10 @@
       '<div class="checkout-resumen__row"><span>Envío' +
         (z ? ' · ' + escapeHtml(z.nombre) : '') + '</span><span>' +
         (z && envio === 0 ? 'Gratis' : ars(envio)) + '</span></div>' +
-      '<div class="checkout-resumen__row is-total"><span>Total</span><span>' + ars(total) + '</span></div>';
+      '<div class="checkout-resumen__row is-total"><span>Total</span><span>' + ars(total) + '</span></div>' +
+      (total >= 50000
+        ? '<div class="checkout-resumen__row"><span>Cuotas</span><span>Hasta 3</span></div>'
+        : '');
   }
 
   /** Si hay sesión, precarga nombre y email (compra como invitado sigue disponible). */

@@ -109,6 +109,12 @@ async function createOrderPreference({ orderId, items, shipping, shippingLabel, 
     metadata: { kind: 'order', order_id: String(orderId) },
     notification_url: `${base}/api/webhooks/mercadopago`,
     statement_descriptor: 'BERRYSNATURE',
+    /* Cuotas: la tienda ofrece hasta 3 solo si el total supera $50.000.
+       Debajo de ese monto se fuerza 1 (sin cuotas). MP decide las opciones
+       finales según la cuenta y la tarjeta; acá solo se fija el máximo. */
+    payment_methods: {
+      installments: lineas.reduce((t, l) => t + Number(l.unit_price) * Number(l.quantity), 0) >= 50000 ? 3 : 1
+    },
     back_urls: {
       success: `${base}/tienda.html?pago=ok&pedido=${encodeURIComponent(orderId)}`,
       failure: `${base}/tienda.html?pago=error&pedido=${encodeURIComponent(orderId)}`,
@@ -167,6 +173,12 @@ async function createLabPreference({ orderId, token, email, amount, title, appUr
     metadata: { kind: 'lab', lab_order_id: String(orderId) },
     notification_url: `${base}/api/webhooks/mercadopago`,
     statement_descriptor: 'BERRYSLAB',
+    /* Hasta 6 cuotas; el cliente elige 3 o 6 (o menos) en MercadoPago.
+       Sin configuración de "sin interés": eso depende de la cuenta. */
+    payment_methods: {
+      installments: 6,
+      default_installments: 3
+    },
     back_urls: {
       success: `${base}/berrys-lab.html?pago=ok&pedido=${pedido}&t=${t}`,
       failure: `${base}/berrys-lab.html?pago=error&pedido=${pedido}&t=${t}`,
