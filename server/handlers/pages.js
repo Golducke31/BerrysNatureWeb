@@ -960,6 +960,7 @@ async function renderProduct(req, res, { id }) {
   const imagenes = (Array.isArray(row.imagenes) && row.imagenes.length)
     ? row.imagenes.slice()
     : (row.imagen ? [row.imagen] : []);
+  const componentes = Array.isArray(row.componentes) ? row.componentes : [];
   // Stock null = sin control de stock → se considera disponible.
   const enStock = (row.stock === null || row.stock === undefined) ? true : Number(row.stock) > 0;
   const canonical = productoUrl(row.id);
@@ -1004,6 +1005,9 @@ async function renderProduct(req, res, { id }) {
       name: 'INCI',
       value: row.inci
     }];
+  }
+  if (componentes.length) {
+    productLd.isRelatedTo = componentes.map((c) => ({ '@type': 'Product', name: c.nombre }));
   }
   if (typeof precio === 'number') {
     productLd.offers = {
@@ -1123,6 +1127,22 @@ async function renderProduct(req, res, { id }) {
         </div>
       </div>
     </section>
+    ${componentes.length ? `<section class="kit-includes">
+      <h2 class="kit-includes__title">Qué incluye</h2>
+      <div class="kit-includes__grid">
+        ${componentes.map((c) => `
+          <article class="kit-item">
+            ${c.imagen ? `<img class="kit-item__img" src="${esc(c.imagen)}" alt="${esc(c.nombre)}" loading="lazy" decoding="async">` : ''}
+            <div class="kit-item__body">
+              <h3 class="kit-item__name">${esc(c.nombre)}${Number(c.qty) > 1 ? ` <span>×${Number(c.qty)}</span>` : ''}</h3>
+              ${c.inci ? `<details class="product-accordion__item kit-item__inci">
+                <summary>Composición (INCI)</summary>
+                <div class="product-accordion__body"><p class="product-inci">${esc(c.inci)}</p></div>
+              </details>` : ''}
+            </div>
+          </article>`).join('')}
+      </div>
+    </section>` : ''}
     ${reviewsSectionHtml(row.id, row.nombre, resenas)}
   </main>`
   });

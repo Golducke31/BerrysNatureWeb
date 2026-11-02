@@ -36,6 +36,7 @@ function toProduct(r) {
     categoria: r.categoria,
     descripcion: r.descripcion,
     inci: r.inci || '',
+    componentes: Array.isArray(r.componentes) ? r.componentes : [],
     activos: Array.isArray(r.activos) ? r.activos : [],
     precio: r.precio === null ? null : Number(r.precio),
     imagen: r.imagen,
@@ -70,6 +71,25 @@ function listaImagenes(value) {
     const t = V.clean(raw).slice(0, 300);
     if (t && !out.includes(t)) out.push(t);
     if (out.length >= 8) break;
+  }
+  return out;
+}
+
+/** Componentes de un kit: [{ nombre, imagen, inci, qty }], máx. 12. */
+function listaComponentes(value) {
+  if (!Array.isArray(value)) return [];
+  const out = [];
+  for (const raw of value) {
+    if (!raw || typeof raw !== 'object') continue;
+    const nombre = V.clean(raw.nombre).slice(0, 120);
+    if (!nombre) continue;
+    out.push({
+      nombre,
+      imagen: V.clean(raw.imagen).slice(0, 300),
+      inci: V.clean(raw.inci).slice(0, 4000),
+      qty: Math.min(Math.max(Number(raw.qty) || 1, 1), 99)
+    });
+    if (out.length >= 12) break;
   }
   return out;
 }
@@ -166,8 +186,8 @@ async function createProduct(req, res, body) {
   const row = await db.one(
     `INSERT INTO products
        (id, nombre, categoria, descripcion, activos, precio, imagen, imagenes, meta,
-        origen, destacado, disponible, stock, mp, orden, inci)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+        origen, destacado, disponible, stock, mp, orden, inci, componentes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
      RETURNING *`,
     [
       id,
@@ -185,7 +205,8 @@ async function createProduct(req, res, body) {
       stockOpcional(body.stock),
       V.clean(body.mp).slice(0, 500),
       V.int(body.orden, { min: 0, max: 9999, def: 100 }),
-      V.str(body.inci, { max: 4000, required: false })
+      V.str(body.inci, { max: 4000, required: false }),
+      JSON.stringify(listaComponentes(body.componentes))
     ]
   );
 
@@ -209,6 +230,7 @@ async function updateProduct(req, res, params, body) {
   if (body.categoria !== undefined) patch.categoria = V.str(body.categoria, { min: 2, max: 40, field: 'categoría' });
   if (body.descripcion !== undefined) patch.descripcion = V.str(body.descripcion, { max: 2000, required: false });
   if (body.inci !== undefined) patch.inci = V.str(body.inci, { max: 4000, required: false });
+  if (body.componentes !== undefined) patch.componentes = JSON.stringify(listaComponentes(body.componentes));
   if (body.activos !== undefined) patch.activos = JSON.stringify(listaTexto(body.activos, 8, 60));
   if (body.precio !== undefined) patch.precio = precioOpcional(body.precio);
   if (body.imagen !== undefined) patch.imagen = V.clean(body.imagen).slice(0, 300);

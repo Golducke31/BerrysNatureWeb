@@ -637,3 +637,18 @@
   text-align: center;
 }
 .admin-btn--sm { padding: 6px 10px; font-size: 12px; }
+
+/* ---- Componentes del kit ---- */
+.admin-comps { display: flex; flex-direction: column; gap: 12px; }
+.admin-comp {
+  border: 1px solid #E6D6C9;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+.admin-comp__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}

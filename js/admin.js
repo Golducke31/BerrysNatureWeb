@@ -1214,6 +1214,11 @@
             escapeHtml(p ? p.inci : '') + '</textarea>' +
           '<small class="admin-help">Lista completa separada por comas. Tiene que coincidir con la etiqueta.</small>' +
         '</div>' +
+        '<div class="admin-field admin-field--full"><label>Contenido del kit (opcional)</label>' +
+          '<div class="admin-help" style="margin-bottom:8px">Si es un combo, agregá cada producto con su foto y su INCI.</div>' +
+          '<div class="admin-comps" id="pComponentes"></div>' +
+          '<button type="button" class="admin-btn" id="pCompAdd" style="margin-top:8px">+ Agregar componente</button>' +
+        '</div>' +
         '<div class="admin-field admin-field--full"><label for="pMeta">' +
           'Chips de la tarjeta (separados por coma)</label>' +
           '<input type="text" id="pMeta" placeholder="100 g, Uso diario, Sin alcohol" value="' +
@@ -1244,6 +1249,7 @@
           categoria: $('#pCategoria').value.trim(),
           descripcion: $('#pDescripcion').value.trim(),
           inci: $('#pInci').value.trim(),
+          componentes: componentes.filter(function (c) { return c && c.nombre && c.nombre.trim(); }),
           imagen: imagenes[0] || '',
           imagenes: imagenes,
           mp: $('#pMp').value.trim(),
@@ -1350,6 +1356,57 @@
       var input = $('#pImagenUrl');
       agregarImagen(input.value.trim());
       input.value = '';
+    });
+
+    /* --- Componentes del kit --- */
+    var componentes = (p && Array.isArray(p.componentes)) ? p.componentes.slice() : [];
+
+    function pintarComponentes() {
+      var cont = $('#pComponentes');
+      if (!cont) return;
+      if (!componentes.length) {
+        cont.innerHTML = '<p class="admin-help">Sin componentes.</p>';
+        return;
+      }
+      cont.innerHTML = componentes.map(function (c, i) {
+        return '<div class="admin-comp" data-comp="' + i + '">' +
+          '<div class="admin-comp__head"><strong>Componente ' + (i + 1) + '</strong>' +
+            '<button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-comp-del="' + i + '">Quitar</button>' +
+          '</div>' +
+          '<div class="admin-form-grid">' +
+            '<div class="admin-field"><label>Nombre</label><input type="text" data-comp-nombre="' + i + '" value="' + escapeHtml(c.nombre || '') + '" maxlength="120"></div>' +
+            '<div class="admin-field"><label>Cantidad</label><input type="number" min="1" max="99" data-comp-qty="' + i + '" value="' + (Number(c.qty) || 1) + '"></div>' +
+            '<div class="admin-field admin-field--full"><label>Imagen (URL)</label><input type="text" data-comp-imagen="' + i + '" value="' + escapeHtml(c.imagen || '') + '" placeholder="assets/productos/..."></div>' +
+            '<div class="admin-field admin-field--full"><label>INCI</label><textarea data-comp-inci="' + i + '" style="min-height:70px">' + escapeHtml(c.inci || '') + '</textarea></div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      cont.querySelectorAll('[data-comp-nombre]').forEach(function (el) {
+        el.addEventListener('input', function () { componentes[Number(el.getAttribute('data-comp-nombre'))].nombre = el.value; });
+      });
+      cont.querySelectorAll('[data-comp-qty]').forEach(function (el) {
+        el.addEventListener('input', function () { componentes[Number(el.getAttribute('data-comp-qty'))].qty = Number(el.value) || 1; });
+      });
+      cont.querySelectorAll('[data-comp-imagen]').forEach(function (el) {
+        el.addEventListener('input', function () { componentes[Number(el.getAttribute('data-comp-imagen'))].imagen = el.value; });
+      });
+      cont.querySelectorAll('[data-comp-inci]').forEach(function (el) {
+        el.addEventListener('input', function () { componentes[Number(el.getAttribute('data-comp-inci'))].inci = el.value; });
+      });
+      cont.querySelectorAll('[data-comp-del]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          componentes.splice(Number(b.getAttribute('data-comp-del')), 1);
+          pintarComponentes();
+        });
+      });
+    }
+    pintarComponentes();
+
+    $('#pCompAdd').addEventListener('click', function () {
+      if (componentes.length >= 12) { toast('Máximo 12 componentes.'); return; }
+      componentes.push({ nombre: '', imagen: '', inci: '', qty: 1 });
+      pintarComponentes();
     });
   }
 
