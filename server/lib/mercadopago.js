@@ -17,7 +17,6 @@
    Variables de entorno:
      MERCADOPAGO_ACCESS_TOKEN   (obligatoria para cobrar)
      MERCADOPAGO_WEBHOOK_SECRET (obligatoria para validar el webhook)
-     PRO_PRICE_ARS              (precio del desbloqueo; default 9900)
    ============================================================ */
 'use strict';
 
@@ -65,59 +64,10 @@ function initPointDe(pref) {
   return punto ? String(punto) : '';
 }
 
-/** Precio del desbloqueo PRO, en ARS. */
-function priceArs() {
-  const n = Number(process.env.PRO_PRICE_ARS);
-  return Number.isFinite(n) && n > 0 ? n : 9900;
-}
-
-/**
- * Crea una preferencia de Checkout Pro.
- * @returns {Promise<object>} la preferencia (incluye `init_point`)
- */
-async function createPreference({ userId, title, amount, appUrl }) {
-  const token = accessToken();
-  if (!token) throw new Error('MERCADOPAGO_ACCESS_TOKEN no está configurado.');
-
-  const base = String(appUrl || '').replace(/\/+$/, '');
-  const body = {
-    items: [{
-      title,
-      quantity: 1,
-      unit_price: Number(amount),
-      currency_id: 'ARS'
-    }],
-    // Vincula el pago con la cuenta: el webhook lo usa para otorgar el acceso.
-    external_reference: String(userId),
-    notification_url: `${base}/api/webhooks/mercadopago`,
-    statement_descriptor: 'BERRYSNATURE',
-    back_urls: {
-      success: `${base}/index.html?pago=ok`,
-      failure: `${base}/index.html?pago=error`,
-      pending: `${base}/index.html?pago=pendiente`
-    },
-    auto_return: 'approved'
-  };
-
-  const res = await fetch(`${API}/checkout/preferences`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error((data && (data.message || data.error)) || `MercadoPago respondió ${res.status}`);
-  }
-  return data;
-}
-
 /**
  * Crea una preferencia de Checkout Pro para un PEDIDO de la tienda.
  *
- * Diferencias con la del desbloqueo PRO:
+ * Diferencias con la de Berry's Lab:
  *   - lleva varias líneas (`items`),
  *   - el envío viaja como una línea más (así el cliente ve el costo
  *     desglosado antes de pagar, y el total de MP coincide con el nuestro),
@@ -298,7 +248,7 @@ function verifySignature({ xSignature, xRequestId, dataId, secret } = {}) {
 }
 
 module.exports = {
-  isConfigured, isSandbox, webhookSecret, priceArs,
-  createPreference, createOrderPreference, createLabPreference, getPayment, initPointDe,
+  isConfigured, isSandbox, webhookSecret,
+  createOrderPreference, createLabPreference, getPayment, initPointDe,
   parseSignatureHeader, verifySignature
 };

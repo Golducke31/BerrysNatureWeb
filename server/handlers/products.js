@@ -38,6 +38,7 @@ function toProduct(r) {
     activos: Array.isArray(r.activos) ? r.activos : [],
     precio: r.precio === null ? null : Number(r.precio),
     imagen: r.imagen,
+    imagenes: Array.isArray(r.imagenes) ? r.imagenes : [],
     origen: r.origen,
     destacado: Boolean(r.destacado),
     disponible: Boolean(r.disponible),
@@ -60,9 +61,20 @@ function listaTexto(value, maxItems, maxLargo) {
   return out;
 }
 
+/** Imágenes del producto: URLs/keys, sin duplicados y con tope de 8. */
+function listaImagenes(value) {
+  if (!Array.isArray(value)) return [];
+  const out = [];
+  for (const raw of value) {
+    const t = V.clean(raw).slice(0, 300);
+    if (t && !out.includes(t)) out.push(t);
+    if (out.length >= 8) break;
+  }
+  return out;
+}
+
 /** Precio: null = "Consultar precio". */
-function precioOpcional(value) {
-  if (value === null || value === undefined || value === '') return null;
+function precioOpcional(value) {  if (value === null || value === undefined || value === '') return null;
   return V.int(value, { min: 0, max: 99999999 });
 }
 
@@ -147,11 +159,14 @@ async function createProduct(req, res, body) {
   const categoria = V.str(body.categoria, { min: 2, max: 40, field: 'categoría' });
   const id = await idUnico(nombre);
 
+  const imagenes = listaImagenes(body.imagenes);
+  const imagen = V.clean(body.imagen).slice(0, 300) || imagenes[0] || '';
+
   const row = await db.one(
     `INSERT INTO products
-       (id, nombre, categoria, descripcion, activos, precio, imagen, meta,
+       (id, nombre, categoria, descripcion, activos, precio, imagen, imagenes, meta,
         origen, destacado, disponible, stock, mp, orden)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
      RETURNING *`,
     [
       id,
@@ -160,7 +175,8 @@ async function createProduct(req, res, body) {
       V.str(body.descripcion, { max: 2000, required: false }),
       JSON.stringify(listaTexto(body.activos, 8, 60)),
       precioOpcional(body.precio),
-      V.clean(body.imagen).slice(0, 300),
+      imagen,
+      JSON.stringify(imagenes),
       JSON.stringify(listaTexto(body.meta, 6, 28)),
       V.clean(body.origen).slice(0, 20) || 'manual',
       V.bool(body.destacado),
@@ -193,6 +209,11 @@ async function updateProduct(req, res, params, body) {
   if (body.activos !== undefined) patch.activos = JSON.stringify(listaTexto(body.activos, 8, 60));
   if (body.precio !== undefined) patch.precio = precioOpcional(body.precio);
   if (body.imagen !== undefined) patch.imagen = V.clean(body.imagen).slice(0, 300);
+  if (body.imagenes !== undefined) {
+    const imagenes = listaImagenes(body.imagenes);
+    patch.imagenes = JSON.stringify(imagenes);
+    if (body.imagen === undefined) patch.imagen = imagenes[0] || row.imagen || '';
+  }
   if (body.meta !== undefined) patch.meta = JSON.stringify(listaTexto(body.meta, 6, 28));
   if (body.origen !== undefined) patch.origen = V.clean(body.origen).slice(0, 20) || 'manual';
   if (body.destacado !== undefined) patch.destacado = V.bool(body.destacado, row.destacado);

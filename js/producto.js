@@ -89,7 +89,24 @@
     list.insertAdjacentHTML('afterbegin', reviewHtml(r));
   }
 
+  function initGallery() {
+    var gallery = document.querySelector('[data-gallery]');
+    if (!gallery) return;
+    var main = gallery.querySelector('#productGalleryMain');
+    var thumbs = gallery.querySelectorAll('[data-gallery-thumb]');
+    if (!main || thumbs.length < 2) return;
+    Array.prototype.forEach.call(thumbs, function (btn) {
+      btn.addEventListener('click', function () {
+        var url = btn.getAttribute('data-gallery-thumb');
+        main.style.backgroundImage = "url('" + url + "')";
+        Array.prototype.forEach.call(thumbs, function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+      });
+    });
+  }
+
   function init() {
+    initGallery();
     var sec = $('#reviews');
     if (!sec) return;
     var productId = sec.getAttribute('data-product-id');

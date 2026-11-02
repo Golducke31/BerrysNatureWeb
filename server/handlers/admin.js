@@ -790,8 +790,8 @@ async function revenue(req, res) {
   const dias = Math.min(Math.max(Number(q.get('dias')) || 30, 7), 180);
 
   const vacio = {
-    total: 0, facturado: 0, proTotal: 0, pedidos: 0, pendientes: 0,
-    backorder: 0, ticket: 0, pro: 0, serie: [], ultimos: []
+    total: 0, facturado: 0, pedidos: 0, pendientes: 0,
+    backorder: 0, ticket: 0, serie: [], ultimos: []
   };
 
   try {
@@ -805,18 +805,6 @@ async function revenue(req, res) {
          count(*) FILTER (WHERE status = 'pending')::int AS pendientes,
          count(*) FILTER (WHERE status IN ('paid', 'shipped', 'delivered') AND backorder)::int AS backorder
        FROM orders`
-    );
-
-    /* PRO: pagos registrados en la tabla `payments` + cuentas con el permiso. */
-    const proPagos = await db.one(
-      `SELECT coalesce(sum(amount) FILTER (WHERE status = 'approved'), 0)::float AS monto,
-              count(*) FILTER (WHERE status = 'approved')::int AS n
-         FROM payments`
-    );
-
-    const pro = await db.one(
-      `SELECT count(*)::int AS n FROM users
-        WHERE (permissions->>'calculadora_pro')::boolean IS TRUE`
     );
 
     /* Serie por fecha de PAGO (no de creación): un pedido creado el lunes y
@@ -843,19 +831,15 @@ async function revenue(req, res) {
     );
 
     const facturado = Number((pedidos && pedidos.facturado) || 0);
-    const proTotal = Number((proPagos && proPagos.monto) || 0);
     const pagados = Number((pedidos && pedidos.pagados) || 0);
 
     return json(res, 200, {
-      total: facturado + proTotal,
+      total: facturado,
       facturado,
-      proTotal,
       pedidos: pagados,
       pendientes: Number((pedidos && pedidos.pendientes) || 0),
       backorder: Number((pedidos && pedidos.backorder) || 0),
       ticket: pagados ? Math.round(facturado / pagados) : 0,
-      pro: Number((pro && pro.n) || 0),
-      proPagos: Number((proPagos && proPagos.n) || 0),
       serie: (serie || []).map((r) => ({
         dia: r.dia,
         n: r.n,

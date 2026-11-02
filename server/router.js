@@ -321,11 +321,8 @@ async function handlePublic(req, res, method, seg) {
   /* Top colaboradores del mes (Etapa 5, reputación). */
   if (a === 'contributors' && !b && method === 'GET') return pub.listContributors(req, res);
 
-  /* Pagos (O9). El checkout exige sesión + CSRF; el webhook lo llama
-     MercadoPago (sin sesión y sin CSRF: se defiende con la firma). */
-  if (a === 'payments' && b === 'checkout' && method === 'POST') {
-    return payments.createCheckout(req, res, await body(req));
-  }
+  /* Webhook de pagos: lo llama MercadoPago (sin sesión y sin CSRF: se
+     defiende con la firma). */
   if (a === 'webhooks' && b === 'mercadopago' && method === 'POST') {
     return payments.webhook(req, res, await body(req));
   }

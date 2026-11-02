@@ -113,16 +113,38 @@
     '</div>';
   }
 
+  function mediaHtml(p) {
+    var imgs = (Array.isArray(p.imagenes) && p.imagenes.length) ? p.imagenes.slice() : [p.imagen];
+    imgs = imgs.filter(Boolean);
+    if (imgs.length < 2) {
+      return '<div class="guide-card__media" style="background-image:url(\'' + escapeHtml(imgs[0] || '') + '\')">' +
+        '<span class="guide-card__cat">' + escapeHtml(p.categoria) + '</span>' +
+        stockChip(p) + precioHtml(p) +
+      '</div>';
+    }
+    var slides = imgs.map(function (u) {
+      return '<div class="product-carousel__slide" style="background-image:url(\'' + escapeHtml(u) + '\')"></div>';
+    }).join('');
+    var dots = imgs.map(function (_, i) {
+      return '<button type="button" class="product-carousel__dot' + (i === 0 ? ' is-active' : '') +
+        '" data-dot="' + i + '" aria-label="Imagen ' + (i + 1) + '"></button>';
+    }).join('');
+    return '<div class="guide-card__media product-carousel" data-carousel>' +
+      '<div class="product-carousel__track">' + slides + '</div>' +
+      '<button type="button" class="product-carousel__arrow product-carousel__arrow--prev" data-carousel-prev aria-label="Imagen anterior">‹</button>' +
+      '<button type="button" class="product-carousel__arrow product-carousel__arrow--next" data-carousel-next aria-label="Imagen siguiente">›</button>' +
+      '<div class="product-carousel__dots">' + dots + '</div>' +
+      '<span class="guide-card__cat">' + escapeHtml(p.categoria) + '</span>' +
+      stockChip(p) + precioHtml(p) +
+    '</div>';
+  }
+
   function cardHtml(p) {
     var url = '/productos/' + encodeURIComponent(p.id);
     var agotado = sinStock(p);
     return '' +
       '<article class="guide-card product-card reveal" data-reveal data-product="' + escapeHtml(p.id) + '">' +
-        '<div class="guide-card__media" style="background-image:url(\'' + escapeHtml(p.imagen) + '\')">' +
-          '<span class="guide-card__cat">' + escapeHtml(p.categoria) + '</span>' +
-          stockChip(p) +
-          precioHtml(p) +
-        '</div>' +
+        mediaHtml(p) +
         '<div class="guide-card__body">' +
           '<h3 class="guide-card__title"><a href="' + url + '">' + escapeHtml(p.nombre) + '</a></h3>' +
           ratingHtml(p) +
@@ -135,6 +157,39 @@
           '</div>' +
         '</div>' +
       '</article>';
+  }
+
+  function initCarousels(root) {
+    $$('[data-carousel]', root).forEach(function (car) {
+      var track = car.querySelector('.product-carousel__track');
+      if (!track) return;
+      var dots = car.querySelectorAll('[data-dot]');
+      var total = track.children.length;
+      if (total < 2) return;
+      var idx = 0;
+      function go(i) {
+        idx = (i + total) % total;
+        track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+        Array.prototype.forEach.call(dots, function (d, j) {
+          d.classList.toggle('is-active', j === idx);
+        });
+      }
+      var prev = car.querySelector('[data-carousel-prev]');
+      var next = car.querySelector('[data-carousel-next]');
+      if (prev) prev.addEventListener('click', function (e) { e.stopPropagation(); go(idx - 1); });
+      if (next) next.addEventListener('click', function (e) { e.stopPropagation(); go(idx + 1); });
+      Array.prototype.forEach.call(dots, function (d) {
+        d.addEventListener('click', function (e) { e.stopPropagation(); go(Number(d.getAttribute('data-dot'))); });
+      });
+      var x0 = null;
+      car.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+      car.addEventListener('touchend', function (e) {
+        if (x0 === null) return;
+        var dx = e.changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 40) go(idx + (dx < 0 ? 1 : -1));
+        x0 = null;
+      }, { passive: true });
+    });
   }
 
   function renderProducts() {
@@ -151,6 +206,7 @@
       return;
     }
     grid.innerHTML = list.map(cardHtml).join('');
+    initCarousels(grid);
     // Observar las nuevas tarjetas para la animación reveal
     if (window.BerrysMotion && typeof window.BerrysMotion.observeReveals === 'function') {
       window.BerrysMotion.observeReveals(grid);
@@ -321,7 +377,7 @@
      de crear dos. La clave se regenera solo si cambia el contenido del
      carrito o si el pedido anterior ya se creó con éxito. */
 
-  var co = { el: null, zones: null, key: '', firma: '', enviando: false, orden: null };
+  var co = { el: null, zones: null, key: '', firma: '', enviando: false, orden: null, freeThreshold: 0 };
 
   function uuid() {
     try {
@@ -453,6 +509,7 @@
     cliente.shippingZones()
       .then(function (data) {
         co.zones = (data && data.zones) || [];
+        co.freeThreshold = Number(data && data.freeThreshold) || 0;
         pintarZonas(co.zones);
       })
       .catch(function () {
@@ -507,6 +564,8 @@
     var subtotal = cartTotal(items);
     var z = zonaElegida();
     var envio = z ? Number(z.precio) || 0 : 0;
+    // Envío gratis por monto mínimo (el backend aplica la misma regla).
+    if (z && z.id !== 'retiro' && co.freeThreshold > 0 && subtotal >= co.freeThreshold) envio = 0;
     var total = subtotal + envio;
 
     cont.innerHTML = '' +

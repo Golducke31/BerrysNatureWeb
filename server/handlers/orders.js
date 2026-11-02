@@ -188,7 +188,16 @@ async function listZones(req, res) {
   const rows = await db.query(
     'SELECT id, nombre, detalle, precio, orden FROM shipping_zones WHERE activo = true ORDER BY orden ASC, nombre ASC'
   );
+
+  let freeThreshold = 30000;
+  try {
+    const row = await db.one("SELECT value FROM site_content WHERE key = 'shipping'");
+    const v = (row && row.value) || {};
+    if (typeof v.freeThreshold === 'number') freeThreshold = v.freeThreshold;
+  } catch (e) { /* valor por defecto */ }
+
   json(res, 200, {
+    freeThreshold,
     zones: rows.map((z) => ({
       id: z.id,
       nombre: z.nombre,
@@ -263,7 +272,17 @@ async function createCheckout(req, res, body) {
   /* "Retiro en persona" siempre es gratis, sin importar el precio cargado
      en la tabla: la gratuidad es una regla del negocio, no un dato. */
   const delivery = zona.id === 'retiro' ? 'retiro' : 'envio';
-  const shipping = delivery === 'retiro' ? 0 : Number(zona.precio) || 0;
+
+  /* Envío gratis por monto mínimo (editable desde el panel). */
+  let freeThreshold = 30000;
+  try {
+    const row = await db.one("SELECT value FROM site_content WHERE key = 'shipping'");
+    const v = (row && row.value) || {};
+    if (typeof v.freeThreshold === 'number') freeThreshold = v.freeThreshold;
+  } catch (e) { /* valor por defecto */ }
+
+  let shipping = delivery === 'retiro' ? 0 : Number(zona.precio) || 0;
+  if (delivery !== 'retiro' && freeThreshold > 0 && subtotal >= freeThreshold) shipping = 0;
 
   const shippingAddress = delivery === 'envio'
     ? V.str(body.shippingAddress, { min: 6, max: 300, field: 'dirección' })

@@ -24,7 +24,6 @@ const NOMBRES = {
   hilo_creado: 'Hilo publicado en el foro',
   respuesta_creada: 'Respuesta publicada',
   guia_abierta: 'Apertura de una guía',
-  pro_desbloqueado: 'Desbloqueo de la calculadora PRO',
   checkout_iniciado: 'Checkout de la tienda iniciado',
   compra_confirmada: 'Compra confirmada (pago aprobado)'
 };

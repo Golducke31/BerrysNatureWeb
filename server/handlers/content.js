@@ -18,17 +18,22 @@ const guards = require('../lib/guards');
 const { json, fail, notFound, getClientIp } = require('../lib/http');
 
 /* Claves que se pueden leer/escribir públicamente.
-   Por ahora solo "about" (Sobre Nosotros de la portada). */
-const PUBLIC_KEYS = new Set(['about']);
+   "about" = Sobre Nosotros; "shipping" = configuración de envíos. */
+const PUBLIC_KEYS = new Set(['about', 'shipping']);
 
 async function get(req, res, params) {
   const key = V.clean(params.key).slice(0, 60);
   if (!key || !PUBLIC_KEYS.has(key)) return notFound(res);
 
   const row = await db.one('SELECT value FROM site_content WHERE key = $1', [key]);
+  const v = (row && row.value) || {};
+
+  if (key === 'shipping') {
+    return json(res, 200, { freeThreshold: Number(v.freeThreshold) || 30000 });
+  }
+
   if (!row) return notFound(res);
 
-  const v = row.value || {};
   json(res, 200, {
     title: typeof v.title === 'string' ? v.title : '',
     body: typeof v.body === 'string' ? v.body : ''
@@ -43,6 +48,20 @@ async function update(req, res, params, body) {
   const key = V.clean(params.key).slice(0, 60);
   if (!PUBLIC_KEYS.has(key)) {
     return fail(res, 400, 'invalid_key', 'Clave de contenido no permitida.');
+  }
+
+  if (key === 'shipping') {
+    const freeThreshold = V.int(body.freeThreshold, { min: 0, max: 99999999, def: 30000 });
+    await db.query(
+      `INSERT INTO site_content (key, value) VALUES ($1, $2::jsonb)
+       ON CONFLICT (key) DO UPDATE SET value = $2::jsonb, updated_at = now()`,
+      [key, JSON.stringify({ freeThreshold })]
+    );
+    await audit.log({
+      actor: current.user, action: 'admin.content.update', entityType: 'content',
+      entityId: key, payload: { freeThreshold }, ip: getClientIp(req)
+    });
+    return json(res, 200, { freeThreshold });
   }
 
   const title = V.str(body.title, { min: 1, max: 160, field: 'título' });

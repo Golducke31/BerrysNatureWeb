@@ -902,6 +902,11 @@ function merchantPolicies() {
       applicableCountry: 'AR',
       returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted'
     },
+    availableDeliveryMethod: [
+      'https://schema.org/OnSitePickup',
+      'https://schema.org/ParcelService'
+    ],
+    shippingSettingsLink: `${siteUrl()}/envios.html`,
     shippingDetails: {
       '@type': 'OfferShippingDetails',
       shippingRate: { '@type': 'MonetaryAmount', value: 4500, currency: 'ARS' },
@@ -950,6 +955,9 @@ async function renderProduct(req, res, { id }) {
   }
 
   const precio = (row.precio === null || row.precio === undefined) ? null : Number(row.precio);
+  const imagenes = (Array.isArray(row.imagenes) && row.imagenes.length)
+    ? row.imagenes.slice()
+    : (row.imagen ? [row.imagen] : []);
   // Stock null = sin control de stock → se considera disponible.
   const enStock = (row.stock === null || row.stock === undefined) ? true : Number(row.stock) > 0;
   const canonical = productoUrl(row.id);
@@ -1066,8 +1074,11 @@ async function renderProduct(req, res, { id }) {
         <span class="current">${esc(row.nombre)}</span>
       </p>
       <div class="product-detail">
-        <div class="product-detail__media" style="background-image:url('${esc(row.imagen || '')}')">
-          ${row.categoria ? `<span class="guide-card__cat">${esc(row.categoria)}</span>` : ''}
+        <div class="product-gallery" data-gallery>
+          <div class="product-detail__media" id="productGalleryMain" style="background-image:url('${esc(imagenes[0] || '')}')">
+            ${row.categoria ? `<span class="guide-card__cat">${esc(row.categoria)}</span>` : ''}
+          </div>
+          ${imagenes.length > 1 ? `<div class="product-gallery__thumbs">${imagenes.map((u, i) => `<button type="button" class="product-gallery__thumb${i === 0 ? ' is-active' : ''}" data-gallery-thumb="${esc(u)}" style="background-image:url('${esc(u)}')" aria-label="Imagen ${i + 1}"></button>`).join('')}</div>` : ''}
         </div>
         <div class="product-detail__info">
           <h1 class="product-detail__title">${esc(row.nombre)}</h1>
@@ -1268,7 +1279,8 @@ const PAGINAS_FIJAS = [
   { path: '/foro.html', changefreq: 'daily', priority: '0.8' },
   { path: '/glosario.html', changefreq: 'monthly', priority: '0.7' },
   { path: '/normas.html', changefreq: 'monthly', priority: '0.4' },
-  { path: '/devoluciones.html', changefreq: 'yearly', priority: '0.3' }
+  { path: '/devoluciones.html', changefreq: 'yearly', priority: '0.3' },
+  { path: '/envios.html', changefreq: 'yearly', priority: '0.3' }
 ];
 
 /* Páginas legales.

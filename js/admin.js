@@ -1193,16 +1193,14 @@
           p && typeof p.precio === 'number' ? String(p.precio) : '') +
         field('pStock', 'Stock', 'number', 'Vacío = sin control de stock',
           p && typeof p.stock === 'number' ? String(p.stock) : '') +
-        '<div class="admin-field admin-field--full"><label for="pImagen">Imagen</label>' +
-          '<div class="admin-upload">' +
-            '<span class="admin-upload__preview" id="pImagenPreview"></span>' +
-            '<div class="admin-upload__side">' +
-              '<input type="file" id="pImagenFile" accept="image/png,image/jpeg,image/webp">' +
-              '<input type="text" id="pImagen" placeholder="assets/productos/… o subí una foto" value="' +
-                escapeHtml(p ? p.imagen : '') + '">' +
-              '<small class="admin-help" id="pImagenHelp">' +
-                'Al subir una foto se achica a 1000 px y se pasa a WebP automáticamente.</small>' +
-            '</div>' +
+        '<div class="admin-field admin-field--full"><label>Imágenes</label>' +
+          '<div class="admin-help" style="margin-bottom:8px">La primera es la portada. Si hay más de una, la tarjeta de la tienda muestra un carrusel.</div>' +
+          '<div class="admin-imgs" id="pImagenesList"></div>' +
+          '<div class="admin-upload__side" style="margin-top:10px">' +
+            '<input type="file" id="pImagenesFile" accept="image/png,image/jpeg,image/webp" multiple>' +
+            '<input type="text" id="pImagenUrl" placeholder="assets/productos/… o pegá una URL">' +
+            '<button class="admin-btn" type="button" id="pImagenAdd">Agregar URL</button>' +
+            '<small class="admin-help" id="pImagenHelp">Hasta 8 imágenes. Se achican a 1000 px y pasan a WebP.</small>' +
           '</div>' +
         '</div>' +
         field('pOrden', 'Orden en la grilla', 'number', '100', p ? String(p.orden) : '100') +
@@ -1239,7 +1237,8 @@
           nombre: $('#pNombre').value.trim(),
           categoria: $('#pCategoria').value.trim(),
           descripcion: $('#pDescripcion').value.trim(),
-          imagen: $('#pImagen').value.trim(),
+          imagen: imagenes[0] || '',
+          imagenes: imagenes,
           mp: $('#pMp').value.trim(),
           meta: meta,
           activos: activos,
@@ -1272,33 +1271,78 @@
       isNew ? 'Crear producto' : 'Guardar cambios');
     modal.open();
 
-    /* --- Subida de imagen --- */
-    var preview = $('#pImagenPreview');
-    var inputRuta = $('#pImagen');
+    /* --- Imágenes múltiples --- */
+    var imagenes = (p && Array.isArray(p.imagenes) && p.imagenes.length)
+      ? p.imagenes.slice()
+      : (p && p.imagen ? [p.imagen] : []);
     var ayuda = $('#pImagenHelp');
 
-    function pintarPreview() {
-      var v = rutaImagen(inputRuta.value);
-      preview.style.backgroundImage = v ? 'url(\'' + v + '\')' : '';
-    }
-    pintarPreview();
-    inputRuta.addEventListener('input', pintarPreview);
+    function pintarImagenes() {
+      var cont = $('#pImagenesList');
+      if (!cont) return;
+      if (!imagenes.length) {
+        cont.innerHTML = '<p class="admin-help">Sin imágenes todavía.</p>';
+        return;
+      }
+      cont.innerHTML = imagenes.map(function (u, i) {
+        return '<div class="admin-img">' +
+          '<span class="admin-img__thumb" style="background-image:url(\'' + rutaImagen(u) + '\')"></span>' +
+          '<div class="admin-img__side">' +
+            (i === 0
+              ? '<span class="admin-img__cover">Portada</span>'
+              : '<button type="button" class="admin-btn admin-btn--sm" data-cover="' + i + '">Hacer portada</button>') +
+            '<button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-del="' + i + '">Quitar</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
 
-    $('#pImagenFile').addEventListener('change', function (e) {
-      var file = e.target.files && e.target.files[0];
-      if (!file) return;
-      ayuda.textContent = 'Procesando la imagen…';
-      subirImagen(file, function (err, url) {
-        if (err) {
-          ayuda.textContent = 'No se pudo subir: ' + ((err && err.message) || 'error');
-          toast('No se pudo subir la imagen.');
-          return;
-        }
-        inputRuta.value = url;
-        pintarPreview();
-        ayuda.textContent = 'Imagen subida y lista. Guardá los cambios para aplicarla.';
-        toast('Imagen subida.');
+      cont.querySelectorAll('[data-del]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          imagenes.splice(Number(b.dataset.del), 1);
+          pintarImagenes();
+        });
       });
+      cont.querySelectorAll('[data-cover]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var i = Number(b.dataset.cover);
+          var img = imagenes.splice(i, 1)[0];
+          imagenes.unshift(img);
+          pintarImagenes();
+        });
+      });
+    }
+    pintarImagenes();
+
+    function agregarImagen(url) {
+      if (!url) return;
+      if (imagenes.length >= 8) { toast('Máximo 8 imágenes.'); return; }
+      if (imagenes.indexOf(url) !== -1) { toast('Esa imagen ya está.'); return; }
+      imagenes.push(url);
+      pintarImagenes();
+    }
+
+    $('#pImagenesFile').addEventListener('change', function (e) {
+      var files = Array.prototype.slice.call(e.target.files || []);
+      if (!files.length) return;
+      ayuda.textContent = 'Procesando ' + files.length + ' imagen(es)…';
+      var pendientes = files.length;
+      files.forEach(function (file) {
+        subirImagen(file, function (err, url) {
+          if (!err && url) agregarImagen(url);
+          pendientes -= 1;
+          if (pendientes === 0) {
+            ayuda.textContent = 'Imágenes listas. Guardá los cambios para aplicarlas.';
+            toast('Imágenes subidas.');
+          }
+        });
+      });
+      e.target.value = '';
+    });
+
+    $('#pImagenAdd').addEventListener('click', function () {
+      var input = $('#pImagenUrl');
+      agregarImagen(input.value.trim());
+      input.value = '';
     });
   }
 
@@ -1511,60 +1555,80 @@
      ENVÍOS (zonas)
      ============================================================ */
   function renderShipping() {
-    req('GET', '/shipping')
-      .then(function (data) {
-        var zones = (data && data.zones) || [];
+    Promise.all([
+      req('GET', '/shipping'),
+      req('GET', '/content/shipping').catch(function () { return { freeThreshold: 30000 }; })
+    ]).then(function (results) {
+      var data = results[0];
+      var config = results[1] || {};
+      var freeThreshold = typeof config.freeThreshold === 'number' ? config.freeThreshold : 30000;
+      var zones = (data && data.zones) || [];
 
-        $('#adminMain').innerHTML =
-          '<div class="admin-topbar">' +
-            '<div><h1 class="admin-title">Envíos</h1>' +
-              '<p class="admin-subtitle">Costo por zona. "Retiro en persona" es siempre gratis.</p></div>' +
+      $('#adminMain').innerHTML =
+        '<div class="admin-topbar">' +
+          '<div><h1 class="admin-title">Envíos</h1>' +
+            '<p class="admin-subtitle">Costo por zona y umbral de envío gratis. "Retiro en persona" es siempre gratis.</p></div>' +
+        '</div>' +
+        '<div class="admin-panel" style="margin-bottom:18px"><div class="admin-form-grid">' +
+          '<div class="admin-field"><label for="shipFreeThreshold">Envío gratis desde (ARS)</label>' +
+            '<input type="number" id="shipFreeThreshold" class="admin-input" min="0" step="1000" value="' + freeThreshold + '">' +
+            '<small class="admin-help">Si el total del pedido supera este monto, el envío es sin cargo. 0 = desactivado.</small>' +
           '</div>' +
-          '<div class="admin-panel"><div class="admin-table-wrap">' +
-            (zones.length
-              ? '<table class="admin-table"><thead><tr>' +
-                  '<th>Zona</th><th>Detalle</th><th>Costo (ARS)</th><th>Activa</th><th></th>' +
-                '</tr></thead><tbody>' +
-                zones.map(function (z) {
-                  return '<tr>' +
-                    '<td class="admin-cell-title">' + escapeHtml(z.nombre) + '</td>' +
-                    '<td><input type="text" class="admin-input" data-zone-detalle="' + escapeHtml(z.id) +
-                      '" value="' + escapeHtml(z.detalle) + '" maxlength="200"></td>' +
-                    '<td><input type="number" class="admin-input" style="width:120px" min="0" step="100" ' +
-                      'data-zone-precio="' + escapeHtml(z.id) + '" value="' + z.precio +
-                      '"' + (z.id === 'retiro' ? ' disabled' : '') + '></td>' +
-                    '<td><input type="checkbox" data-zone-activo="' + escapeHtml(z.id) + '"' +
-                      (z.activo ? ' checked' : '') + (z.id === 'retiro' ? ' disabled' : '') + '></td>' +
-                    '<td><div class="admin-actions">' +
-                      '<button class="admin-btn admin-btn--primary" data-zone-save="' +
-                        escapeHtml(z.id) + '">Guardar</button>' +
-                    '</div></td>' +
-                  '</tr>';
-                }).join('') +
-                '</tbody></table>'
-              : '<p class="admin-empty">No hay zonas de envío.</p>') +
-          '</div></div>' +
-          '<p class="admin-help" style="margin-top:12px">' +
-            'Si el pago online está activo, estos costos se suman al total del pedido.</p>';
+          '<div class="admin-field" style="align-self:end"><button class="admin-btn admin-btn--primary" id="saveShipConfig">Guardar envío gratis</button></div>' +
+        '</div></div>' +
+        '<div class="admin-panel"><div class="admin-table-wrap">' +
+          (zones.length
+            ? '<table class="admin-table"><thead><tr>' +
+                '<th>Zona</th><th>Detalle</th><th>Costo (ARS)</th><th>Activa</th><th></th>' +
+              '</tr></thead><tbody>' +
+              zones.map(function (z) {
+                return '<tr>' +
+                  '<td class="admin-cell-title">' + escapeHtml(z.nombre) + '</td>' +
+                  '<td><input type="text" class="admin-input" data-zone-detalle="' + escapeHtml(z.id) +
+                    '" value="' + escapeHtml(z.detalle) + '" maxlength="200"></td>' +
+                  '<td><input type="number" class="admin-input" style="width:120px" min="0" step="100" ' +
+                    'data-zone-precio="' + escapeHtml(z.id) + '" value="' + z.precio +
+                    '"' + (z.id === 'retiro' ? ' disabled' : '') + '></td>' +
+                  '<td><input type="checkbox" data-zone-activo="' + escapeHtml(z.id) + '"' +
+                    (z.activo ? ' checked' : '') + (z.id === 'retiro' ? ' disabled' : '') + '></td>' +
+                  '<td><div class="admin-actions">' +
+                    '<button class="admin-btn admin-btn--primary" data-zone-save="' +
+                      escapeHtml(z.id) + '">Guardar</button>' +
+                  '</div></td>' +
+                '</tr>';
+              }).join('') +
+              '</tbody></table>'
+            : '<p class="admin-empty">No hay zonas de envío.</p>') +
+        '</div></div>' +
+        '<p class="admin-help" style="margin-top:12px">' +
+          'Si el pago online está activo, estos costos se suman al total del pedido.</p>';
 
-        $('#adminMain').addEventListener('click', function (e) {
-          var btn = e.target.closest('[data-zone-save]');
-          if (!btn) return;
-          var id = btn.dataset.zoneSave;
-          var precio = document.querySelector('[data-zone-precio="' + id + '"]');
-          var detalle = document.querySelector('[data-zone-detalle="' + id + '"]');
-          var activo = document.querySelector('[data-zone-activo="' + id + '"]');
+      $('#adminMain').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-zone-save]');
+        if (!btn) return;
+        var id = btn.dataset.zoneSave;
+        var precio = document.querySelector('[data-zone-precio="' + id + '"]');
+        var detalle = document.querySelector('[data-zone-detalle="' + id + '"]');
+        var activo = document.querySelector('[data-zone-activo="' + id + '"]');
 
-          var payload = { detalle: detalle ? detalle.value : '' };
-          if (precio && !precio.disabled) payload.precio = Number(precio.value) || 0;
-          if (activo && !activo.disabled) payload.activo = activo.checked;
+        var payload = { detalle: detalle ? detalle.value : '' };
+        if (precio && !precio.disabled) payload.precio = Number(precio.value) || 0;
+        if (activo && !activo.disabled) payload.activo = activo.checked;
 
-          req('PATCH', '/shipping/' + encodeURIComponent(id), payload)
-            .then(function () { toast('Zona actualizada.'); renderShipping(); })
-            .catch(guard);
-        });
-      })
-      .catch(guard);
+        req('PATCH', '/shipping/' + encodeURIComponent(id), payload)
+          .then(function () { toast('Zona actualizada.'); renderShipping(); })
+          .catch(guard);
+      });
+
+      var saveBtn = document.getElementById('saveShipConfig');
+      if (saveBtn) saveBtn.addEventListener('click', function () {
+        var input = document.getElementById('shipFreeThreshold');
+        var value = Number(input.value) || 0;
+        req('PATCH', '/content/shipping', { freeThreshold: value })
+          .then(function () { toast('Envío gratis actualizado.'); renderShipping(); })
+          .catch(guard);
+      });
+    }).catch(guard);
   }
 
   /* ============================================================
