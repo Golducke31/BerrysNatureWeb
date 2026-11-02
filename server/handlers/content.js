@@ -33,7 +33,10 @@ async function get(req, res, params) {
   }
 
   if (key === 'lab') {
-    return json(res, 200, { price: Number(v.price) || 175500 });
+    return json(res, 200, {
+      price: Number(v.price) || 175500,
+      renewalPrice: Number(v.renewalPrice) || Number(v.price) || 175500
+    });
   }
 
   if (!row) return notFound(res);
@@ -70,16 +73,17 @@ async function update(req, res, params, body) {
 
   if (key === 'lab') {
     const price = V.int(body.price, { min: 1, max: 99999999, def: 175500 });
+    const renewalPrice = V.int(body.renewalPrice, { min: 1, max: 99999999, def: price });
     await db.query(
       `INSERT INTO site_content (key, value) VALUES ($1, $2::jsonb)
        ON CONFLICT (key) DO UPDATE SET value = $2::jsonb, updated_at = now()`,
-      [key, JSON.stringify({ price })]
+      [key, JSON.stringify({ price, renewalPrice })]
     );
     await audit.log({
       actor: current.user, action: 'admin.content.update', entityType: 'content',
-      entityId: key, payload: { price }, ip: getClientIp(req)
+      entityId: key, payload: { price, renewalPrice }, ip: getClientIp(req)
     });
-    return json(res, 200, { price });
+    return json(res, 200, { price, renewalPrice });
   }
 
   const title = V.str(body.title, { min: 1, max: 160, field: 'título' });

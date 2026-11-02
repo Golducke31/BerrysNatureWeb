@@ -30,6 +30,7 @@ const images = require('./handlers/images');
 const content = require('./handlers/content');
 const contact = require('./handlers/contact');
 const admin = require('./handlers/admin');
+const labAdmin = require('./handlers/lab-admin');
 const pages = require('./handlers/pages');
 const adminUI = require('./admin-ui');
 
@@ -81,7 +82,7 @@ async function body(req) {
 /* ---------------- Rutas del admin (bajo el slug secreto) ---------------- */
 
 async function handleAdmin(req, res, method, seg) {
-  const [a, b] = seg;
+  const [a, b, c, d] = seg;
 
   // GET /api/<slug>  → shell del panel
   if (!a) {
@@ -176,6 +177,20 @@ async function handleAdmin(req, res, method, seg) {
   if (a === 'content') {
     if (b && method === 'GET') return content.get(req, res, { key: b });
     if (b && method === 'PATCH') return content.update(req, res, { key: b }, await body(req));
+    return http.notFound(res);
+  }
+
+  /* Licencias de Berry's Lab: listado y soporte. */
+  if (a === 'lab') {
+    if (b === 'licenses' && !c && method === 'GET') return labAdmin.list(req, res);
+    if (b === 'licenses' && c && !d && method === 'GET') return labAdmin.getOne(req, res, { id: c });
+    if (b === 'licenses' && c && d === 'resend' && method === 'POST') return labAdmin.resend(req, res, { id: c }, await body(req));
+    if (b === 'licenses' && c && d === 'regenerate' && method === 'POST') return labAdmin.regenerate(req, res, { id: c }, await body(req));
+    if (b === 'licenses' && c && d === 'extend' && method === 'POST') return labAdmin.extend(req, res, { id: c }, await body(req));
+    if (b === 'licenses' && c && d === 'revoke' && method === 'POST') return labAdmin.revoke(req, res, { id: c }, await body(req));
+    if (b === 'licenses' && c && d === 'notes' && method === 'PATCH') return labAdmin.notes(req, res, { id: c }, await body(req));
+    if (b === 'licenses' && c && d === 'remind' && method === 'POST') return labAdmin.remind(req, res, { id: c }, await body(req));
+    if (b === 'health' && !c && method === 'GET') return labAdmin.health(req, res);
     return http.notFound(res);
   }
 

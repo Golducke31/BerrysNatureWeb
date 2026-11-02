@@ -174,6 +174,7 @@
     { id: 'shipping', label: 'Envíos', icon: 'pin' },
     { id: 'about', label: 'Sobre Nosotros', icon: 'leaf' },
     { id: 'lab', label: "Berry's Lab", icon: 'box' },
+    { id: 'labLicenses', label: 'Licencias Lab', icon: 'shield' },
     { id: 'threads', label: 'Hilos del foro', icon: 'chat' },
     { id: 'guides', label: 'Guías', icon: 'book' },
     { id: 'users', label: 'Usuarios', icon: 'shield' },
@@ -237,6 +238,7 @@
       shipping: renderShipping,
       about: renderAbout,
       lab: renderLab,
+      labLicenses: renderLabLicenses,
       threads: renderThreads,
       guides: renderGuides,
       users: renderUsers,
@@ -1421,27 +1423,287 @@
       '<div class="admin-card">' +
         '<div class="admin-card__head">' +
           '<h2>Berry\'s Lab</h2>' +
-          '<p class="admin-muted">Precio de la licencia anual que se muestra en la landing y se cobra por MercadoPago.</p>' +
+          '<p class="admin-muted">Precios que se muestran en la landing y se cobran por MercadoPago.</p>' +
         '</div>' +
         '<div class="admin-form-grid">' +
           field('labPrecio', 'Precio de la licencia (ARS)', 'number', '175500', '') +
+          field('labRenewal', 'Precio de renovación (ARS)', 'number', '175500', '') +
         '</div>' +
         '<div class="admin-actions">' +
-          '<button class="admin-btn admin-btn--primary" type="button" id="labGuardar">Guardar precio</button>' +
+          '<button class="admin-btn admin-btn--primary" type="button" id="labGuardar">Guardar precios</button>' +
         '</div>' +
+      '</div>' +
+      '<div class="admin-card" style="margin-top:16px">' +
+        '<div class="admin-card__head">' +
+          '<h2>Estado del Lab</h2>' +
+          '<p class="admin-muted">Integraciones y última venta.</p>' +
+        '</div>' +
+        '<div id="labHealth" class="admin-muted">Cargando…</div>' +
       '</div>';
 
     req('GET', '/content/lab').then(function (d) {
       if (d && d.price !== undefined) $('#labPrecio').value = String(d.price);
+      if (d && d.renewalPrice !== undefined) $('#labRenewal').value = String(d.renewalPrice);
     }).catch(function () { /* queda el placeholder */ });
+
+    req('GET', '/lab/health').then(function (h) {
+      function pill(ok, label) {
+        return '<span class="admin-pill admin-pill--' + (ok ? 'ok' : 'bad') + '">' +
+          label + ': ' + (ok ? 'OK' : 'Falta') + '</span>';
+      }
+      $('#labHealth').innerHTML =
+        '<div class="admin-actions" style="flex-wrap:wrap;gap:8px">' +
+          pill(h.mp, 'MercadoPago') +
+          pill(h.r2, 'R2 / descarga') +
+          pill(h.license, 'Licencias') +
+          '<span class="admin-pill admin-pill--' + (h.mailer && h.mailer !== 'none' ? 'ok' : 'warn') + '">' +
+            'Mailer: ' + escapeHtml(h.mailer || 'none') + '</span>' +
+        '</div>' +
+        '<p class="admin-muted" style="margin-top:8px">Última venta: ' +
+          (h.lastSale ? escapeHtml(fmtDate(h.lastSale)) : '—') + '</p>';
+    }).catch(function () { $('#labHealth').textContent = 'No se pudo leer el estado.'; });
 
     $('#labGuardar').addEventListener('click', function () {
       var price = Number($('#labPrecio').value);
-      if (!Number.isFinite(price) || price <= 0) return toast('Poné un precio válido.');
-      req('PATCH', '/content/lab', { price: price })
-        .then(function () { toast('Precio del software actualizado.'); })
+      var renewalPrice = Number($('#labRenewal').value);
+      if (!Number.isFinite(price) || price <= 0) return toast('Poné un precio de licencia válido.');
+      if (!Number.isFinite(renewalPrice) || renewalPrice <= 0) return toast('Poné un precio de renovación válido.');
+      req('PATCH', '/content/lab', { price: price, renewalPrice: renewalPrice })
+        .then(function () { toast('Precios del software actualizados.'); })
         .catch(guard);
     });
+  }
+
+  function renderLabLicenses() {
+    var filtro = { q: '', status: '', expiring: false };
+    var actuales = {};
+
+    $('#adminMain').innerHTML =
+      '<div class="admin-topbar">' +
+        '<div><h1 class="admin-title">Licencias Berry\'s Lab</h1>' +
+          '<p class="admin-subtitle">Ventas, vencimientos y soporte del software.</p></div>' +
+        '<div class="admin-actions">' +
+          '<button class="admin-btn" type="button" id="labCsv">Exportar CSV</button>' +
+          '<button class="admin-btn" type="button" id="labRefresh">' + icon('refresh') + ' Actualizar</button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="labStats"></div>' +
+      '<div class="admin-panel" style="margin-bottom:16px;padding:12px 16px">' +
+        '<div class="admin-actions" style="flex-wrap:wrap;gap:8px">' +
+          '<input type="search" id="labQ" placeholder="Buscar email o nombre" style="min-width:240px">' +
+          '<select id="labStatus">' +
+            '<option value="">Todos</option>' +
+            '<option value="approved">Pagadas</option>' +
+            '<option value="pending">Pendientes</option>' +
+            '<option value="rejected">Rechazadas</option>' +
+            '<option value="cancelled">Canceladas</option>' +
+          '</select>' +
+          '<label class="admin-muted" style="display:flex;align-items:center;gap:6px">' +
+            '<input type="checkbox" id="labExpiring"> Vencen en 30 días</label>' +
+          '<button class="admin-btn" type="button" id="labBuscar">Buscar</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="admin-panel"><div id="labLista"><p class="admin-muted" style="padding:20px">Cargando…</p></div></div>';
+
+    function cargar() {
+      filtro.q = $('#labQ').value.trim();
+      filtro.status = $('#labStatus').value;
+      filtro.expiring = $('#labExpiring').checked;
+      var qs = '?q=' + encodeURIComponent(filtro.q) +
+               '&status=' + encodeURIComponent(filtro.status) +
+               '&expiring=' + (filtro.expiring ? '1' : '0');
+      req('GET', '/lab/licenses' + qs)
+        .then(function (d) { pintar(d.items || [], d.stats || {}); })
+        .catch(guard);
+    }
+
+    function pintar(items, stats) {
+      actuales = {};
+      items.forEach(function (l) { actuales[l.id] = l; });
+
+      var st = stats || {};
+      var cards = [
+        ['Pagadas', st.pagadas || 0],
+        ['Ingresos', precioTxt(st.ingresos || 0)],
+        ['Activas', st.activas || 0],
+        ['Por vencer', st.por_vencer || 0],
+        ['Vencidas', st.vencidas || 0]
+      ];
+      var statsEl = $('#labStats');
+      if (statsEl) {
+        statsEl.innerHTML = '<div class="admin-actions" style="flex-wrap:wrap;gap:8px;margin-bottom:12px">' +
+          cards.map(function (c) {
+            return '<div class="admin-panel" style="padding:10px 14px;min-width:120px">' +
+              '<small class="admin-muted">' + c[0] + '</small>' +
+              '<div style="font-size:20px;font-weight:700">' + c[1] + '</div></div>';
+          }).join('') + '</div>';
+      }
+
+      var cont = $('#labLista');
+      if (!items.length) {
+        cont.innerHTML = '<p class="admin-muted" style="padding:20px">No hay licencias con esos filtros.</p>';
+        return;
+      }
+      cont.innerHTML =
+        '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
+          '<th>Cliente</th><th>Estado</th><th>Monto</th><th>Compra</th><th>Vence</th><th>Desc.</th><th></th>' +
+        '</tr></thead><tbody>' +
+        items.map(function (l) {
+          var pill = l.status === 'approved' ? 'ok' : l.status === 'pending' ? 'warn' : 'bad';
+          var estadoTxt = { approved: 'Pagada', pending: 'Pendiente', rejected: 'Rechazada', cancelled: 'Cancelada' }[l.status] || l.status;
+          var vence = l.vence
+            ? (l.vencida ? '<span class="admin-pill admin-pill--bad">' + l.vence + '</span>' : l.vence)
+            : '—';
+          return '<tr>' +
+            '<td class="admin-cell-title">' + escapeHtml(l.email) +
+              (l.nombre ? '<br><small class="admin-muted">' + escapeHtml(l.nombre) + '</small>' : '') + '</td>' +
+            '<td><span class="admin-pill admin-pill--' + pill + '">' + estadoTxt + '</span></td>' +
+            '<td>' + precioTxt(l.amount) + '</td>' +
+            '<td>' + escapeHtml(fmtDate(l.compra)) + '</td>' +
+            '<td>' + vence + '</td>' +
+            '<td>' + l.descargas + '</td>' +
+            '<td><div class="admin-actions">' +
+              '<button class="admin-btn" data-lab-ver="' + l.id + '">Ver</button>' +
+              '<button class="admin-btn" data-lab-resend="' + l.id + '">Reenviar</button>' +
+            '</div></td>' +
+          '</tr>' +
+          '<tr id="labDetalle-' + l.id + '" hidden><td colspan="7">' + detalleHtml(l) + '</td></tr>';
+        }).join('') +
+        '</tbody></table></div>';
+    }
+
+    function detalleHtml(l) {
+      return '<div style="padding:6px 0">' +
+        '<div class="admin-form-grid">' +
+          '<div class="admin-field admin-field--full"><label>Licencia</label>' +
+            '<div style="display:flex;gap:8px">' +
+              '<input type="text" id="labClave-' + l.id + '" readonly value="' + escapeHtml(l.clave) + '">' +
+              '<button class="admin-btn" type="button" data-lab-copy="' + l.id + '">Copiar</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="admin-field admin-field--full"><label>Nota interna</label>' +
+            '<textarea id="labNotas-' + l.id + '" style="min-height:70px">' + escapeHtml(l.notas) + '</textarea>' +
+          '</div>' +
+        '</div>' +
+        '<div class="admin-actions" style="flex-wrap:wrap;margin-top:10px">' +
+          '<button class="admin-btn" data-lab-remind="' + l.id + '">Recordar renovación</button>' +
+          '<button class="admin-btn" data-lab-extend="' + l.id + '" data-days="30">+30 días</button>' +
+          '<button class="admin-btn" data-lab-extend="' + l.id + '" data-days="365">+1 año</button>' +
+          '<button class="admin-btn" data-lab-regen="' + l.id + '">Regenerar clave</button>' +
+          '<button class="admin-btn" data-lab-notes="' + l.id + '">Guardar nota</button>' +
+          '<button class="admin-btn admin-btn--danger" data-lab-revoke="' + l.id + '">Revocar</button>' +
+        '</div>' +
+        '<p class="admin-muted" style="margin-top:8px">Revocar bloquea la descarga; la licencia ya emitida sigue validando offline hasta su vencimiento.</p>' +
+      '</div>';
+    }
+
+    $('#labLista').addEventListener('click', function (e) {
+      var t = e.target.closest('button');
+      if (!t) return;
+
+      var ver = t.getAttribute('data-lab-ver');
+      if (ver) {
+        var row = $('#labDetalle-' + ver);
+        if (row) row.hidden = !row.hidden;
+        return;
+      }
+
+      var resend = t.getAttribute('data-lab-resend');
+      if (resend && actuales[resend]) {
+        if (!confirm('¿Reenviar la licencia a ' + actuales[resend].email + '?')) return;
+        req('POST', '/lab/licenses/' + resend + '/resend', {})
+          .then(function () { toast('Licencia reenviada.'); })
+          .catch(guard);
+        return;
+      }
+
+      var copy = t.getAttribute('data-lab-copy');
+      if (copy) {
+        var inp = $('#labClave-' + copy);
+        if (inp) {
+          inp.select();
+          if (navigator.clipboard) navigator.clipboard.writeText(inp.value).catch(function () {});
+          else document.execCommand('copy');
+          toast('Clave copiada.');
+        }
+        return;
+      }
+
+      var rem = t.getAttribute('data-lab-remind');
+      if (rem && actuales[rem]) {
+        if (!confirm('¿Enviar recordatorio de renovación a ' + actuales[rem].email + '?')) return;
+        req('POST', '/lab/licenses/' + rem + '/remind', {})
+          .then(function () { toast('Recordatorio enviado.'); })
+          .catch(guard);
+        return;
+      }
+
+      var ext = t.getAttribute('data-lab-extend');
+      if (ext && actuales[ext]) {
+        var days = Number(t.getAttribute('data-days')) || 30;
+        if (!confirm('¿Extender ' + days + ' días la licencia de ' + actuales[ext].email + '?')) return;
+        req('POST', '/lab/licenses/' + ext + '/extend', { days: days })
+          .then(function (r) {
+            toast('Extendida hasta ' + (r && r.expira ? r.expira : '') + (r && r.mailed ? '. Email enviado.' : '.'));
+            cargar();
+          })
+          .catch(guard);
+        return;
+      }
+
+      var regen = t.getAttribute('data-lab-regen');
+      if (regen && actuales[regen]) {
+        if (!confirm('¿Generar una clave nueva para ' + actuales[regen].email + '?')) return;
+        req('POST', '/lab/licenses/' + regen + '/regenerate', {})
+          .then(function (r) {
+            toast('Clave regenerada' + (r && r.mailed ? '. Email enviado.' : '.'));
+            cargar();
+          })
+          .catch(guard);
+        return;
+      }
+
+      var notes = t.getAttribute('data-lab-notes');
+      if (notes) {
+        var txt = $('#labNotas-' + notes).value;
+        req('PATCH', '/lab/licenses/' + notes + '/notes', { notes: txt })
+          .then(function () { toast('Nota guardada.'); })
+          .catch(guard);
+        return;
+      }
+
+      var rev = t.getAttribute('data-lab-revoke');
+      if (rev && actuales[rev]) {
+        if (!confirm('¿Revocar el acceso de ' + actuales[rev].email + '? No se puede deshacer.')) return;
+        req('POST', '/lab/licenses/' + rev + '/revoke', {})
+          .then(function () { toast('Licencia revocada.'); cargar(); })
+          .catch(guard);
+      }
+    });
+
+    $('#labCsv').addEventListener('click', function () {
+      var rows = [['Email', 'Nombre', 'Estado', 'Monto', 'Compra', 'Vence', 'Descargas', 'Clave', 'Notas']];
+      Object.keys(actuales).forEach(function (k) {
+        var l = actuales[k];
+        rows.push([l.email, l.nombre, l.status, l.amount, fmtDate(l.compra), l.vence || '', l.descargas, l.clave, l.notas]);
+      });
+      var csv = rows.map(function (r) {
+        return r.map(function (v) {
+          return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        }).join(',');
+      }).join('\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'licencias-lab.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    $('#labBuscar').addEventListener('click', cargar);
+    $('#labRefresh').addEventListener('click', cargar);
+    $('#labQ').addEventListener('keydown', function (e) { if (e.key === 'Enter') cargar(); });
+    cargar();
   }
 
   function renderAbout() {

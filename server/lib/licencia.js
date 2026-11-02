@@ -56,10 +56,10 @@ function sumarDias(fecha, dias) {
  *        `desde` permite renovar contando desde el vencimiento anterior.
  * @returns {{clave:string, expira:string, payload:object}}
  */
-function emitir({ email, id, plan, desde }) {
+function emitir({ email, id, plan, desde, hasta }) {
   const hoy = new Date();
   const arranque = desde && new Date(desde + 'T00:00:00Z') > hoy ? desde : fechaISO(hoy);
-  const vencimiento = sumarDias(arranque, DURACION_DIAS);
+  const vencimiento = hasta ? new Date(hasta + 'T00:00:00Z') : sumarDias(arranque, DURACION_DIAS);
 
   const payload = {
     v: 1,

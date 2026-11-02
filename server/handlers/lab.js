@@ -55,6 +55,13 @@ async function precioArs() {
 }
 
 async function precioRenovacionArs() {
+  try {
+    const row = await db.one("SELECT value FROM site_content WHERE key = 'lab'");
+    const v = (row && row.value) || {};
+    const n = Number(v.renewalPrice);
+    if (Number.isFinite(n) && n > 0) return Math.round(n);
+  } catch (e) { /* fallback */ }
+
   const valor = Number(process.env.LAB_RENEWAL_PRICE_ARS || 0);
   if (Number.isFinite(valor) && valor > 0) return Math.round(valor);
   return precioArs();
