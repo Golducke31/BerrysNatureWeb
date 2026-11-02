@@ -174,10 +174,11 @@ async function createLabPreference({ orderId, token, email, amount, title, appUr
     notification_url: `${base}/api/webhooks/mercadopago`,
     statement_descriptor: 'BERRYSLAB',
     /* Hasta 6 cuotas; el cliente elige 3 o 6 (o menos) en MercadoPago.
+       Por defecto arranca en 1 pago (monto total); las cuotas son opcionales.
        Sin configuración de "sin interés": eso depende de la cuenta. */
     payment_methods: {
       installments: 6,
-      default_installments: 3
+      default_installments: 1
     },
     back_urls: {
       success: `${base}/berrys-lab.html?pago=ok&pedido=${pedido}&t=${t}`,
