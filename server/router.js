@@ -28,6 +28,7 @@ const products = require('./handlers/products');
 const reviews = require('./handlers/reviews');
 const images = require('./handlers/images');
 const content = require('./handlers/content');
+const contact = require('./handlers/contact');
 const admin = require('./handlers/admin');
 const pages = require('./handlers/pages');
 const adminUI = require('./admin-ui');
@@ -357,6 +358,9 @@ async function handlePublic(req, res, method, seg) {
     if (b && !c && method === 'GET') return orders.getOne(req, res, { id: b });
     return http.notFound(res);
   }
+
+  /* Formulario de contacto de la home (público, sin sesión). */
+  if (a === 'contact' && method === 'POST') return contact.create(req, res, await body(req));
 
   /* Reporte de contenido (Etapa 5, F9): cualquier usuario logueado. */
   if (a === 'reports' && method === 'POST') return reports.createReport(req, res, await body(req));

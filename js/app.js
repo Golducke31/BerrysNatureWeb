@@ -350,3 +350,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.body.appendChild(wa);
 })();
+
+/* ------------------------------------------------------------------
+   Formulario de contacto de la home
+
+   Antes no tenía handler: el botón no enviaba nada. Ahora manda a
+   POST /api/contact (guarda el mensaje y avisa por email).
+   ------------------------------------------------------------------ */
+(function () {
+  var form = document.getElementById('contactForm');
+  if (!form) return;
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var nombre = document.getElementById('contactName');
+    var email = document.getElementById('contactEmail');
+    var mensaje = document.getElementById('contactMessage');
+    var btn = document.getElementById('contactSubmitBtn');
+
+    var n = nombre ? nombre.value.trim() : '';
+    var em = email ? email.value.trim() : '';
+    var ms = mensaje ? mensaje.value.trim() : '';
+
+    if (!n || !em || !ms) {
+      if (window.toast) window.toast('Completá nombre, email y mensaje.', 'warning');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+      if (window.toast) window.toast('El email no es válido.', 'warning');
+      return;
+    }
+
+    var original = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: n, email: em, mensaje: ms })
+    })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          return { ok: r.ok, d: d };
+        });
+      })
+      .then(function (res) {
+        if (!res.ok) {
+          var msg = res.d && res.d.error && res.d.error.message;
+          throw new Error(msg || 'No pudimos enviar tu mensaje.');
+        }
+        if (window.toast) window.toast('¡Mensaje enviado! Te respondemos a la brevedad.', 'check');
+        form.reset();
+      })
+      .catch(function (err) {
+        if (window.toast) window.toast(err.message || 'No pudimos enviar tu mensaje.', 'warning');
+      })
+      .then(function () {
+        if (btn) { btn.disabled = false; btn.textContent = original; }
+      });
+  });
+})();
