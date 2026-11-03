@@ -326,7 +326,7 @@
       setBusy(btn, true, 'Borrando…');
 
       client.deleteAccount(payload)
-        .then(function () { window.location.href = 'index.html'; })
+        .then(function () { window.location.href = '/'; })
         .catch(function (err) {
           setMsg(msg, (err && err.message) || 'No pudimos borrar la cuenta.', 'error');
         })
@@ -345,7 +345,7 @@
       setBusy(btn, true, 'Saliendo…');
       client.logout()
         .catch(function () { /* aunque falle, localmente salimos igual */ })
-        .then(function () { window.location.href = 'index.html'; });
+        .then(function () { window.location.href = '/'; });
     });
   }
 

@@ -54,14 +54,28 @@
   included_files = ["css/admin.css", "js/admin.js", "tienda.html"]
 
 # ---- La tienda cambió de URL ----
-# /marca.html → /tienda.html. 301 permanente (no 302) para que Google
+# /marca.html → /tienda. 301 permanente (no 302) para que Google
 # transfiera la autoridad de la URL vieja y los links ya compartidos sigan
 # funcionando. force = true porque el archivo viejo ya no existe: si no,
 # Netlify intentaría servirlo y devolvería 404.
 [[redirects]]
   from = "/marca.html"
-  to = "/tienda.html"
+  to = "/tienda"
   status = 301
+  force = true
+
+# ---- URLs limpias (sin .html) ----
+# La política vive en server/lib/urls.js y el build la materializa en
+# dist/_redirects (301 de /pagina.html → /pagina y 200 de /pagina →
+# /pagina.html). Se genera y no se escribe a mano para que no se
+# desincronice cuando se agrega una página o una guía nueva.
+#
+# Acá quedan solo las reglas que NO son de páginas estáticas: la tienda
+# (la sirve la Function para inyectarle el catálogo) y la API.
+[[redirects]]
+  from = "/tienda"
+  to = "/.netlify/functions/api/tienda"
+  status = 200
   force = true
 
 # ---- API: todo /api/* va a la Function (mismo router que Vercel) ----
@@ -96,15 +110,10 @@
   status = 200
   force = true
 
-# La tienda se sirve desde la Function para inyectarle el JSON-LD del
-# catálogo con precios y stock reales (Google lo lee del HTML crudo).
-# force = true porque el archivo estático existe y, sin force, Netlify
-# lo serviría tal cual (con el JSON-LD viejo sin `price`).
-[[redirects]]
-  from = "/tienda.html"
-  to = "/.netlify/functions/api/tienda"
-  status = 200
-  force = true
+# La tienda se sirve desde la Function (ver la regla /tienda de arriba)
+# para inyectarle el JSON-LD y el catálogo con precios y stock reales:
+# Google lee el HTML crudo. El archivo estático tienda.html sigue
+# existiendo, pero ya no es la URL pública: /tienda.html redirige 301.
 
 # El sitemap ahora es dinámico (SSR /api/sitemap): lista productos, guías e
 # hilos desde la base. El archivo estático sitemap.xml queda sombreado por

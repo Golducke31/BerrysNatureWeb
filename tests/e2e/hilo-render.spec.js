@@ -190,7 +190,7 @@ test.describe('Página de hilo — contenido y metadatos', () => {
     expect(res.body).toContain('<base href="/">');
     expect(res.body).toContain('href="/css/foro.css"');
     expect(res.body).toContain('src="/js/hilo.js"');
-    expect(res.body).toContain('href="/foro.html"');
+    expect(res.body).toContain('href="/foro"');
     expect(res.body).not.toMatch(/href="css\//);
     expect(res.body).not.toMatch(/src="js\//);
   });

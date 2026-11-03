@@ -835,3 +835,15 @@
 
 /* Toast: movido a css/styles.css para que funcione también en index.html
    y glosario.html, que no cargan esta hoja. */
+
+/* Título de tarjeta con enlace (prerender del listado de guías): mismo
+   aspecto que el título sin enlace, pero navegable y rastreable. */
+.guide-card__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.guide-card__title a:hover,
+.guide-card__title a:focus-visible {
+  text-decoration: underline;
+}

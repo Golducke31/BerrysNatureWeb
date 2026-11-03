@@ -72,11 +72,14 @@ test.describe('Sitemap — qué incluye', () => {
     const urls = locs(res.body);
 
     expect(urls).toContain('https://berrysnature.com.ar/');
-    expect(urls).toContain('https://berrysnature.com.ar/academia.html');
-    expect(urls).toContain('https://berrysnature.com.ar/foro.html');
-    expect(urls).toContain('https://berrysnature.com.ar/glosario.html');
-    expect(urls).toContain('https://berrysnature.com.ar/tienda.html');
-    expect(urls).toContain('https://berrysnature.com.ar/berrys-lab.html');
+    // URLs finales: sin .html (ver server/lib/urls.js).
+    expect(urls).toContain('https://berrysnature.com.ar/academia');
+    expect(urls).toContain('https://berrysnature.com.ar/foro');
+    expect(urls).toContain('https://berrysnature.com.ar/glosario');
+    expect(urls).toContain('https://berrysnature.com.ar/tienda');
+    expect(urls).toContain('https://berrysnature.com.ar/berrys-lab');
+    // Ninguna URL del sitemap puede llevar .html: todas redirigen 301.
+    expect(urls.filter((u) => /\.html(?:$|\?)/i.test(u))).toEqual([]);
   });
 
   test('S2: incluye las guías con página propia, leídas de content-data.js', async () => {
@@ -85,9 +88,9 @@ test.describe('Sitemap — qué incluye', () => {
 
     // Se derivan de la misma fuente que usa el front, así que no se
     // desactualizan solas como pasaba con el sitemap estático.
-    expect(urls).toContain('https://berrysnature.com.ar/academia/costo-real-crema-margen.html');
-    expect(urls).toContain('https://berrysnature.com.ar/academia/checklist-legal-anmat-cosmetica-argentina.html');
-    expect(urls).toContain('https://berrysnature.com.ar/academia/primera-emulsion-estable-aceite-en-agua.html');
+    expect(urls).toContain('https://berrysnature.com.ar/academia/costo-real-crema-margen');
+    expect(urls).toContain('https://berrysnature.com.ar/academia/checklist-legal-anmat-cosmetica-argentina');
+    expect(urls).toContain('https://berrysnature.com.ar/academia/primera-emulsion-estable-aceite-en-agua');
   });
 
   test('S3: incluye los hilos indexables con la URL canónica', async () => {
@@ -118,10 +121,11 @@ test.describe('Sitemap — qué incluye', () => {
     const res = await sitemap();
     const urls = locs(res.body);
 
-    // Todas estas se sirven con noindex: listarlas sería contradictorio.
+    // Estas se sirven con noindex: listarlas sería contradictorio.
+    // (privacidad y terminos YA están publicadas — legalesPublicadas = true —
+    // así que entran al sitemap con su URL limpia.)
     for (const prohibida of [
-      'cuenta.html', 'recuperar.html', 'verificar.html',
-      'privacidad.html', 'terminos.html', 'hilo.html'
+      '/cuenta', '/recuperar', '/verificar', '/perfil', '/hilo'
     ]) {
       expect(urls.some((u) => u.includes(prohibida))).toBe(false);
     }
@@ -144,8 +148,8 @@ test.describe('Sitemap — páginas legales', () => {
     const res = await sitemap();
     const urls = locs(res.body);
 
-    expect(urls).not.toContain('https://berrysnature.com.ar/privacidad.html');
-    expect(urls).not.toContain('https://berrysnature.com.ar/terminos.html');
+    expect(urls).not.toContain('https://berrysnature.com.ar/privacidad');
+    expect(urls).not.toContain('https://berrysnature.com.ar/terminos');
   });
 
   test('S20: al publicarlas (legalesPublicadas=true) entran con su URL canónica', async () => {
@@ -155,8 +159,8 @@ test.describe('Sitemap — páginas legales', () => {
       const res = await sitemap();
       const urls = locs(res.body);
 
-      expect(urls).toContain('https://berrysnature.com.ar/privacidad.html');
-      expect(urls).toContain('https://berrysnature.com.ar/terminos.html');
+      expect(urls).toContain('https://berrysnature.com.ar/privacidad');
+      expect(urls).toContain('https://berrysnature.com.ar/terminos');
     } finally {
       pages.setLegalesPublicadas(false); // deja el estado para el resto de la suite
     }
@@ -180,13 +184,13 @@ test.describe('Sitemap — guías dinámicas', () => {
   });
 
   test('S16: NO duplica una guía que ya tiene página estática', async () => {
-    // `post-costo-real` ya vive en /academia/costo-real-crema-margen.html.
+    // `post-costo-real` ya vive en /academia/costo-real-crema-margen.
     // Listar además /guias/post-costo-real sería listar dos URLs del mismo
     // contenido, y eso es exactamente lo que el canonical trata de evitar.
     const res = await sitemap([], [filaGuia('post-costo-real')]);
     const urls = locs(res.body);
 
-    expect(urls).toContain('https://berrysnature.com.ar/academia/costo-real-crema-margen.html');
+    expect(urls).toContain('https://berrysnature.com.ar/academia/costo-real-crema-margen');
     expect(urls).not.toContain('https://berrysnature.com.ar/guias/post-costo-real');
   });
 

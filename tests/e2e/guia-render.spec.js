@@ -88,14 +88,14 @@ test.describe('Página de guía — indexación', () => {
     expect(res.headers['x-indexability-reason']).toBeUndefined();
   });
 
-  test('G2: una guía con página estática redirige a ella (302)', async () => {
+  test('G2: una guía con página estática redirige a ella (301 a la URL limpia)', async () => {
     // `post-costo-real` ya vive en /academia/costo-real-crema-margen.html.
     // Antes se servía con noindex + canonical a la estática; ahora se redirige
     // directamente, que es más limpio para el usuario y para el buscador.
     const res = await render({ id: 'post-costo-real' });
 
-    expect(res.statusCode).toBe(302);
-    expect(res.headers.location).toBe('/academia/costo-real-crema-margen.html');
+    expect(res.statusCode).toBe(301);
+    expect(res.headers.location).toBe('/academia/costo-real-crema-margen');
   });
 
   test('G3: una guía PRO no se indexa y no expone el cuerpo', async () => {
@@ -179,7 +179,7 @@ test.describe('Página de guía — contenido y metadatos', () => {
 
     expect(res.body).toContain('<base href="/">');
     expect(res.body).toContain('href="/css/guide-article.css"');
-    expect(res.body).toContain('href="/academia.html"');
+    expect(res.body).toContain('href="/academia"');
     expect(res.body).not.toMatch(/href="css\//);
   });
 

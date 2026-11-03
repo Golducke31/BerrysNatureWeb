@@ -281,10 +281,10 @@ async function remind(req, res, { id }, body) {
     to: row.email,
     subject: "Tu licencia de Berry's Lab vence pronto",
     text: `Hola ${nombre},\n\nTu licencia de Berry's Lab vence el ${expira}.\n` +
-          `Podés renovarla acá: ${baseUrl()}/berrys-lab.html#licencia\n\nGracias,\nBerry's Nature`,
+          `Podés renovarla acá: ${baseUrl()}/berrys-lab#licencia\n\nGracias,\nBerry's Nature`,
     html: `<p>Hola ${esc(nombre)},</p>` +
           `<p>Tu licencia de <strong>Berry's Lab</strong> vence el <strong>${expira}</strong>.</p>` +
-          `<p><a href="${baseUrl()}/berrys-lab.html#licencia">Renovar licencia</a></p>` +
+          `<p><a href="${baseUrl()}/berrys-lab#licencia">Renovar licencia</a></p>` +
           `<p>Gracias,<br>Berry's Nature</p>`
   });
 

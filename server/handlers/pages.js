@@ -26,6 +26,7 @@ const path = require('node:path');
 const db = require('../lib/db');
 const S = require('../lib/serialize');
 const indexability = require('../lib/indexability');
+const urls = require('../lib/urls');
 const features = require('../lib/features');
 const reputation = require('../lib/reputation');
 const { html, xml, redirect } = require('../lib/http');
@@ -77,7 +78,7 @@ function headerHtml() {
   return `
   <header class="sticky-header">
     <div class="header-container">
-      <a href="/index.html" class="logo-area" aria-label="Volver al inicio">
+      <a href="/" class="logo-area" aria-label="Volver al inicio">
         <img src="/assets/logo_berrys_nature-112.jpg" srcset="/assets/logo_berrys_nature-112.webp 1x, /assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
         <div class="logo-text-wrapper">
           <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
@@ -85,8 +86,8 @@ function headerHtml() {
       </a>
       <nav>
         <ul class="nav-menu-desktop">
-          <li><a href="/foro.html" class="nav-link"><i data-icon="arrowLeft"></i> Volver al Foro</a></li>
-          <li><a href="/academia.html" class="nav-link">Academia</a></li>
+          <li><a href="/foro" class="nav-link"><i data-icon="arrowLeft"></i> Volver al Foro</a></li>
+          <li><a href="/academia" class="nav-link">Academia</a></li>
         </ul>
       </nav>
       <div class="header-actions">
@@ -104,8 +105,8 @@ function headerHtml() {
 
   <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
     <ul class="nav-menu-mobile" id="navMenuMobile">
-      <li><a href="/foro.html" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al Foro</a></li>
-      <li><a href="/academia.html" class="mobile-nav-link">Academia</a></li>
+      <li><a href="/foro" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al Foro</a></li>
+      <li><a href="/academia" class="mobile-nav-link">Academia</a></li>
     </ul>
   </nav>`;
 }
@@ -150,8 +151,8 @@ function authModalHtml() {
 
       <p class="auth-legal">
         Tus datos se guardan de forma segura en nuestro servidor. Al crear una cuenta aceptás los
-        <a href="/terminos.html">términos de uso</a> y la
-        <a href="/privacidad.html">política de privacidad</a>.
+        <a href="/terminos">términos de uso</a> y la
+        <a href="/privacidad">política de privacidad</a>.
       </p>
     </div>
   </div>`;
@@ -167,9 +168,9 @@ function footerHtml() {
         Hecho con rigor científico y amor natural en la Patagonia Argentina.
       </p>
       <p class="footer-legal">
-        <a href="/privacidad.html">Política de privacidad</a>
+        <a href="/privacidad">Política de privacidad</a>
         <span aria-hidden="true">·</span>
-        <a href="/terminos.html">Términos de uso</a>
+        <a href="/terminos">Términos de uso</a>
       </p>
       <div class="footer-social">
         <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
@@ -358,7 +359,7 @@ function bodyHilo({ hilo, respuestas }) {
       <div class="hilo-layout">
 
         <p class="hilo-breadcrumb">
-          <a href="/foro.html"><i data-icon="arrowLeft"></i> Volver al foro</a>
+          <a href="/foro"><i data-icon="arrowLeft"></i> Volver al foro</a>
         </p>
 
         <!-- data-ssr=1: js/hilo.js detecta que ya viene renderizado por el
@@ -431,10 +432,10 @@ async function renderThread(req, res, { id }) {
   <main>
     <section class="hilo-section">
       <div class="hilo-layout">
-        <p class="hilo-breadcrumb"><a href="/foro.html"><i data-icon="arrowLeft"></i> Volver al foro</a></p>
+        <p class="hilo-breadcrumb"><a href="/foro"><i data-icon="arrowLeft"></i> Volver al foro</a></p>
         <div class="community-empty">
           <p>No encontramos este hilo. Puede que se haya eliminado.</p>
-          <p><a href="/foro.html">Ver los demás hilos</a></p>
+          <p><a href="/foro">Ver los demás hilos</a></p>
         </div>
       </div>
     </section>
@@ -492,7 +493,7 @@ async function renderThread(req, res, { id }) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` },
-      { '@type': 'ListItem', position: 2, name: 'Foro', item: `${siteUrl()}/foro.html` },
+      { '@type': 'ListItem', position: 2, name: 'Foro', item: `${siteUrl()}/foro` },
       { '@type': 'ListItem', position: 3, name: row.title, item: canonical }
     ]
   };
@@ -568,7 +569,7 @@ function urlEstaticaDeGuia(id) {
   try {
     const data = require('../../js/content-data.js');
     const post = (data.BLOG_POSTS || []).find((p) => p.id === id);
-    return post && post.url ? '/' + String(post.url).replace(/^\/+/, '') : null;
+    return post && post.url ? urls.urlDeEnlace(post.url) : null;
   } catch (err) {
     return null;
   }
@@ -601,9 +602,9 @@ function bodyGuia(g) {
     <article class="guide-page">
 
       <nav class="guide-breadcrumb" aria-label="Ruta de navegación">
-        <a href="/index.html">Inicio</a>
+        <a href="/">Inicio</a>
         <span class="sep">/</span>
-        <a href="/academia.html">Academia</a>
+        <a href="/academia">Academia</a>
         <span class="sep">/</span>
         <span class="current">${esc(g.titulo)}</span>
       </nav>
@@ -628,7 +629,7 @@ function bodyGuia(g) {
 
       ${tags}
 
-      <a class="guide-back" href="/academia.html">← Volver a la Academia</a>
+      <a class="guide-back" href="/academia">← Volver a la Academia</a>
     </article>
   </main>`;
 }
@@ -653,15 +654,15 @@ async function renderGuide(req, res, { id }) {
   <main>
     <article class="guide-page">
       <nav class="guide-breadcrumb" aria-label="Ruta de navegación">
-        <a href="/index.html">Inicio</a><span class="sep">/</span>
-        <a href="/academia.html">Academia</a><span class="sep">/</span>
+        <a href="/">Inicio</a><span class="sep">/</span>
+        <a href="/academia">Academia</a><span class="sep">/</span>
         <span class="current">Guía no encontrada</span>
       </nav>
       <h1 class="guide-h1">No encontramos esta guía</h1>
       <div class="guide-body">
         <p>Puede que el enlace esté mal o que la guía todavía no se haya publicado.</p>
       </div>
-      <a class="guide-back" href="/academia.html">← Ver las guías disponibles</a>
+      <a class="guide-back" href="/academia">← Ver las guías disponibles</a>
     </article>
   </main>`
     }), { 'X-Robots-Tag': 'noindex, nofollow' });
@@ -680,15 +681,15 @@ async function renderGuide(req, res, { id }) {
   <main>
     <article class="guide-page">
       <nav class="guide-breadcrumb" aria-label="Ruta de navegación">
-        <a href="/index.html">Inicio</a><span class="sep">/</span>
-        <a href="/academia.html">Academia</a><span class="sep">/</span>
+        <a href="/">Inicio</a><span class="sep">/</span>
+        <a href="/academia">Academia</a><span class="sep">/</span>
         <span class="current">Guía PRO</span>
       </nav>
       <h1 class="guide-h1">Contenido no disponible</h1>
       <div class="guide-body">
         <p>Esta guía PRO está temporalmente desactivada. Volvé pronto.</p>
       </div>
-      <a class="guide-back" href="/academia.html">← Ver las guías disponibles</a>
+      <a class="guide-back" href="/academia">← Ver las guías disponibles</a>
     </article>
   </main>`
     }), { 'X-Robots-Tag': 'noindex, nofollow' });
@@ -701,8 +702,10 @@ async function renderGuide(req, res, { id }) {
 
   // Si la guía tiene una página estática extendida, no servimos el cuerpo
   // corto de la base: redirigimos a ella (la canonical ya apuntaba ahí).
+  // 301 y no 302: la estática es la URL definitiva de ese contenido, y así
+  // Google transfiere la señal en vez de mantener las dos vivas.
   if (urlEstatica) {
-    return redirect(res, urlEstatica);
+    return redirect(res, urlEstatica, 301);
   }
 
   // Cuándo NO se indexa:
@@ -720,7 +723,7 @@ async function renderGuide(req, res, { id }) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` },
-      { '@type': 'ListItem', position: 2, name: 'Academia', item: `${siteUrl()}/academia.html` },
+      { '@type': 'ListItem', position: 2, name: 'Academia', item: `${siteUrl()}/academia` },
       { '@type': 'ListItem', position: 3, name: row.title, item: canonical }
     ]
   };
@@ -908,7 +911,7 @@ function merchantPolicies() {
       'https://schema.org/OnSitePickup',
       'https://schema.org/ParcelService'
     ],
-    shippingSettingsLink: `${siteUrl()}/envios.html`,
+    shippingSettingsLink: `${siteUrl()}/envios`,
     shippingDetails: {
       '@type': 'OfferShippingDetails',
       shippingRate: { '@type': 'MonetaryAmount', value: 4500, currency: 'ARS' },
@@ -944,12 +947,12 @@ async function renderProduct(req, res, { id }) {
     <section class="product-detail-section">
       <p class="product-detail__breadcrumb">
         <a href="/">Inicio</a><span class="sep">/</span>
-        <a href="/tienda.html">Tienda</a><span class="sep">/</span>
+        <a href="/tienda">Tienda</a><span class="sep">/</span>
         <span class="current">No encontrado</span>
       </p>
       <div class="community-empty">
         <p>No encontramos este producto. Puede que se haya dejado de vender.</p>
-        <p><a href="/tienda.html">Ver toda la tienda</a></p>
+        <p><a href="/tienda">Ver toda la tienda</a></p>
       </div>
     </section>
   </main>`
@@ -1060,7 +1063,7 @@ async function renderProduct(req, res, { id }) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` },
-      { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${siteUrl()}/tienda.html` },
+      { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${siteUrl()}/tienda` },
       { '@type': 'ListItem', position: 3, name: row.nombre, item: canonical }
     ]
   };
@@ -1084,7 +1087,7 @@ async function renderProduct(req, res, { id }) {
     <section class="product-detail-section">
       <p class="product-detail__breadcrumb">
         <a href="/">Inicio</a><span class="sep">/</span>
-        <a href="/tienda.html">Tienda</a><span class="sep">/</span>
+        <a href="/tienda">Tienda</a><span class="sep">/</span>
         <span class="current">${esc(row.nombre)}</span>
       </p>
       <div class="product-detail">
@@ -1114,7 +1117,7 @@ async function renderProduct(req, res, { id }) {
             <details class="product-accordion__item">
               <summary>Envío y devoluciones</summary>
               <div class="product-accordion__body">
-                <p>Enviamos a todo el país y podés retirar sin cargo. <a href="/envios.html">Ver envíos</a> · <a href="/devoluciones.html">Devoluciones</a>.</p>
+                <p>Enviamos a todo el país y podés retirar sin cargo. <a href="/envios">Ver envíos</a> · <a href="/devoluciones">Devoluciones</a>.</p>
               </div>
             </details>
           </div>
@@ -1122,7 +1125,7 @@ async function renderProduct(req, res, { id }) {
           ${activos.length ? `<div class="product-detail__activos"><strong>Activos:</strong> ${activos.map((a) => esc(a)).join(' · ')}</div>` : ''}
           <div class="product-detail__cta">
             ${mpBtn}
-            <a class="cta-button cta-outline" href="/tienda.html">Ver toda la tienda</a>
+            <a class="cta-button cta-outline" href="/tienda">Ver toda la tienda</a>
           </div>
         </div>
       </div>
@@ -1190,7 +1193,7 @@ function bodyPerfil({ perfil, hilos }) {
     <section class="profile-section">
       <div class="profile-layout">
         <p class="hilo-breadcrumb">
-          <a href="/foro.html"><i data-icon="arrowLeft"></i> Volver al foro</a>
+          <a href="/foro"><i data-icon="arrowLeft"></i> Volver al foro</a>
         </p>
 
         <header class="profile-head">
@@ -1227,10 +1230,10 @@ function perfilNoDisponible(res, { usuario, titulo, mensaje }) {
   <main>
     <section class="profile-section">
       <div class="profile-layout">
-        <p class="hilo-breadcrumb"><a href="/foro.html"><i data-icon="arrowLeft"></i> Volver al foro</a></p>
+        <p class="hilo-breadcrumb"><a href="/foro"><i data-icon="arrowLeft"></i> Volver al foro</a></p>
         <div class="community-empty">
           <p>${esc(mensaje)}</p>
-          <p><a href="/foro.html">Ver los demás hilos</a></p>
+          <p><a href="/foro">Ver los demás hilos</a></p>
         </div>
       </div>
     </section>
@@ -1322,14 +1325,14 @@ async function renderProfile(req, res, { usuario }) {
    recuperar.html, verificar.html. Todas son `noindex`. */
 const PAGINAS_FIJAS = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
-  { path: '/academia.html', changefreq: 'weekly', priority: '0.9' },
-  { path: '/tienda.html', changefreq: 'weekly', priority: '0.9' },
-  { path: '/berrys-lab.html', changefreq: 'weekly', priority: '0.9' },
-  { path: '/foro.html', changefreq: 'daily', priority: '0.8' },
-  { path: '/glosario.html', changefreq: 'monthly', priority: '0.7' },
-  { path: '/normas.html', changefreq: 'monthly', priority: '0.4' },
-  { path: '/devoluciones.html', changefreq: 'yearly', priority: '0.3' },
-  { path: '/envios.html', changefreq: 'yearly', priority: '0.3' }
+  { path: '/academia', changefreq: 'weekly', priority: '0.9' },
+  { path: '/tienda', changefreq: 'weekly', priority: '0.9' },
+  { path: '/berrys-lab', changefreq: 'weekly', priority: '0.9' },
+  { path: '/foro', changefreq: 'daily', priority: '0.8' },
+  { path: '/glosario', changefreq: 'monthly', priority: '0.7' },
+  { path: '/normas', changefreq: 'monthly', priority: '0.4' },
+  { path: '/devoluciones', changefreq: 'yearly', priority: '0.3' },
+  { path: '/envios', changefreq: 'yearly', priority: '0.3' }
 ];
 
 /* Páginas legales.
@@ -1346,8 +1349,8 @@ const PAGINAS_FIJAS = [
    el HTML y el sitemap deben coincidir. */
 let legalesPublicadas = true;
 const PAGINAS_LEGALES = [
-  { path: '/privacidad.html', changefreq: 'yearly', priority: '0.3' },
-  { path: '/terminos.html', changefreq: 'yearly', priority: '0.3' }
+  { path: '/privacidad', changefreq: 'yearly', priority: '0.3' },
+  { path: '/terminos', changefreq: 'yearly', priority: '0.3' }
 ];
 
 /** Habilita el listado de las páginas legales en el sitemap (publish/test). */
@@ -1364,13 +1367,18 @@ function escXml(s) {
  * Guías que ya tienen página propia, leídas de `js/content-data.js`
  * (la misma fuente que usa el front). Antes esto era una lista escrita a
  * mano en el sitemap estático y se desactualizaba sola.
+ *
+ * La URL pasa por `urls.urlDeEnlace()` para que el sitemap NUNCA liste una
+ * URL con `.html`: si mañana alguien agrega una guía con la ruta vieja, el
+ * sitemap sigue publicando la URL final y no la que redirige.
  */
 function guiasConPagina() {
   try {
     const data = require('../../js/content-data.js');
     return (data.BLOG_POSTS || [])
       .filter((p) => p.url && !p.pro)
-      .map((p) => '/' + String(p.url).replace(/^\/+/, ''));
+      .map((p) => urls.urlDeEnlace(p.url))
+      .filter(Boolean);
   } catch (err) {
     console.error('[sitemap] no se pudo leer content-data.js:', err && err.message);
     return [];
@@ -1647,6 +1655,80 @@ function buildCatalogoJsonLd(productos, resenasMap) {
 
 const RE_JSONLD_CATALOGO = /<script type="application\/ld\+json" id="catalogoJsonLd">[\s\S]*?<\/script>/;
 
+/** Marcador del grid de productos dentro de tienda.html. */
+const RE_CATALOGO = /<!--\s*PRERENDER:CATALOGO\s*-->/;
+
+/** Precio con el mismo formato que usa el cliente ($ 16.000). */
+function precioArs(n) {
+  return '$ ' + Number(n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+}
+
+/**
+ * Tarjetas del catálogo, renderizadas en el servidor.
+ *
+ * POR QUÉ: la tienda armaba el grid con JavaScript contra /api/products.
+ * El HTML crudo solo traía los contenedores vacíos, así que Google no
+ * veía ni un producto ni un enlace a /productos/<slug> (y de ahí que
+ * indexara 13 de 43 URLs). El JSON-LD ya se inyectaba, pero sin HTML que
+ * lo respalde.
+ *
+ * El markup replica el de `js/catalog.js` para que la hidratación del
+ * cliente no cambie nada visible: cuando llegan los datos, el JS vuelve
+ * a pintar el grid con los carruseles de imágenes y los botones de
+ * carrito. Si el JS no corre, la tienda sigue siendo navegable.
+ */
+function catalogoHtml(filas, resenasMap) {
+  const tarjetas = filas.map((r) => {
+    const p = productoParaLd(r);
+    const url = `/productos/${encodeURIComponent(p.id)}`;
+    const conPrecio = typeof p.precio === 'number';
+    const stock = (p.stock === null || p.stock === undefined) ? null : Number(p.stock);
+    const chipStock = stock === 0
+      ? '<span class="product-card__stockout">Sin stock</span>'
+      : (stock > 0 ? `<span class="product-card__stock">${stock} disponibles</span>` : '');
+    const imagen = p.imagen ? absAsset(p.imagen) : '';
+
+    const resena = resenasMap && resenasMap[p.id];
+    const rating = (resena && Number(resena.total) > 0 && Number(resena.promedio) > 0)
+      ? `<div class="product-card__rating" title="${Number(resena.total)} reseña(s)">
+            <span class="product-card__stars" aria-hidden="true">${'★'.repeat(Math.round(Number(resena.promedio)))}${'☆'.repeat(5 - Math.round(Number(resena.promedio)))}</span>
+            <span class="product-card__rating-val">${Number(resena.promedio).toFixed(1)}</span>
+            <span class="product-card__rating-count">(${Number(resena.total)})</span>
+          </div>`
+      : '';
+
+    const meta = (Array.isArray(r.meta) ? r.meta.filter(Boolean) : [])
+      .map((m) => `<span>${esc(m)}</span>`)
+      .join('');
+
+    return `<article class="guide-card product-card" data-product="${esc(p.id)}">
+            <div class="guide-card__media">
+              ${imagen ? `<img class="product-card__img" src="${esc(imagen)}" alt="${esc(p.nombre)}" loading="lazy" decoding="async">` : ''}
+              <span class="guide-card__cat">${esc(p.categoria || '')}</span>
+              ${chipStock}<span class="product-card__price${conPrecio ? '' : ' is-consult'}">${conPrecio ? precioArs(p.precio) : 'Consultar precio'}</span>
+            </div>
+            <div class="guide-card__body">
+              <h3 class="guide-card__title"><a href="${esc(url)}">${esc(p.nombre)}</a></h3>
+              ${rating}
+              <p class="guide-card__excerpt">${esc(p.descripcion || '')}</p>
+              <div class="guide-card__meta">${meta}</div>
+              <div class="product-card__actions">
+                <a class="cta-button" href="${esc(url)}">Ver producto</a>
+              </div>
+            </div>
+          </article>`;
+  }).join('\n');
+
+  return tarjetas;
+}
+
+/** Reemplaza el marcador del grid por las tarjetas ya renderizadas. */
+function inyectarCatalogo(htmlDoc, tarjetas) {
+  if (!tarjetas) return htmlDoc;
+  if (RE_CATALOGO.test(htmlDoc)) return htmlDoc.replace(RE_CATALOGO, tarjetas);
+  return htmlDoc; // HTML inesperado: se deja como está (el JS lo arma)
+}
+
 /** Reemplaza el bloque JSON-LD del catálogo dentro del HTML. */
 function inyectarJsonLdCatalogo(htmlDoc, data) {
   const bloque = `<script type="application/ld+json" id="catalogoJsonLd">\n${jsonLd(data)}\n  </script>`;
@@ -1658,7 +1740,7 @@ function inyectarJsonLdCatalogo(htmlDoc, data) {
 }
 
 /**
- * GET /tienda.html  (rewrite → /api/tienda)
+ * GET /tienda  (rewrite → /api/tienda)
  *
  * Sirve la tienda con el JSON-LD del catálogo generado desde la BD.
  * Si la consulta falla, devuelve el HTML estático sin tocar (degradación
@@ -1681,6 +1763,9 @@ async function renderTienda(req, res) {
       const resenasMap = await reviews.resumenesPara(productos.map((p) => p.id))
         .catch(() => ({}));
       markup = inyectarJsonLdCatalogo(markup, buildCatalogoJsonLd(productos, resenasMap));
+      // El catálogo va TAMBIÉN en el HTML: sin esto la página llegaba con
+      // el grid vacío y Google no tenía ni productos ni enlaces internos.
+      markup = inyectarCatalogo(markup, catalogoHtml(rows, resenasMap));
     }
   } catch (err) {
     console.error('[tienda] no se pudo generar el JSON-LD desde la BD:', err && err.message);
@@ -1738,7 +1823,7 @@ async function renderFeed(req, res) {
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
     <title>Berry's Nature — Catálogo</title>
-    <link>${escXml(base + '/tienda.html')}</link>
+    <link>${escXml(base + '/tienda')}</link>
     <description>Cosmética natural artesanal de Argentina, Buenos Aires.</description>
 ${items}
   </channel>

@@ -19,15 +19,15 @@ test.describe('Páginas legales', () => {
   test('T1-L-01: el footer de la home enlaza a privacidad y términos', async ({ page }) => {
     await page.goto(url('index.html'));
     const footer = page.locator('.main-footer');
-    await expect(footer.locator('a[href="privacidad.html"]')).toHaveCount(1);
-    await expect(footer.locator('a[href="terminos.html"]')).toHaveCount(1);
+    await expect(footer.locator('a[href="/privacidad"]')).toHaveCount(1);
+    await expect(footer.locator('a[href="/terminos"]')).toHaveCount(1);
   });
 
   test('T1-L-02: la línea legal del modal enlaza a privacidad y términos', async ({ page }) => {
     await page.goto(url('index.html'));
     const legal = page.locator('#authModal .auth-legal');
-    await expect(legal.locator('a[href="terminos.html"]')).toHaveCount(1);
-    await expect(legal.locator('a[href="privacidad.html"]')).toHaveCount(1);
+    await expect(legal.locator('a[href="/terminos"]')).toHaveCount(1);
+    await expect(legal.locator('a[href="/privacidad"]')).toHaveCount(1);
   });
 
   test('T1-L-03: privacidad.html carga con su título y su sección de derechos', async ({ page }) => {

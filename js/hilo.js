@@ -81,7 +81,7 @@
       wrap.innerHTML = `
         <div class="community-empty">
           <p>No encontramos este hilo. Puede que se haya eliminado.</p>
-          <p><a href="foro.html">Volver al foro</a></p>
+          <p><a href="/foro">Volver al foro</a></p>
         </div>`;
       return;
     }

@@ -60,7 +60,7 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
   test('T1-F2-02: El CTA principal lleva a la Academia', async ({ page }) => {
     const cta = page.locator('.hero-actions-grid a', { hasText: 'Explorar la Academia' });
     await expect(cta).toBeVisible();
-    await expect(cta).toHaveAttribute('href', /academia\.html/);
+    await expect(cta).toHaveAttribute('href', /^\/academia$/);
   });
 
   // T1-F2-03: CTA "Probar Calculadora" hace scroll a #calculadora

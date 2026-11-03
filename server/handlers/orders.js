@@ -170,7 +170,7 @@ async function demasiadosIntentos(ipHash) {
 
 function urlPedido(orderId, token) {
   const base = String(process.env.APP_URL || 'https://berrysnature.com.ar').replace(/\/+$/, '');
-  return `${base}/tienda.html?pedido=${encodeURIComponent(orderId)}&t=${encodeURIComponent(token || '')}`;
+  return `${base}/tienda?pedido=${encodeURIComponent(orderId)}&t=${encodeURIComponent(token || '')}`;
 }
 
 function urlPanel() {

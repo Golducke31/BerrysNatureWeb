@@ -18,7 +18,7 @@ test.describe('Berry\'s Lab — landing', () => {
   test('L1: tiene title, canonical y description propios', async ({ page }) => {
     await expect(page).toHaveTitle(/Berry's Lab/i);
     const canonical = page.locator('link[rel="canonical"]');
-    await expect(canonical).toHaveAttribute('href', 'https://berrysnature.com.ar/berrys-lab.html');
+    await expect(canonical).toHaveAttribute('href', 'https://berrysnature.com.ar/berrys-lab');
     const desc = page.locator('meta[name="description"]');
     const contenido = await desc.getAttribute('content');
     expect(contenido.length).toBeGreaterThan(80);

@@ -40,7 +40,7 @@
     root.innerHTML =
       '<div class="community-empty">' +
         '<p>' + esc(msg) + '</p>' +
-        '<p><a href="foro.html">Volver al foro</a></p>' +
+        '<p><a href="/foro">Volver al foro</a></p>' +
       '</div>';
   }
 

@@ -20,6 +20,8 @@ const { execSync } = require('node:child_process');
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 
+const urls = require(path.join(ROOT, 'server', 'lib', 'urls.js'));
+
 /* Versión de build para cache-busting de assets (fuerza bajar el JS/CSS
    nuevo después de cada deploy, en vez de servir una versión cacheada que
    puede apuntar a rutas que ya no existen). Usa el sha corto del commit;
@@ -132,6 +134,88 @@ function processHtml(html) {
   return versionAssetsInHtml(out);
 }
 
+/* ============================================================
+   _redirects — URLs limpias
+
+   Netlify lee este archivo del directorio publicado (dist/) y lo aplica
+   DESPUÉS de las reglas de netlify.toml. Se genera acá y no se escribe a
+   mano porque depende del sistema de archivos: cuando se agrega una guía
+   nueva a academia/, su 301 aparece solo.
+
+   - /pagina.html → 301 → /pagina   (una sola URL pública por página)
+   - /pagina      → 200 → /pagina.html  (sirve el archivo, la URL no cambia)
+   ============================================================ */
+function escribirRedirects() {
+  const lineas = [
+    '# GENERADO POR scripts/build.cjs — no editar a mano.',
+    '# Política de URLs: server/lib/urls.js',
+    '',
+    '# La versión con .html no es una URL pública: redirige a la limpia.',
+    '# El "!" fuerza la regla aunque el archivo exista.',
+  ];
+
+  for (const r of urls.redirecciones()) {
+    lineas.push(`${r.from}    ${r.to}    301!`);
+  }
+
+  lineas.push('');
+  lineas.push('# La URL limpia sirve el archivo (la barra de direcciones no cambia).');
+  for (const p of urls.PAGINAS) {
+    if (p.url === '/') continue;        // la raíz ya sirve index.html
+    if (p.url === '/tienda') continue;  // la sirve la Function (netlify.toml)
+    lineas.push(`${p.url}    /${p.archivo}    200`);
+  }
+
+  const guias = fs.existsSync(path.join(DIST, 'academia'))
+    ? fs.readdirSync(path.join(DIST, 'academia')).filter((f) => f.endsWith('.html'))
+    : [];
+
+  if (guias.length) {
+    lineas.push('');
+    lineas.push('# Guías de la Academia (una regla por archivo publicado).');
+    for (const archivo of guias) {
+      const slug = archivo.replace(/\.html$/, '');
+      lineas.push(`/academia/${slug}    /academia/${archivo}    200`);
+      lineas.push(`/academia/${archivo}    /academia/${slug}    301!`);
+    }
+  }
+
+  fs.writeFileSync(path.join(DIST, '_redirects'), lineas.join('\n') + '\n', 'utf8');
+  return lineas.filter((l) => /^\//.test(l)).length;
+}
+
+/* ============================================================
+   Prerender — contenido en el HTML inicial
+
+   El glosario y el listado de la Academia se armaban con JavaScript y
+   llegaban vacíos al rastreador. scripts/prerender.cjs los completa en
+   dist/ desde js/content-data.js (misma data que usa el front).
+   ============================================================ */
+function prerender() {
+  try {
+    execSync(`node "${path.join(ROOT, 'scripts', 'prerender.cjs')}" "${DIST}"`, {
+      cwd: ROOT,
+      stdio: 'inherit'
+    });
+  } catch (err) {
+    console.error('\n  ✘ Falló el prerender\n');
+    process.exit(1);
+  }
+}
+
+/** Verificación de la política de URLs sobre el artefacto final. */
+function verificarUrls() {
+  try {
+    execSync(`node "${path.join(ROOT, 'scripts', 'check-urls.cjs')}" "${DIST}"`, {
+      cwd: ROOT,
+      stdio: 'inherit'
+    });
+  } catch (err) {
+    console.error('\n  ✘ El build no cumple la política de URLs (ver arriba)\n');
+    process.exit(1);
+  }
+}
+
 /** Recorre dist/ y procesa (flags + cache-busting) todos los .html. */
 function versionAllHtml(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -200,6 +284,16 @@ function main() {
      quedan cubiertas por la cabecera must-revalidate de /js/* y /css/* en netlify.toml. */
   versionAllHtml(DIST);
   console.log(`  cache-bust   ?v=${VERSION} aplicado a los .html`);
+
+  /* Contenido en el HTML inicial (glosario + listado de la Academia). */
+  prerender();
+
+  /* URLs limpias: 301 de la versión .html y 200 de la URL final. */
+  const reglas = escribirRedirects();
+  console.log(`  _redirects   ${reglas} reglas de URL limpia`);
+
+  /* Guarda: si el artefacto contradice la política, el deploy no sale. */
+  verificarUrls();
 
   console.log(`\n  ✔ dist/ listo — ${mb} MB\n`);
 }

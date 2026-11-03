@@ -113,7 +113,7 @@
     var modal = $('#authModal');
     if (!modal) {
       // Sin modal en esta página (p. ej. glosario): llevamos al foro
-      window.location.href = 'foro.html#comunidad';
+      window.location.href = '/foro#comunidad';
       return;
     }
     modal.classList.add('open');

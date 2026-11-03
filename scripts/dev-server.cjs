@@ -7,6 +7,11 @@
    - enruta /api/* por server/router.js (el MISMO código que corre
      en la Serverless Function)
    - bloquea los directorios privados, como en producción
+   - replica el ruteo de URLs de producción: 301 de /pagina.html a
+     /pagina y 200 de /pagina a /pagina.html (server/lib/urls.js), más
+     los rewrites a la Function (/tienda, /productos/*, /guias/*…).
+     Sin esto, local servía /tienda.html directo y no se podía verificar
+     nada del comportamiento SEO real.
 
    Uso:  npm run dev      → http://localhost:3000
    ============================================================ */
@@ -41,6 +46,32 @@ function loadEnv() {
 loadEnv();
 
 const { route } = require(path.join(ROOT, 'server', 'router.js'));
+const urls = require(path.join(ROOT, 'server', 'lib', 'urls.js'));
+
+/* ---------------- Rewrites a la Function (igual que el deploy) ----------------
+
+   En producción esto lo hacen netlify.toml y vercel.json. Acá se replican
+   para que `npm run dev` sirva exactamente las mismas URLs: sin esto las
+   páginas renderizadas en el servidor (/productos/…, /guias/…) daban 404
+   en local y el comportamiento SEO no se podía verificar antes de publicar. */
+const REWRITES = [
+  [/^\/tienda$/, () => '/api/tienda'],
+  [/^\/sitemap\.xml$/, () => '/api/sitemap'],
+  [/^\/feed\.xml$/, () => '/api/feed'],
+  [/^\/productos\/(.+)$/, (m) => '/api/productos/' + m[1]],
+  [/^\/guias\/(.+)$/, (m) => '/api/guias/' + m[1]],
+  [/^\/foro\/hilo\/(.+)$/, (m) => '/api/foro/hilo/' + m[1]],
+  [/^\/perfil\/(.+)$/, (m) => '/api/perfil/' + m[1]]
+];
+
+/** URL pública → ruta interna de la Function, o null si no aplica. */
+function destinoRewrite(pathname) {
+  for (const [re, arma] of REWRITES) {
+    const m = re.exec(pathname);
+    if (m) return arma(m);
+  }
+  return null;
+}
 
 /* ---------------- Estáticos ---------------- */
 const MIME = {
@@ -126,6 +157,24 @@ function serveStatic(req, res, pathname) {
 const server = http.createServer(async (req, res) => {
   const url = req.url || '/';
   const pathname = url.split('?')[0];
+  const query = url.includes('?') ? '?' + url.split('?').slice(1).join('?') : '';
+
+  /* 1) URL vieja con .html → 301 a la limpia (misma política que el deploy).
+        La query se conserva: /tienda.html?pedido=… tiene que seguir
+        funcionando después del redirect. */
+  const limpia = urls.destinoLimpio(pathname);
+  if (limpia && limpia !== pathname) {
+    res.statusCode = 301;
+    res.setHeader('Location', limpia + query);
+    return res.end();
+  }
+
+  /* 2) Rewrites a la Function (tienda, sitemap, productos, guías…). */
+  const interno = destinoRewrite(pathname);
+  if (interno) {
+    req.url = interno + query;
+    return route(req, res);
+  }
 
   if (pathname === '/api' || pathname.startsWith('/api/')) {
     // Parsear el cuerpo igual que Vercel
@@ -146,6 +195,10 @@ const server = http.createServer(async (req, res) => {
     }
     return route(req, res);
   }
+
+  /* 3) URL limpia → archivo que la sirve (/glosario → glosario.html). */
+  const archivo = urls.archivoDeUrl(pathname);
+  if (archivo) return serveStatic(req, res, '/' + archivo);
 
   serveStatic(req, res, pathname);
 });

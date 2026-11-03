@@ -57,7 +57,7 @@ test.describe('Berry\'s Academy', () => {
   });
 
   test('T1-A-07: El header de la Academia enlaza al Foro', async ({ page }) => {
-    const link = page.locator('.nav-menu-desktop a[href="foro.html"]');
+    const link = page.locator('.nav-menu-desktop a[href="/foro"]');
     await expect(link).toBeVisible();
     await expect(link).toContainText('Foro');
   });
@@ -85,11 +85,11 @@ test.describe('Berry\'s Academy', () => {
   test('T2-A-04: Las guías con página propia enlazan en vez de abrir el modal', async ({ page }) => {
     // Guarda de regresión: al migrar una guía a página propia se le agrega `url`
     // en content-data.js y su CTA deja de ser un <button data-open> para
-    // convertirse en un <a> que navega a academia/<slug>.html (js/academia.js:163).
+    // convertirse en un <a> que navega a /academia/<slug> (js/academia.js:163).
     // Si esto se rompe, la guía vuelve a abrir el modal en vez de navegar.
     const link = page.locator('#guiasGridAcad a.guide-card__btn').first();
     await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('href', /^academia\/[a-z0-9-]+\.html$/);
+    await expect(link).toHaveAttribute('href', /^\/academia\/[a-z0-9-]+$/);
     await expect(link).toContainText('Leer guía completa');
   });
 

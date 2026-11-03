@@ -283,6 +283,49 @@ página que le pedís a Google que ignore es contradictorio. El `BreadcrumbList`
 > la comilla vuelve a romper el atributo. Por eso la ruta se valida contra una lista de caracteres
 > permitidos en vez de escaparse. Hay un test que lo cubre.
 
+## URLs limpias (canonical, 301 y sitemap)
+
+**Una sola URL pública por página, y sin `.html`.** La tabla vive en
+`server/lib/urls.js` y de ahí salen todas las demás piezas, para que no se contradigan:
+
+| Pieza | Qué hace |
+|---|---|
+| `netlify.toml` | `/tienda` lo sirve la Function; el resto de las páginas, `dist/_redirects` |
+| `dist/_redirects` | **generado** en el build: `/pagina.html → 301 → /pagina` y `/pagina → 200 → /pagina.html` |
+| `vercel.json` | los mismos `redirects` + `rewrites` (deploy alternativo) |
+| `server/handlers/pages.js` | canonical, `og:url`, JSON-LD y enlaces internos del SSR |
+| `scripts/check-urls.cjs` | **falla el build** si algo se desvía |
+
+Reglas que hay que respetar al tocar el sitio:
+
+1. `<link rel="canonical">` es **la URL servida**, nunca la del archivo. Si la página se sirve en
+   `/glosario`, el canonical es `/glosario`.
+2. La versión `.html` **redirige 301** a la limpia (301, no 302: transfiere autoridad).
+3. Los enlaces internos apuntan **directo a la URL final**: no se enlaza a algo que redirige.
+4. El sitemap lista **solo URLs finales**.
+5. Las páginas que siguen con `.html` son las shells de la app y `noindex` (`cuenta`, `recuperar`,
+   `verificar`, `perfil`, `hilo`, `404`). Ahí la URL no es un activo SEO y cambiarla obligaría a
+   tocar redirecciones de login y correos.
+
+**Para agregar una página nueva:** sumarla a `PAGINAS` en `server/lib/urls.js`. El build genera su
+301/200 en `_redirects` y la verificación exige que el canonical coincida. Para una guía nueva,
+basta con crear `academia/<slug>.html` y agregarla a `BLOG_POSTS`: las reglas salen del sistema de
+archivos.
+
+### Contenido en el HTML inicial
+
+Google lee el HTML crudo, así que lo que solo existe después de ejecutar JavaScript no cuenta:
+
+| Página | Cómo llega el contenido |
+|---|---|
+| `/glosario` | `scripts/prerender.cjs` inyecta el índice de los 12 ingredientes + JSON-LD `DefinedTermSet` |
+| `/academia` | el mismo script inyecta las tarjetas de las guías con su enlace + `ItemList` |
+| `/tienda` | la Function inyecta las tarjetas desde la base (nombre, precio, stock, enlace) + `ItemList` con precios |
+| `/productos/<slug>` | página completa renderizada en el servidor, con `Product` + `Offer` + reseñas |
+
+El JavaScript sigue haciendo lo suyo (carrusel, filtros, carrito): el HTML prerenderizado es
+contenido real y visible, no un truco para el rastreador.
+
 ## Sitemap
 
 `/sitemap.xml` **ya no es un archivo**: lo genera una función serverless
@@ -296,16 +339,16 @@ front), así que ya no hay que acordarse de actualizarla a mano.
 
 Incluye: las páginas fijas, las guías (estáticas **o** dinámicas, nunca las dos para el mismo
 contenido) y **solo los hilos que cumplen la regla de indexación**. Excluye deliberadamente todo lo
-que se sirve con `noindex` (`cuenta.html`, `recuperar.html`, `verificar.html`, `hilo.html`, las
-guías PRO y las legales mientras sean borradores) — listar en el sitemap una página que le pedís a
-Google que no indexe es contradictorio.
+que se sirve con `noindex` (`cuenta`, `recuperar`, `verificar`, `perfil`, `hilo`, las guías PRO y
+las legales mientras sean borradores) — listar en el sitemap una página que le pedís a Google que
+no indexe es contradictorio. Todas las URLs salen sin `.html` (ver *URLs limpias*).
 
 Si la base no responde, devuelve igual un sitemap válido con las páginas fijas: un sitemap a medias
 es mejor que un 500 para el rastreador.
 
-> **Detalle que hay que respetar:** un archivo estático de la raíz **le gana a un rewrite** en
-> Vercel. Por eso el `sitemap.xml` estático se borró; si alguien lo vuelve a crear, el rewrite
-> deja de ejecutarse y el sitemap queda congelado sin que nadie lo note.
+El `sitemap.xml` estático de la raíz **es solo un respaldo**: en Netlify la regla de `netlify.toml`
+tiene `force = true`, así que la Function gana siempre. Si se toca ese archivo hay que respetar la
+misma política (solo URLs finales) porque `scripts/check-urls.cjs` lo verifica en el build.
 
 ## Páginas legales
 
