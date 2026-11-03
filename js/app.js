@@ -411,3 +411,43 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   });
 })();
+
+/* ------------------------------------------------------------------
+   Barra de anuncio: envío gratis
+
+   Se inserta antes del header. El monto se lee de la configuración
+   de envíos (Panel → Envíos) para que nunca quede desactualizado.
+   ------------------------------------------------------------------ */
+(function () {
+  try {
+    if (localStorage.getItem('berrys_topbar_dismissed') === '1') return;
+  } catch (e) { /* modo privado */ }
+
+  var header = document.querySelector('.sticky-header');
+  if (!header || document.querySelector('.topbar-announce')) return;
+
+  var bar = document.createElement('div');
+  bar.className = 'topbar-announce';
+  bar.setAttribute('role', 'region');
+  bar.setAttribute('aria-label', 'Anuncio de envío gratis');
+  bar.innerHTML =
+    '<div class="topbar-announce__inner">' +
+      '<span>Envío gratis en compras superiores a <strong id="topbarFreeAmount">$ 30.000</strong> a todo el país</span>' +
+      '<button type="button" class="topbar-announce__close" aria-label="Cerrar anuncio">×</button>' +
+    '</div>';
+  header.parentNode.insertBefore(bar, header);
+
+  bar.querySelector('.topbar-announce__close').addEventListener('click', function () {
+    bar.remove();
+    try { localStorage.setItem('berrys_topbar_dismissed', '1'); } catch (e) { /* modo privado */ }
+  });
+
+  fetch('/api/content/shipping')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d || !d.freeThreshold) return;
+      var el = document.getElementById('topbarFreeAmount');
+      if (el) el.textContent = '$ ' + Number(d.freeThreshold).toLocaleString('es-AR');
+    })
+    .catch(function () { /* queda el valor por defecto */ });
+})();

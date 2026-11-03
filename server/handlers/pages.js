@@ -1344,7 +1344,7 @@ const PAGINAS_FIJAS = [
    meta a `index, follow` y luego pasá `legalesPublicadas` a true con
    setLegalesPublicadas(true). Son dos pasos coordinados a propósito, porque
    el HTML y el sitemap deben coincidir. */
-let legalesPublicadas = false;
+let legalesPublicadas = true;
 const PAGINAS_LEGALES = [
   { path: '/privacidad.html', changefreq: 'yearly', priority: '0.3' },
   { path: '/terminos.html', changefreq: 'yearly', priority: '0.3' }
