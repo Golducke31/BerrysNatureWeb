@@ -49,9 +49,9 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
   # El panel admin lee estos dos archivos desde la Function (ruta secreta).
-  # tienda.html se lee desde la Function para inyectarle el JSON-LD del
-  # catálogo (precio/stock reales desde la BD) antes de servirla.
-  included_files = ["css/admin.css", "js/admin.js", "tienda.html"]
+  # tienda.html y foro.html se leen desde la Function para inyectarles el
+  # contenido que viene de la base (catálogo / hilos) antes de servir.
+  included_files = ["css/admin.css", "js/admin.js", "tienda.html", "foro.html"]
 
 # ---- La tienda cambió de URL ----
 # /marca.html → /tienda. 301 permanente (no 302) para que Google
@@ -75,6 +75,14 @@
 [[redirects]]
   from = "/tienda"
   to = "/.netlify/functions/api/tienda"
+  status = 200
+  force = true
+
+# El listado del foro también lo sirve la Function: inyecta los hilos
+# (títulos y enlaces a /foro/hilo/<id>) en el HTML inicial.
+[[redirects]]
+  from = "/foro"
+  to = "/.netlify/functions/api/foro"
   status = 200
   force = true
 
@@ -154,10 +162,22 @@
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' https://accounts.google.com https://challenges.cloudflare.com https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://accounts.google.com; font-src 'self'; img-src 'self' data: https:; media-src 'self'; connect-src 'self' https://accounts.google.com https://challenges.cloudflare.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.facebook.com https://connect.facebook.net; frame-src https://accounts.google.com https://challenges.cloudflare.com; upgrade-insecure-requests"
 
+# Assets: un año e inmutable. El nombre del archivo es la versión, así que
+# pedir de nuevo el mismo path siempre devuelve los mismos bytes.
+# OJO: si alguna vez reemplazás un archivo conservando el nombre, los
+# visitantes que ya lo tienen no lo van a ver hasta dentro de un año.
 [[headers]]
   for = "/assets/*"
   [headers.values]
-    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Excepción: las fotos de producto son lo único de /assets que el negocio
+# reemplaza sin tocar el código (mismo nombre de archivo). Un día de caché
+# evita el problema sin castigar la carga.
+[[headers]]
+  for = "/assets/productos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
 
 [[headers]]
   for = "/sitemap.xml"

@@ -4,8 +4,8 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 181 tests que corren contra los `.html` con `file://`
-  (no requiere base de datos). Ver abajo los archivos 1–14.
+- **Suite estática (frontend):** 205 tests que corren contra los `.html` con `file://`
+  (no requiere base de datos). Ver abajo los archivos 1–15.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
   - `admin-routing.spec.js` (6 tests) — verifica la ofuscación de la ruta secreta del panel.
@@ -13,8 +13,9 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
   - `api.spec.js` (5 tests) — ejercita la API pública (hilos, guías, registro, login) y la
     protección del panel. **Requiere `DATABASE_URL`** (esquema + seed cargados); se saltean
     limpiamente si no hay base.
-  - `paginas-ssr.spec.js` (9 tests) — 3 verifican `BerrysAPI.hiloUrl` y `BerrysAPI.event` sobre
-    http (sin base) y 6 la página de hilo renderizada en el servidor (**requieren `DATABASE_URL`**).
+  - `paginas-ssr.spec.js` (13 tests) — 3 verifican `BerrysAPI.hiloUrl` y `BerrysAPI.event` sobre
+    http (sin base), 6 la página de hilo renderizada en el servidor y 4 el listado del foro
+    (`/api/foro` con los hilos en el HTML inicial). Los 10 requieren `DATABASE_URL`.
   - `etapa5.spec.js` (13 tests) — gate de privacidad de perfiles (D6), que reportar exija sesión, los
     endpoints de F8 (editar perfil / borrar cuenta) sin sesión, insignias de reputación (unitarias
     puras), `autorAvatar` y `emprendimiento` en la serialización, y `GET /api/likes` sin sesión.
@@ -25,9 +26,9 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     pasa en verde tal cual.
 
 ## Test Files
-The static suite contains exactly 198 tests (the old catalog-hotspots and cart-integration specs
+The static suite contains exactly 205 tests (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (594 runs in total). The backend suite adds 41 tests (6 routing + 5 API + 9 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (615 runs in total). The backend suite adds 45 tests (6 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
@@ -55,18 +56,23 @@ and WebKit (594 runs in total). The backend suite adds 41 tests (6 routing + 5 A
     - Página de guía renderizada en el servidor con base parcheada: indexación (normal / con página estática que redirige 301), 404 de inexistente y no publicada, escapado, **ruta de imagen con comilla que no se interpola**, JSON-LD `Article`, y rutas absolutas.
 13. `tests/e2e/seed.spec.js` (4 tests)
     - Guarda de regresión del seed de guías: `DO NOTHING` por defecto (no pisa ediciones del panel) y `DO UPDATE` solo con `--force`/`--force-guides`.
-14. `tests/e2e/paginas-ssr.spec.js` (9 tests) — **suite de backend**
-    - `BerrysAPI.hiloUrl` y `BerrysAPI.event` sobre http (3, sin DB) y la página de hilo renderizada
-      en el servidor contra el dev server (6, **requieren `DATABASE_URL`**).
-15. `tests/e2e/admin-routing.spec.js` (6 tests) — **suite de backend**
+14. `tests/e2e/paginas-ssr.spec.js` (13 tests) — **suite de backend**
+    - `BerrysAPI.hiloUrl` y `BerrysAPI.event` sobre http (3, sin DB), la página de hilo renderizada
+      en el servidor (6) y el listado del foro con los hilos en el HTML inicial (4). Los 10 últimos
+      **requieren `DATABASE_URL`**.
+15. `tests/e2e/cache-bust.spec.js` (7 tests)
+    - `versionAssetsInHtml` (server/lib/assets-version.js): reemplaza un `?v=` viejo, versiona lo
+      local, no toca externos ni otras queries, es idempotente y no hace nada sin versión. Además
+      verifica que en `dist/` ninguna página quede con una versión distinta de la del build.
+16. `tests/e2e/admin-routing.spec.js` (6 tests) — **suite de backend**
     - Ofuscación de la ruta secreta del admin: slug incorrecto → 404 idéntico, slug correcto sin
       clave de puerta → 404, clave incorrecta → 404, slug + clave correcta → shell 200, assets del
       panel NO se sirven por rutas públicas (404) y SÍ por la ruta secreta (200). **No requiere DB.**
-16. `tests/e2e/api.spec.js` (5 tests) — **suite de backend**
+17. `tests/e2e/api.spec.js` (5 tests) — **suite de backend**
     - API pública: `GET /api/threads` lista hilos, `GET /api/guides` lista guías, registro crea cuenta
       y mantiene sesión, login con credenciales incorrectas → 401, métricas del panel sin sesión → 401.
       **Requiere `DATABASE_URL`** (esquema + seed); se saltean sin base.
-17. `tests/e2e/etapa5.spec.js` (13 tests) — **suite de backend**
+18. `tests/e2e/etapa5.spec.js` (13 tests) — **suite de backend**
     - Etapa 5: el gate de privacidad de perfiles (D6) responde 404 + `noindex` con el flag apagado,
       `/api/users/:id` también da 404, `POST /api/reports` sin sesión da 401, el cliente expone
       `BerrysAPI.report` y el modal de reporte; F8: `update-profile` y `delete-account` sin sesión
@@ -74,7 +80,7 @@ and WebKit (594 runs in total). The backend suite adds 41 tests (6 routing + 5 A
       `autorAvatar` en `serialize.thread/reply`; like optimista: `GET /api/likes` sin sesión da 200
       vacío y el cliente expone `likesState`; `emprendimiento` en `userProfile`/`userSelf`.
       **No requiere DB.**
-18. `tests/e2e/pagos.spec.js` (8 tests) — **suite de backend**
+19. `tests/e2e/pagos.spec.js` (8 tests) — **suite de backend**
     - Pagos (O9): verificación de la firma HMAC del webhook de MercadoPago (válida / alterada / sin
       secreto) y parseo del header `x-signature`; `POST /api/payments/checkout` sin sesión → 401;
       `POST /api/webhooks/mercadopago` sin cobro configurado → 200 «ignorado»; el cliente expone

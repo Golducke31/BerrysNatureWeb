@@ -55,6 +55,12 @@ const CARPETAS_LIMPIAS = ['academia'];
    pero no se pueden resolver con archivoDeUrl(). */
 const PREFIJOS_SSR = ['productos/', 'guias/', 'foro/hilo/', 'perfil/'];
 
+/* Páginas que sirve la Function (no el archivo estático) porque inyectan
+   contenido de la base en el HTML: la tienda (catálogo) y el foro (hilos).
+   Se listan acá para que el build no genere un `200 → .html` que compita
+   con la regla de la Function en netlify.toml. */
+const PAGINAS_SSR = ['/tienda', '/foro'];
+
 const POR_ARCHIVO = new Map(PAGINAS.map((p) => [p.archivo, p.url]));
 const POR_URL = new Map(PAGINAS.map((p) => [p.url, p.archivo]));
 
@@ -201,6 +207,7 @@ module.exports = {
   PAGINAS,
   CARPETAS_LIMPIAS,
   PREFIJOS_SSR,
+  PAGINAS_SSR,
   urlDeArchivo,
   archivoDeUrl,
   destinoLimpio,

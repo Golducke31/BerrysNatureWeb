@@ -14,6 +14,21 @@ const { test, expect } = require('@playwright/test');
 
 const hayDb = Boolean(process.env.DATABASE_URL);
 
+/** Mismo criterio que server/handlers/pages.js → siteUrl(): APP_URL del
+    entorno, si no la del .env, si no el dominio de producción. */
+function appUrl() {
+  const limpia = (v) => String(v).trim().replace(/^["']|["']$/g, '').replace(/\/+$/, '');
+  if (process.env.APP_URL) return limpia(process.env.APP_URL);
+  try {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const texto = fs.readFileSync(path.join(__dirname, '..', '..', '.env'), 'utf8');
+    const m = texto.match(/^APP_URL=(.*)$/m);
+    if (m) return limpia(m[1]);
+  } catch (e) { /* sin .env */ }
+  return 'https://berrysnature.com.ar';
+}
+
 /** Primer hilo del listado público, o null. */
 async function primerHilo(request) {
   const res = await request.get('/api/threads');
@@ -72,7 +87,10 @@ test.describe('Página de hilo renderizada en el servidor', () => {
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     expect(body).toContain(tituloEscapado);
-    expect(body).toContain(`<link rel="canonical" href="https://berrysnature.com.ar/foro/hilo/${hilo.id}">`);
+    /* El canonical del SSR sale de APP_URL (en producción el dominio real;
+       en local, el del .env). Se compara contra esa misma fuente para que
+       el test valga en los dos entornos. */
+    expect(body).toContain(`<link rel="canonical" href="${appUrl()}/foro/hilo/${hilo.id}">`);
   });
 
   test('T1-P-05: incluye el JSON-LD DiscussionForumPosting', async ({ request }) => {
@@ -133,5 +151,53 @@ test.describe('Página de hilo renderizada en el servidor', () => {
     expect(body).toContain('src="/js/hilo.js"');
     expect(body).not.toMatch(/href="css\//);
     expect(body).not.toMatch(/src="js\//);
+  });
+});
+
+/*
+  Listado del foro con los hilos en el HTML inicial.
+
+  Antes /foro llegaba con `#foroThreadList` vacío: los 8 hilos aparecían
+  recién cuando el JS llamaba a /api/threads. Eso dejaba el listado —y sus
+  enlaces a /foro/hilo/<id>— fuera del documento. Acá se verifica que el
+  HTML crudo ya los traiga.
+*/
+test.describe('Listado del foro renderizado en el servidor', () => {
+  test('T1-FO-01: /foro trae las tarjetas de los hilos en el HTML', async ({ request }) => {
+    test.skip(!hayDb, 'Requiere DATABASE_URL');
+
+    const res = await request.get('/api/foro');
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+
+    const tarjetas = (body.match(/class="thread-card"/g) || []).length;
+    expect(tarjetas).toBeGreaterThan(0);
+
+    // El marcador no puede quedar en el HTML servido.
+    expect(body).not.toContain('PRERENDER:HILOS');
+  });
+
+  test('T1-FO-02: cada tarjeta enlaza al hilo con una URL limpia', async ({ request }) => {
+    test.skip(!hayDb, 'Requiere DATABASE_URL');
+
+    const body = await (await request.get('/api/foro')).text();
+    const enlaces = body.match(/href="\/foro\/hilo\/[^"]+"/g) || [];
+    expect(enlaces.length).toBeGreaterThan(0);
+    expect(enlaces.length).toBe((body.match(/class="thread-card"/g) || []).length);
+    // Nada de .html ni de rutas relativas dentro del listado.
+    expect(body).not.toMatch(/href="\/foro\/hilo\/[^"]*\.html/);
+  });
+
+  test('T1-FO-03: incluye el JSON-LD del listado', async ({ request }) => {
+    test.skip(!hayDb, 'Requiere DATABASE_URL');
+
+    const body = await (await request.get('/api/foro')).text();
+    expect(body).toContain('id="hilosJsonLd"');
+    expect(body).toContain('"@type":"ItemList"');
+  });
+
+  test('T1-FO-04: el canonical sigue siendo /foro', async ({ request }) => {
+    const body = await (await request.get('/api/foro')).text();
+    expect(body).toMatch(/<link[^>]+rel="canonical"[^>]+href="https:\/\/berrysnature\.com\.ar\/foro"/);
   });
 });

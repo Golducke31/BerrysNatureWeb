@@ -30,12 +30,12 @@
   ],
   "rewrites": [
     { "source": "/tienda", "destination": "/api/tienda" },
+    { "source": "/foro", "destination": "/api/foro" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/feed.xml", "destination": "/api/feed" },
     { "source": "/academia", "destination": "/academia.html" },
     { "source": "/academia/:slug", "destination": "/academia/:slug.html" },
     { "source": "/berrys-lab", "destination": "/berrys-lab.html" },
-    { "source": "/foro", "destination": "/foro.html" },
     { "source": "/glosario", "destination": "/glosario.html" },
     { "source": "/normas", "destination": "/normas.html" },
     { "source": "/envios", "destination": "/envios.html" },
@@ -70,7 +70,13 @@
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/assets/productos/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
       ]
     },
     {

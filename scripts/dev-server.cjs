@@ -72,6 +72,7 @@ const { prerenderHtml } = require(path.join(ROOT, 'scripts', 'prerender.cjs'));
    en local y el comportamiento SEO no se podía verificar antes de publicar. */
 const REWRITES = [
   [/^\/tienda$/, () => '/api/tienda'],
+  [/^\/foro$/, () => '/api/foro'],
   [/^\/sitemap\.xml$/, () => '/api/sitemap'],
   [/^\/feed\.xml$/, () => '/api/feed'],
   [/^\/productos\/(.+)$/, (m) => '/api/productos/' + m[1]],

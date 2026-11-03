@@ -139,6 +139,18 @@ if (!redirects) {
     }
   }
 
+  /* Las páginas SSR (/tienda, /foro) las sirve la Function con contenido de
+     la base. Si acá quedara un `200 → archivo`, esa regla competiría con la
+     de netlify.toml y la página saldría sin productos / sin hilos. */
+  for (const ssr of urls.PAGINAS_SSR) {
+    const conflicto = reglas.find((r) => r[0] === ssr && r[2] === '200');
+    if (conflicto) {
+      errores.push(
+        `_redirects sirve ${ssr} desde el archivo (${conflicto[1]}); lo tiene que servir la Function`
+      );
+    }
+  }
+
   for (const r of reglas) {
     if (!r[1]) continue;
     /* El destino puede ser absoluto (las reglas de www) o relativo. */

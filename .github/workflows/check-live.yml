@@ -1,0 +1,61 @@
+# ============================================================
+# Chequeo del sitio publicado — Berry's Nature Web
+#
+# Los tests de tests.yml corren contra archivos locales: no ven lo que
+# pasa recién en producción (una regla de redirect mal puesta, un
+# canonical que quedó apuntando a otro lado, un sitemap con URLs que ya
+# no existen). Este workflow sale a la red y audita el dominio real con
+# scripts/check-live.cjs.
+#
+# Cuándo corre:
+#   - todos los días a las 08:00 de Argentina (11:00 UTC)
+#   - a mano desde la pestaña Actions
+#   - después de cada deploy a producción (cuando el repo es el sitio)
+#
+# Si falla, el sitio está roto para Google: revisar el log, que lista
+# cada URL con el problema concreto.
+# ============================================================
+name: Sitio publicado
+
+on:
+  schedule:
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  auditar:
+    name: Auditar berrysnature.com.ar
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # El script solo usa fetch nativo: no necesita npm install.
+      - name: Auditar URLs, canonical, sitemap y 301
+        run: node scripts/check-live.cjs
+
+      - name: Guardar el informe
+        if: always()
+        run: node scripts/check-live.cjs --json > check-live.json || true
+
+      - name: Subir el informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-live
+          path: check-live.json
+          retention-days: 30

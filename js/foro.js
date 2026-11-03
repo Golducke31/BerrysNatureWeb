@@ -164,7 +164,7 @@
             ${badges.join('')}
             <span class="thread-time">${escapeHtml(h.tiempo || '')}</span>
           </div>
-          <h3 class="thread-title">${escapeHtml(h.titulo)}</h3>
+          <h3 class="thread-title"><a class="thread-title__link" href="${escapeHtml(window.BerrysAPI.hiloUrl(h.id))}">${escapeHtml(h.titulo)}</a></h3>
           <p class="thread-body">${escapeHtml(h.cuerpo)}</p>
           <footer class="thread-footer">
             <span class="thread-author">por <strong>${escapeHtml(h.autor)}</strong></span>
@@ -184,8 +184,16 @@
   function wireCards(root) {
     $$('.thread-card[data-id]', root || document).forEach(card => {
       const go = () => { window.location.href = window.BerrysAPI.hiloUrl(card.dataset.id); };
-      card.addEventListener('click', go);
+      card.addEventListener('click', (e) => {
+        /* El título ya es un enlace real: si el clic viene de ahí (o de
+           cualquier otro <a> de la tarjeta), navega el navegador. Así
+           funciona el clic con rueda, "abrir en pestaña nueva" y el
+           rastreador ve un <a href> de verdad. */
+        if (e.target.closest && e.target.closest('a')) return;
+        go();
+      });
       card.addEventListener('keydown', e => {
+        if (e.target.closest && e.target.closest('a')) return;
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
       });
     });

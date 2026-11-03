@@ -315,6 +315,13 @@ async function handlePublic(req, res, method, seg) {
     return pages.renderTienda(req, res);
   }
 
+  /* Listado del foro con los hilos en el HTML inicial (títulos + enlaces a
+     /foro/hilo/<id>). Antes el contenedor llegaba vacío y todo dependía del
+     JS. Rewrite: /foro → /api/foro. */
+  if ((a === 'foro' || a === 'foro.html') && !b && (method === 'GET' || method === 'HEAD')) {
+    return pages.renderForo(req, res);
+  }
+
   /* Catálogo público de la tienda (tienda.html). */
   if (a === 'products') {
     if (b && c === 'reviews') {

@@ -64,7 +64,12 @@ function headersSeguridad(req) {
 function cacheControl(rel) {
   if (rel.endsWith('.html') || rel === '/') return 'public, max-age=0, must-revalidate';
   if (HASHED.test(rel)) return 'public, max-age=31536000, immutable';
-  if (rel.startsWith('/assets/')) return 'public, max-age=604800, stale-while-revalidate=86400';
+  /* Misma política que netlify.toml/vercel.json: /assets es inmutable
+     salvo las fotos de producto, que el negocio reemplaza sin renombrar. */
+  if (rel.startsWith('/assets/productos/')) {
+    return 'public, max-age=86400, stale-while-revalidate=604800';
+  }
+  if (rel.startsWith('/assets/')) return 'public, max-age=31536000, immutable';
   return 'public, max-age=3600';
 }
 

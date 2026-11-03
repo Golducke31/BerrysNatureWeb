@@ -281,11 +281,12 @@ el `BreadcrumbList`.
 
 | Pieza | Qué hace |
 |---|---|
-| `netlify.toml` | `/tienda` lo sirve la Function; el resto de las páginas, `dist/_redirects` |
-| `dist/_redirects` | **generado** en el build: `/pagina.html → 301 → /pagina` y `/pagina → 200 → /pagina.html` |
+| `netlify.toml` | `/tienda` y `/foro` los sirve la Function; el resto de las páginas, `dist/_redirects` |
+| `dist/_redirects` | **generado** en el build: `/pagina.html → 301 → /pagina` y `/pagina → 200 → /pagina.html` (salvo las SSR) |
 | `vercel.json` | los mismos `redirects` + `rewrites` (deploy alternativo) |
 | `server/handlers/pages.js` | canonical, `og:url`, JSON-LD y enlaces internos del SSR |
 | `scripts/check-urls.cjs` | **falla el build** si algo se desvía |
+| `scripts/check-live.cjs` | audita el sitio **publicado** (npm run check:live + cron diario) |
 
 Reglas que hay que respetar al tocar el sitio:
 
@@ -316,6 +317,7 @@ Google lee el HTML crudo, así que lo que solo existe después de ejecutar JavaS
 | `/glosario` | `scripts/prerender.cjs` inyecta el índice de los 12 ingredientes + JSON-LD `DefinedTermSet` |
 | `/academia` | el mismo script inyecta las tarjetas de las guías con su enlace + `ItemList` |
 | `/tienda` | la Function inyecta las tarjetas desde la base (nombre, precio, stock, enlace) + `ItemList` con precios |
+| `/foro` | la Function inyecta los hilos (título, extracto, autor, contadores y enlace a `/foro/hilo/<id>`) + `ItemList` |
 | `/productos/<slug>` | página completa renderizada en el servidor, con `Product` + `Offer` + reseñas |
 
 El JavaScript sigue haciendo lo suyo (carrusel, filtros, carrito): el HTML prerenderizado es
@@ -344,6 +346,42 @@ es mejor que un 500 para el rastreador.
 El `sitemap.xml` estático de la raíz **es solo un respaldo**: en Netlify la regla de `netlify.toml`
 tiene `force = true`, así que la Function gana siempre. Si se toca ese archivo hay que respetar la
 misma política (solo URLs finales) porque `scripts/check-urls.cjs` lo verifica en el build.
+
+## Verificación del sitio publicado
+
+`scripts/check-live.cjs` (`npm run check:live`) sale a la red y audita el dominio real. Es lo único
+que ve lo que se rompe **solo en producción**: una regla de redirect mal puesta, un canonical que
+quedó apuntando a otro lado, un sitemap con URLs muertas.
+
+```
+npm run check:live                              # https://berrysnature.com.ar
+npm run check:live -- --base http://localhost:3000   # contra el dev server
+npm run check:live -- --json                    # salida para CI
+```
+
+Verifica: `robots.txt` con el Sitemap absoluto al final · `/sitemap.xml` en XML y solo del dominio ·
+cada URL responde **200 en un solo salto** (pide con `redirect: 'manual'`) · canonical == URL pedida ·
+nada de `noindex` en páginas indexables · `www` → sin `www` en 301 · una muestra de `.html` viejas
+redirige 301 y su destino da 200 · todos los canonical usan un mismo dominio. Sale con código 1 si
+hay errores.
+
+Corre solo, todos los días a las 11:00 UTC (08:00 en Argentina) y a mano, desde el workflow
+`.github/workflows/check-live.yml`. Si falla, el log dice qué URL y qué problema.
+
+## Caché
+
+| Ruta | Cabecera | Por qué |
+|---|---|---|
+| `/assets/*` | `max-age=31536000, immutable` | el nombre del archivo es la versión |
+| `/assets/productos/*` | `max-age=86400, stale-while-revalidate=604800` | son las únicas que el negocio reemplaza sin renombrar |
+| `/js/*`, `/css/*` | `max-age=0, must-revalidate` | llevan `?v=<sha del build>`; el archivo se revalida igual |
+| `/api/*` | `no-store` | respuestas con datos de sesión |
+| HTML | `max-age=0, must-revalidate` | para que un deploy se vea enseguida |
+
+El `?v=<sha>` lo pone el build **y** la Function al renderizar: `server/lib/assets-version.js` es la
+única implementación. `/tienda` y `/foro` se arman leyendo el HTML fuente, así que sin eso se
+quedaban con el `?v=` escrito a mano y el CSS/JS no se invalidaba nunca (había un `?v=3` congelado
+en 11 referencias).
 
 ## Páginas legales
 
