@@ -1154,9 +1154,23 @@ a.nav-ghost-btn {
    en academia.css). El observador que agrega .is-visible vive en
    js/motion.js.
    ============================================================ */
+/* El estado oculto solo se aplica si el navegador ejecuta JavaScript.
+   `scripting: enabled` es una media query: si el motor no la soporta (o
+   el usuario tiene JS apagado, o es un rastreador que solo pide HTML),
+   el bloque no se aplica y el contenido se ve tal cual.
+
+   Antes, `.reveal` arrancaba en opacity 0 siempre y dependía de que
+   motion.js lo revelara. Sin JS eso no pasa nunca: medido en /glosario,
+   3 bloques quedaban invisibles de forma permanente. Preferimos perder
+   la animación a perder el texto. */
+@media (scripting: enabled) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
 .reveal {
-  opacity: 0;
-  transform: translateY(28px);
   transition: opacity 0.65s ease, transform 0.65s ease;
 }
 

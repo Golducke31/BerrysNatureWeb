@@ -261,6 +261,23 @@
     setupHeroVideo();
     observeReveals();
 
+    /* Red de seguridad para lo que queda bajo el pliegue.
+       El observer solo revela lo que se cruza con el viewport: las
+       tarjetas de más abajo siguen en opacity 0 hasta que el usuario
+       scrollea. Un rastreador no scrollea, así que captura la página
+       con media página invisible. Medido en /glosario: 2 de 3 bloques
+       quedaban ocultos.
+       Si a los 3 s nadie movió el scroll, se revela todo. Si el usuario
+       ya está navegando, se respeta la animación. */
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        if (window.scrollY > 10) return;
+        document
+          .querySelectorAll('.reveal:not(.is-visible), [data-reveal]:not(.is-visible)')
+          .forEach(el => el.classList.add('is-visible'));
+      }, 3000);
+    });
+
     if (reduceMotion) return;
 
     collectMotion();
