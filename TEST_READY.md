@@ -8,7 +8,8 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
   (no requiere base de datos). Ver abajo los archivos 1–15 y 20.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
-  - `admin-routing.spec.js` (6 tests) — verifica la ofuscación de la ruta secreta del panel.
+  - `admin-routing.spec.js` (8 tests) — verifica la ofuscación de la ruta secreta del panel
+    y que el borrado de usuarios exija sesión.
     **No requiere base de datos** y pasa en verde tal cual.
   - `api.spec.js` (5 tests) — ejercita la API pública (hilos, guías, registro, login) y la
     protección del panel. **Requiere `DATABASE_URL`** (esquema + seed cargados); se saltean
@@ -28,7 +29,7 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 ## Test Files
 The static suite contains exactly 211 tests (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (633 runs in total). The backend suite adds 45 tests (6 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (633 runs in total). The backend suite adds 47 tests (8 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
@@ -64,10 +65,12 @@ and WebKit (633 runs in total). The backend suite adds 45 tests (6 routing + 5 A
     - `versionAssetsInHtml` (server/lib/assets-version.js): reemplaza un `?v=` viejo, versiona lo
       local, no toca externos ni otras queries, es idempotente y no hace nada sin versión. Además
       verifica que en `dist/` ninguna página quede con una versión distinta de la del build.
-16. `tests/e2e/admin-routing.spec.js` (6 tests) — **suite de backend**
+16. `tests/e2e/admin-routing.spec.js` (8 tests) — **suite de backend**
     - Ofuscación de la ruta secreta del admin: slug incorrecto → 404 idéntico, slug correcto sin
       clave de puerta → 404, clave incorrecta → 404, slug + clave correcta → shell 200, assets del
-      panel NO se sirven por rutas públicas (404) y SÍ por la ruta secreta (200). **No requiere DB.**
+      panel NO se sirven por rutas públicas (404) y SÍ por la ruta secreta (200). Además:
+      `DELETE /users/:id` sin sesión → 401 `unauthenticated` y sin la clave de puerta → 404.
+      **No requiere DB.**
 17. `tests/e2e/api.spec.js` (5 tests) — **suite de backend**
     - API pública: `GET /api/threads` lista hilos, `GET /api/guides` lista guías, registro crea cuenta
       y mantiene sesión, login con credenciales incorrectas → 401, métricas del panel sin sesión → 401.
@@ -95,12 +98,12 @@ and WebKit (633 runs in total). The backend suite adds 45 tests (6 routing + 5 A
 
 ## Verification
 La suite estática (211 tests) está verificada y en verde. La suite de backend corre con
-`npm run test:api`: los 6 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
+`npm run test:api`: los 8 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
 Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
 saltean si no hay `DATABASE_URL`.
 
 - **Corrida verificada (03/11/2026):** estática **602/602 passed** en Chromium + Firefox + WebKit
-  (11,4 min); backend **30/30 passed**, **11 skipped** (sin DB) y **45/45** con `DATABASE_URL`.
+  (11,4 min); backend **32/32 passed**, **11 skipped** (sin DB) y **47/47** con `DATABASE_URL`.
 - La cuenta cross-browser completa son **633 corridas** (211 tests × 3 navegadores); el runner
   reporta 602 porque algunos specs están limitados a un solo navegador.
 - **Auditoría del sitio publicado:** `npm run check:live` contra `https://berrysnature.com.ar`

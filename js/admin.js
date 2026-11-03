@@ -753,7 +753,7 @@
         $('#adminMain').innerHTML =
           '<div class="admin-topbar">' +
             '<div><h1 class="admin-title">Usuarios</h1>' +
-            '<p class="admin-subtitle">Suspendé, baneá o nombrá moderadores.</p></div>' +
+            '<p class="admin-subtitle">Suspendé, baneá, nombrá moderadores o borrá cuentas de prueba.</p></div>' +
             '<button class="admin-btn" type="button" id="usersReload">Actualizar</button>' +
           '</div>' +
           '<div class="admin-panel"><div class="admin-table-wrap">' +
@@ -775,6 +775,7 @@
                         '<button class="admin-btn admin-btn--danger" data-status="' + escapeHtml(u.id) + '" data-to="banned">Banear</button>'
                       : '<button class="admin-btn" data-status="' + escapeHtml(u.id) + '" data-to="active">Reactivar</button>') +
                     '<button class="admin-btn" data-pass="' + escapeHtml(u.id) + '">Resetear clave</button>' +
+                    '<button class="admin-btn admin-btn--danger" data-del="' + escapeHtml(u.id) + '" data-mail="' + escapeHtml(u.email) + '">Borrar</button>' +
                   '</div></td>' +
                 '</tr>';
               }).join('') + '</tbody></table>'
@@ -808,6 +809,26 @@
             return req('PATCH', '/users/' + encodeURIComponent(pass.dataset.pass), { password: nueva })
               .then(function () { toast('Contraseña actualizada.'); })
               .catch(guard);
+          }
+          var del = e.target.closest('[data-del]');
+          if (del) {
+            /* Borrado irreversible: se avisa qué pasa con el contenido y se
+               bloquea el botón para que un doble clic no mande dos DELETE. */
+            if (del.dataset.busy) return;
+            var mail = del.dataset.mail || 'esta cuenta';
+            if (!confirm(
+              '¿Borrar definitivamente ' + mail + '?\n\n' +
+              'No se puede deshacer. Sus respuestas del foro se conservan, sin autor.'
+            )) return;
+            del.dataset.busy = '1';
+            del.disabled = true;
+            return req('DELETE', '/users/' + encodeURIComponent(del.dataset.del))
+              .then(function () { toast('Cuenta borrada.'); renderUsers(); })
+              .catch(function (err) {
+                del.dataset.busy = '';
+                del.disabled = false;
+                guard(err);
+              });
           }
         });
       })

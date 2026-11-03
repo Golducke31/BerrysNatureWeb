@@ -57,4 +57,21 @@ test.describe('Ruta secreta del admin — ofuscación', () => {
     expect(js.status()).toBe(200);
     expect((await js.body()).length).toBeGreaterThan(1000);
   });
+
+  /* Borrar usuarios desde el panel es irreversible: la primera barrera es la
+     sesión. Sin sesión de admin, DELETE no puede tocar la base. */
+  test('DELETE de un usuario sin sesión devuelve 401', async ({ request }) => {
+    const res = await request.delete(
+      `${BASE}/api/${SLUG}/users/00000000-0000-0000-0000-000000000000?k=${GATE}`
+    );
+    expect(res.status()).toBe(401);
+    expect((await res.json()).error.code).toBe('unauthenticated');
+  });
+
+  test('DELETE de un usuario sin la clave de puerta devuelve 404', async ({ request }) => {
+    const res = await request.delete(
+      `${BASE}/api/${SLUG}/users/00000000-0000-0000-0000-000000000000`
+    );
+    expect(res.status()).toBe(404);
+  });
 });

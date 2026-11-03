@@ -133,6 +133,7 @@ async function handleAdmin(req, res, method, seg) {
   if (a === 'users') {
     if (!b && method === 'GET') return admin.listUsers(req, res);
     if (b && method === 'PATCH') return admin.updateUser(req, res, { id: b }, await body(req));
+    if (b && method === 'DELETE') return admin.deleteUser(req, res, { id: b }, await body(req));
     return http.notFound(res);
   }
 

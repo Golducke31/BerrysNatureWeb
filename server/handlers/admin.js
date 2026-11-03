@@ -759,6 +759,52 @@ async function updateUser(req, res, params, body) {
   json(res, 200, { usuario: S.userPublic(updated) });
 }
 
+/**
+ * DELETE /api/<slug>/users/:id — borra una cuenta de usuario.
+ *
+ * Por qué hard delete y no "banned": el panel ya tiene suspender/banear para
+ * moderar. Esto es para cuentas basura (pruebas, duplicados). El esquema está
+ * preparado: `forum_replies.author_id` es `ON DELETE SET NULL`, así que las
+ * respuestas del usuario NO se pierden, quedan sin autor; los tokens, sesiones
+ * y likes sí se van en cascada.
+ *
+ * Salvaguardas: no se puede borrar a un administrador (primero hay que
+ * bajarlo de rol) ni a uno mismo.
+ */
+async function deleteUser(req, res, params, body) {
+  const current = await guards.requireRole(req, res, 'admin', 'admin');
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+
+  if (String(params.id) === String(current.user.id)) {
+    return fail(res, 403, 'forbidden', 'No podés borrar tu propia cuenta.');
+  }
+
+  const user = await db.one(
+    'SELECT id, email, display_name, role FROM users WHERE id = $1',
+    [params.id]
+  );
+  if (!user) return notFound(res);
+
+  if (user.role === 'admin') {
+    return fail(
+      res, 403, 'forbidden',
+      'No podés borrar a otro administrador. Primero bajalo de rol.'
+    );
+  }
+
+  await db.query('DELETE FROM users WHERE id = $1', [params.id]);
+
+  await audit.log({
+    actor: current.user, action: 'admin.user.delete', entityType: 'user',
+    entityId: params.id,
+    payload: { email: user.email, nombre: user.display_name, rol: user.role },
+    ip: getClientIp(req)
+  });
+
+  json(res, 200, { ok: true, borrado: String(user.id) });
+}
+
 /* ============================================================
    Auditoría
    ============================================================ */
@@ -866,7 +912,7 @@ module.exports = {
   metrics, stats,
   listThreads, createThread, updateThread, deleteThread, updateReply,
   listGuides, createGuide, updateGuide, deleteGuide,
-  listUsers, updateUser,
+  listUsers, updateUser, deleteUser,
   listAudit,
   revenue
 };
