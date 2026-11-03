@@ -115,10 +115,13 @@ async function createOrderPreference({ orderId, items, shipping, shippingLabel, 
     payment_methods: {
       installments: lineas.reduce((t, l) => t + Number(l.unit_price) * Number(l.quantity), 0) >= 50000 ? 3 : 1
     },
+    /* Volvemos a la URL pública canónica (sin .html): con el .html el
+       comprador entraría por una 301 y daría un salto de más justo
+       después de pagar. La query (?pago=&pedido=) se conserva igual. */
     back_urls: {
-      success: `${base}/tienda.html?pago=ok&pedido=${encodeURIComponent(orderId)}`,
-      failure: `${base}/tienda.html?pago=error&pedido=${encodeURIComponent(orderId)}`,
-      pending: `${base}/tienda.html?pago=pendiente&pedido=${encodeURIComponent(orderId)}`
+      success: `${base}/tienda?pago=ok&pedido=${encodeURIComponent(orderId)}`,
+      failure: `${base}/tienda?pago=error&pedido=${encodeURIComponent(orderId)}`,
+      pending: `${base}/tienda?pago=pendiente&pedido=${encodeURIComponent(orderId)}`
     },
     auto_return: 'approved'
   };
@@ -181,9 +184,9 @@ async function createLabPreference({ orderId, token, email, amount, title, appUr
       default_installments: 1
     },
     back_urls: {
-      success: `${base}/berrys-lab.html?pago=ok&pedido=${pedido}&t=${t}`,
-      failure: `${base}/berrys-lab.html?pago=error&pedido=${pedido}&t=${t}`,
-      pending: `${base}/berrys-lab.html?pago=pendiente&pedido=${pedido}&t=${t}`
+      success: `${base}/berrys-lab?pago=ok&pedido=${pedido}&t=${t}`,
+      failure: `${base}/berrys-lab?pago=error&pedido=${pedido}&t=${t}`,
+      pending: `${base}/berrys-lab?pago=pendiente&pedido=${pedido}&t=${t}`
     },
     auto_return: 'approved'
   };

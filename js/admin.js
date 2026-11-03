@@ -644,7 +644,7 @@
                   '<td>' + escapeHtml(g.ruta) + '</td>' +
                   '<td>' + escapeHtml(g.categoria) + '</td>' +
                   '<td>' + (g.publicada ? '<span class="admin-pill admin-pill--ok">Publicada</span>' : '<span class="admin-pill">Borrador</span>') +
-                    (g.destacado ? ' <span class="admin-pill admin-pill--warn">Destacada</span>' : '') + + '</td>' +
+                    (g.destacado ? ' <span class="admin-pill admin-pill--warn">Destacada</span>' : '') + '</td>' +
                   '<td>' + (g.vistas || 0) + '</td>' +
                   '<td><div class="admin-actions">' +
                     '<button class="admin-btn" data-edit-guide="' + escapeHtml(g.id) + '">Editar</button>' +
@@ -707,7 +707,7 @@
           escapeHtml(g ? (g.leerMas || '') : '') + '</textarea></div>' +
         '<div class="admin-field admin-field--full"><div class="admin-checks">' +
           '<label><input type="checkbox" id="gPublicada"' + (!g || g.publicada ? ' checked' : '') + '> Publicada</label>' +
-          '<label><input type="checkbox" id="gDestacada"' + (g && g.destacado ? ' checked' : '') + '> Destacada</label>' + +
+          '<label><input type="checkbox" id="gDestacada"' + (g && g.destacado ? ' checked' : '') + '> Destacada</label>' +
         '</div></div>' +
       '</div>',
       function () {
