@@ -144,8 +144,23 @@ function processHtml(html) {
 
    - /pagina.html → 301 → /pagina   (una sola URL pública por página)
    - /pagina      → 200 → /pagina.html  (sirve el archivo, la URL no cambia)
+
+   Además se replican los 301 con el host `www.` para que
+   www.dominio/pagina.html caiga en el destino final en UN salto: el
+   redirect de dominio de Netlify (www → apex) conserva la ruta, así que
+   sin estas reglas quedaría www/pagina.html → apex/pagina.html → apex/pagina
+   (dos saltos). Si Netlify aplica primero el redirect de dominio, estas
+   reglas no se usan y no molestan.
    ============================================================ */
 function escribirRedirects() {
+  /* Dominio real del sitio. APP_URL manda, salvo que sea el de desarrollo
+     (localhost): ahí se usa el de producción para no generar reglas basura. */
+  const dominio = String(process.env.APP_URL || '').trim().replace(/\/+$/, '');
+  const host = /^https:\/\//i.test(dominio) && !/localhost|127\.0\.0\.1/i.test(dominio)
+    ? dominio
+    : 'https://berrysnature.com.ar';
+  const conWww = host.replace(/^https:\/\//i, 'https://www.');
+
   const lineas = [
     '# GENERADO POR scripts/build.cjs — no editar a mano.',
     '# Política de URLs: server/lib/urls.js',
@@ -156,6 +171,12 @@ function escribirRedirects() {
 
   for (const r of urls.redirecciones()) {
     lineas.push(`${r.from}    ${r.to}    301!`);
+  }
+
+  lineas.push('');
+  lineas.push('# Mismo 301 pero entrando por www: un solo salto hasta la URL final.');
+  for (const r of urls.redirecciones()) {
+    lineas.push(`${conWww}${r.from}    ${host}${r.to}    301!`);
   }
 
   lineas.push('');
@@ -177,6 +198,7 @@ function escribirRedirects() {
       const slug = archivo.replace(/\.html$/, '');
       lineas.push(`/academia/${slug}    /academia/${archivo}    200`);
       lineas.push(`/academia/${archivo}    /academia/${slug}    301!`);
+      lineas.push(`${conWww}/academia/${archivo}    ${host}/academia/${slug}    301!`);
     }
   }
 

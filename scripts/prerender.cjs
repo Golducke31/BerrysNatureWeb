@@ -36,8 +36,11 @@ const path = require('node:path');
 const data = require('../js/content-data.js');
 const urls = require('../server/lib/urls.js');
 
-const DIR = path.resolve(process.argv[2] || path.join(__dirname, '..', 'dist'));
-const SITE = (process.env.APP_URL || 'https://berrysnature.com.ar').replace(/\/+$/, '');
+/* Dominio para el JSON-LD. Se ignora el de desarrollo (localhost) para no
+   publicar structured data con URLs que no existen. */
+const SITE = (process.env.APP_URL && !/localhost|127\.0\.0\.1/i.test(process.env.APP_URL)
+  ? process.env.APP_URL
+  : 'https://berrysnature.com.ar').replace(/\/+$/, '');
 
 /* ---------------- Utilidades ---------------- */
 
@@ -163,16 +166,6 @@ ${tarjetas}
 
 /* ---------------- Inyección ---------------- */
 
-function leer(archivo) {
-  const full = path.join(DIR, archivo);
-  if (!fs.existsSync(full)) return null;
-  return fs.readFileSync(full, 'utf8');
-}
-
-function escribir(archivo, html) {
-  fs.writeFileSync(path.join(DIR, archivo), html, 'utf8');
-}
-
 function reemplazarMarcador(html, marcador, bloque) {
   // El marcador es una línea de comentario; se reemplaza entera.
   const re = new RegExp(`[ \\t]*<!--\\s*PRERENDER:${marcador}\\s*-->`);
@@ -180,36 +173,68 @@ function reemplazarMarcador(html, marcador, bloque) {
   return html.replace(re, bloque.trimEnd());
 }
 
-const resumen = [];
+/**
+ * Aplica el prerender sobre un HTML ya leído.
+ *
+ * Lo usa el build (sobre dist/) y también el dev server: así `npm run dev`
+ * sirve el mismo HTML que producción y se puede verificar con Ctrl+U sin
+ * tener que buildear. Si el marcador no está (ya se aplicó), devuelve el
+ * HTML tal cual.
+ *
+ * @param {string} html
+ * @param {string} archivo  nombre o ruta del archivo, para saber qué tocar
+ * @returns {string}
+ */
+function prerenderHtml(html, archivo) {
+  const nombre = String(archivo || '').replace(/\\/g, '/').split('/').pop();
 
-/* --- Glosario --- */
-const glosarioSrc = leer('glosario.html');
-if (glosarioSrc) {
-  const items = data.GLOSSARY_DATA || [];
-  const { html: bloque, ld } = bloqueGlosario(items);
-  let out = reemplazarMarcador(glosarioSrc, 'GLOSARIO', bloque);
-  if (out) {
-    out = inyectarJsonLd(out, 'glosarioJsonLd', ld);
-    escribir('glosario.html', out);
-    resumen.push(`glosario.html      ${items.length} términos + DefinedTermSet`);
-  } else {
-    resumen.push('glosario.html      sin marcador (se omite)');
+  if (nombre === 'glosario.html') {
+    const items = data.GLOSSARY_DATA || [];
+    const { html: bloque, ld } = bloqueGlosario(items);
+    const out = reemplazarMarcador(html, 'GLOSARIO', bloque);
+    return out === null ? html : inyectarJsonLd(out, 'glosarioJsonLd', ld);
   }
+
+  if (nombre === 'academia.html') {
+    const posts = (data.BLOG_POSTS || []).filter((p) => !p.pro && p.url);
+    const { html: bloque, ld } = bloqueGuias(posts);
+    const out = reemplazarMarcador(html, 'GUIAS', bloque);
+    return out === null ? html : inyectarJsonLd(out, 'guiasJsonLd', ld);
+  }
+
+  return html;
 }
 
-/* --- Academia --- */
-const academiaSrc = leer('academia.html');
-if (academiaSrc) {
-  const posts = (data.BLOG_POSTS || []).filter((p) => !p.pro && p.url);
-  const { html: bloque, ld } = bloqueGuias(posts);
-  let out = reemplazarMarcador(academiaSrc, 'GUIAS', bloque);
-  if (out) {
-    out = inyectarJsonLd(out, 'guiasJsonLd', ld);
-    escribir('academia.html', out);
-    resumen.push(`academia.html      ${posts.length} guías + ItemList`);
-  } else {
-    resumen.push('academia.html      sin marcador (se omite)');
+/* ---------------- CLI (build) ---------------- */
+
+function main() {
+  const DIR = path.resolve(process.argv[2] || path.join(__dirname, '..', 'dist'));
+  const resumen = [];
+
+  const objetivo = [
+    ['glosario.html', () => `${(data.GLOSSARY_DATA || []).length} términos + DefinedTermSet`],
+    ['academia.html', () => `${(data.BLOG_POSTS || []).filter((p) => !p.pro && p.url).length} guías + ItemList`]
+  ];
+
+  for (const [archivo, detalle] of objetivo) {
+    const full = path.join(DIR, archivo);
+    if (!fs.existsSync(full)) {
+      resumen.push(`${archivo.padEnd(18)} no está en ${DIR} (se omite)`);
+      continue;
+    }
+    const antes = fs.readFileSync(full, 'utf8');
+    const despues = prerenderHtml(antes, archivo);
+    if (despues === antes) {
+      resumen.push(`${archivo.padEnd(18)} sin marcador (se omite)`);
+      continue;
+    }
+    fs.writeFileSync(full, despues, 'utf8');
+    resumen.push(`${archivo.padEnd(18)} ${detalle()}`);
   }
+
+  console.log('  prerender     ' + resumen.join('\n                '));
 }
 
-console.log('  prerender     ' + resumen.join('\n                '));
+module.exports = { prerenderHtml };
+
+if (require.main === module) main();

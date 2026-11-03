@@ -56,7 +56,8 @@ for (const pagina of urls.PAGINAS) {
   }
 
   const og = primerMatch(html, /<meta property="og:url" content="([^"]+)"/i);
-  if (og && og !== esperado) {
+  if (!og) errores.push(`${pagina.archivo}: no tiene og:url (tiene que coincidir con el canonical)`);
+  else if (og !== esperado) {
     errores.push(`${pagina.archivo}: og:url es ${og} y la URL servida es ${esperado}`);
   }
 }

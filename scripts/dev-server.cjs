@@ -24,6 +24,21 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const PORT = Number(process.env.PORT || 3000);
 
+/* --dir <carpeta> sirve los estáticos desde otro lugar (por ejemplo dist/)
+   manteniendo el ruteo de producción. Sirve para verificar el artefacto
+   real —con el prerender ya inyectado— antes de publicar:
+
+     npm run build
+     node scripts/dev-server.cjs --dir dist --port 3123
+
+   Sin --dir sirve la raíz del repo, que es lo que se usa para editar. */
+function arg(nombre, def) {
+  const args = process.argv.slice(2);
+  const i = args.indexOf('--' + nombre);
+  return i >= 0 && args[i + 1] ? args[i + 1] : def;
+}
+const STATIC_ROOT = path.resolve(arg('dir', ROOT));
+
 /* ---------------- Cargar .env (sin dependencias) ---------------- */
 function loadEnv() {
   const file = path.join(ROOT, '.env');
@@ -47,6 +62,7 @@ loadEnv();
 
 const { route } = require(path.join(ROOT, 'server', 'router.js'));
 const urls = require(path.join(ROOT, 'server', 'lib', 'urls.js'));
+const { prerenderHtml } = require(path.join(ROOT, 'scripts', 'prerender.cjs'));
 
 /* ---------------- Rewrites a la Function (igual que el deploy) ----------------
 
@@ -110,10 +126,29 @@ function isBlocked(relPath) {
 
 function sendFile(res, filePath) {
   const ext = path.extname(filePath).toLowerCase();
-  const stream = fs.createReadStream(filePath);
   res.setHeader('Content-Type', MIME[ext] || 'application/octet-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.statusCode = 200;
+
+  /* El glosario y el listado de la Academia se completan con
+     scripts/prerender.cjs. En producción eso pasa en el build; acá se
+     aplica al vuelo para que `npm run dev` sirva exactamente el mismo HTML
+     y se pueda verificar con Ctrl+U sin buildear. Si el archivo no tiene el
+     marcador (o es de dist/, ya prerenderizado) no se toca. */
+  if (ext === '.html') {
+    try {
+      const html = fs.readFileSync(filePath, 'utf8');
+      if (html.includes('PRERENDER:')) {
+        return res.end(prerenderHtml(html, filePath));
+      }
+      return res.end(html);
+    } catch (e) {
+      res.statusCode = 500;
+      return res.end('Error leyendo el archivo');
+    }
+  }
+
+  const stream = fs.createReadStream(filePath);
   stream.pipe(res);
   stream.on('error', () => {
     res.statusCode = 500;
@@ -131,9 +166,9 @@ function serveStatic(req, res, pathname) {
     return res.end('404 — No encontrado');
   }
 
-  const target = path.join(ROOT, rel);
+  const target = path.join(STATIC_ROOT, rel);
   // Evita salir de la raíz con ../
-  if (!target.startsWith(ROOT)) {
+  if (!target.startsWith(STATIC_ROOT)) {
     res.statusCode = 403;
     return res.end('403');
   }
