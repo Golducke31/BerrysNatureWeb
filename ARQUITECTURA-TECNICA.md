@@ -13,6 +13,11 @@
 > **Si llegaste acá buscando el plan de producción vigente, el documento es
 > [`PLAN-PRODUCCION.md`](./PLAN-PRODUCCION.md).**
 >
+> ⚠️ Además, este documento describe la **calculadora de formulación** y el **contenido PRO**
+> como el corazón del modelo de negocio. Las dos cosas se retiraron del producto: no existen
+> en el código, ni en la base, ni en las pruebas. Todo lo que acá se explica sobre `#calculadora`,
+> `js/calculator.js`, `calculadora_pro` o `is_pro` es historia, no estado actual.
+>
 > Lo que sigue se conserva por dos motivos: (1) el **§2 (mapa de migración)** sigue siendo útil
 > como inventario de qué pieza del prototipo corresponde a qué concepto, aunque ahora el destino
 > sea el backend propio; y (2) el **§7 (nota legal/ANMAT)** y el **§6 (moderación)** siguen

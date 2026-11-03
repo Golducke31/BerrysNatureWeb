@@ -54,7 +54,6 @@ async function render(over = {}) {
     tags: ['conservantes', 'seguridad'],
     icon: 'book',
     is_featured: false,
-    is_pro: false,
     is_published: true,
     created_at: '2026-08-10T10:00:00.000Z',
     updated_at: '2026-09-01T10:00:00.000Z'
@@ -63,18 +62,6 @@ async function render(over = {}) {
   const res = resFalsa();
   await pages.renderGuide({}, res, { id: filaGuia.id });
   return res;
-}
-
-/** Prende el contenido PRO solo durante `fn` (los flags se leen en cada llamada). */
-async function conContenidoPro(fn) {
-  const previo = process.env.PRO_CONTENT_ENABLED;
-  process.env.PRO_CONTENT_ENABLED = 'true';
-  try {
-    return await fn();
-  } finally {
-    if (previo === undefined) delete process.env.PRO_CONTENT_ENABLED;
-    else process.env.PRO_CONTENT_ENABLED = previo;
-  }
 }
 
 /* ---------------- Indexación ---------------- */
@@ -96,28 +83,6 @@ test.describe('Página de guía — indexación', () => {
 
     expect(res.statusCode).toBe(301);
     expect(res.headers.location).toBe('/academia/costo-real-crema-margen');
-  });
-
-  test('G3: una guía PRO no se indexa y no expone el cuerpo', async () => {
-    const res = await conContenidoPro(() =>
-      render({ id: 'post-pro-masterclass', is_pro: true })
-    );
-
-    expect(res.statusCode).toBe(200);
-    expect(res.headers['x-robots-tag']).toContain('noindex');
-    expect(res.headers['x-indexability-reason']).toBe('pro');
-    // El cuerpo reservado NO viaja al cliente.
-    expect(res.body).not.toContain('Primer párrafo del cuerpo');
-    expect(res.body).toContain('Contenido PRO');
-  });
-
-  test('G3b: con el contenido PRO apagado, una guía PRO devuelve 404', async () => {
-    // features.contenidoPro() lee PRO_CONTENT_ENABLED en cada llamada.
-    const res = await render({ id: 'post-pro-masterclass', is_pro: true });
-
-    expect(res.statusCode).toBe(404);
-    expect(res.headers['x-robots-tag']).toContain('noindex');
-    expect(res.body).toContain('Contenido no disponible');
   });
 
   test('G4: una guía inexistente devuelve 404', async () => {
@@ -195,16 +160,6 @@ test.describe('Página de guía — contenido y metadatos', () => {
     expect(articulo.datePublished).toBe('2026-08-10T10:00:00.000Z');
     expect(articulo.keywords).toBe('conservantes, seguridad');
 
-    expect(parseados.find((o) => o['@type'] === 'BreadcrumbList')).toBeTruthy();
-  });
-
-  test('G12: una guía no indexable no lleva Article (sería contradictorio)', async () => {
-    const res = await conContenidoPro(() => render({ is_pro: true }));
-
-    const bloques = [...res.body.matchAll(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/g)];
-    const parseados = bloques.map((b) => JSON.parse(b[1]));
-
-    expect(parseados.find((o) => o['@type'] === 'Article')).toBeUndefined();
     expect(parseados.find((o) => o['@type'] === 'BreadcrumbList')).toBeTruthy();
   });
 

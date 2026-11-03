@@ -192,8 +192,7 @@ async function metrics(req, res) {
             FROM forum_threads`),
     db.one(`SELECT
               count(*)::int AS total,
-              count(*) FILTER (WHERE is_published)::int AS publicadas,
-              count(*) FILTER (WHERE is_pro)::int AS pro
+              count(*) FILTER (WHERE is_published)::int AS publicadas
             FROM guides`),
     db.one(`SELECT
               count(*)::int AS total,
@@ -231,7 +230,7 @@ async function metrics(req, res) {
       monto: Number((ventas && ventas.monto) || 0)
     },
     topHilos: topThreads.map(S.thread),
-    topGuias: topGuides.map(g => S.guide(g, true)),
+    topGuias: topGuides.map(g => S.guide(g)),
     auditoria: recentAudit
   });
 }
@@ -569,7 +568,7 @@ async function listGuides(req, res) {
   const rows = await db.query(
     `SELECT * FROM guides ORDER BY is_published DESC, is_featured DESC, created_at DESC`
   );
-  json(res, 200, { items: rows.map(r => S.guide(r, true)) });
+  json(res, 200, { items: rows.map(r => S.guide(r)) });
 }
 
 async function createGuide(req, res, body) {
@@ -587,8 +586,8 @@ async function createGuide(req, res, body) {
   const id = V.makeId('post', titulo);
   const row = await db.one(
     `INSERT INTO guides (id, category, title, summary, body, url, author, route, reading_minutes,
-                         image, tags, icon, is_featured, is_pro, is_published)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+                         image, tags, icon, is_featured, is_published)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
      RETURNING *`,
     [
       id, categoria, titulo, resumen, cuerpo || null, enlace,
@@ -598,7 +597,6 @@ async function createGuide(req, res, body) {
       V.tags(body.tags),
       V.clean(body.icon) || 'book',
       V.bool(body.destacado),
-      V.bool(body.pro),
       V.bool(body.publicada, true)
     ]
   );
@@ -607,7 +605,7 @@ async function createGuide(req, res, body) {
     actor: current.user, action: 'admin.guide.create', entityType: 'guide',
     entityId: id, payload: { titulo, ruta }, ip: getClientIp(req)
   });
-  json(res, 201, { guia: S.guide(row, true) });
+  json(res, 201, { guia: S.guide(row) });
 }
 
 async function updateGuide(req, res, params, body) {
@@ -630,7 +628,6 @@ async function updateGuide(req, res, params, body) {
   if (body.tags !== undefined) patch.tags = V.tags(body.tags);
   if (body.icon !== undefined) patch.icon = V.clean(body.icon) || 'book';
   if (body.destacado !== undefined) patch.is_featured = V.bool(body.destacado, row.is_featured);
-  if (body.pro !== undefined) patch.is_pro = V.bool(body.pro, row.is_pro);
   if (body.publicada !== undefined) patch.is_published = V.bool(body.publicada, row.is_published);
 
   const keys = Object.keys(patch);
@@ -648,7 +645,7 @@ async function updateGuide(req, res, params, body) {
     actor: current.user, action: 'admin.guide.update', entityType: 'guide',
     entityId: params.id, payload: patch, ip: getClientIp(req)
   });
-  json(res, 200, { guia: S.guide(updated, true) });
+  json(res, 200, { guia: S.guide(updated) });
 }
 
 async function deleteGuide(req, res, params, body) {

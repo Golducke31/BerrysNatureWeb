@@ -32,8 +32,7 @@ function guiaConflict(forceOverwrite) {
          image = EXCLUDED.image,
          tags = EXCLUDED.tags,
          icon = EXCLUDED.icon,
-         is_featured = EXCLUDED.is_featured,
-         is_pro = EXCLUDED.is_pro`;
+         is_featured = EXCLUDED.is_featured`;
   }
   return 'ON CONFLICT (id) DO NOTHING';
 }

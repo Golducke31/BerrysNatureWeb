@@ -66,15 +66,14 @@ function reply(row) {
 
 /**
  * @param {object} row
- * @param {boolean} withBody  false para guías PRO en peticiones públicas
  */
-function guide(row, withBody = true) {
+function guide(row) {
   return {
     id: row.id,
     categoria: row.category,
     titulo: row.title,
     resumen: row.summary,
-    leerMas: withBody ? row.body : null,
+    leerMas: row.body,
     url: row.url || null,
     autor: row.author,
     ruta: row.route,
@@ -84,7 +83,6 @@ function guide(row, withBody = true) {
     tags: row.tags || [],
     icon: row.icon,
     destacado: row.is_featured,
-    pro: row.is_pro,
     publicada: row.is_published,
     fecha: row.created_at ? new Date(row.created_at).toISOString().slice(0, 10) : null,
     tiempo: relativeTime(row.created_at),

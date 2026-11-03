@@ -28,9 +28,9 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     await expect(hamburger).toBeVisible();
   });
 
-  // T1-F1-03: 6 links de navegación con textos reales
-  test('T1-F1-03: La navegación tiene los 6 enlaces del modelo escuela/comunidad', async ({ page }) => {
-    const expected = ['Inicio', 'Academia', 'Glosario', "Berry's Calculator", 'Sobre Nosotros', 'Contacto'];
+  // T1-F1-03: 5 links de navegación con textos reales
+  test('T1-F1-03: La navegación tiene los 5 enlaces del modelo escuela/comunidad', async ({ page }) => {
+    const expected = ['Inicio', 'Academia', 'Glosario', 'Sobre Nosotros', 'Contacto'];
     const links = page.locator('.nav-menu-desktop .nav-link');
     await expect(links).toHaveCount(expected.length);
     for (let i = 0; i < expected.length; i++) {
@@ -63,27 +63,20 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     await expect(cta).toHaveAttribute('href', /^\/academia$/);
   });
 
-  // T1-F2-03: CTA "Probar Calculadora" hace scroll a #calculadora
-  test('T1-F2-03: El CTA "Probar Calculadora" hace scroll suave a la calculadora', async ({ page }) => {
-    const cta = page.locator('.hero-actions-grid a[href="#calculadora"]');
-    await expect(cta).toBeVisible();
-    // Forzamos scroll instantáneo: bajo carga paralela el scroll-behavior:smooth
-    // no progresa de forma fiable en headless (Firefox/WebKit).
-    await page.addStyleTag({ content: 'html { scroll-behavior: auto !important; }' });
-    await cta.click();
-    // El scroll suave puede tardar; esperamos por polling hasta que se asiente.
-    await page.waitForFunction(
-      () => {
-        const el = document.getElementById('calculadora');
-        return window.scrollY > 100 && el && el.getBoundingClientRect().top <= 130;
-      },
-      null,
-      { timeout: 4000 }
-    );
-    const scrollY = await page.evaluate(() => window.scrollY);
-    expect(scrollY).toBeGreaterThan(100);
-    const calcTop = await page.locator('#calculadora').evaluate((el) => el.getBoundingClientRect().top);
-    expect(calcTop).toBeLessThanOrEqual(130);
+  // T1-F2-03: los CTA del hero apuntan a páginas reales del sitio
+  test('T1-F2-03: Los 3 CTA del hero apuntan a URLs reales (sin redirecciones)', async ({ page }) => {
+    const urls = require('../../server/lib/urls.js');
+    const cta = page.locator('.hero-actions-grid a.cta-button');
+    await expect(cta).toHaveCount(3);
+
+    for (let i = 0; i < 3; i++) {
+      const href = await cta.nth(i).getAttribute('href');
+      // Cada destino tiene que ser una URL limpia conocida del sitio.
+      expect(urls.archivoDeUrl(href), href).not.toBeNull();
+      // Y no puede ser una que después redirija (gastaría un salto de rastreo).
+      expect(urls.destinoLimpio(href), href).toBeNull();
+      expect(urls.destinoSinBarra(href), href).toBeNull();
+    }
   });
 
   // T1-F2-04: Tipografía del hero (Playfair Display)
@@ -93,11 +86,11 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     expect(fontFamily.toLowerCase()).toMatch(/playfair display|georgia|serif/);
   });
 
-  // T1-F2-05: Grilla de CTA del hero (2x2)
-  test('T1-F2-05: El hero muestra la grilla de CTA con 4 botones', async ({ page }) => {
+  // T1-F2-05: Grilla de CTA del hero
+  test('T1-F2-05: El hero muestra la grilla de CTA con 3 botones', async ({ page }) => {
     const grid = page.locator('.hero-actions-grid');
     await expect(grid).toBeVisible();
-    await expect(grid.locator('.cta-button')).toHaveCount(4);
+    await expect(grid.locator('.cta-button')).toHaveCount(3);
   });
 
   // T2-F1-01: Clase .scrolled tras scroll > 15px
@@ -151,15 +144,18 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     expect(width).toBeLessThanOrEqual(320);
   });
 
-  // T2-F2-02: CTA no rompe y produce scroll
-  test('T2-F2-02: Clic en el CTA de calculadora no lanza error y desplaza la página', async ({ page }) => {
-    const cta = page.locator('.hero-actions-grid a[href="#calculadora"]');
+  // T2-F2-02: un ancla del menú desplaza la página sin romper nada
+  test('T2-F2-02: Clic en un ancla del menú desplaza la página sin errores', async ({ page }) => {
+    const errores = [];
+    page.on('pageerror', (e) => errores.push(String(e)));
+
     await page.addStyleTag({ content: 'html { scroll-behavior: auto !important; }' });
-    await cta.click();
+    await page.locator('.nav-menu-desktop a[href="#sobre-nosotros"]').click();
     // Smooth-scroll cross-browser: esperamos por polling hasta que haya scroll.
     await page.waitForFunction(() => window.scrollY > 0, null, { timeout: 4000 });
-    const scrollY = await page.evaluate(() => window.scrollY);
-    expect(scrollY).toBeGreaterThan(0);
+
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    expect(errores).toEqual([]);
   });
 
   // T2-F2-03: Contraste matemático (verificación WCAG AA)

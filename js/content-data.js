@@ -233,44 +233,6 @@ const BLOG_POSTS = [
     icon: 'gem',
     url: '/academia/de-formula-a-marca',
     leerMas: 'Posicionamiento primero: ¿a quién le vendés y por qué te elige a vos? De ahí sale el nombre, el packaging y el precio. El canal define el margen: venta directa (mayor margen) vs Marketplace (menor margen, más alcance). Armamos un mini-canvas de marca en una página para no perderte.'
-  },
-
-  /* ----- Contenido PRO (bloqueado, badge PRO) ----- */
-  {
-    id: 'post-pro-masterclass',
-    categoria: 'Formulación',
-    titulo: 'Masterclass PRO: sérums liposomales estables',
-    resumen:
-      'Formulación avanzada de sérums con encapsulado liposomal para activos inestables (vitamina C, retinol). Solo para miembros PRO.',
-    autor: 'Equipo Berry\'s',
-    fecha: '2026-08-30',
-    lectura: 22,
-    destacado: false,
-    ruta: 'Avanzado',
-    vistas: 0,
-    imagen: 'assets/academia/academia-pro-masterclass.webp',
-    tags: ['pro', 'liposomal', 'serum'],
-    icon: 'gem',
-    pro: true,
-    leerMas: 'Contenido exclusivo PRO: construcción de liposomas, control de tamaño de partícula y estabilidad de vitamina C y retinol. Incluye plantilla de cálculo y video paso a paso.'
-  },
-  {
-    id: 'post-pro-scalado-industrial',
-    categoria: 'Escalado',
-    titulo: 'Escalado industrial: de 100 a 5.000 unidades',
-    resumen:
-      'Equipamiento, trazabilidad y validación de proceso para producir en volumen sin perder calidad. Solo para miembros PRO.',
-    autor: 'Equipo Berry\'s',
-    fecha: '2026-08-15',
-    lectura: 18,
-    destacado: false,
-    ruta: 'Avanzado',
-    vistas: 0,
-    imagen: 'assets/academia/academia-pro-scalado.webp',
-    tags: ['pro', 'industrial', 'trazabilidad'],
-    icon: 'box',
-    pro: true,
-    leerMas: 'Contenido exclusivo PRO: selección de tanques, homogenizadores y llenadoras; validación de lote; y sistema de trazabilidad documental para auditorías.'
   }
 ];
 
@@ -429,9 +391,7 @@ const PROVEEDORES = [
 
 /* ------------------------------------------------------------
    3. FÓRMULAS SIMPLES para emprendedores
-   Los porcentajes alimentan la Berry's Calculator.
-   Para "Cargar en la calculadora" se pasa el id por query param
-   (?load=ID) a index.html.
+   Los porcentajes son la base de cada fórmula descargable.
    ------------------------------------------------------------ */
 const FORMULAS = [
   {

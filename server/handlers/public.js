@@ -135,13 +135,13 @@ async function listGuides(req, res) {
     params
   );
 
-  json(res, 200, { items: rows.map(r => S.guide(r, !r.is_pro)) });
+  json(res, 200, { items: rows.map(r => S.guide(r)) });
 }
 
 async function getGuide(req, res, params) {
   const row = await db.one('SELECT * FROM guides WHERE id = $1', [params.id]);
   if (!row || !row.is_published) return notFound(res);
-  json(res, 200, { guia: S.guide(row, !row.is_pro) });
+  json(res, 200, { guia: S.guide(row) });
 }
 
 /* ---------------- Vistas ----------------

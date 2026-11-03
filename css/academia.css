@@ -3,7 +3,7 @@
    Estilos de la "Berry's Academy" — página interna de aprendizaje.
    Reutiliza los tokens de css/styles.css (:root) y suma componentes
    propios: hero con imagen, carrusel de rutas, grid de guías,
-   fórmulas descargables, proveedores + calculadora de lote y sidebar.
+   fórmulas descargables y sidebar.
    ============================================================ */
 
 /* ------------------------------------------------------------
@@ -357,43 +357,6 @@
   justify-content: center;
 }
 
-/* Tarjeta PRO bloqueada */
-.guide-card--pro .guide-card__media::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(74, 63, 53, 0.55);
-  z-index: 1;
-}
-.pro-badge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: #4A3F35;
-  background: linear-gradient(135deg, #F3D9A6, #EAB8A3);
-  padding: 5px 12px;
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(74,63,53,0.25);
-}
-.guide-card--pro .guide-card__lockicon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  color: #fff;
-  width: 46px;
-  height: 46px;
-}
-.guide-card--pro .guide-card__btn { background: rgba(74,63,53,0.08); color: var(--color-text-muted); }
-
 /* ------------------------------------------------------------
    3. FÓRMULAS DESCARGABLES
    ------------------------------------------------------------ */
@@ -482,90 +445,6 @@
   margin-top: auto;
 }
 .provider-card--acad .provider-link:hover { text-decoration: underline; }
-
-/* Calculadora de costo por lote */
-.batch-calc {
-  max-width: var(--max-width);
-  margin: 48px auto 0;
-  background: rgba(255, 252, 249, 0.86);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 26px;
-  padding: 32px 30px;
-  box-shadow: var(--shadow-card-flat);
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 30px;
-  align-items: center;
-}
-
-.batch-calc__title {
-  font-family: var(--font-title);
-  font-size: 23px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.batch-calc__title .icon { width: 1.3em; height: 1.3em; color: var(--color-accent-dark); }
-
-.batch-calc__desc { font-size: 14px; color: var(--color-text-muted); margin-bottom: 20px; line-height: 1.6; }
-
-.batch-calc__form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.batch-calc__field { display: flex; flex-direction: column; gap: 5px; }
-.batch-calc__field label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  color: var(--color-muted-warm);
-}
-.batch-calc__field input {
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--color-text);
-  background: var(--bg-main);
-  border: 1.5px solid rgba(74,63,53,0.12);
-  border-radius: 12px;
-  padding: 10px 12px;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
-}
-.batch-calc__field input:focus {
-  outline: none;
-  border-color: var(--color-cta);
-  box-shadow: 0 0 0 3px rgba(234,184,163,0.3);
-}
-
-.batch-calc__result {
-  background: var(--bg-main);
-  border-radius: 20px;
-  padding: 26px 24px;
-  box-shadow: var(--shadow-sunken);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.batch-calc__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-}
-.batch-calc__row span:first-child { color: var(--color-text-muted); }
-.batch-calc__row strong { font-family: var(--font-title); font-size: 16px; }
-.batch-calc__price {
-  font-family: var(--font-title);
-  font-size: 30px;
-  font-weight: 700;
-  color: var(--color-accent-dark);
-}
-.batch-calc__price small { font-size: 14px; color: var(--color-text-muted); font-weight: 400; }
 
 /* ------------------------------------------------------------
    5. SIDEBAR (progreso / populares / PRO)
@@ -785,7 +664,6 @@
   .acad-sidebar .side-panel { flex: 1 1 280px; }
   .formulas-grid-acad { grid-template-columns: repeat(2, 1fr); }
   .providers-acad-grid { grid-template-columns: repeat(2, 1fr); }
-  .batch-calc { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 767px) {
@@ -808,7 +686,6 @@
   .guias-grid-acad,
   .formulas-grid-acad,
   .providers-acad-grid { grid-template-columns: 1fr; }
-  .batch-calc__form { grid-template-columns: 1fr; }
   .acad-sidebar { flex-direction: column; }
   .academy-layout { padding: 20px 18px 70px; }
   .academy-section, .providers-section { padding: 64px 18px; }

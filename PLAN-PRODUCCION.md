@@ -135,7 +135,7 @@ El plan §3.5 dice "confirmar que el panel tenga una vista de cola de reportes".
 ### 2.9 — `prefers-reduced-motion`: el plan pregunta por lo que ya está, y omite lo que falta
 
 - **Ya está resuelto** donde el plan pregunta: `js/motion.js:20` y `css/styles.css:973`.
-- **Falta** donde el plan no mira: `css/foro.css` no tiene bloque de movimiento reducido (sí lo tienen `styles.css`, `glossary.css` y `niko-widget.css`).
+- **Falta** donde el plan no mira: `css/foro.css` no tiene bloque de movimiento reducido (sí lo tienen `styles.css` y `glossary.css`).
 
 ### 2.10 — El plan abre la puerta a Next.js sin decidirlo
 

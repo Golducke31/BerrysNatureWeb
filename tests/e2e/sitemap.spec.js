@@ -194,7 +194,7 @@ test.describe('Sitemap — guías dinámicas', () => {
     expect(urls).not.toContain('https://berrysnature.com.ar/guias/post-costo-real');
   });
 
-  test('S17: la consulta de guías filtra publicadas y no PRO', async () => {
+  test('S17: la consulta de guías filtra solo las publicadas', async () => {
     // El filtro vive en el SQL, así que el doble no lo aplica: se verifica
     // sobre el texto de la consulta.
     await sitemap([], []);
@@ -202,7 +202,6 @@ test.describe('Sitemap — guías dinámicas', () => {
 
     expect(consultaGuias).toBeTruthy();
     expect(consultaGuias).toContain('is_published = true');
-    expect(consultaGuias).toContain('is_pro = false');
   });
 
   test('S18: si falla la consulta de guías, el sitemap sigue siendo válido', async () => {

@@ -34,19 +34,17 @@ test.describe('Berry\'s Academy', () => {
     expect(after).toBeGreaterThanOrEqual(0);
   });
 
-  test('T1-A-04: Las fórmulas se listan, pero sin botón de calculadora', async ({ page }) => {
-    // La calculadora está APAGADA por defecto (CALCULATOR_ENABLED != true), así
-    // que academia.js pinta las tarjetas pero omite el CTA "Cargar en la
-    // calculadora" (js/academia.js:316). Si algún día se prende el flag, este
-    // test tiene que cambiar para volver a exigir el botón.
+  test('T1-A-04: Las fórmulas se listan sin CTA a una herramienta inexistente', async ({ page }) => {
+    // Las fórmulas se muestran como contenido descargable. No hay botón de
+    // "cargar en la calculadora" porque la calculadora ya no existe: un CTA
+    // que no lleva a ningún lado sería peor que no tenerlo.
     await expect(page.locator('#formulasGridAcad .formula-card--acad').first()).toBeVisible();
     await expect(page.locator('#formulasGridAcad .formula-load-btn')).toHaveCount(0);
   });
 
-  test('T1-A-05: La sección de fórmulas existe aunque la calculadora esté apagada', async ({ page }) => {
+  test('T1-A-05: La sección de fórmulas está publicada', async ({ page }) => {
     await expect(page.locator('#formulas-acad')).toHaveCount(1);
     await expect(page.locator('#formulas-acad h2')).toContainText('Fórmulas descargables');
-    // Sin calculadora no hay ningún enlace que precargue una fórmula.
     await expect(page.locator('.formula-load-btn')).toHaveCount(0);
   });
 
@@ -92,11 +90,6 @@ test.describe('Berry\'s Academy', () => {
     await expect(link).toHaveAttribute('href', /^\/academia\/[a-z0-9-]+$/);
     await expect(link).toContainText('Leer guía completa');
   });
-
-  test('T2-A-03: El botón Pro abre el modal de pago', async ({ page }) => {
-    await page.locator('#unlockProBtn').click();
-    await expect(page.locator('#berrysProModal')).toBeVisible();
-  });
 });
 
 test.describe('Glosario de Ingredientes', () => {
@@ -128,10 +121,5 @@ test.describe('Glosario de Ingredientes', () => {
     await filtro.click();
     await page.waitForTimeout(200);
     await expect(page.locator('#glossaryCardStage')).toBeVisible();
-  });
-
-  test('T1-G-05: El widget de Niko no se carga en el glosario', async ({ page }) => {
-    // Niko está desactivado temporalmente; el código queda como backup.
-    await expect(page.locator('.niko-launcher')).toHaveCount(0);
   });
 });

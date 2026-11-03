@@ -7,9 +7,6 @@
 # Dependencias: Vercel las instala desde package.json
 node_modules/
 
-# Proyecto Next.js aparte (Niko IA): no forma parte del sitio publicado
-Niko IA/
-
 # Tests y artefactos de test
 tests/
 playwright-report/

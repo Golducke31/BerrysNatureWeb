@@ -39,9 +39,14 @@ test.describe('Pagos — firma del webhook (unitario puro)', () => {
 });
 
 test.describe('Pagos — rutas', () => {
-  test('T6-05: POST /api/payments/checkout sin sesión responde 401', async ({ request }) => {
-    const res = await request.post('/api/payments/checkout', { data: {} });
-    expect(res.status()).toBe(401);
+  test('T6-05: POST /api/cart/checkout sin cobro configurado responde 503', async ({ request }) => {
+    /* La ruta real es /api/cart/checkout y acepta invitados a propósito, así
+       que no hay 401 que esperar. Sin MERCADOPAGO configurado (es el caso de
+       esta suite) el checkout tiene que negarse con 503 antes de tocar la
+       base, no reventar con un 500. */
+    const res = await request.post('/api/cart/checkout', { data: {} });
+    expect(res.status()).toBe(503);
+    expect((await res.json()).error.code).toBe('payment_not_configured');
   });
 
   test('T6-06: POST /api/webhooks/mercadopago sin cobro configurado responde 200 ignorado', async ({ request }) => {
@@ -52,9 +57,9 @@ test.describe('Pagos — rutas', () => {
     expect((await res.json()).ignorado).toBe('no_configurado');
   });
 
-  test('T6-07: el cliente expone BerrysAPI.checkout', async ({ page }) => {
+  test('T6-07: el cliente expone BerrysAPI.cartCheckout', async ({ page }) => {
     await page.goto('/foro.html');
-    const t = await page.evaluate(() => typeof window.BerrysAPI.checkout);
+    const t = await page.evaluate(() => typeof window.BerrysAPI.cartCheckout);
     expect(t).toBe('function');
   });
 

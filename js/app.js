@@ -3,7 +3,7 @@
 /* ------------------------------------------------------------------
    Toast global — window.toast(mensaje, icono?)
 
-   Antes NO existía: calculator.js y auth.js llamaban a window.toast()
+   Antes NO existía: auth.js llamaba a window.toast()
    detrás de un `if (window.toast)`, así que esos avisos (confirmación
    del formulario de contacto, errores de Google Sign-In) nunca salían.
    academia.js y community.js tenían cada uno su propia copia local.

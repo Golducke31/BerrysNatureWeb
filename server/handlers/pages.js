@@ -668,35 +668,7 @@ async function renderGuide(req, res, { id }) {
     }), { 'X-Robots-Tag': 'noindex, nofollow' });
   }
 
-  // Las guías marcadas como PRO quedan fuera de línea.
-  if (Boolean(row.is_pro)) {
-    return html(res, 404, layout({
-      title: "Guía no disponible | Berry's Nature",
-      description: 'Este contenido no está disponible.',
-      canonical: guiaUrl(id),
-      robots: 'noindex, follow',
-      ogImage: `${siteUrl()}/assets/og-image.jpg`,
-      css: CSS_GUIA,
-      body: `
-  <main>
-    <article class="guide-page">
-      <nav class="guide-breadcrumb" aria-label="Ruta de navegación">
-        <a href="/">Inicio</a><span class="sep">/</span>
-        <a href="/academia">Academia</a><span class="sep">/</span>
-        <span class="current">Guía PRO</span>
-      </nav>
-      <h1 class="guide-h1">Contenido no disponible</h1>
-      <div class="guide-body">
-        <p>Esta guía PRO está temporalmente desactivada. Volvé pronto.</p>
-      </div>
-      <a class="guide-back" href="/academia">← Ver las guías disponibles</a>
-    </article>
-  </main>`
-    }), { 'X-Robots-Tag': 'noindex, nofollow' });
-  }
-
-  const esPro = Boolean(row.is_pro);
-  const g = S.guide(row, !esPro);
+  const g = S.guide(row);
   const urlEstatica = urlEstaticaDeGuia(row.id) ||
     (row.url ? '/' + String(row.url).replace(/^\/+/, '') : null);
 
@@ -708,14 +680,9 @@ async function renderGuide(req, res, { id }) {
     return redirect(res, urlEstatica, 301);
   }
 
-  // Cuándo NO se indexa:
-  //  - PRO: el cuerpo está reservado a quien pagó; no queremos que el
-  //    resumen compita en búsqueda por un contenido que no se ve.
-  //  - Con página estática propia: la dinámica duplicaría el contenido, así
-  //    que cede y apunta su canonical a la estática.
-  const indexable = !esPro && !urlEstatica;
-
-  const canonical = urlEstatica ? `${siteUrl()}${urlEstatica}` : guiaUrl(row.id);
+  // Llegado este punto la guía es indexable: si tuviera página estática
+  // propia ya habría redirigido arriba, así que no hay caso no indexable.
+  const canonical = guiaUrl(row.id);
   const ogImage = `${siteUrl()}/assets/og-image.jpg`;
 
   const bloqueBreadcrumb = {
@@ -730,35 +697,31 @@ async function renderGuide(req, res, { id }) {
 
   const bloques = [bloqueBreadcrumb];
 
-  // El Article solo va si la página es indexable: marcar con structured data
-  // una página que le pedís a Google que ignore es contradictorio.
-  if (indexable) {
-    bloques.unshift({
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: row.title,
-      description: row.summary,
-      url: canonical,
-      datePublished: iso(row.created_at),
-      dateModified: iso(row.updated_at),
-      inLanguage: 'es-AR',
-      articleSection: row.category,
-      keywords: (row.tags || []).join(', '),
-      author: { '@type': 'Organization', name: row.author || "Berry's Nature" },
-      publisher: {
-        '@type': 'Organization',
-        name: "Berry's Nature",
-        logo: { '@type': 'ImageObject', url: `${siteUrl()}/assets/logo-512.jpg` }
-      },
-      isPartOf: { '@type': 'WebSite', name: "Berry's Nature", url: siteUrl() }
-    });
-  }
+  bloques.unshift({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: row.title,
+    description: row.summary,
+    url: canonical,
+    datePublished: iso(row.created_at),
+    dateModified: iso(row.updated_at),
+    inLanguage: 'es-AR',
+    articleSection: row.category,
+    keywords: (row.tags || []).join(', '),
+    author: { '@type': 'Organization', name: row.author || "Berry's Nature" },
+    publisher: {
+      '@type': 'Organization',
+      name: "Berry's Nature",
+      logo: { '@type': 'ImageObject', url: `${siteUrl()}/assets/logo-512.jpg` }
+    },
+    isPartOf: { '@type': 'WebSite', name: "Berry's Nature", url: siteUrl() }
+  });
 
   const markup = layout({
     title: `${row.title} | Berry's Academy`,
     description: recortar(row.summary, 155),
     canonical,
-    robots: indexable ? null : 'noindex, follow',
+    robots: null,
     ogImage,
     jsonLdBlocks: bloques,
     css: CSS_GUIA,
@@ -766,10 +729,9 @@ async function renderGuide(req, res, { id }) {
   });
 
   const headers = {
-    'X-Robots-Tag': indexable ? 'index, follow' : 'noindex, follow',
+    'X-Robots-Tag': 'index, follow',
     'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600'
   };
-  if (!indexable) headers['X-Indexability-Reason'] = urlEstatica ? 'tiene_pagina_propia' : 'pro';
 
   return html(res, 200, markup, headers);
 }
@@ -1399,8 +1361,8 @@ function idsConPaginaEstatica() {
  * Guías publicadas que todavía NO tienen página propia: esas van al sitemap
  * con su URL dinámica `/guias/<id>`.
  *
- * Se excluyen las que ya tienen estática (para no listar dos URLs del mismo
- * contenido) y las PRO (que se sirven con `noindex`).
+ * Se excluyen las que ya tienen estática, para no listar dos URLs del mismo
+ * contenido.
  */
 async function guiasSinPagina() {
   const conPagina = idsConPaginaEstatica();
@@ -1408,7 +1370,7 @@ async function guiasSinPagina() {
   const filas = await db.many(`
     SELECT id, updated_at
       FROM guides
-     WHERE is_published = true AND is_pro = false
+     WHERE is_published = true
      ORDER BY updated_at DESC
      LIMIT 2000`);
 

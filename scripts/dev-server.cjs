@@ -111,7 +111,7 @@ const MIME = {
 };
 
 // Igual que .vercelignore: nunca servimos estos directorios
-const BLOCKED = ['server', 'scripts', 'db', 'tests', 'node_modules', 'Niko IA',
+const BLOCKED = ['server', 'scripts', 'db', 'tests', 'node_modules',
   'playwright-report', 'test-results', '.git', '.workbuddy-ai', '.agents'];
 
 // Archivos que solo se entregan por la ruta secreta del panel

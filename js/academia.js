@@ -1,9 +1,8 @@
 /* ============================================================
    js/academia.js — Lógica de la "Berry's Academy"
    Renderiza el carrusel de rutas, el grid de guías (filtros + modal
-   "Leer más"), las fórmulas descargables (con "Cargar en la
-   calculadora"), los proveedores + calculadora de costo por lote y
-   el sidebar (progreso / populares / contenido PRO).
+   "Leer más"), las fórmulas descargables y el sidebar (progreso /
+   populares).
    Depende de: icons.js (iconSvg) y content-data.js (BLOG_POSTS,
    PROVEEDORES, FORMULAS).
    ============================================================ */
@@ -92,12 +91,12 @@
   function renderRutas() {
     const wrap = $('#rutasCarousel');
     if (!wrap) return;
-    const total = guias.filter(p => !p.pro).length;
+    const total = guias.length;
 
     wrap.innerHTML = RUTAS.map(r => {
       const count = r.id === 'Todas'
         ? total
-        : guias.filter(p => !p.pro && p.ruta === r.id).length;
+        : guias.filter(p => p.ruta === r.id).length;
       return `
         <button class="ruta-card ${r.id === rutaActiva ? 'is-active' : ''}"
                 type="button" data-ruta="${escapeHtml(r.id)}"
@@ -130,7 +129,7 @@
   function renderCatFilters() {
     const bar = $('#catFilters');
     if (!bar) return;
-    const cats = ['Todas', ...Array.from(new Set(guias.filter(p => !p.pro).map(p => p.categoria)))];
+    const cats = ['Todas', ...Array.from(new Set(guias.map(p => p.categoria)))];
     bar.innerHTML = cats.map(c =>
       `<button class="chip-filter ${c === catActiva ? 'is-active' : ''}" type="button" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`
     ).join('');
@@ -150,7 +149,7 @@
     const grid = $('#guiasGridAcad');
     if (!grid) return;
 
-    let posts = guias.filter(p => !p.pro);
+    let posts = guias.slice();
 
     if (rutaActiva !== 'Todas') posts = posts.filter(p => p.ruta === rutaActiva);
     if (catActiva !== 'Todas')  posts = posts.filter(p => p.categoria === catActiva);
@@ -183,8 +182,6 @@
         </div>
       </article>`).join('');
 
-    // Tarjetas PRO bloqueadas al final (solo si el contenido PRO está prendido)
-    const proPosts = guias.filter(p => p.pro);
     // Eventos
     grid.querySelectorAll('[data-open]').forEach(btn =>
       btn.addEventListener('click', e => { e.stopPropagation(); openGuide(btn.dataset.open); })
@@ -199,7 +196,7 @@
         trackGuia(card ? card.dataset.id : '', 'tarjeta');
       })
     );
-    grid.querySelectorAll('.guide-card:not(.guide-card--pro)').forEach(card => {
+    grid.querySelectorAll('.guide-card').forEach(card => {
       if (card.querySelector('a.guide-card__btn')) return; // tiene página propia: el <a> ya maneja la navegación
       card.addEventListener('click', () => openGuide(card.dataset.id));
       card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGuide(card.dataset.id); } });
@@ -212,7 +209,7 @@
      ============================================================ */
   function openGuide(id) {
     const p = guias.find(x => x.id === id);
-    if (!p || p.pro) return;
+    if (!p) return;
     const overlay = $('#guideModal');
     if (!overlay) return;
 
@@ -308,42 +305,15 @@
   }
 
   /* ============================================================
-     8. CALCULADORA DE COSTO POR LOTE
-     ============================================================ */
-  function setupBatchCalc() {
-    const form = $('#batchCalcForm');
-    if (!form) return;
-    const out = {
-      unit: $('#bcUnit'),
-      sale:  $('#bcSale'),
-      bar:   $('#bcBar')
-    };
-    const calc = () => {
-      const mp = parseFloat(form.mp.value) || 0;
-      const env = parseFloat(form.env.value) || 0;
-      const etq = parseFloat(form.etq.value) || 0;
-      const units = parseFloat(form.units.value) || 1;
-      const margin = parseFloat(form.margin.value) || 0;
-      const costUnit = (mp + env + etq) / units;
-      const sale = costUnit * (1 + margin / 100);
-      if (out.unit)  out.unit.textContent  = '$' + costUnit.toLocaleString('es-AR', { maximumFractionDigits: 0 });
-      if (out.sale)  out.sale.innerHTML    = '$' + sale.toLocaleString('es-AR', { maximumFractionDigits: 0 }) + ' <small>/unidad</small>';
-      if (out.bar)   out.bar.style.width   = Math.min(100, margin) + '%';
-    };
-    form.addEventListener('input', calc);
-    calc();
-  }
-
-  /* ============================================================
-     8. SIDEBAR (progreso / populares / PRO)
+     8. SIDEBAR (progreso / populares)
      ============================================================ */
   function updateProgress() {
     const ring = $('#progressRing');
     const pctEl = $('#progressPct');
     const bar = $('#progressBarFill');
     const stat = $('#progressStat');
-    const total = guias.filter(p => !p.pro).length;
-    const read = getRead().filter(id => guias.some(p => p.id === id && !p.pro)).length;
+    const total = guias.length;
+    const read = getRead().filter(id => guias.some(p => p.id === id)).length;
     const pct = total ? Math.round((read / total) * 100) : 0;
     if (ring)  ring.style.setProperty('--pct', pct);
     if (pctEl) pctEl.textContent = pct + '%';
@@ -354,7 +324,7 @@
   function renderPopular() {
     const list = $('#popularList');
     if (!list) return;
-    const top = guias.filter(p => !p.pro).slice().sort((a, b) => (b.vistas||0) - (a.vistas||0)).slice(0, 5);
+    const top = guias.slice().sort((a, b) => (b.vistas||0) - (a.vistas||0)).slice(0, 5);
     list.innerHTML = top.map((p, i) => `
       <li class="popular-item" data-id="${p.id}" role="button" tabindex="0">
         <span class="popular-rank">${i + 1}</span>
@@ -396,11 +366,10 @@
     renderCatFilters();
     renderGuias();
     renderFormulas();
-    // Proveedores + calculadora de lote: fuera de línea hasta tener los datos reales.
-    // Para reactivar: descomentar estas 2 líneas y restaurar la sección en academia.html
+    // Proveedores: fuera de línea hasta tener los datos reales.
+    // Para reactivar: descomentar y restaurar la sección en academia.html
     // (buscar "PROVEEDORES + TRUCOS" en el historial git del archivo HTML).
     // renderProveedores();
-    // setupBatchCalc();
     renderPopular();
     updateProgress();
 

@@ -1,5 +1,9 @@
 # Documento de Especificaciones y Requerimientos (PRD) - Web Interactiva "Berry's Nature"
 
+> ⚠️ **Documento histórico.** Es el pedido original y se conserva como registro. La
+> **calculadora de formulación** y el **contenido PRO** que describe acá se retiraron del
+> producto: hoy el sitio es contenido + comunidad + tienda. Ver `README.md` para el estado real.
+
 Este documento está diseñado para ser procesado por un agente de desarrollo (como Antigravity) para la creación integral de la página web interactiva de la marca de cosmética natural **Berry's Nature**.
 
 ## 1. Visión General del Proyecto

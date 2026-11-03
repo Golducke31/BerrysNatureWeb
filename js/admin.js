@@ -392,7 +392,7 @@
   }
 
   /* ============================================================
-     INGRESOS (O9 — desbloqueo PRO)
+     INGRESOS (O9)
      ============================================================ */
   function fmtMoney(n) {
     var v = Number(n) || 0;
@@ -407,7 +407,7 @@
       .then(function (d) {
         d = d || {};
         var cards = [
-          ['Ingresos (30 días)', fmtMoney(d.total), 'Pedidos de la tienda + PRO'],
+          ['Ingresos (30 días)', fmtMoney(d.total), 'Pedidos de la tienda'],
           ['Pedidos pagados', d.pedidos || 0, 'Ticket promedio ' + fmtMoney(d.ticket)],
           ['Pendientes', d.pendientes || 0, 'Checkouts sin acreditar'],
           ['Sin stock', d.backorder || 0, 'Vendidos en backorder']
@@ -455,11 +455,7 @@
                   '<th>Fecha</th><th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Monto</th><th>Estado</th>' +
                 '</tr></thead><tbody>' + filas + '</tbody></table></div>'
               : '<p class="admin-empty">Todavía no hay pedidos.</p>') +
-          '</div>' +
-
-          '<p class="admin-help" style="margin-top:12px">' +
-            'Desbloqueo PRO: ' + (d.proPagos || 0) + ' pago(s) · ' + fmtMoney(d.proTotal || 0) +
-            ' · ' + (d.pro || 0) + ' cuenta(s) con acceso.</p>';
+          '</div>';
 
         var reload = $('#revenueReload');
         if (reload) reload.addEventListener('click', renderRevenue);
@@ -473,7 +469,7 @@
         var v = m.ventas || { pagados: 0, pendientes: 0, monto: 0 };
         var cards = [
           ['Hilos', m.hilos.total, m.hilos.ocultos + ' ocultos · ' + m.hilos.resueltos + ' resueltos'],
-          ['Guías', m.guias.total, m.guias.publicadas + ' publicadas · ' + m.guias.pro + ' PRO'],
+          ['Guías', m.guias.total, m.guias.publicadas + ' publicadas'],
           ['Usuarios', m.usuarios.total, m.usuarios.moderadores + ' moderadores · ' + m.usuarios.baneados + ' baneados'],
           ['Vistas (30 días)', m.vistas.mes, m.vistas.hoy + ' hoy · ' + m.vistas.semana + ' esta semana'],
           ['Ventas', v.pagados, fmtMoney(v.monto) + ' · ' + v.pendientes + ' pendientes']
@@ -648,8 +644,7 @@
                   '<td>' + escapeHtml(g.ruta) + '</td>' +
                   '<td>' + escapeHtml(g.categoria) + '</td>' +
                   '<td>' + (g.publicada ? '<span class="admin-pill admin-pill--ok">Publicada</span>' : '<span class="admin-pill">Borrador</span>') +
-                    (g.destacado ? ' <span class="admin-pill admin-pill--warn">Destacada</span>' : '') +
-                    (g.pro ? ' <span class="admin-pill admin-pill--bad">PRO</span>' : '') + '</td>' +
+                    (g.destacado ? ' <span class="admin-pill admin-pill--warn">Destacada</span>' : '') + + '</td>' +
                   '<td>' + (g.vistas || 0) + '</td>' +
                   '<td><div class="admin-actions">' +
                     '<button class="admin-btn" data-edit-guide="' + escapeHtml(g.id) + '">Editar</button>' +
@@ -712,8 +707,7 @@
           escapeHtml(g ? (g.leerMas || '') : '') + '</textarea></div>' +
         '<div class="admin-field admin-field--full"><div class="admin-checks">' +
           '<label><input type="checkbox" id="gPublicada"' + (!g || g.publicada ? ' checked' : '') + '> Publicada</label>' +
-          '<label><input type="checkbox" id="gDestacada"' + (g && g.destacado ? ' checked' : '') + '> Destacada</label>' +
-          '<label><input type="checkbox" id="gPro"' + (g && g.pro ? ' checked' : '') + '> Solo PRO</label>' +
+          '<label><input type="checkbox" id="gDestacada"' + (g && g.destacado ? ' checked' : '') + '> Destacada</label>' + +
         '</div></div>' +
       '</div>',
       function () {
@@ -727,8 +721,7 @@
           imagen: $('#gImagen').value.trim(),
           tags: $('#gTags').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean),
           publicada: $('#gPublicada').checked,
-          destacado: $('#gDestacada').checked,
-          pro: $('#gPro').checked
+          destacado: $('#gDestacada').checked
         };
         if (payload.titulo.length < 8) return toast('El título necesita al menos 8 caracteres.');
         if (payload.resumen.length < 20) return toast('El resumen necesita al menos 20 caracteres.');

@@ -25,50 +25,48 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     pasa en verde tal cual.
 
 ## Test Files
-The static suite contains exactly 181 tests (the old catalog-hotspots and cart-integration specs
+The static suite contains exactly 198 tests (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (543 runs in total). The backend suite adds 41 tests (6 routing + 5 API + 9 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (594 runs in total). The backend suite adds 41 tests (6 routing + 5 API + 9 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
-   - Header sticky, hamburguesa solo en mobile, 6 enlaces (Inicio/Academia/Glosario/Berry's Calculator/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
-2. `tests/e2e/calculator.spec.js` (11 tests)
-   - Nombre de fórmula, toggle de modo (aria-checked + clase `toggled`), agregar/eliminar filas, disclaimer de licencia, entrada inválida ignorada, suma exacta 100.00%, 0 filas → 0.00, 50 filas funcional, preservar nombre al cambiar modo, `BerrysCalculator.loadFormula`.
-3. `tests/e2e/academia.spec.js` (17 tests)
-   - Carrusel de rutas, grid de guías, filtro de categoría, fórmulas + carga en calculadora, proveedores, enlace al Foro en el header + ausencia de la sección de comunidad, cálculo por lote, modal "Leer más", guías con página propia que enlazan en vez de abrir el modal, desbloqueo PRO (modal de pago), glosario (siguiente / contador "n / m" / filtros), launcher de Niko.
-4. `tests/e2e/auth-contact-niko.spec.js` (9 tests)
-   - Login/logout (localStorage `berrys_user`), pestaña "Crear cuenta" muestra nombre, formulario de contacto (vacío / completo → "Mensaje enviado"), desbloqueo sin sesión abre registro, launcher y panel de Niko, degradación de Niko.
-5. `tests/e2e/foro.spec.js` (10 tests)
+   - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
+2. `tests/e2e/academia.spec.js` (15 tests)
+   - Carrusel de rutas, grid de guías, filtro de categoría, fórmulas descargables, proveedores, enlace al Foro en el header + ausencia de la sección de comunidad, modal "Leer más", guías con página propia que enlazan en vez de abrir el modal, glosario (siguiente / contador "n / m" / filtros).
+3. `tests/e2e/auth-contacto.spec.js` (5 tests)
+   - Login/logout (localStorage `berrys_user`), pestaña "Crear cuenta" muestra nombre, formulario de contacto vacío y con datos (sin API no finge éxito).
+4. `tests/e2e/foro.spec.js` (10 tests)
    - Banner del foro, lista de hilos, hilo destacado, filtro por categoría, buscador, badge "Sin responder", avatares con iniciales, gate "Publicar consulta" abre el modal de acceso, estado vacío sin resultados, enlace de vuelta a la Academia.
-6. `tests/e2e/responsive-overflow.spec.js` (11 tests)
+5. `tests/e2e/responsive-overflow.spec.js` (11 tests)
    - Guarda de regresión de scroll horizontal: cada página (index, academia, glosario, foro, perfil, recuperar, verificar, cuenta, privacidad, terminos, normas) se recorre en 320/375/768/1024/1280px y falla si `documentElement.scrollWidth` supera el viewport.
-7. `tests/e2e/cuenta.spec.js` (18 tests)
+6. `tests/e2e/cuenta.spec.js` (18 tests)
    - Recuperación de contraseña: panel correcto según haya `?token=` o no, validación de email vacío, contraseñas que no coinciden, contraseña de menos de 10 caracteres, y degradación sin backend. Confirmación de email: falta el token / sin backend / `accion=cambio-email` cambia el título. Modal de acceso: el enlace a `recuperar.html` existe y se oculta en la pestaña "Crear cuenta". **Mi cuenta** (`cuenta.html`): estado sin sesión, datos con sesión, estado de verificación, cambio de email pendiente, cuenta de Google sin formularios, validación local de la contraseña nueva, y el enlace "Mi cuenta" en el header.
-8. `tests/e2e/legal.spec.js` (5 tests)
+7. `tests/e2e/legal.spec.js` (5 tests)
    - Los enlaces a privacidad y términos existen en el footer y en la línea legal del modal; las dos páginas cargan con su contenido; y **una guarda impide que un borrador con placeholders quede indexable**.
-9. `tests/e2e/indexability.spec.js` (13 tests)
+8. `tests/e2e/indexability.spec.js` (13 tests)
    - **Pruebas unitarias puras** de `server/lib/indexability.js` (la regla de indexación de hilos). Se importa el módulo directo: no necesitan navegador, servidor ni base. Cubren el hilo oculto, el recién publicado, resuelto, likes, respuestas, el caso del autor respondiéndose a sí mismo (que NO debe indexar) y el hilo de debate que nunca se marca resuelto (que SÍ debe indexar).
-10. `tests/e2e/hilo-render.spec.js` (12 tests)
+9. `tests/e2e/hilo-render.spec.js` (12 tests)
    - Render de la página de hilo **sin base de datos**: parchea `server/lib/db` con datos falsos y llama al handler, capturando la respuesta con un `res` mínimo. Verifica la decisión de indexación (meta + `X-Robots-Tag`), el 404 de hilo oculto/inexistente, el escapado del contenido, la validez del JSON-LD, que un `</script>` en el título no lo rompa, y que los assets usen rutas absolutas.
-11. `tests/e2e/sitemap.spec.js` (20 tests)
+10. `tests/e2e/sitemap.spec.js` (20 tests)
     - Sitemap dinámico con la base parcheada: incluye las páginas fijas, las guías (estáticas o dinámicas, sin duplicar) y **solo los hilos indexables**; excluye los hilos sin tracción y todas las páginas `noindex`; no repite URLs; el XML lo parsea el navegador sin errores; `Content-Type`, caché y `lastmod` ISO; y si la base falla igual devuelve un sitemap válido. Además, las páginas legales (`privacidad.html`, `terminos.html`) entran solo cuando se publican (`setLegalesPublicadas(true)`) y quedan afuera mientras son borrador (`noindex`).
-12. `tests/e2e/events.spec.js` (20 tests)
+11. `tests/e2e/events.spec.js` (20 tests)
    - Lista blanca de eventos, `events.log()` (hash de IP, nunca la IP cruda; metadata recortado; **no lanza si la base falla**), tope de volumen por visitante, y el endpoint `POST /api/events` (rechazo de nombres desconocidos, saneo del metadata, 202 ante fallo de base).
-13. `tests/e2e/guia-render.spec.js` (13 tests)
-    - Página de guía renderizada en el servidor con base parcheada: indexación (normal / con página estática que cede el canonical / PRO que no expone el cuerpo), 404 de inexistente y no publicada, escapado, **ruta de imagen con comilla que no se interpola**, JSON-LD `Article` solo si es indexable, y rutas absolutas.
-14. `tests/e2e/seed.spec.js` (4 tests)
+12. `tests/e2e/guia-render.spec.js` (13 tests)
+    - Página de guía renderizada en el servidor con base parcheada: indexación (normal / con página estática que redirige 301), 404 de inexistente y no publicada, escapado, **ruta de imagen con comilla que no se interpola**, JSON-LD `Article`, y rutas absolutas.
+13. `tests/e2e/seed.spec.js` (4 tests)
     - Guarda de regresión del seed de guías: `DO NOTHING` por defecto (no pisa ediciones del panel) y `DO UPDATE` solo con `--force`/`--force-guides`.
-15. `tests/e2e/paginas-ssr.spec.js` (9 tests) — **suite de backend**
+14. `tests/e2e/paginas-ssr.spec.js` (9 tests) — **suite de backend**
     - `BerrysAPI.hiloUrl` y `BerrysAPI.event` sobre http (3, sin DB) y la página de hilo renderizada
       en el servidor contra el dev server (6, **requieren `DATABASE_URL`**).
-16. `tests/e2e/admin-routing.spec.js` (6 tests) — **suite de backend**
+15. `tests/e2e/admin-routing.spec.js` (6 tests) — **suite de backend**
     - Ofuscación de la ruta secreta del admin: slug incorrecto → 404 idéntico, slug correcto sin
       clave de puerta → 404, clave incorrecta → 404, slug + clave correcta → shell 200, assets del
       panel NO se sirven por rutas públicas (404) y SÍ por la ruta secreta (200). **No requiere DB.**
-17. `tests/e2e/api.spec.js` (5 tests) — **suite de backend**
+16. `tests/e2e/api.spec.js` (5 tests) — **suite de backend**
     - API pública: `GET /api/threads` lista hilos, `GET /api/guides` lista guías, registro crea cuenta
       y mantiene sesión, login con credenciales incorrectas → 401, métricas del panel sin sesión → 401.
       **Requiere `DATABASE_URL`** (esquema + seed); se saltean sin base.
-18. `tests/e2e/etapa5.spec.js` (13 tests) — **suite de backend**
+17. `tests/e2e/etapa5.spec.js` (13 tests) — **suite de backend**
     - Etapa 5: el gate de privacidad de perfiles (D6) responde 404 + `noindex` con el flag apagado,
       `/api/users/:id` también da 404, `POST /api/reports` sin sesión da 401, el cliente expone
       `BerrysAPI.report` y el modal de reporte; F8: `update-profile` y `delete-account` sin sesión
@@ -76,7 +74,7 @@ and WebKit (543 runs in total). The backend suite adds 41 tests (6 routing + 5 A
       `autorAvatar` en `serialize.thread/reply`; like optimista: `GET /api/likes` sin sesión da 200
       vacío y el cliente expone `likesState`; `emprendimiento` en `userProfile`/`userSelf`.
       **No requiere DB.**
-19. `tests/e2e/pagos.spec.js` (8 tests) — **suite de backend**
+18. `tests/e2e/pagos.spec.js` (8 tests) — **suite de backend**
     - Pagos (O9): verificación de la firma HMAC del webhook de MercadoPago (válida / alterada / sin
       secreto) y parseo del header `x-signature`; `POST /api/payments/checkout` sin sesión → 401;
       `POST /api/webhooks/mercadopago` sin cobro configurado → 200 «ignorado»; el cliente expone

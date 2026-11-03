@@ -2,9 +2,10 @@ const { test, expect } = require('@playwright/test');
 const path = require('path');
 
 /*
-  Auth + Contacto + Niko — reemplaza los tests de carrito (ya inexistente).
-  Valida el modal de login (community.js), el formulario de contacto
-  (con fallback local cuando no hay endpoint) y el widget de Niko.
+  Autenticación + Contacto.
+
+  Cubre el modal de login (js/community.js) y el formulario de contacto de la
+  landing.
 */
 test.describe('Autenticación (demo localStorage)', () => {
   test.beforeEach(async ({ page }) => {
@@ -57,50 +58,22 @@ test.describe('Formulario de contacto', () => {
     await expect(btn).toContainText('Enviar mensaje');
   });
 
-  test('T1-CT-02: Enviar completo dispara confirmación local', async ({ page }) => {
+  test('T1-CT-02: si el envío falla, no finge éxito y devuelve el botón a su estado', async ({ page }) => {
+    /* Sobre file:// no hay API: fetch('/api/contact') falla. Lo que importa
+       es que el formulario NO muestre confirmación cuando no se envió nada.
+       El camino feliz (200 + guardado + mail) se prueba contra el servidor
+       en la suite de API, que sí tiene base de datos. */
     await page.locator('#contactName').fill('María');
     await page.locator('#contactEmail').fill('maria@ejemplo.com');
     await page.locator('#contactMessage').fill('Quiero saber sobre los cursos de formulación.');
-    await page.locator('#contactSubmitBtn').click();
-    await expect(page.locator('#contactSubmitBtn')).toContainText('Mensaje enviado', { timeout: 5000 });
-  });
-});
 
-test.describe('Desbloqueo PRO (pago único)', () => {
-  test.beforeEach(async ({ page }) => {
-    const fileUrl = `file://${path.resolve(__dirname, '../../index.html')}`;
-    await page.goto(fileUrl);
-    await page.evaluate(() => localStorage.clear());
-    await page.reload();
-  });
+    const btn = page.locator('#contactSubmitBtn');
+    await btn.click();
 
-  test('T1-PR-01: Con la calculadora apagada, el CTA de desbloqueo está oculto', async ({ page }) => {
-    // community.js:342 oculta el botón y NO cablea el click cuando los flags
-    // (calculator / pro) están apagados. Antes este test exigía que el botón
-    // abriera el modal de registro; hoy eso solo pasa con CALCULATOR_ENABLED
-    // y PRO_CONTENT_ENABLED en true.
-    const btn = page.locator('#unlockCalcBtn');
-    await expect(btn).toBeHidden();
-
-    // Y aunque se lo invoque por JS, no debe abrir nada.
-    await page.evaluate(() => {
-      const el = document.querySelector('#unlockCalcBtn');
-      if (el) el.click();
-    });
-    await expect(page.locator('#authModal')).not.toHaveClass(/open/);
-  });
-});
-
-test.describe('Niko (desactivado temporalmente)', () => {
-  test.beforeEach(async ({ page }) => {
-    const fileUrl = `file://${path.resolve(__dirname, '../../index.html')}`;
-    await page.goto(fileUrl);
-  });
-
-  test('T1-NK-01: El widget de Niko no se carga', async ({ page }) => {
-    // Se desactivó hasta nuevo aviso; el código queda como backup en js/niko-*.js
-    await expect(page.locator('.niko-launcher')).toHaveCount(0);
-    await expect(page.locator('.niko-panel')).toHaveCount(0);
-    expect(await page.locator('script[src*="niko"]').count()).toBe(0);
+    // Vuelve a estar habilitado y con su texto original.
+    await expect(btn).toBeEnabled({ timeout: 5000 });
+    await expect(btn).toContainText('Enviar mensaje');
+    // Y nunca dice que se envió.
+    await expect(btn).not.toContainText(/enviado/i);
   });
 });

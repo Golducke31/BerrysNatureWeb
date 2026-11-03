@@ -823,7 +823,7 @@ a.nav-ghost-btn {
   box-shadow: var(--shadow-cta-sunken);
 }
 
-/* CTA secundario en outline — para el "gancho" de la calculadora */
+/* CTA secundario en outline */
 .cta-button.cta-outline {
   background: rgba(255, 252, 249, 0.5);
   color: var(--color-text);
@@ -847,7 +847,7 @@ a.nav-ghost-btn {
   gap: 16px;
 }
 
-/* CTA del hero: grilla 2x2 (Tienda + Academia / Comunidad + Calculadora) */
+/* CTA del hero: grilla de botones (Tienda / Academia / Comunidad) */
 .hero-actions-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1408,11 +1408,9 @@ a.nav-ghost-btn {
   .auth-tab,
   .thread-action,
   .remove-ingredient-btn,
-  .niko-panel__close,
   .hamburger-btn,
   .guide-modal__close,
   .glossary-main-nav,
-  .niko-composer__send,
   .foro-cat-list button,
   .mod-btn {
     min-height: 44px;
@@ -1422,7 +1420,6 @@ a.nav-ghost-btn {
   .nav-ghost-btn,
   .nav-store-btn,
   .remove-ingredient-btn,
-  .niko-panel__close,
   .hamburger-btn,
   .guide-modal__close,
   .glossary-main-nav,
@@ -1517,47 +1514,7 @@ a.nav-ghost-btn {
 .value-card .icon,
 .channel-icon .icon { width: 1.4em; height: 1.4em; margin-right: 4px; }
 .coming-soon-badge .icon,
-.payment-preview-item .icon,
-.calc-disclaimer .icon { margin-right: 6px; }
-
-/* ============================================================
-   ACESO PRO — Bloque "Desbloquear para siempre" (index.html)
-   ============================================================ */
-.calc-unlock {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-  padding: 22px 26px;
-  background: var(--bg-main);
-  border-radius: 18px;
-  box-shadow: var(--shadow-soft);
-}
-.unlock-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.unlock-copy strong {
-  font-family: var(--font-title);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-text);
-}
-.unlock-copy span {
-  font-size: 14px;
-  line-height: 1.45;
-  color: var(--color-text-muted);
-  max-width: 380px;
-}
-.calc-pro-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-}
+.payment-preview-item .icon { margin-right: 6px; }
 
 /* ============================================================
    ACCESIBILIDAD DE ICONOS — fallback si js/icons.js falla

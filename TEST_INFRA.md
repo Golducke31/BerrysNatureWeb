@@ -34,9 +34,7 @@ berrys web/
 ├── tests/
 │   ├── e2e/
 │   │   ├── landing-navigation.spec.js     # Landing + navegación
-│   │   ├── calculator.spec.js             # Berry's Calculator
 │   │   ├── academia.spec.js               # Academia + Glosario
-│   │   ├── auth-contact-niko.spec.js      # Sesión, contacto y widget Niko
 │   │   ├── foro.spec.js                   # Foro de formuladores (foro.html)
 │   │   ├── cuenta.spec.js                 # Recuperación de contraseña + confirmación de email
 │   │   ├── legal.spec.js                  # Páginas legales y sus enlaces
@@ -54,7 +52,6 @@ berrys web/
 │   │   ├── _admin-env.js                  # Constantes compartidas de slug/clave de prueba
 │   │   └── responsive-overflow.spec.js    # Guarda de desborde horizontal
 │   ├── fixtures/                          # (reservado)
-│   ├── niko-widget-smoke.mjs              # Smoke test suelto del widget Niko
 │   ├── playwright.config.js               # Suite estática (file://, 3 navegadores)
 │   └── playwright.api.config.js           # Suite de backend (dev server + API)
 ├── package.json                           # Dependencias y scripts
@@ -86,17 +83,16 @@ DATABASE_URL=postgres://... npm run test:api   # corre también los tests de API
 
 1. **Header y navegación**: header sticky, menú hamburguesa en mobile, enlaces del modelo actual, logo, link activo por scroll.
 2. **Hero (landing)**: altura mínima, tipografía serif, animación de entrada, sin desborde a 320px.
-3. **Berry's Calculator**: nombre de fórmula, toggle gramos ↔ porcentaje, alta/baja de ingredientes, cálculo en tiempo real, aviso de licencia.
-4. **Academia**: carrusel de rutas, grid de guías + filtro por categoría, fórmulas descargables (carga en la calculadora vía `?load=ID`), proveedores, calculadora de costo por lote, modal "Leer más", desbloqueo PRO, enlace al Foro.
+4. **Academia**: carrusel de rutas, grid de guías + filtro por categoría, fórmulas descargables, proveedores, modal "Leer más" y enlace al Foro.
 5. **Glosario**: carrusel de ingredientes, contador `n / m`, filtros, botón siguiente.
-6. **Sesión y comunidad**: login/logout demo (`localStorage` → `berrys_user`), modal de auth, desbloqueo PRO sin sesión, formulario de contacto, widget de Niko y su degradación.
+6. **Sesión y comunidad**: login/logout demo (`localStorage` → `berrys_user`), modal de auth, formulario de contacto.
 7. **Foro de formuladores** (`foro.html`): banner, lista de hilos, hilo destacado, filtro por categoría, buscador, badges, avatares con iniciales, gate "Publicar consulta", estado vacío.
 8. **Responsive**: ausencia de scroll horizontal en las 11 páginas entre 320px y 1280px.
 9. **Cuenta** (`recuperar.html`, `verificar.html`, `cuenta.html`): máquina de estados según `?token=` y `?accion=`, validaciones locales (email vacío, contraseñas que no coinciden, mínimo 10 caracteres), degradación sin backend, y gestión de la cuenta con sesión simulada.
 10. **Legal** (`privacidad.html`, `terminos.html`): existencia y destino de los enlaces, contenido de ambas páginas, y guarda de que un borrador con placeholders no quede indexable.
 11. **SEO de hilos y sitemap**: la regla de indexación (`server/lib/indexability.js`) como unidad pura, el HTML que sirve la página de hilo renderizada en el servidor, y el sitemap dinámico (qué incluye y qué excluye).
 12. **Eventos de producto**: lista blanca, `events.log()` (que nunca lanza), tope de volumen y el endpoint `POST /api/events`.
-13. **Página de guía renderizada en el servidor**: indexación (normal / con página estática que cede el canonical / PRO), 404, escapado, JSON-LD y la validación de la ruta de imagen.
+13. **Página de guía renderizada en el servidor**: indexación (normal / con página estática que redirige 301), 404, escapado, JSON-LD y la validación de la ruta de imagen.
 14. **Seed de guías (guarda de regresión)**: `DO NOTHING` por defecto preserva las ediciones del panel; `DO UPDATE` solo con `--force`. Módulo puro `scripts/lib/seed-sql.cjs`.
 
 > **Técnica de la suite de cuenta:** `cuenta.html` depende de la sesión, y con `file://` no hay
@@ -117,10 +113,9 @@ DATABASE_URL=postgres://... npm run test:api   # corre también los tests de API
 
 | Archivo | Tests | Qué cubre |
 |---|---:|---|
-| `landing-navigation.spec.js` | 18 | Header sticky, hamburguesa, 6 enlaces, hero, scroll, menú mobile, link activo, contraste WCAG AA, latencia de CTA. |
-| `calculator.spec.js` | 11 | Nombre, toggle, alta/baja de filas, entrada inválida, suma exacta 100.00%, 0 y 50 filas, `loadFormula`. |
-| `academia.spec.js` | 17 | Rutas, guías + filtro, fórmulas, proveedores, enlace al Foro, cálculo por lote, modal "Leer más", guías con página propia, PRO, glosario, Niko. |
-| `auth-contact-niko.spec.js` | 9 | Login/logout (fallback offline `berrys_user`), pestaña registro, contacto (vacío/completo), PRO sin sesión, launcher y panel de Niko. |
+| `landing-navigation.spec.js` | 18 | Header sticky, hamburguesa, 5 enlaces, hero, scroll, menú mobile, link activo, contraste WCAG AA, latencia de CTA. |
+| `academia.spec.js` | 15 | Rutas, guías + filtro, fórmulas, proveedores, enlace al Foro, modal "Leer más", guías con página propia, glosario. |
+| `auth-contacto.spec.js` | 5 | Login/logout (fallback offline `berrys_user`), pestaña registro, formulario de contacto vacío y con datos sin API. |
 | `foro.spec.js` | 10 | Banner, lista, destacado, filtro, buscador, badge "Sin responder", avatares, gate de auth, estado vacío, volver a la Academia. |
 | `responsive-overflow.spec.js` | 11 | Cada página (index, academia, glosario, foro, perfil, recuperar, verificar, cuenta, privacidad, terminos, normas) sin desborde horizontal en 320/375/768/1024/1280px. |
 | `cuenta.spec.js` | 18 | Recuperación de contraseña (estados y validaciones), confirmación de email, cambio de email, acceso desde el modal y **gestión de la cuenta** (`cuenta.html`) con sesión simulada. |
@@ -132,7 +127,7 @@ DATABASE_URL=postgres://... npm run test:api   # corre también los tests de API
 | `pagos.spec.js` | 8 | MercadoPago: firma HMAC del webhook (válida / alterada / sin secreto) y parseo de `x-signature` (unitario); checkout sin sesión → 401; webhook sin cobro configurado → 200 ignorado; cliente `checkout`; panel de ingresos sin sesión → 401 — sin DB. |
 | `sitemap.spec.js` | 20 | Sitemap dinámico con base parcheada: inclusiones, exclusiones, guías sin duplicar, XML bien formado, headers y degradación sin base. Las páginas legales entran solo al publicarse (`setLegalesPublicadas`) y quedan afuera mientras son `noindex`. |
 | `events.spec.js` | 20 | Eventos: lista blanca, `log()` que nunca lanza, hash de IP, tope de volumen y endpoint público. |
-| `guia-render.spec.js` | 13 | Página de guía: indexación (normal / estática / PRO), 404, escapado, JSON-LD, rutas absolutas y validación de la ruta de imagen. |
+| `guia-render.spec.js` | 11 | Página de guía: indexación (normal / estática), 404, escapado, JSON-LD, rutas absolutas y validación de la ruta de imagen. |
 | `seed.spec.js` | 4 | Seed de guías: `DO NOTHING` por defecto, `DO UPDATE` solo con `--force`; no actualiza columnas sin force. |
 | `admin-routing.spec.js` | 6 | Ofuscación de la ruta secreta del admin (slug/clave de puerta/asset) — sin DB. |
 | `api.spec.js` | 5 | API pública (hilos, guías, registro, login) + protección del panel — requiere `DATABASE_URL`. |

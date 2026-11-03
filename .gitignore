@@ -1,9 +1,5 @@
 # === Berrys Nature Web — .gitignore ===
 
-# Proyecto NO relacionado: "Niko IA" tiene su propio repositorio (.git),
-# por eso se excluye por completo de este repo.
-Niko IA/
-
 # Dependencias de Node (solo para la suite de pruebas)
 node_modules/
 

@@ -1,21 +1,21 @@
 # Berry's Nature Web
 
-Prototipo de alta fidelidad para la marca de cosmética natural **Berry's Nature**. Es un sitio estático (HTML5 + CSS3 + JavaScript vanilla) con calculadora de formulación, academia, glosario, foro de la comunidad y una suite de pruebas E2E.
+Prototipo de alta fidelidad para la marca de cosmética natural **Berry's Nature**. Es un sitio estático (HTML5 + CSS3 + JavaScript vanilla) con academia, glosario, foro de la comunidad, tienda con checkout y una suite de pruebas E2E.
 
-> La web **no vende productos**: el modelo es contenido + comunidad + desbloqueo de la calculadora con un pago único. Ver el plan de migración en `ARQUITECTURA-TECNICA.md`.
+> El modelo es **contenido + comunidad + tienda**. La calculadora de formulación y el contenido PRO se retiraron del producto; su código, sus datos y sus pruebas ya no están en el repo.
 
 ## Estado actual
 
-- **Landing, navegación, calculadora, academia, glosario y foro:** implementados en el prototipo estático.
+- **Landing, navegación, academia, glosario, foro y tienda:** implementados.
 - **Backend serverless (Vercel + Neon Postgres):** cuentas públicas reales, foro y academia servidos desde la base, y un **panel de administración secreto con 2FA** (ruta ofuscada por slug + clave de puerta, assets no públicos). Ver `ARQUITECTURA-TECNICA.md`.
-- **Suite E2E (Playwright):** estática (181 pruebas, 543 corridas cross-browser) + backend (`admin-routing` 6 sin DB, `api` 5 con DB, `paginas-ssr` 9, `etapa5` 13 sin DB, `pagos` 8 sin DB). Ver `TEST_READY.md`.
+- **Suite E2E (Playwright):** estática + backend (`admin-routing`, `api`, `paginas-ssr`, `etapa5`, `pagos`). Ver `TEST_READY.md`.
 - **Documentación:** arquitectura, brief y plan de migración a WordPress disponibles en los `.md` del repo.
 
 ## Estructura del proyecto
 
 | Ruta | Contenido |
 |---|---|
-| `index.html` | Landing principal (hero, calculadora, academia) |
+| `index.html` | Landing principal (hero, Lab destacado, academia, glosario) |
 | `academia.html` | Página de academia |
 | `glosario.html` | Página de glosario |
 | `foro.html` | Foro de formuladores: filtros por categoría, buscador, hilo destacado y badges |
@@ -24,8 +24,8 @@ Prototipo de alta fidelidad para la marca de cosmética natural **Berry's Nature
 | `verificar.html` | Confirmación de email al registrarse. `noindex` |
 | `cuenta.html` | **Mi cuenta**: estado del email, reenviar confirmación, cambiar email y contraseña, cerrar sesión. `noindex` |
 | `privacidad.html` / `terminos.html` | Páginas legales. **Borradores**: `noindex` mientras tengan `[COMPLETAR]` — ver la sección *Páginas legales* |
-| `css/` | Hojas de estilo (`styles`, `sections`, `catalog-calc`, `glossary`, `academia`, `foro`, `cuenta`, `guide-article`, `niko-widget`, `admin`) |
-| `js/` | Lógica de UI (`app`, `calculator`, `community`, `content-data`, `motion`, `auth`, `cuenta`, `mi-cuenta`, `glossary-carousel`, `academia`, `foro`, `hilo`, `niko-widget`, `icons`, `api-client`, `mod-panel`, `admin`) |
+| `css/` | Hojas de estilo (`styles`, `sections`, `catalog`, `glossary`, `academia`, `foro`, `cuenta`, `guide-article`, `lab`, `reviews`, `admin`, `fonts`) |
+| `js/` | Lógica de UI (`app`, `about`, `community`, `content-data`, `motion`, `auth`, `cuenta`, `mi-cuenta`, `glossary-carousel`, `academia`, `foro`, `hilo`, `perfil`, `producto`, `catalog`, `catalog-data`, `lab`, `envios`, `icons`, `api-client`, `analytics`, `mod-panel`, `admin`) |
 | `assets/` | Imágenes y videos del sitio (logo, hero, etc.) |
 | `server/` | Backend serverless: `router.js`, `admin-ui.js`, handlers (`public`, `auth`, `threads`, `admin`) y `lib/` (db, auth, validate, serialize, rate-limit, turnstile, google, audit, http, **tokens, mailer, emails**) |
 | `scripts/` | CLI de operación: `migrate.cjs` (db:init / db:migrate / db:status), `seed.cjs` (seed), `create-admin.cjs`, `reset-password.cjs`, `db-check.cjs`, `dev-server.cjs` |
@@ -209,7 +209,7 @@ seguimiento y sin tocar la CSP. Hay dos tablas con propósitos distintos:
 | Tabla | Qué mide |
 |---|---|
 | `content_views` | **Lecturas**: qué guía o hilo se consultó. Con tope anti-inflado (1 por IP y contenido cada 6 h). |
-| `events` | **Acciones**: registrarse, publicar un hilo, responder, abrir una guía, desbloquear la calculadora. |
+| `events` | **Acciones**: registrarse, publicar un hilo, responder, abrir una guía, iniciar un checkout, comprar. |
 
 ### Eventos
 
@@ -221,7 +221,7 @@ Se disparan de dos maneras:
 
 - **Desde el servidor** (`registro`, `hilo_creado`, `respuesta_creada`): es la fuente más confiable,
   no depende del navegador.
-- **Desde el cliente** (`guia_abierta`, `pro_desbloqueado`) con `BerrysAPI.event(...)`, que usa
+- **Desde el cliente** (`guia_abierta`) con `BerrysAPI.event(...)`, que usa
   `navigator.sendBeacon`. Es la única forma confiable de mandar algo mientras el navegador se va a
   otra página — y el clic en "Leer guía completa" justamente navega afuera.
 
@@ -231,11 +231,6 @@ Dos garantías de diseño:
   falla, se loguea el error y la acción sigue. El endpoint responde 202 igual.
 - **Nunca se guarda la IP cruda**, solo su hash (igual que `content_views`). Hay un tope de 60
   eventos por visitante por minuto para que un script no infle la tabla.
-
-> ⚠️ **El evento `pro_desbloqueado` NO mide una compra real.** El "pago" de la calculadora sigue
-> siendo una simulación local (`js/pro-unlock.js`, `demo: true`). Hoy el evento mide cuánta gente
-> **llega** al desbloqueo, no cuánta paga. Cuando se conecte MercadoPago, el evento tiene que
-> moverse al webhook del servidor y recién ahí la métrica es una conversión de verdad.
 
 ### Panel
 
@@ -267,16 +262,12 @@ hace `SELECT * FROM guides WHERE id = $1`, tal como se definió en D5.
 
 ### Cuándo NO se indexa una guía
 
-Dos casos, y los dos importan:
+Un solo caso: **ya tiene página estática propia.** La versión dinámica duplicaría el contenido, así
+que redirige **301** a la estática (su URL definitiva) en vez de competir con ella. En el sitemap se
+lista solo la estática, nunca las dos.
 
-- **Es PRO.** El cuerpo está reservado a quien pagó, así que la página muestra solo el resumen y el
-  CTA. No se indexa: no tiene sentido que el resumen compita en búsqueda por un contenido que no
-  se puede ver. Además, el cuerpo **no viaja al cliente**.
-- **Ya tiene página estática propia.** La versión dinámica duplicaría el contenido, así que **cede
-  el canonical** y apunta a la estática. En el sitemap se lista solo la estática, nunca las dos.
-
-El JSON-LD `Article` se incluye **solo si la página es indexable**: marcar con structured data una
-página que le pedís a Google que ignore es contradictorio. El `BreadcrumbList` va siempre.
+Toda guía que llega a renderizarse es indexable, así que el JSON-LD `Article` va siempre, junto con
+el `BreadcrumbList`.
 
 > **Detalle de seguridad:** la imagen de portada se interpola dentro de
 > `style="background-image:url('…')"`. Ahí `esc()` **no alcanza** — el parser decodifica `&#39;` y
@@ -343,8 +334,8 @@ front), así que ya no hay que acordarse de actualizarla a mano.
 
 Incluye: las páginas fijas, las guías (estáticas **o** dinámicas, nunca las dos para el mismo
 contenido) y **solo los hilos que cumplen la regla de indexación**. Excluye deliberadamente todo lo
-que se sirve con `noindex` (`cuenta`, `recuperar`, `verificar`, `perfil`, `hilo`, las guías PRO y
-las legales mientras sean borradores) — listar en el sitemap una página que le pedís a Google que
+que se sirve con `noindex` (`cuenta`, `recuperar`, `verificar`, `perfil`, `hilo` y las legales
+mientras sean borradores) — listar en el sitemap una página que le pedís a Google que
 no indexe es contradictorio. Todas las URLs salen sin `.html` (ver *URLs limpias*).
 
 Si la base no responde, devuelve igual un sitemap válido con las páginas fijas: un sitemap a medias
@@ -381,12 +372,10 @@ Los enlaces están en el footer de todas las páginas y en la línea legal del m
 - `ARQUITECTURA-TECNICA.md` — decisión de plataforma (WordPress.org) y mapa de migración del prototipo.
 - `Berrys_Nature_Web_Brief.md` — brief del proyecto.
 - `ORIGINAL_REQUEST.md` — pedido original.
-- `NIKO-INFORME-INTEGRACION.md` — informe de integración del asistente **Niko** (proyecto aparte, ver nota).
 - `TEST_READY.md` / `TEST_INFRA.md` — estado y arquitectura de las pruebas.
 
 ## Notas
 
-- El asistente **Niko IA** vive en su propio repositorio y está **excluido** de este (ver `.gitignore`).
 - Sistema de diseño: paleta "Tierra Cremosa", glassmorphism y tipografía de "lujo silencioso".
 
 ## Licencia

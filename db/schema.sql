@@ -155,7 +155,6 @@ CREATE TABLE IF NOT EXISTS guides (
   tags            text[] NOT NULL DEFAULT '{}',
   icon            text NOT NULL DEFAULT 'book',
   is_featured     boolean NOT NULL DEFAULT false,
-  is_pro          boolean NOT NULL DEFAULT false,
   is_published    boolean NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now()

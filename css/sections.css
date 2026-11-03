@@ -642,9 +642,6 @@
 
   .post-card--featured .post-title { font-size: 21px; }
 
-  .calc-unlock { flex-direction: column; align-items: stretch; }
-  .calc-unlock .cta-button { width: 100%; }
-
   .auth-nav-slot { margin-left: 0; }
 }
 
@@ -654,16 +651,14 @@
    ============================================================ */
 .content-section,
 .about-section,
-.contact-section,
-.calculator-section { position: relative; }
+.contact-section { position: relative; }
 
 .section-header-wrapper,
 .guias-grid,
 .providers-grid,
 .formulas-grid,
 .about-grid,
-.contact-grid,
-.calculator-card { position: relative; z-index: 1; }
+.contact-grid { position: relative; z-index: 1; }
 
 /* (Eliminado) .hero-orb y .section-orb: halos decorativos difusos del modelo
    original de catálogo. Ninguna de las dos clases se usa en el HTML ni en el JS.
@@ -737,8 +732,8 @@
 /* ============================================================
    ABOUT + CONTACT (restaurado de css/catalog-calc.css)
 
-   Este bloque vivía en catalog-calc.css, que se eliminó al quitar la
-   calculadora. Sin él, Sobre Nosotros y Contacto quedaban sin layout:
+   Este bloque vivía en catalog-calc.css, que ya no existe. Sin él,
+   Sobre Nosotros y Contacto quedaban sin layout:
    el formulario y la info se apilaban a la izquierda y el laurel se
    desbordaba a pantalla completa.
    ============================================================ */

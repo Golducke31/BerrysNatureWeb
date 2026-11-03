@@ -29,7 +29,6 @@
 - `index.html` — Main landing page and container for all sections
 - `css/styles.css` — Styling including neumorphism shadows, colors, fonts, transitions
 - `js/catalog-data.js` — Extensible array of products
-- `js/calculator.js` — Formulation calculator engine
 - `js/app.js` — UI glue code, event handlers, micro-animations
 - `assets/` — Images and graphics (including `logo_berrys_nature.jpg`)
 - `tests/` — E2E test cases and configurations

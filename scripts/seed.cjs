@@ -198,8 +198,8 @@ async function seedGuides(forceOverwrite) {
     await db.query(
       `INSERT INTO guides
          (id, category, title, summary, body, url, author, route, reading_minutes,
-          views, image, tags, icon, is_featured, is_pro, is_published, created_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::text[],$12,$13,$14,$15,true,$16)
+          views, image, tags, icon, is_featured, is_published, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::text[],$13,$14,true,$15)
        ${conflict}`,
       [
         g.id,
@@ -212,10 +212,10 @@ async function seedGuides(forceOverwrite) {
         g.ruta || 'Principiante',
         Number(g.lectura) || 5,
         Number(g.vistas) || 0,
+        g.imagen || null,
         textArray(g.tags),
         g.icon || 'book',
         Boolean(g.destacado),
-        Boolean(g.pro),
         fecha
       ]
     );

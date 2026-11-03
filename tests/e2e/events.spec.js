@@ -45,7 +45,7 @@ test.describe('Eventos — lista blanca', () => {
     }
     /* El número es a propósito: si alguien agrega un evento sin pensarlo, este
        test lo obliga a actualizar la lista y a revisar si de verdad va. */
-    expect(Object.keys(events.NOMBRES).length).toBe(7);
+    expect(Object.keys(events.NOMBRES).length).toBe(6);
   });
 
   test('E2: rechaza cualquier nombre no declarado', () => {

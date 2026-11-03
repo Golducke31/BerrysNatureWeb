@@ -2,8 +2,8 @@
    server/lib/events.js — Eventos de producto
 
    Mide ACCIONES, no lecturas. `content_views` mide qué se leyó; acá se
-   registra qué se HIZO: registrarse, publicar un hilo, desbloquear la
-   calculadora, abrir una guía.
+   registra qué se HIZO: registrarse, publicar un hilo, abrir una guía,
+   iniciar un checkout, comprar.
 
    Reglas:
    - Los nombres son una LISTA BLANCA. Un nombre desconocido NO se guarda:
