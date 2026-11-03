@@ -4,8 +4,8 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 205 tests que corren contra los `.html` con `file://`
-  (no requiere base de datos). Ver abajo los archivos 1–15.
+- **Suite estática (frontend):** 211 tests que corren contra los `.html` con `file://`
+  (no requiere base de datos). Ver abajo los archivos 1–15 y 20.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
   - `admin-routing.spec.js` (6 tests) — verifica la ofuscación de la ruta secreta del panel.
@@ -26,9 +26,9 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     pasa en verde tal cual.
 
 ## Test Files
-The static suite contains exactly 205 tests (the old catalog-hotspots and cart-integration specs
+The static suite contains exactly 211 tests (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (615 runs in total). The backend suite adds 45 tests (6 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (633 runs in total). The backend suite adds 45 tests (6 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
@@ -86,15 +86,25 @@ and WebKit (615 runs in total). The backend suite adds 45 tests (6 routing + 5 A
       `POST /api/webhooks/mercadopago` sin cobro configurado → 200 «ignorado»; el cliente expone
       `BerrysAPI.checkout`; y `GET /api/<slug>/revenue` (panel de ingresos) sin sesión de admin → 401.
       **No requiere DB.**
+20. `tests/e2e/lab-venta.spec.js` (6 tests)
+    - Condiciones para vender Berry's Lab (`puedeVender()`): con cobro + clave de licencia + R2
+      configurados la compra se habilita; si falta cualquiera de las tres no se vende y se informa
+      cuál falta; una clave vacía cuenta como falta. Protege el bug del 03/11/2026: se cobraba sin
+      poder emitir la licencia y el comprador no recibía ni el mail de descarga.
+      **No requiere DB** (mueve variables de entorno y mira la decisión pura).
 
 ## Verification
-La suite estática (181 tests) está verificada y en verde. La suite de backend corre con
+La suite estática (211 tests) está verificada y en verde. La suite de backend corre con
 `npm run test:api`: los 6 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
 Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
 saltean si no hay `DATABASE_URL`.
 
-- **Corrida verificada (Chromium):** estática **181/181 passed**; backend **30/30 passed**, **11 skipped** (sin DB).
-- La cuenta cross-browser completa (Chromium + Firefox + WebKit) es **543 corridas** para la parte estática.
+- **Corrida verificada (03/11/2026):** estática **602/602 passed** en Chromium + Firefox + WebKit
+  (11,4 min); backend **30/30 passed**, **11 skipped** (sin DB) y **45/45** con `DATABASE_URL`.
+- La cuenta cross-browser completa son **633 corridas** (211 tests × 3 navegadores); el runner
+  reporta 602 porque algunos specs están limitados a un solo navegador.
+- **Auditoría del sitio publicado:** `npm run check:live` contra `https://berrysnature.com.ar`
+  → **51 ok · 0 avisos · 0 errores**.
 
 > Los flujos que necesitan base (envío real del email, consumo del token de un solo uso,
 > revocación de sesiones al cambiar la contraseña) **no** están cubiertos por la suite estática:

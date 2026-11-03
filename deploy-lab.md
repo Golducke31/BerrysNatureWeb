@@ -72,6 +72,20 @@ En el panel de Netlify → **Site settings → Environment variables** agregá/c
 > fallar por el escáner, verificá que `LAB_LICENSE_PRIVATE_KEY` no esté escrita
 > en ningún archivo del repo.
 
+### Cómo saber si quedó bien (sin vender nada)
+En el panel → **Berry's Lab → Estado** hay tres semáforos: MercadoPago, R2 y
+Licencias. Los tres tienen que decir **OK**. Si "Licencias: Falta", la variable
+`LAB_LICENSE_PRIVATE_KEY` no llegó a la Function (revisá que el scope incluya
+*Functions*, no solo *Build*, y volvé a desplegar: Netlify no aplica variables
+nuevas a Functions ya desplegadas).
+
+Desde el 03/11/2026 la web **no inicia el checkout** si falta cualquiera de los
+tres (`puedeVender()` en `server/handlers/lab.js`): responde 503 con un mensaje
+claro en vez de cobrar y no poder entregar. Y si por algún motivo un pago se
+aprueba sin licencia, el comprador igual recibe el mail con el link de descarga
+y el aviso de que la clave está en camino, mientras el aviso interno llega
+marcado como `⚠ … SIN licencia` para emitirla a mano desde el panel.
+
 ## 5. Aplicar migración y desplegar
 ```bash
 npm run db:migrate        # crea lab_orders (idempotente)

@@ -193,8 +193,15 @@
       var data = r.data || {};
 
       if (data.estado === 'aprobado') {
-        mostrarPanel('¡Listo! Tu Berry\'s Lab está descargando',
-          'Guardá el archivo, descomprimilo y ejecutá BerrysLab.exe. También te enviamos todo por email.',
+        /* Si el pago se aprobó pero todavía no hay clave (el servidor no
+           pudo emitirla), el panel no puede decir "listo, guardá tu clave":
+           hay que explicar que la clave llega por mail. */
+        var conClave = Boolean(data.clave);
+        mostrarPanel(
+          conClave ? '¡Listo! Tu Berry\'s Lab está descargando' : '¡Listo! Tu compra está confirmada',
+          conClave
+            ? 'Guardá el archivo, descomprimilo y ejecutá BerrysLab.exe. También te enviamos todo por email.'
+            : 'Ya podés descargar el programa. La clave de activación te llega por email en las próximas horas.',
           {
             descarga: data.descargaUrl,
             peso: data.peso,

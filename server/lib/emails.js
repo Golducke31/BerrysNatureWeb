@@ -299,13 +299,38 @@ function orderAdminNotice({ order, items, url }) {
   };
 }
 
-/** Entrega de Berry's Lab: descarga + clave de licencia. */
+/**
+ * Entrega de Berry's Lab: descarga + clave de licencia.
+ *
+ * `clave` puede venir vacía si el pago se aprobó pero no se pudo emitir la
+ * licencia (falta LAB_LICENSE_PRIVATE_KEY en el hosting). En ese caso el mail
+ * sale igual, con el link de descarga y el aviso de que la clave está en
+ * camino: es preferible a que el comprador no reciba nada.
+ */
 function labEntrega({ nombre, clave, expira, descargaUrl, renovacion }) {
   const saludo = nombre ? `¡Gracias, ${nombre}!` : '¡Gracias por tu compra!';
-  const titulo = renovacion ? 'Tu licencia está renovada' : 'Tu Berry\'s Lab está listo';
-  const detalleLicencia =
-    `Tu clave de licencia es:\n${clave}\n\n` +
-    `Vence el ${expira}. Guardala: la vas a necesitar si reinstalás el programa.\n\n`;
+  const conLicencia = Boolean(clave);
+  const titulo = !conLicencia
+    ? 'Tu compra de Berry\'s Lab está confirmada'
+    : (renovacion ? 'Tu licencia está renovada' : 'Tu Berry\'s Lab está listo');
+
+  const detalleLicencia = conLicencia
+    ? `Tu clave de licencia es:\n${clave}\n\n` +
+      `Vence el ${expira}. Guardala: la vas a necesitar si reinstalás el programa.\n\n`
+    : 'Tu clave de licencia te llega en las próximas horas a este mismo email. ' +
+      'Ya podés ir descargando el programa con el link de arriba.\n\n';
+
+  const bloqueLicenciaHtml = conLicencia
+    ? `<p style="margin:0 0 10px;font-size:14px;color:${T.muted};">Tu clave de licencia</p>` +
+      `<p style="margin:0 0 8px;padding:12px;background:${T.bg};border-radius:10px;font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all;color:${T.text};">${esc(clave)}</p>` +
+      `<p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:${T.muted};">` +
+      `Vence el <strong>${esc(expira)}</strong>. Guardala: la vas a necesitar si reinstalás el programa.<br>` +
+      `Para instalarlo: descomprimí el ZIP y ejecutá <strong>BerrysLab.exe</strong>.` +
+      `</p>`
+    : `<p style="margin:0 0 22px;padding:14px;background:${T.bg};border-radius:10px;font-size:14px;line-height:1.6;color:${T.text};">` +
+      `Estamos generando tu clave de licencia: te la enviamos en las próximas horas a este mismo email. ` +
+      `No hace falta que hagas nada.` +
+      `</p>`;
 
   return {
     subject: `${titulo} · Berry's Lab`,
@@ -320,47 +345,66 @@ function labEntrega({ nombre, clave, expira, descargaUrl, renovacion }) {
       titulo,
       intro:
         `${esc(saludo)} ${renovacion ? 'Renovamos tu licencia de Berry\'s Lab.' : 'Tu compra de Berry\'s Lab está confirmada.'} ` +
-        'Descargá el programa y activalo con la clave de abajo. La primera vez que lo abras, creá tu usuario y contraseña (es el administrador de tu instalación).',
+        (conLicencia
+          ? 'Descargá el programa y activalo con la clave de abajo. La primera vez que lo abras, creá tu usuario y contraseña (es el administrador de tu instalación).'
+          : 'Ya podés descargar el programa. La clave de activación te llega en el próximo email.'),
       cta: 'Descargar Berry\'s Lab',
       url: descargaUrl,
-      extra:
-        `<p style="margin:0 0 10px;font-size:14px;color:${T.muted};">Tu clave de licencia</p>` +
-        `<p style="margin:0 0 8px;padding:12px;background:${T.bg};border-radius:10px;font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all;color:${T.text};">${esc(clave)}</p>` +
-        `<p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:${T.muted};">` +
-        `Vence el <strong>${esc(expira)}</strong>. Guardala: la vas a necesitar si reinstalás el programa.<br>` +
-        `Para instalarlo: descomprimí el ZIP y ejecutá <strong>BerrysLab.exe</strong>.` +
-        `</p>`,
+      extra: bloqueLicenciaHtml,
       cierre: 'Si el link no funciona o perdiste tu clave, respondé este email y te ayudamos.'
     })
   };
 }
 
-/** Aviso interno de una venta de Berry's Lab. */
+/**
+ * Aviso interno de una venta de Berry's Lab.
+ *
+ * Si `clave` viene vacía el aviso cambia de tono: no es una venta cerrada
+ * sino una venta que hay que completar a mano. El asunto lleva el aviso para
+ * que no pase desapercibido en la bandeja.
+ */
 function labAdminNotice({ nombre, email, amount, paymentId, clave, expira, renovacion }) {
+  const conLicencia = Boolean(clave);
+  const tipo = renovacion ? 'Renovación' : 'Venta';
+
   return {
-    subject: `${renovacion ? 'Renovación' : 'Venta'} Berry's Lab · ${ars(amount)}`,
+    subject: conLicencia
+      ? `${tipo} Berry's Lab · ${ars(amount)}`
+      : `⚠ ${tipo} Berry's Lab SIN licencia · ${ars(amount)}`,
     text:
       `Se ${renovacion ? 'renovó' : 'vendió'} una licencia de Berry's Lab.\n\n` +
       `Cliente: ${nombre || '—'}\n` +
       `Email: ${email}\n` +
       `Monto: ${ars(amount)}\n` +
       `Pago: ${paymentId}\n` +
-      `Licencia: ${clave}\n` +
-      `Vence: ${expira}\n`,
+      (conLicencia
+        ? `Licencia: ${clave}\n` +
+          `Vence: ${expira}\n`
+        : 'Licencia: NO EMITIDA (revisá LAB_LICENSE_PRIVATE_KEY).\n' +
+          'El cliente recibió el link de descarga pero no la clave. ' +
+          'Emitila a mano desde el panel: Licencias → Regenerar.\n'),
     html: layout({
-      titulo: `${renovacion ? 'Renovación' : 'Venta'} de Berry's Lab`,
+      titulo: conLicencia ? `${tipo} de Berry's Lab` : `${tipo} de Berry's Lab — falta la licencia`,
       intro:
         `<strong>${esc(nombre || 'Sin nombre')}</strong> &lt;${esc(email)}&gt;<br>` +
         `Monto: <strong>${esc(ars(amount))}</strong><br>` +
         `Pago: ${esc(paymentId)}`,
       cta: 'Abrir el panel',
       url: 'https://berrysnature.com.ar/',
-      extra:
-        `<p style="margin:0 0 22px;font-size:13px;line-height:1.6;color:${T.muted};">` +
-        `Licencia emitida (vence ${esc(expira)}):<br>` +
-        `<span style="font-family:ui-monospace,Consolas,monospace;font-size:11px;word-break:break-all;">${esc(clave)}</span>` +
-        `</p>`,
-      cierre: 'La descarga y la clave ya le llegaron al cliente automáticamente.'
+      extra: conLicencia
+        ? `<p style="margin:0 0 22px;font-size:13px;line-height:1.6;color:${T.muted};">` +
+          `Licencia emitida (vence ${esc(expira)}):<br>` +
+          `<span style="font-family:ui-monospace,Consolas,monospace;font-size:11px;word-break:break-all;">${esc(clave)}</span>` +
+          `</p>`
+        : `<p style="margin:0 0 22px;padding:12px;background:${T.bg};border-radius:10px;font-size:13px;line-height:1.6;color:${T.text};">` +
+          `El pago se acreditó pero <strong>no se emitió la licencia</strong> ` +
+          `(falta <code>LAB_LICENSE_PRIVATE_KEY</code> en el hosting).<br>` +
+          `El cliente ya recibió el link de descarga; la clave hay que emitirla a mano ` +
+          `desde el panel: <strong>Licencias → Regenerar</strong>.` +
+          `</p>`,
+      cierre: conLicencia
+        ? 'La descarga y la clave ya le llegaron al cliente automáticamente.'
+        : 'Reenviá la licencia desde el panel después de regenerarla.'
     })
   };
 }

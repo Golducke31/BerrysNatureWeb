@@ -41,6 +41,27 @@ const TITULO = "Berry's Lab — licencia anual";
 const MAX_POR_IP = 6;
 const VENTANA_MINUTOS = 10;
 
+/**
+ * ¿Está todo lo que hace falta para cobrar y entregar?
+ *
+ * Se chequea ANTES de crear la preferencia de pago. Si falta una pieza, el
+ * comprador paga y no recibe nada: sin LAB_LICENSE_PRIVATE_KEY el webhook no
+ * emite licencia, y sin R2 el link de descarga no sirve. Es preferible no
+ * vender y avisar que cobrar sin poder entregar.
+ *
+ * Las tres se leen del entorno en cada llamada (no al cargar el módulo), así
+ * el resultado refleja la configuración real de la Function.
+ *
+ * @returns {{ok:boolean, falta:string[]}}
+ */
+function puedeVender() {
+  const falta = [];
+  if (!mp.isConfigured()) falta.push('pagos');
+  if (!licencia.isConfigured()) falta.push('licencia');
+  if (!r2.isConfigured()) falta.push('descarga');
+  return { ok: falta.length === 0, falta };
+}
+
 /** Precio vigente: primero el panel (site_content), después el env. */
 async function precioArs() {
   try {
@@ -201,6 +222,19 @@ async function createCheckout(req, res, body) {
   // le falta completar y no un "pago no disponible" que no explica nada.
   if (!mp.isConfigured()) {
     return fail(res, 503, 'pagos_no_configurados', 'El pago online no está disponible en este momento.');
+  }
+
+  /* No se vende lo que no se puede entregar. Sin clave de licencia el webhook
+     aprueba el pago pero no emite nada; sin R2 el link de descarga no sirve.
+     Antes esto pasaba en silencio: el comprador pagaba y no recibía ni el
+     mail. Mejor no cobrar y decirlo. */
+  const venta = puedeVender();
+  if (!venta.ok) {
+    console.error('[lab] compra bloqueada, falta configurar:', venta.falta.join(', '));
+    return fail(
+      res, 503, 'lab_no_disponible',
+      'La compra de Berry\'s Lab no está disponible en este momento. Escribinos y te avisamos apenas se habilite.'
+    );
   }
 
   const ip = hashIp(req);
@@ -409,38 +443,47 @@ async function confirmPayment(payment) {
   const url = urlDescarga(fila.id, fila.public_token);
   const esRenovacion = Boolean(fila.renovacion_de);
 
-  try {
-    if (clave) {
-      const [alCliente, alDuenio] = await Promise.all([
-        mailer.send(Object.assign(
-          { to: fila.email },
-          emails.labEntrega({
-            nombre: fila.nombre,
-            clave,
-            expira: fechaLinda(expira),
-            descargaUrl: url,
-            renovacion: esRenovacion
-          })
-        )),
-        mailer.send(Object.assign(
-          { to: emailAdmin() },
-          emails.labAdminNotice({
-            nombre: fila.nombre,
-            email: fila.email,
-            amount: Number(fila.amount),
-            paymentId,
-            clave,
-            expira: fechaLinda(expira),
-            renovacion: esRenovacion
-          })
-        ))
-      ]);
+  /* El mail sale SIEMPRE, con licencia o sin ella. Si no se pudo emitir la
+     clave (por ejemplo falta LAB_LICENSE_PRIVATE_KEY en el hosting), el
+     comprador igual recibe el link de descarga y el aviso de que la clave
+     está en camino. Antes, en ese caso, no se enviaba NADA: pagaba y no le
+     llegaba ni un mail. El aviso interno sale marcado para emitirla a mano. */
+  if (!clave) {
+    console.error(
+      '[lab] ATENCIÓN: venta aprobada SIN licencia (revisá LAB_LICENSE_PRIVATE_KEY).',
+      'Pedido', fila.id, '· cliente', fila.email,
+      '· emití la clave a mano desde el panel (Licencias → Regenerar).'
+    );
+  }
 
-      if (!alCliente.ok) console.error('[lab] el email al comprador no salió:', alCliente.error);
-      if (!alDuenio.ok) console.error('[lab] el aviso interno no salió:', alDuenio.error);
-    } else {
-      console.warn('[lab] venta aprobada sin licencia emitida: falta LAB_LICENSE_PRIVATE_KEY');
-    }
+  try {
+    const [alCliente, alDuenio] = await Promise.all([
+      mailer.send(Object.assign(
+        { to: fila.email },
+        emails.labEntrega({
+          nombre: fila.nombre,
+          clave: clave || null,
+          expira: clave ? fechaLinda(expira) : null,
+          descargaUrl: url,
+          renovacion: esRenovacion
+        })
+      )),
+      mailer.send(Object.assign(
+        { to: emailAdmin() },
+        emails.labAdminNotice({
+          nombre: fila.nombre,
+          email: fila.email,
+          amount: Number(fila.amount),
+          paymentId,
+          clave: clave || null,
+          expira: clave ? fechaLinda(expira) : null,
+          renovacion: esRenovacion
+        })
+      ))
+    ]);
+
+    if (!alCliente.ok) console.error('[lab] el email al comprador no salió:', alCliente.error);
+    if (!alDuenio.ok) console.error('[lab] el aviso interno no salió:', alDuenio.error);
   } catch (err) {
     console.error('[lab] no se pudieron enviar los emails:', err && err.message);
   }
@@ -448,4 +491,4 @@ async function confirmPayment(payment) {
   return { ok: true, pedido: String(fila.id), licencia: Boolean(clave) };
 }
 
-module.exports = { info, createCheckout, estadoPedido, descargar, confirmPayment };
+module.exports = { info, createCheckout, estadoPedido, descargar, confirmPayment, puedeVender };
