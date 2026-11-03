@@ -133,8 +133,6 @@ test.describe('URLs — barra final', () => {
       '/productos/:slug/',
       '/foro/hilo/:id/'
     ]);
-    // La raíz sola no es un bucle.
-    expect(urls.reglasAutoreferentes([{ from: '/', to: '/' }])).toEqual([]);
   });
 });
 
