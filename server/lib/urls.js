@@ -160,24 +160,27 @@ function destinoSinBarra(url) {
 }
 
 /**
- * 301 de la variante con barra final a la URL canónica.
- * Google puede descubrir `/glosario/` por un enlace mal escrito o por un
- * comentario; sin esta regla respondía 404.
- * @returns {{from:string,to:string}[]}
+ * Reglas que se apuntan a sí mismas, comparando con y sin barra final.
+ *
+ * POR QUÉ EXISTE ESTA FUNCIÓN (bug real, 03/11/2026):
+ * Netlify compara el `from` de una regla de `_redirects` con la URL pedida
+ * CON y SIN barra final. Entonces `/glosario/  /glosario  301!` no sirve
+ * para "quitar la barra": también matchea `/glosario` y responde un 301
+ * hacia la misma URL que el navegador acaba de pedir. Resultado: bucle
+ * infinito y `ERR_TOO_MANY_REDIRECTS` en TODAS las páginas menos la raíz.
+ *
+ * Netlify ya normaliza la barra final por su cuenta (Pretty URLs), así que
+ * esas reglas no hacían falta: se sacaron del build. Esta función queda
+ * como red de seguridad para que no vuelvan a entrar.
+ *
+ * @param {{from:string,to:string}[]} reglas
+ * @returns {{from:string,to:string}[]} las que arman bucle
  */
-function redireccionesBarra() {
-  const salida = PAGINAS
-    .filter((p) => p.url !== '/')
-    .map((p) => ({ from: `${p.url}/`, to: p.url }));
-
-  salida.push(
-    { from: '/academia/:slug/', to: '/academia/:slug' },
-    { from: '/productos/:slug/', to: '/productos/:slug' },
-    { from: '/guias/:id/', to: '/guias/:id' },
-    { from: '/foro/hilo/:id/', to: '/foro/hilo/:id' },
-    { from: '/perfil/:usuario/', to: '/perfil/:usuario' }
+function reglasAutoreferentes(reglas) {
+  const sinBarra = (u) => String(u || '').replace(/\/+$/, '') || '/';
+  return (reglas || []).filter(
+    (r) => r && r.from && r.to && sinBarra(r.from) === sinBarra(r.to)
   );
-  return salida;
 }
 
 /**
@@ -213,7 +216,7 @@ module.exports = {
   destinoLimpio,
   destinoSinBarra,
   redirecciones,
-  redireccionesBarra,
+  reglasAutoreferentes,
   urlDeEnlace,
   soloPath
 };

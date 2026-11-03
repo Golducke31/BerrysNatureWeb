@@ -116,10 +116,12 @@ for (const rel of archivosHtml(DIR)) {
   if (!limpia) errores.push(`${rel} está en academia/ y no resuelve a una URL limpia`);
 }
 
-/* 5) _redirects materializa la política de barra final.
-   Sin estas reglas /glosario/ responde 404 y un enlace mal escrito se
-   pierde; con la regla mal escrita se puede armar un bucle. Se verifica
-   que cada origen esté y que ningún destino lleve barra final. */
+/* 5) _redirects: ninguna regla puede apuntar a sí misma.
+   Netlify compara el `from` con y sin barra final. Por eso una regla
+   `/glosario/  /glosario  301!` no quita la barra: también matchea
+   `/glosario` y devuelve un 301 hacia la misma URL, en bucle. El
+   03/11/2026 eso dejó el sitio entero con ERR_TOO_MANY_REDIRECTS.
+   La barra final la normaliza Netlify por su cuenta. */
 const redirects = leer('_redirects');
 if (!redirects) {
   errores.push('falta _redirects en el build');
@@ -130,13 +132,10 @@ if (!redirects) {
     .filter((l) => l && !l.startsWith('#'))
     .map((l) => l.split(/\s+/));
 
-  for (const esperada of urls.redireccionesBarra()) {
-    const encontrada = reglas.find(
-      (r) => r[0] === esperada.from && r[1] === esperada.to && r[2] === '301!'
+  for (const r of urls.reglasAutoreferentes(reglas.map((x) => ({ from: x[0], to: x[1] })))) {
+    errores.push(
+      `_redirects tiene un bucle 301: ${r.from} → ${r.to} (Netlify matchea con y sin barra final)`
     );
-    if (!encontrada) {
-      errores.push(`_redirects no tiene el 301 de barra final: ${esperada.from} → ${esperada.to}`);
-    }
   }
 
   /* Las páginas SSR (/tienda, /foro) las sirve la Function con contenido de

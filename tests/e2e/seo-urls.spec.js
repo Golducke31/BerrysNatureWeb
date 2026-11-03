@@ -113,16 +113,28 @@ test.describe('URLs — barra final', () => {
     expect(urls.destinoSinBarra('/css/')).toBeNull();
   });
 
-  test('U: cada página indexable tiene su regla de barra final', () => {
-    const reglas = new Map(urls.redireccionesBarra().map((r) => [r.from, r.to]));
-    for (const p of urls.PAGINAS) {
-      if (p.url === '/') continue;
-      expect(reglas.get(`${p.url}/`), p.url).toBe(p.url);
-    }
-    // Y las familias que sirve la Function.
-    for (const familia of ['/productos/:slug/', '/foro/hilo/:id/', '/perfil/:usuario/']) {
-      expect(reglas.has(familia), familia).toBe(true);
-    }
+  test('U: ninguna regla de _redirects se apunta a sí misma', () => {
+    /* Netlify compara el `from` de una regla con la URL pedida CON y SIN
+       barra final. Entonces `/glosario/  /glosario  301!` también matchea
+       `/glosario` y responde 301 a la misma URL: bucle infinito.
+       Pasó de verdad el 03/11/2026 (sitio entero con ERR_TOO_MANY_REDIRECTS),
+       así que la barra final la normaliza Netlify y estas reglas no van. */
+    const bucle = urls.reglasAutoreferentes([
+      { from: '/glosario/', to: '/glosario' },            // bucle
+      { from: '/productos/:slug/', to: '/productos/:slug' }, // bucle
+      { from: '/foro/hilo/:id/', to: '/foro/hilo/:id' },   // bucle
+      { from: '/envios.html', to: '/envios' },             // 301 legítimo
+      { from: '/marca.html', to: '/tienda' },              // 301 legítimo
+      { from: '/index.html', to: '/' }                     // 301 legítimo
+    ]);
+
+    expect(bucle.map((r) => r.from)).toEqual([
+      '/glosario/',
+      '/productos/:slug/',
+      '/foro/hilo/:id/'
+    ]);
+    // La raíz sola no es un bucle.
+    expect(urls.reglasAutoreferentes([{ from: '/', to: '/' }])).toEqual([]);
   });
 });
 

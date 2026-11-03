@@ -175,12 +175,11 @@ function escribirRedirects() {
   }
 
   lineas.push('');
-  lineas.push('# La barra final tampoco es una URL pública: /glosario/ → /glosario.');
-  lineas.push('# Sin esto respondía 404 (o servía la versión equivocada) y un enlace');
-  lineas.push('# mal escrito se perdía. Los :placeholder los resuelve Netlify.');
-  for (const r of urls.redireccionesBarra()) {
-    lineas.push(`${r.from}    ${r.to}    301!`);
-  }
+  lineas.push('# La barra final la normaliza Netlify (Pretty URLs): /glosario/ → /glosario.');
+  lineas.push('# NO escribir acá reglas tipo "/glosario/  /glosario  301!": Netlify');
+  lineas.push('# compara el `from` con y sin barra, así que también matchean /glosario');
+  lineas.push('# y arman un bucle 301 (ERR_TOO_MANY_REDIRECTS en todo el sitio).');
+  lineas.push('# Ver reglasAutoreferentes() en server/lib/urls.js.');
 
   lineas.push('');
   lineas.push('# La URL limpia sirve el archivo (la barra de direcciones no cambia).');
