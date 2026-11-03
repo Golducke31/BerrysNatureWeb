@@ -9,6 +9,10 @@
      /glosario.html   → 301 → /glosario
      /academia/x.html → 301 → /academia/x
 
+   Y la variante con barra final tampoco es una URL: `/glosario/` y
+   `/academia/x/` responden 301 a la forma sin barra. Solo se redirige
+   cuando el destino sin barra es una ruta real del sitio.
+
    Consecuencias que este módulo hace cumplir en todo el código:
    - `<link rel="canonical">` = la URL servida (nunca la del archivo).
    - El sitemap lista SOLO las URLs finales.
@@ -45,6 +49,11 @@ const PAGINAS = [
 
 /* Prefijo de carpeta que también se sirve sin extensión: /academia/<slug>. */
 const CARPETAS_LIMPIAS = ['academia'];
+
+/* Rutas que sirve una Function (no hay archivo detrás). Necesitan el
+   mismo 301 de la variante con barra final que las páginas estáticas,
+   pero no se pueden resolver con archivoDeUrl(). */
+const PREFIJOS_SSR = ['productos/', 'guias/', 'foro/hilo/', 'perfil/'];
 
 const POR_ARCHIVO = new Map(PAGINAS.map((p) => [p.archivo, p.url]));
 const POR_URL = new Map(PAGINAS.map((p) => [p.url, p.archivo]));
@@ -118,6 +127,54 @@ function redirecciones() {
 }
 
 /**
+ * ¿Esta URL trae una barra final que no corresponde?
+ *   '/glosario/'            → '/glosario'
+ *   '/academia/ajuste-ph/'  → '/academia/ajuste-ph'
+ *   '/productos/jabon/'     → '/productos/jabon'
+ *   '/'                     → null (la raíz es la excepción)
+ *   '/css/'                 → null (no es una ruta del sitio, no se toca)
+ *
+ * Solo devuelve destino cuando el path sin barra es una URL real del
+ * sitio: así un 404 con barra sigue siendo 404 y no inventamos un 301
+ * hacia otra cosa.
+ * @returns {string|null}
+ */
+function destinoSinBarra(url) {
+  const p = soloPath(url);
+  if (p === '/' || !p.endsWith('/')) return null;
+
+  const sin = p.replace(/\/+$/, '') || '/';
+  if (archivoDeUrl(sin)) return sin;
+
+  const rel = sin.replace(/^\/+/, '');
+  const esSsr = PREFIJOS_SSR.some(
+    (pre) => rel.startsWith(pre) && rel.length > pre.length
+  );
+  return esSsr ? sin : null;
+}
+
+/**
+ * 301 de la variante con barra final a la URL canónica.
+ * Google puede descubrir `/glosario/` por un enlace mal escrito o por un
+ * comentario; sin esta regla respondía 404.
+ * @returns {{from:string,to:string}[]}
+ */
+function redireccionesBarra() {
+  const salida = PAGINAS
+    .filter((p) => p.url !== '/')
+    .map((p) => ({ from: `${p.url}/`, to: p.url }));
+
+  salida.push(
+    { from: '/academia/:slug/', to: '/academia/:slug' },
+    { from: '/productos/:slug/', to: '/productos/:slug' },
+    { from: '/guias/:id/', to: '/guias/:id' },
+    { from: '/foro/hilo/:id/', to: '/foro/hilo/:id' },
+    { from: '/perfil/:usuario/', to: '/perfil/:usuario' }
+  );
+  return salida;
+}
+
+/**
  * URL limpia de un enlace interno, o null si el enlace no es una página
  * del sitio. Acepta las dos formas: la vieja con extensión y la final.
  *   'academia.html'          → '/academia'
@@ -143,10 +200,13 @@ function urlDeEnlace(href) {
 module.exports = {
   PAGINAS,
   CARPETAS_LIMPIAS,
+  PREFIJOS_SSR,
   urlDeArchivo,
   archivoDeUrl,
   destinoLimpio,
+  destinoSinBarra,
   redirecciones,
+  redireccionesBarra,
   urlDeEnlace,
   soloPath
 };

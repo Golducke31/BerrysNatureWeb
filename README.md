@@ -301,9 +301,13 @@ Reglas que hay que respetar al tocar el sitio:
 1. `<link rel="canonical">` es **la URL servida**, nunca la del archivo. Si la página se sirve en
    `/glosario`, el canonical es `/glosario`.
 2. La versión `.html` **redirige 301** a la limpia (301, no 302: transfiere autoridad).
-3. Los enlaces internos apuntan **directo a la URL final**: no se enlaza a algo que redirige.
-4. El sitemap lista **solo URLs finales**.
-5. Las páginas que siguen con `.html` son las shells de la app y `noindex` (`cuenta`, `recuperar`,
+3. La versión con **barra final** también redirige 301: `/glosario/` y `/academia/<slug>/` van a la
+   forma sin barra. Solo se redirige cuando el destino sin barra es una ruta real del sitio, así un
+   404 con barra sigue siendo 404. En Netlify lo hacen las reglas de `_redirects`; en Vercel,
+   `"trailingSlash": false` (Vercel responde 308, igual de permanente para Google).
+4. Los enlaces internos apuntan **directo a la URL final**: no se enlaza a algo que redirige.
+5. El sitemap lista **solo URLs finales**.
+6. Las páginas que siguen con `.html` son las shells de la app y `noindex` (`cuenta`, `recuperar`,
    `verificar`, `perfil`, `hilo`, `404`). Ahí la URL no es un activo SEO y cambiarla obligaría a
    tocar redirecciones de login y correos.
 

@@ -116,6 +116,42 @@ for (const rel of archivosHtml(DIR)) {
   if (!limpia) errores.push(`${rel} está en academia/ y no resuelve a una URL limpia`);
 }
 
+/* 5) _redirects materializa la política de barra final.
+   Sin estas reglas /glosario/ responde 404 y un enlace mal escrito se
+   pierde; con la regla mal escrita se puede armar un bucle. Se verifica
+   que cada origen esté y que ningún destino lleve barra final. */
+const redirects = leer('_redirects');
+if (!redirects) {
+  errores.push('falta _redirects en el build');
+} else {
+  const reglas = redirects
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith('#'))
+    .map((l) => l.split(/\s+/));
+
+  for (const esperada of urls.redireccionesBarra()) {
+    const encontrada = reglas.find(
+      (r) => r[0] === esperada.from && r[1] === esperada.to && r[2] === '301!'
+    );
+    if (!encontrada) {
+      errores.push(`_redirects no tiene el 301 de barra final: ${esperada.from} → ${esperada.to}`);
+    }
+  }
+
+  for (const r of reglas) {
+    if (!r[1]) continue;
+    /* El destino puede ser absoluto (las reglas de www) o relativo. */
+    let destino = r[1];
+    if (/^https?:\/\//i.test(destino)) {
+      try { destino = new URL(destino).pathname; } catch (e) { /* se deja tal cual */ }
+    }
+    if (destino !== '/' && destino.endsWith('/')) {
+      errores.push(`_redirects manda a una URL con barra final: ${r[0]} → ${r[1]}`);
+    }
+  }
+}
+
 /* ---------------- Resultado ---------------- */
 
 if (errores.length) {
@@ -126,4 +162,4 @@ if (errores.length) {
   process.exit(1);
 }
 
-console.log('  urls          canonical = URL servida, enlaces internos y sitemap sin .html');
+console.log('  urls          canonical = URL servida, enlaces internos y sitemap sin .html, barra final 301');

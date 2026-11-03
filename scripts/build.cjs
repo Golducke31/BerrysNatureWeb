@@ -180,6 +180,14 @@ function escribirRedirects() {
   }
 
   lineas.push('');
+  lineas.push('# La barra final tampoco es una URL pública: /glosario/ → /glosario.');
+  lineas.push('# Sin esto respondía 404 (o servía la versión equivocada) y un enlace');
+  lineas.push('# mal escrito se perdía. Los :placeholder los resuelve Netlify.');
+  for (const r of urls.redireccionesBarra()) {
+    lineas.push(`${r.from}    ${r.to}    301!`);
+  }
+
+  lineas.push('');
   lineas.push('# La URL limpia sirve el archivo (la barra de direcciones no cambia).');
   for (const p of urls.PAGINAS) {
     if (p.url === '/') continue;        // la raíz ya sirve index.html

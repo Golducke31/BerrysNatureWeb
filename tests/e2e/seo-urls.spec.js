@@ -74,11 +74,55 @@ test.describe('URLs — enlaces internos', () => {
     for (const rel of archivos) {
       const html = leer(rel);
       for (const m of html.matchAll(/href="([^"]+)"/g)) {
-        if (urls.destinoLimpio(m[1])) culpables.push(`${rel} → ${m[1]}`);
+        if (urls.destinoLimpio(m[1])) culpables.push(`${rel} → ${m[1]} (tiene .html)`);
+        if (urls.destinoSinBarra(m[1])) culpables.push(`${rel} → ${m[1]} (barra final)`);
       }
     }
 
     expect(culpables).toEqual([]);
+  });
+});
+
+/* ---------------- Barra final ---------------- */
+
+test.describe('URLs — barra final', () => {
+  test('U: la variante con barra final resuelve a la URL canónica', () => {
+    const casos = {
+      '/glosario/': '/glosario',
+      '/academia/': '/academia',
+      '/tienda/': '/tienda',
+      '/academia/costo-real-crema-margen/': '/academia/costo-real-crema-margen',
+      '/productos/jabon-calendula/': '/productos/jabon-calendula',
+      '/guias/mi-guia/': '/guias/mi-guia',
+      '/foro/hilo/hilo-precio-100gr/': '/foro/hilo/hilo-precio-100gr',
+      '/perfil/ema/': '/perfil/ema'
+    };
+    for (const [entrada, esperado] of Object.entries(casos)) {
+      expect(urls.destinoSinBarra(entrada), entrada).toBe(esperado);
+    }
+  });
+
+  test('U: la raíz y las rutas inexistentes no se redirigen', () => {
+    // La raíz es la única URL que termina en barra.
+    expect(urls.destinoSinBarra('/')).toBeNull();
+    // Ya está sin barra: nada que hacer.
+    expect(urls.destinoSinBarra('/glosario')).toBeNull();
+    // Un 404 tiene que seguir siendo 404, no un 301 a otra cosa.
+    expect(urls.destinoSinBarra('/no-existe/')).toBeNull();
+    // Una carpeta de assets no es una ruta del sitio.
+    expect(urls.destinoSinBarra('/css/')).toBeNull();
+  });
+
+  test('U: cada página indexable tiene su regla de barra final', () => {
+    const reglas = new Map(urls.redireccionesBarra().map((r) => [r.from, r.to]));
+    for (const p of urls.PAGINAS) {
+      if (p.url === '/') continue;
+      expect(reglas.get(`${p.url}/`), p.url).toBe(p.url);
+    }
+    // Y las familias que sirve la Function.
+    for (const familia of ['/productos/:slug/', '/foro/hilo/:id/', '/perfil/:usuario/']) {
+      expect(reglas.has(familia), familia).toBe(true);
+    }
   });
 });
 

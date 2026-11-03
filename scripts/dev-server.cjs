@@ -204,6 +204,15 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
+  /* 1 bis) Barra final → 301 a la forma canónica (/glosario/ → /glosario).
+        Solo cuando el destino existe: un 404 con barra sigue siendo 404. */
+  const sinBarra = urls.destinoSinBarra(pathname);
+  if (sinBarra && sinBarra !== pathname) {
+    res.statusCode = 301;
+    res.setHeader('Location', sinBarra + query);
+    return res.end();
+  }
+
   /* 2) Rewrites a la Function (tienda, sitemap, productos, guías…). */
   const interno = destinoRewrite(pathname);
   if (interno) {
