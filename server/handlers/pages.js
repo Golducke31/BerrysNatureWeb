@@ -37,9 +37,21 @@ const reviews = require('./reviews');
    desarrollo (si nadie corrió el build): en ese caso el sitemap omite
    <lastmod> en vez de inventar la fecha actual. */
 let FECHA_BUILD = '';
+let SHA_BUILD = '';
 try {
-  FECHA_BUILD = require('../lib/build-info').date || '';
+  const info = require('../lib/build-info');
+  FECHA_BUILD = info.date || '';
+  SHA_BUILD = info.sha || '';
 } catch (e) { /* sin build-info */ }
+
+/* El HTML que sale de acá no pasa por scripts/build.cjs (se lee del fuente),
+   así que hay que versionar los CSS/JS en el momento del render. Si no, esos
+   archivos quedan con el ?v= escrito a mano y no se invalidan nunca. */
+const { versionAssetsInHtml } = require('../lib/assets-version');
+
+function versionar(html) {
+  return versionAssetsInHtml(html, SHA_BUILD);
+}
 
 /* ---------------- Utilidades ---------------- */
 
@@ -1529,18 +1541,19 @@ ${e.lastmod ? `    <lastmod>${escXml(e.lastmod)}</lastmod>\n` : ''}    <changefr
 const STATIC_ROOT = path.resolve(__dirname, '..', '..');
 
 /**
- * Lee el HTML estático de la tienda. En Netlify el archivo viaja dentro
- * del bundle de la Function (included_files), así que se prueban varias
+ * Lee un HTML estático del repo. En Netlify el archivo viaja dentro del
+ * bundle de la Function (included_files), así que se prueban varias
  * raíces, igual que admin-ui.readAsset().
+ * @param {string} nombre  p. ej. 'tienda.html'
  * @returns {{html:string, ruta:string}|null}
  */
-function leerTiendaHtml() {
+function leerHtmlEstatico(nombre) {
   const candidatos = [
-    path.join(STATIC_ROOT, 'tienda.html'),
-    path.join(__dirname, '..', '..', 'tienda.html'),
-    path.join(process.cwd(), 'tienda.html'),
-    path.join(process.cwd(), 'dist', 'tienda.html'),
-    path.join(STATIC_ROOT, 'dist', 'tienda.html')
+    path.join(STATIC_ROOT, nombre),
+    path.join(__dirname, '..', '..', nombre),
+    path.join(process.cwd(), nombre),
+    path.join(process.cwd(), 'dist', nombre),
+    path.join(STATIC_ROOT, 'dist', nombre)
   ];
   for (const full of candidatos) {
     try {
@@ -1709,7 +1722,7 @@ function inyectarJsonLdCatalogo(htmlDoc, data) {
  * limpia: la tienda sigue funcionando aunque la base no responda).
  */
 async function renderTienda(req, res) {
-  const estatico = leerTiendaHtml();
+  const estatico = leerHtmlEstatico('tienda.html');
   if (!estatico) {
     console.error('[tienda] no se encontró tienda.html en el bundle');
     return html(res, 500, '<h1>Error</h1><p>No se pudo cargar la tienda.</p>');
@@ -1733,7 +1746,143 @@ async function renderTienda(req, res) {
     console.error('[tienda] no se pudo generar el JSON-LD desde la BD:', err && err.message);
   }
 
-  return html(res, 200, markup);
+  return html(res, 200, versionar(markup));
+}
+
+/* ============================================================
+   /foro — los hilos en el HTML inicial
+   ============================================================
+
+   Sin esto, /foro llegaba con el contenedor vacío y los 8 hilos aparecían
+   recién cuando el JS llamaba a /api/threads. Google puede ejecutar JS,
+   pero entre que rastrea y que renderiza pasa tiempo: los hilos, sus
+   títulos y —lo más importante— los ENLACES a /foro/hilo/<id> no existían
+   en el documento. Los enlaces internos son cómo se descubre el contenido.
+
+   Se renderiza una tarjeta simplificada (sin botones ni acciones: eso es
+   JS) que el cliente reemplaza al hidratar. Si la base falla, se sirve el
+   foro.html tal cual y el JS hace su trabajo como antes.
+   ============================================================ */
+
+/** Marcador del listado de hilos dentro de foro.html. */
+const RE_HILOS = /<!--\s*PRERENDER:HILOS\s*-->/;
+const RE_JSONLD_HILOS = /<script[^>]+id=["']hilosJsonLd["'][^>]*>[\s\S]*?<\/script>/;
+
+/* `iniciales()` ya existe más arriba (lo usa el avatar del perfil): se reusa. */
+
+function tonoDe(nombre) {
+  let h = 0;
+  for (const ch of String(nombre || '')) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return h;
+}
+
+/** Extracto corto y en una sola línea (el CSS corta a 2 líneas igual). */
+function extracto(texto, max = 160) {
+  const limpio = String(texto || '').replace(/\s+/g, ' ').trim();
+  if (limpio.length <= max) return limpio;
+  return limpio.slice(0, max).replace(/[\s,;:.]+\S*$/, '') + '…';
+}
+
+/** Fecha corta para la tarjeta del hilo ("03 nov"), no la larga del detalle. */
+function fechaCortaHilo(fecha) {
+  const d = new Date(fecha);
+  if (!Number.isFinite(d.getTime())) return '';
+  return d.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
+}
+
+function hiloCardHtml(h) {
+  const url = `/foro/hilo/${encodeURIComponent(h.id)}`;
+  const badges = [];
+  if (h.is_pinned) badges.push('<span class="thread-badge thread-badge--pin">Destacado</span>');
+  if (!h.replies_count) badges.push('<span class="thread-badge thread-badge--unanswered">Sin responder</span>');
+  else if (h.is_resolved) badges.push('<span class="thread-badge thread-badge--solved">Resuelto</span>');
+
+  return `
+        <article class="thread-card">
+          <div class="thread-avatar thread-avatar--initials" style="--avatar-hue:${tonoDe(h.author_name)}" aria-hidden="true">${esc(iniciales(h.author_name))}</div>
+          <div class="thread-main">
+            <div class="thread-top">
+              <span class="thread-category">${esc(h.category)}</span>
+              ${badges.join('')}
+              <span class="thread-time">${esc(fechaCortaHilo(h.updated_at || h.created_at))}</span>
+            </div>
+            <h3 class="thread-title"><a href="${url}">${esc(h.title)}</a></h3>
+            <p class="thread-body">${esc(extracto(h.body))}</p>
+            <footer class="thread-footer">
+              <span class="thread-author">por <strong>${esc(h.author_name)}</strong></span>
+              <div class="thread-actions">
+                <span class="thread-action thread-action--static">${Number(h.likes_count) || 0} me gusta</span>
+                <span class="thread-action thread-action--static">${Number(h.replies_count) || 0} respuestas</span>
+              </div>
+            </footer>
+          </div>
+        </article>`;
+}
+
+function hilosHtml(filas) {
+  return filas.map(hiloCardHtml).join('');
+}
+
+function buildHilosJsonLd(filas) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: "Foro de Berry's Nature",
+    url: `${siteUrl()}/foro`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: filas.slice(0, 20).map((h, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${siteUrl()}/foro/hilo/${encodeURIComponent(h.id)}`,
+        name: h.title
+      }))
+    }
+  };
+}
+
+function inyectarHilos(htmlDoc, tarjetas) {
+  if (!tarjetas) return htmlDoc;
+  if (RE_HILOS.test(htmlDoc)) return htmlDoc.replace(RE_HILOS, tarjetas);
+  return htmlDoc;
+}
+
+function inyectarJsonLdHilos(htmlDoc, data) {
+  const bloque = `<script type="application/ld+json" id="hilosJsonLd">\n${jsonLd(data)}\n  </script>`;
+  if (RE_JSONLD_HILOS.test(htmlDoc)) return htmlDoc.replace(RE_JSONLD_HILOS, bloque);
+  return htmlDoc.replace(/<\/head>/i, `  ${bloque}\n</head>`);
+}
+
+/**
+ * GET /foro  (rewrite → /api/foro)
+ * Devuelve foro.html con el listado de hilos ya renderizado.
+ */
+async function renderForo(req, res) {
+  const estatico = leerHtmlEstatico('foro.html');
+  if (!estatico) {
+    console.error('[foro] no se encontró foro.html en el bundle');
+    return html(res, 500, '<h1>Error</h1><p>No se pudo cargar el foro.</p>');
+  }
+
+  let markup = estatico.html;
+  try {
+    const filas = await db.many(`
+      SELECT id, title, body, author_name, category, likes_count, views_count,
+             replies_count, is_resolved, is_pinned, created_at, updated_at
+        FROM forum_threads
+       WHERE is_hidden = false
+       ORDER BY is_pinned DESC, updated_at DESC
+       LIMIT 30`);
+
+    if (filas.length) {
+      markup = inyectarHilos(markup, hilosHtml(filas));
+      markup = inyectarJsonLdHilos(markup, buildHilosJsonLd(filas));
+    }
+  } catch (err) {
+    console.error('[foro] no se pudo leer los hilos:', err && err.message);
+  }
+
+  return html(res, 200, versionar(markup));
 }
 
 /**
@@ -1797,4 +1946,4 @@ ${items}
   });
 }
 
-module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderTienda, renderFeed, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };
+module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderTienda, renderForo, renderFeed, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };

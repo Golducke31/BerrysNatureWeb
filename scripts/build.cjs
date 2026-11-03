@@ -102,12 +102,7 @@ function sizeOf(dir) {
 
 /** Añade ?v=VERSION a src/href de .js/.css locales (cache-busting). */
 function versionAssetsInHtml(html) {
-  return html.replace(/(src|href)="([^"]+)"/g, (m, attr, url) => {
-    if (/^(https?:)?\/\//i.test(url)) return m;            // externo: no tocar
-    if (!/\.(?:js|css)(?:[?#]|$)/i.test(url)) return m;    // no es js/css
-    if (url.includes('?')) return m;                        // ya versionado
-    return `${attr}="${url}?v=${VERSION}"`;
-  });
+  return require('../server/lib/assets-version').versionAssetsInHtml(html, VERSION);
 }
 
 /* Asegura el link de Facebook en el footer de cada HTML estático (idempotente).
@@ -189,9 +184,13 @@ function escribirRedirects() {
 
   lineas.push('');
   lineas.push('# La URL limpia sirve el archivo (la barra de direcciones no cambia).');
+  /* Estas las sirve la Function (netlify.toml): inyectan contenido de la
+     base en el HTML. Si además se generara el 200 → .html, la regla del
+     archivo competiría con la de la Function y la página saldría sin datos. */
+  const SSR = new Set(urls.PAGINAS_SSR);
   for (const p of urls.PAGINAS) {
     if (p.url === '/') continue;        // la raíz ya sirve index.html
-    if (p.url === '/tienda') continue;  // la sirve la Function (netlify.toml)
+    if (SSR.has(p.url)) continue;       // la sirve la Function (netlify.toml)
     lineas.push(`${p.url}    /${p.archivo}    200`);
   }
 
