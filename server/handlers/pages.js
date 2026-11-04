@@ -33,6 +33,7 @@ const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
 const { BADGE_SCRIPT, asegurarFooter } = require('../lib/html-extras');
 const rating = require('../lib/rating');
+const ficha = require('../lib/ficha');
 const reviews = require('./reviews');
 
 /* Fecha del último commit, escrita por scripts/build.cjs. Puede no existir en
@@ -954,6 +955,9 @@ async function renderProduct(req, res, { id }) {
     : 'Consultar precio';
   const meta = Array.isArray(row.meta) ? row.meta.filter(Boolean) : [];
   const activos = Array.isArray(row.activos) ? row.activos.filter(Boolean) : [];
+  /* Si el dueño cargó la descripción ampliada, también alimenta el meta
+     description y el schema Product: es contenido real, no texto inventado. */
+  const descripcionSeo = String(row.descripcion_larga || row.descripcion || row.nombre || '').trim();
 
   // ---- Reseñas del producto (prueba social + AggregateRating) ----
   // Si la base falla, el producto sigue renderizando: las reseñas son
@@ -983,7 +987,7 @@ async function renderProduct(req, res, { id }) {
     '@type': 'Product',
     name: row.nombre,
     image: imagenes.length ? imagenes.map((u) => absAsset(u)) : [ogImage],
-    description: row.descripcion || `${row.nombre} — cosmética natural artesanal de Berry's Nature.`,
+    description: descripcionSeo || `${row.nombre} — cosmética natural artesanal de Berry's Nature.`,
     sku: row.id,
     brand: { '@type': 'Brand', name: "Berry's Nature" }
   };
@@ -1056,7 +1060,7 @@ async function renderProduct(req, res, { id }) {
 
   const markup = layout({
     title: `${row.nombre} | Tienda Berry's Nature`,
-    description: recortar(row.descripcion || row.nombre, 155),
+    description: recortar(descripcionSeo || row.nombre, 155),
     canonical,
     robots: null, // indexable
     ogImage,
@@ -1126,6 +1130,7 @@ async function renderProduct(req, res, { id }) {
         </div>
       </div>
     </section>
+    ${ficha.fichaLargaHtml(row)}
     ${componentes.length ? `<section class="kit-includes">
       <h2 class="kit-includes__title">Qué incluye</h2>
       <div class="kit-includes__grid">
@@ -1142,6 +1147,7 @@ async function renderProduct(req, res, { id }) {
           </article>`).join('')}
       </div>
     </section>` : ''}
+    ${ficha.videosHtml(row)}
     ${reviewsSectionHtml(row.id, row.nombre, resenas)}
   </main>`
   });

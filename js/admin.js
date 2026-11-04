@@ -1234,6 +1234,28 @@
             escapeHtml(p ? p.inci : '') + '</textarea>' +
           '<small class="admin-help">Lista completa separada por comas. Tiene que coincidir con la etiqueta.</small>' +
         '</div>' +
+        /* ---- Ficha larga: todo editable desde acá, sin tocar código ---- */
+        '<div class="admin-field admin-field--full admin-section-title">Ficha del producto</div>' +
+        area('pDescripcionLarga', 'Descripción ampliada',
+          'Contá de qué se trata, para quién es y qué lo diferencia.',
+          p && p.descripcion_larga,
+          'Un párrafo por línea. Se muestra debajo de la foto, en la ficha del producto.') +
+        area('pBeneficios', 'Beneficios (uno por línea)',
+          'Hidrata sin dejar sensación grasa',
+          lineas(p && p.beneficios),
+          'Hasta 8. Se muestran como tarjetas con un check.') +
+        area('pModoUso', 'Modo de uso (un paso por línea)',
+          'Aplicá sobre la piel limpia, mañana y noche',
+          p && p.modo_uso,
+          'Cada línea se numera automáticamente en la ficha.') +
+        area('pAdvertencias', 'Advertencias / contraindicaciones',
+          'Uso externo. Evitá el contacto con los ojos.',
+          p && p.advertencias,
+          'Sale en un recuadro aparte. Dejalo vacío si no aplica.') +
+        area('pVideos', 'Videos de uso (una URL por línea)',
+          'https://www.youtube.com/watch?v=...',
+          lineas(p && p.videos),
+          'YouTube, Vimeo o un enlace directo a .mp4 / .webm. Hasta 6.') +
         '<div class="admin-field admin-field--full"><label>Contenido del kit (opcional)</label>' +
           '<div class="admin-help" style="margin-bottom:8px">Si es un combo, agregá cada producto con su foto y su INCI.</div>' +
           '<div class="admin-comps" id="pComponentes"></div>' +
@@ -1268,6 +1290,13 @@
           nombre: $('#pNombre').value.trim(),
           categoria: $('#pCategoria').value.trim(),
           descripcion: $('#pDescripcion').value.trim(),
+          descripcion_larga: $('#pDescripcionLarga').value.trim(),
+          beneficios: partirLineas($('#pBeneficios').value),
+          modo_uso: $('#pModoUso').value.trim(),
+          advertencias: $('#pAdvertencias').value.trim(),
+          videos: partirLineas($('#pVideos').value).map(function (u) {
+            return { url: u, titulo: '' };
+          }),
           inci: $('#pInci').value.trim(),
           componentes: componentes.filter(function (c) { return c && c.nombre && c.nombre.trim(); }),
           imagen: imagenes[0] || '',
@@ -1289,6 +1318,14 @@
         }
         if (stockRaw !== '' && (!Number.isFinite(payload.stock) || payload.stock < 0)) {
           return toast('El stock tiene que ser un número positivo.');
+        }
+        if (payload.videos.length > 6) return toast('Como máximo 6 videos por producto.');
+        var urlMala = payload.videos.filter(function (v) {
+          return !esVideoPermitido(v.url);
+        })[0];
+        if (urlMala) {
+          return toast('Esa URL no es un video válido: ' + urlMala.url +
+            '. Usá YouTube, Vimeo o un .mp4/.webm por HTTPS.');
         }
 
         var r = isNew
@@ -2228,6 +2265,40 @@
     return '<div class="admin-field"><label for="' + id + '">' + escapeHtml(label) + '</label>' +
       '<input type="' + type + '" id="' + id + '" placeholder="' + escapeHtml(placeholder || '') + '" ' +
       'value="' + escapeHtml(value || '') + '"></div>';
+  }
+
+  /* Textarea para la ficha larga. `ayuda` va debajo, igual que los <small>
+     del resto del formulario. */
+  function area(id, label, placeholder, value, ayuda) {
+    return '<div class="admin-field admin-field--full"><label for="' + id + '">' +
+      escapeHtml(label) + '</label>' +
+      '<textarea id="' + id + '" placeholder="' + escapeHtml(placeholder || '') + '">' +
+        escapeHtml(value || '') + '</textarea>' +
+      (ayuda ? '<small class="admin-help">' + ayuda + '</small>' : '') +
+      '</div>';
+  }
+
+  /* Beneficios y videos se editan como "un item por línea" en lugar de un
+     JSON: es lo que se puede completar rápido desde el celular. */
+  function lineas(value) {
+    if (!Array.isArray(value)) return '';
+    return value.map(function (x) {
+      return typeof x === 'string' ? x : (x && x.url ? x.url : '');
+    }).filter(Boolean).join('\n');
+  }
+
+  function partirLineas(texto) {
+    return String(texto || '').split('\n').map(function (t) { return t.trim(); }).filter(Boolean);
+  }
+
+  /* Aviso temprano: el servidor es la autoridad (server/lib/videos.js),
+     pero si el dueño pega una URL que se va a descartar, mejor decirlo
+     acá y no hacerle creer que se guardó. */
+  function esVideoPermitido(u) {
+    return /^(https:\/\/|\/)/i.test(u) && (
+      /youtube\.com|youtube-nocookie\.com|youtu\.be|vimeo\.com/i.test(u) ||
+      /\.(mp4|webm|ogv)([?#]|$)/i.test(u)
+    );
   }
 
   /* ============================================================

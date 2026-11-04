@@ -325,6 +325,18 @@
   gap: var(--space-md);
 }
 .admin-form-grid .admin-field--full { grid-column: 1 / -1; }
+/* Separador de sección dentro del formulario de producto. */
+.admin-section-title {
+  grid-column: 1 / -1;
+  margin: 6px 0 -4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line, rgba(0, 0, 0, .1));
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted, #6b6259);
+}
 
 .admin-checks { display: flex; gap: var(--space-md); flex-wrap: wrap; align-items: center; }
 .admin-checks label {

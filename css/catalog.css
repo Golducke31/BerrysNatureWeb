@@ -1249,3 +1249,166 @@
 .kit-item__inci summary { font-size: 13px; padding: 8px 0; }
 .kit-item__inci .product-accordion__body { padding-bottom: 8px; }
 .kit-item__inci .product-inci { font-size: 11.5px !important; padding: 10px; }
+
+/* ============================================================
+   FICHA LARGA — contenido que carga el dueño desde el panel
+   (migración 022). Si no hay contenido, ninguno de estos bloques
+   se pinta, así que no deja huecos en los productos actuales.
+   ============================================================ */
+.ficha-larga,
+.ficha-videos {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 56px 24px 0;
+}
+.ficha-larga__inner,
+.ficha-videos__inner { max-width: 1120px; margin: 0 auto; }
+.ficha-larga__eyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-accent-botanical);
+}
+.ficha-larga__titulo {
+  margin: 0 0 28px;
+  font-family: var(--font-title);
+  font-size: 28px;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+.ficha-larga__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+  gap: 40px;
+  align-items: start;
+}
+.ficha-larga__texto p {
+  margin: 0 0 16px;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--color-text-muted);
+}
+.ficha-bloque__titulo {
+  margin: 0 0 16px;
+  font-family: var(--font-title);
+  font-size: 19px;
+  color: var(--color-text);
+}
+.ficha-beneficios { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.ficha-beneficios__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 15px;
+  background: var(--bg-card);
+  border: 1px solid var(--color-line-warm);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+.ficha-beneficios__check {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(130, 150, 107, .16);
+  color: var(--color-accent-botanical);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ficha-beneficios__check .icon { width: 13px; height: 13px; }
+.ficha-bloque--uso { margin-top: 40px; }
+.ficha-pasos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.ficha-pasos li {
+  counter-increment: paso;
+  position: relative;
+  padding: 18px 18px 18px 52px;
+  background: var(--bg-card);
+  border: 1px solid var(--color-line-warm);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+.ficha-pasos li::before {
+  content: counter(paso);
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-accent-botanical);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ficha-advertencias {
+  margin-top: 32px;
+  padding: 20px 22px;
+  background: rgba(185, 112, 90, .08);
+  border-left: 4px solid var(--color-accent-terracota);
+  border-radius: 0 14px 14px 0;
+}
+.ficha-advertencias__titulo {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-accent-terracota);
+}
+.ficha-advertencias__titulo .icon { width: 15px; height: 15px; vertical-align: -2px; }
+.ficha-advertencias p {
+  margin: 0 0 6px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+.ficha-videos { padding-top: 56px; }
+.ficha-videos__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.ficha-video { margin: 0; }
+.ficha-video__frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #1b1714;
+  box-shadow: var(--shadow-card-flat);
+}
+.ficha-video__frame iframe,
+.ficha-video__frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: contain;
+}
+.ficha-video figcaption {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+@media (max-width: 760px) {
+  .ficha-larga, .ficha-videos { padding: 38px 20px 0; }
+  .ficha-larga__grid { grid-template-columns: 1fr; gap: 28px; }
+  .ficha-larga__titulo { font-size: 23px; }
+}

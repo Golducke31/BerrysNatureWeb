@@ -20,6 +20,7 @@
 
 const db = require('../lib/db');
 const reviews = require('./reviews');
+const videosLib = require('../lib/videos');
 const V = require('../lib/validate');
 const audit = require('../lib/audit');
 const csrf = require('../lib/csrf');
@@ -47,7 +48,15 @@ function toProduct(r) {
     stock: r.stock === null ? null : Number(r.stock),
     meta: Array.isArray(r.meta) ? r.meta : [],
     mp: r.mp,
-    orden: Number(r.orden)
+    orden: Number(r.orden),
+    /* Ficha larga (migración 022). Si todavía no se corrió la migración,
+       la fila no trae estas claves y todo queda vacío: la ficha sigue
+       renderizando igual que antes, sin tirar 500. */
+    descripcion_larga: r.descripcion_larga || '',
+    beneficios: Array.isArray(r.beneficios) ? r.beneficios : [],
+    modo_uso: r.modo_uso || '',
+    advertencias: r.advertencias || '',
+    videos: Array.isArray(r.videos) ? videosLib.listaVideos(r.videos) : []
   };
 }
 
@@ -92,6 +101,48 @@ function listaComponentes(value) {
     if (out.length >= 12) break;
   }
   return out;
+}
+
+/* ---------------- Ficha larga (migración 022) ---------------- */
+
+const CAMPOS_FICHA = ['descripcion_larga', 'beneficios', 'modo_uso', 'advertencias', 'videos'];
+
+/** Valores ya validados de los campos nuevos, en el mismo orden. */
+function valoresFicha(body) {
+  return {
+    descripcion_larga: V.str(body.descripcion_larga, { max: 6000, required: false }),
+    beneficios: JSON.stringify(listaTexto(body.beneficios, 8, 160)),
+    modo_uso: V.str(body.modo_uso, { max: 3000, required: false }),
+    advertencias: V.str(body.advertencias, { max: 3000, required: false }),
+    videos: JSON.stringify(videosLib.listaVideos(body.videos))
+  };
+}
+
+/**
+ * Columnas reales de `products`. Se consulta en cada escritura del panel
+ * (son pocas y así nunca queda un cache viejo después de migrar).
+ *
+ * Motivo: la migración 022 es ADD COLUMN con defaults, así que es
+ * retrocompatible con el código ya desplegado. Pero si alguien despliega
+ * el código NUEVO antes de correrla, un INSERT que nombre columnas
+ * inexistentes tiraría 500 y dejaría el panel inutilizado — exactamente
+ * lo que pasó con la 021. Acá se omiten los campos que aún no existen:
+ * sin migración la ficha sigue funcionando, solo no guarda lo nuevo.
+ *
+ * @returns {Promise<Set<string>|null>} null si no se pudo consultar
+ */
+async function columnasSoportadas() {
+  try {
+    const filas = await db.query(
+      `SELECT column_name AS nombre
+         FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'products'`
+    );
+    return new Set(filas.map((f) => f.nombre));
+  } catch (err) {
+    console.warn('[productos] no se pudo leer el esquema:', err && err.message);
+    return null; // no filtrar: que el INSERT/UPDATE reporte su propio error
+  }
 }
 
 /** Precio: null = "Consultar precio". */
@@ -183,31 +234,44 @@ async function createProduct(req, res, body) {
   const imagenes = listaImagenes(body.imagenes);
   const imagen = V.clean(body.imagen).slice(0, 300) || imagenes[0] || '';
 
+  const columnasBase = ['id', 'nombre', 'categoria', 'descripcion', 'activos', 'precio',
+    'imagen', 'imagenes', 'meta', 'origen', 'destacado', 'disponible', 'stock',
+    'mp', 'orden', 'inci', 'componentes'];
+  const valoresBase = [
+    id,
+    nombre,
+    categoria,
+    V.str(body.descripcion, { max: 2000, required: false }),
+    JSON.stringify(listaTexto(body.activos, 8, 60)),
+    precioOpcional(body.precio),
+    imagen,
+    JSON.stringify(imagenes),
+    JSON.stringify(listaTexto(body.meta, 6, 28)),
+    V.clean(body.origen).slice(0, 20) || 'manual',
+    V.bool(body.destacado),
+    V.bool(body.disponible, true),
+    stockOpcional(body.stock),
+    V.clean(body.mp).slice(0, 500),
+    V.int(body.orden, { min: 0, max: 9999, def: 100 }),
+    V.str(body.inci, { max: 4000, required: false }),
+    JSON.stringify(listaComponentes(body.componentes))
+  ];
+
+  /* Los campos de la ficha larga solo se incluyen si la migración 022 ya
+     está aplicada. Ver columnasSoportadas(). */
+  const soportadas = await columnasSoportadas();
+  const ficha = valoresFicha(body);
+  const extras = CAMPOS_FICHA.filter((c) => !soportadas || soportadas.has(c));
+
+  const columnas = columnasBase.concat(extras);
+  const valores = valoresBase.concat(extras.map((c) => ficha[c]));
+  const placeholders = valores.map((_, i) => `$${i + 1}`).join(',');
+
   const row = await db.one(
-    `INSERT INTO products
-       (id, nombre, categoria, descripcion, activos, precio, imagen, imagenes, meta,
-        origen, destacado, disponible, stock, mp, orden, inci, componentes)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+    `INSERT INTO products (${columnas.join(', ')})
+     VALUES (${placeholders})
      RETURNING *`,
-    [
-      id,
-      nombre,
-      categoria,
-      V.str(body.descripcion, { max: 2000, required: false }),
-      JSON.stringify(listaTexto(body.activos, 8, 60)),
-      precioOpcional(body.precio),
-      imagen,
-      JSON.stringify(imagenes),
-      JSON.stringify(listaTexto(body.meta, 6, 28)),
-      V.clean(body.origen).slice(0, 20) || 'manual',
-      V.bool(body.destacado),
-      V.bool(body.disponible, true),
-      stockOpcional(body.stock),
-      V.clean(body.mp).slice(0, 500),
-      V.int(body.orden, { min: 0, max: 9999, def: 100 }),
-      V.str(body.inci, { max: 4000, required: false }),
-      JSON.stringify(listaComponentes(body.componentes))
-    ]
+    valores
   );
 
   await audit.log({
@@ -246,6 +310,28 @@ async function updateProduct(req, res, params, body) {
   if (body.stock !== undefined) patch.stock = stockOpcional(body.stock);
   if (body.mp !== undefined) patch.mp = V.clean(body.mp).slice(0, 500);
   if (body.orden !== undefined) patch.orden = V.int(body.orden, { min: 0, max: 9999, def: row.orden });
+
+  /* Ficha larga: mismo criterio que en el alta. Si la migración 022 no
+     está aplicada, se ignoran estos campos en vez de romper el PATCH. */
+  const ficha = valoresFicha({
+    descripcion_larga: body.descripcion_larga,
+    beneficios: body.beneficios,
+    modo_uso: body.modo_uso,
+    advertencias: body.advertencias,
+    videos: body.videos
+  });
+  for (const campo of CAMPOS_FICHA) {
+    if (body[campo] !== undefined) patch[campo] = ficha[campo];
+  }
+  const soportadas = await columnasSoportadas();
+  if (soportadas) {
+    for (const campo of CAMPOS_FICHA) {
+      if (campo in patch && !soportadas.has(campo)) {
+        delete patch[campo];
+        console.warn(`[productos] falta la migración 022; se ignoró ${campo}`);
+      }
+    }
+  }
 
   const keys = Object.keys(patch);
   if (!keys.length) return fail(res, 400, 'invalid_input', 'No enviaste ningún cambio.');

@@ -92,6 +92,14 @@ Detalle en `TEST_READY.md` y `TEST_INFRA.md`.
    a revertirla. **Escribí las dos en forma idempotente** (`IF NOT EXISTS` / `IF EXISTS`): el driver
    HTTP de Neon ejecuta un statement por request, así que una migración no se puede envolver en una
    transacción.
+
+   **Antes de desplegar código que use columnas nuevas, corré `npm run db:migrate`.**
+   La `022_producto_contenido` agrega `descripcion_larga`, `beneficios`, `modo_uso`,
+   `advertencias` y `videos`. Es solo `ADD COLUMN ... DEFAULT`, así que es retrocompatible
+   con el código ya publicado; igualmente, `server/handlers/products.js` consulta
+   `information_schema` y omite los campos que todavía no existen, para que olvidarse
+   de migrar deje de ser una caída del panel (lección de la `021`). Sin la migración,
+   la ficha sigue funcionando pero los campos nuevos no se guardan.
 3. Creá el primer admin (2FA obligatorio):
    ```bash
    npm run create-admin -- --email admin@berrrys.test --name Admin --password "UnaClaveFuerte123!"
