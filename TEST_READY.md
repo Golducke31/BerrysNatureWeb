@@ -4,12 +4,12 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 211 tests que corren contra los `.html` con `file://`
-  (no requiere base de datos). Ver abajo los archivos 1–15 y 20.
+- **Suite estática (frontend):** 254 tests que corren contra los `.html` con `file://`
+  (no requiere base de datos). Ver abajo los archivos 1–27.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
-  - `admin-routing.spec.js` (8 tests) — verifica la ofuscación de la ruta secreta del panel
-    y que el borrado de usuarios exija sesión.
+  - `admin-routing.spec.js` (11 tests) — verifica la ofuscación de la ruta secreta del panel,
+    que el borrado de usuarios exija sesión y que editar/consultar reseñas propias exija sesión.
     **No requiere base de datos** y pasa en verde tal cual.
   - `api.spec.js` (5 tests) — ejercita la API pública (hilos, guías, registro, login) y la
     protección del panel. **Requiere `DATABASE_URL`** (esquema + seed cargados); se saltean
@@ -27,9 +27,9 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     pasa en verde tal cual.
 
 ## Test Files
-The static suite contains exactly 211 tests (the old catalog-hotspots and cart-integration specs
+The static suite contains exactly 254 tests (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (633 runs in total). The backend suite adds 47 tests (8 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (762 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
@@ -65,11 +65,12 @@ and WebKit (633 runs in total). The backend suite adds 47 tests (8 routing + 5 A
     - `versionAssetsInHtml` (server/lib/assets-version.js): reemplaza un `?v=` viejo, versiona lo
       local, no toca externos ni otras queries, es idempotente y no hace nada sin versión. Además
       verifica que en `dist/` ninguna página quede con una versión distinta de la del build.
-16. `tests/e2e/admin-routing.spec.js` (8 tests) — **suite de backend**
+16. `tests/e2e/admin-routing.spec.js` (11 tests) — **suite de backend**
     - Ofuscación de la ruta secreta del admin: slug incorrecto → 404 idéntico, slug correcto sin
       clave de puerta → 404, clave incorrecta → 404, slug + clave correcta → shell 200, assets del
       panel NO se sirven por rutas públicas (404) y SÍ por la ruta secreta (200). Además:
-      `DELETE /users/:id` sin sesión → 401 `unauthenticated` y sin la clave de puerta → 404.
+      `DELETE /users/:id` sin sesión → 401 `unauthenticated` y sin la clave de puerta → 404;
+      `PATCH /api/reviews/:id` y `GET /api/products/:id/reviews/mine` sin sesión → 401.
       **No requiere DB.**
 17. `tests/e2e/api.spec.js` (5 tests) — **suite de backend**
     - API pública: `GET /api/threads` lista hilos, `GET /api/guides` lista guías, registro crea cuenta
@@ -96,16 +97,41 @@ and WebKit (633 runs in total). The backend suite adds 47 tests (8 routing + 5 A
       poder emitir la licencia y el comprador no recibía ni el mail de descarga.
       **No requiere DB** (mueve variables de entorno y mira la decisión pura).
 
+21. `tests/e2e/footer.spec.js` (6 tests)
+    - Los 29 HTML con `footer-social` tienen Instagram · Facebook · WhatsApp en ese orden;
+      la inyección compartida (`server/lib/html-extras.js`) es idempotente, agrega la insignia
+      de Merchant Center una sola vez y la ficha de producto carga `community.js` (BerrysAuth).
+22. `tests/e2e/tarjeta-producto.spec.js` (3 tests)
+    - Link estirado de la tarjeta, orden de z-index y prueba real con `elementFromPoint`:
+      sobre la foto gana el link y sobre el botón del carrito gana el botón.
+23. `tests/e2e/ficha-carrito.spec.js` (5 tests)
+    - "Agregar al carrito" en la ficha escribe en `berrys_cart_v1`, suma cantidad sin duplicar
+      la fila, respeta el stock, dispara `add_to_cart` y muestra el aviso.
+24. `tests/e2e/ficha-rating.spec.js` (5 tests)
+    - Resumen de reseñas junto al precio: no se pinta con 0 reseñas, redondeo de estrellas,
+      singular/plural, límites y ancla a `#reviews`.
+25. `tests/e2e/ficha-contenido.spec.js` (13 tests)
+    - Normalización segura de videos (YouTube/Vimeo/mp4, rechazo de `javascript:`/`data:`,
+      ID anclado, tope de 6, sin duplicados), SSR de la ficha larga con HTML escapado,
+      migración 022 retrocompatible y tolerancia del backend a columnas faltantes.
+26. `tests/e2e/editar-resena.spec.js` (4 tests)
+    - Flujo real de edición en el DOM: con reseña propia el formulario se precarga y guarda
+      con PATCH; sin reseña publica con POST; un 409 pasa a modo edición.
+27. `tests/e2e/google-scripts.spec.js` (7 tests)
+    - Insignia de Merchant Center (merchant_id y una sola inserción) y survey opt-in de
+      Reseñas de Google: payload real con pedido pagado, fecha futura, una sola invitación
+      por pedido y ausencia de disparo sin email.
+
 ## Verification
-La suite estática (211 tests) está verificada y en verde. La suite de backend corre con
-`npm run test:api`: los 8 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
+La suite estática (254 tests) está verificada y en verde. La suite de backend corre con
+`npm run test:api`: los 11 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
 Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
 saltean si no hay `DATABASE_URL`.
 
-- **Corrida verificada (03/11/2026):** estática **602/602 passed** en Chromium + Firefox + WebKit
-  (11,4 min); backend **32/32 passed**, **11 skipped** (sin DB) y **47/47** con `DATABASE_URL`.
-- La cuenta cross-browser completa son **633 corridas** (211 tests × 3 navegadores); el runner
-  reporta 602 porque algunos specs están limitados a un solo navegador.
+- **Corrida verificada (04/11/2026):** estática **731/731 passed** en Chromium + Firefox + WebKit
+  (13,7 min); backend **36 passed**, **14 skipped** (sin DB) y **50/50** con `DATABASE_URL`.
+- La cuenta cross-browser completa son **762 corridas** (254 tests × 3 navegadores); el runner
+  reporta 731 porque 31 specs están limitados a un solo navegador.
 - **Auditoría del sitio publicado:** `npm run check:live` contra `https://berrysnature.com.ar`
   → **51 ok · 0 avisos · 0 errores**.
 
