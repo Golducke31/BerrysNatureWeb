@@ -28,27 +28,40 @@ const FB_ANCHOR = `
 
 /* Insignia de Google Merchant Center. `merchant_id` es el único campo
    obligatorio; position/region son opcionales y se dejan explícitos
-   para que el widget no quede a merced del default de Google. */
+   para que el widget no quede a merced del default de Google.
+
+   El script externo se inyecta DESPUÉS del evento load, no como <script defer>
+   en el HTML. Motivo: un <script defer> de terceros participa del evento
+   load de la página; si el CDN de Google tarda o está bloqueado (red
+   corporativa, modo offline, navegador de test) la página parece no
+   terminar de cargar. Creado dinámicamente luego de load, el sitio nunca
+   depende de Google para estar usable. */
 const BADGE_SCRIPT = `
-  <!-- Insignia de Google Merchant Center -->
-  <script id="merchantWidgetScript" src="https://www.gstatic.com/shopping/merchant/merchantwidget.js" defer></script>
+  <!-- Insignia de Google Merchant Center (carga no bloqueante) -->
   <script>
     (function () {
-      var tag = document.getElementById('merchantWidgetScript');
-      if (!tag) return;
-      tag.addEventListener('load', function () {
-        try {
-          if (!window.merchantwidget || !window.merchantwidget.start) return;
-          window.merchantwidget.start({
-            merchant_id: ${MERCHANT_ID},
-            position: 'BOTTOM_RIGHT',
-            region: 'AR'
-          });
-        } catch (e) {
-          /* Un tercero que cambia su API no puede romper la página. */
-          if (window.console) console.warn('[google] insignia no disponible:', e && e.message);
-        }
-      });
+      function cargar() {
+        var tag = document.createElement('script');
+        tag.id = 'merchantWidgetScript';
+        tag.src = 'https://www.gstatic.com/shopping/merchant/merchantwidget.js';
+        tag.async = true;
+        tag.addEventListener('load', function () {
+          try {
+            if (!window.merchantwidget || !window.merchantwidget.start) return;
+            window.merchantwidget.start({
+              merchant_id: ${MERCHANT_ID},
+              position: 'BOTTOM_RIGHT',
+              region: 'AR'
+            });
+          } catch (e) {
+            /* Un tercero que cambia su API no puede romper la página. */
+            if (window.console) console.warn('[google] insignia no disponible:', e && e.message);
+          }
+        });
+        document.head.appendChild(tag);
+      }
+      if (document.readyState === 'complete') cargar();
+      else window.addEventListener('load', cargar, { once: true });
     })();
   </script>`;
 

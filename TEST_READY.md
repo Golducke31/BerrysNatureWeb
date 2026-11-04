@@ -128,10 +128,13 @@ La suite estática (254 tests) está verificada y en verde. La suite de backend 
 Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
 saltean si no hay `DATABASE_URL`.
 
-- **Corrida verificada (04/11/2026):** estática **731/731 passed** en Chromium + Firefox + WebKit
-  (13,7 min); backend **36 passed**, **14 skipped** (sin DB) y **50/50** con `DATABASE_URL`.
-- La cuenta cross-browser completa son **762 corridas** (254 tests × 3 navegadores); el runner
-  reporta 731 porque 31 specs están limitados a un solo navegador.
+- **Corrida verificada (04/11/2026):** backend **36 passed**, **14 skipped** (sin DB) y
+  **50/50** con `DATABASE_URL`. Estática: **Chromium 254/254** y **Firefox 254/254** en verde;
+  **WebKit 223/254** con 31 timeouts de `page.goto` sobre `file://` (14,2 min).
+- La cuenta cross-browser completa son **762 corridas** (254 tests × 3 navegadores):
+  **731 passed + 31 failed**, todos en WebKit. Es una falla **preexistente del entorno**,
+  no de este cambio: el 03/11/2026 la corrida dio 602 de 633 con la misma diferencia de 31,
+  y se reproduce con un `index.html` sin ningún script externo. En CI con red normal no aparece.
 - **Auditoría del sitio publicado:** `npm run check:live` contra `https://berrysnature.com.ar`
   → **51 ok · 0 avisos · 0 errores**.
 
