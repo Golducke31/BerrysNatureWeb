@@ -1,8 +1,12 @@
 /* ============================================================
-   js/producto.js — Reseñas en la página de producto
+   js/producto.js — Ficha de producto: carrito + reseñas
 
-   - Revela el formulario solo si hay sesión; si no, muestra el botón
-     de login (igual que el foro en js/hilo.js).
+   - Carrito: escribe en el MISMO localStorage que js/catalog.js
+     (berrys_cart_v1, items {id, qty}). El drawer y el checkout viven en
+     /tienda, así que al llegar ahí el producto ya está cargado. Antes la
+     ficha era un callejón sin salida: solo tenía "Ver toda la tienda".
+   - Reseñas: revela el formulario solo si hay sesión; si no, muestra el
+     botón de login (igual que el foro en js/hilo.js).
    - Envía la reseña vía window.BerrysAPI (que ya adjunta el token CSRF).
    - Tras publicar, re-renderiza la lista y el resumen con la respuesta
      del servidor (que trae el resumen recalculado).
@@ -107,8 +111,66 @@
     });
   }
 
+  /* ---------------- Carrito en la ficha ----------------
+     No se duplica la lógica de catalog.js: solo se escribe el storage
+     compartido. El formato es deliberadamente mínimo ({id, qty}) para que
+     las dos páginas no puedan desincronizarse si el catálogo cambia. */
+  var CART_KEY = 'berrys_cart_v1';
+
+  function productoAnalytics() {
+    var el = $('#analyticsProduct');
+    if (!el) return null;
+    try { return JSON.parse(el.textContent); } catch (e) { return null; }
+  }
+
+  function initCart() {
+    var box = $('#productBuyBox');
+    var btn = $('#productAddToCart');
+    if (!box || !btn) return;
+
+    var id = box.getAttribute('data-product-id');
+    var nombre = box.getAttribute('data-nombre') || 'Producto';
+    var stockRaw = box.getAttribute('data-stock');
+    var tope = (stockRaw === null || stockRaw === '') ? Infinity : Number(stockRaw);
+    var hint = $('#productCartHint');
+    if (!id) return;
+
+    btn.addEventListener('click', function () {
+      var items = [];
+      try { items = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { items = []; }
+      if (!Array.isArray(items)) items = [];
+
+      var encontrado = null;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i] && items[i].id === id) { encontrado = items[i]; break; }
+      }
+      var qty = encontrado ? (Number(encontrado.qty) || 0) : 0;
+      if (qty + 1 > tope) {
+        if (window.toast) window.toast('Solo hay ' + tope + ' disponibles de ' + nombre + '.', 'warning');
+        return;
+      }
+
+      if (encontrado) encontrado.qty = qty + 1;
+      else items.push({ id: id, qty: 1 });
+
+      try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) { /* modo privado */ }
+
+      var prod = productoAnalytics() || { id: id, nombre: nombre, precio: 0 };
+      if (window.BerrysAnalytics) {
+        window.BerrysAnalytics.track('add_to_cart', {
+          currency: 'ARS',
+          value: Number(prod.precio) || 0,
+          items: [window.BerrysAnalytics.itemParams(prod, 1)]
+        });
+      }
+      if (window.toast) window.toast(nombre + ' · agregado al carrito', 'check');
+      if (hint) hint.hidden = false;
+    });
+  }
+
   function init() {
     initGallery();
+    initCart();
     var sec = $('#reviews');
     if (!sec) return;
     var productId = sec.getAttribute('data-product-id');

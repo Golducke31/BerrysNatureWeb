@@ -1103,8 +1103,17 @@ async function renderProduct(req, res, { id }) {
           </div>
           ${meta.length ? `<div class="product-detail__meta">${meta.map((m) => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
           ${activos.length ? `<div class="product-detail__activos"><strong>Activos:</strong> ${activos.map((a) => esc(a)).join(' · ')}</div>` : ''}
-          <div class="product-detail__cta">
+          <div class="product-detail__cta" id="productBuyBox"
+               data-product-id="${esc(row.id)}"
+               data-nombre="${esc(row.nombre)}"
+               data-stock="${typeof row.stock === 'number' ? row.stock : ''}">
             ${mpBtn}
+            <button class="cta-button" type="button" id="productAddToCart"${enStock ? '' : ' disabled'}>
+              Agregar al carrito
+            </button>
+            <p class="product-detail__cart-hint" id="productCartHint" hidden>
+              <i data-icon="check"></i> Agregado. <a href="/tienda">Ver carrito →</a>
+            </p>
             <a class="cta-button cta-outline" href="/tienda">Ver toda la tienda</a>
           </div>
         </div>

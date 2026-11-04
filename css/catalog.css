@@ -726,9 +726,19 @@
   color: var(--color-text);
 }
 .product-detail__activos { font-size: 14px; line-height: 1.6; color: var(--color-text-muted); margin: 0 0 24px; }
-.product-detail__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.product-detail__cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .product-detail__cta .cta-button.is-whatsapp { background: #25d366; }
 .product-detail__cta .cta-button.is-whatsapp:hover { background: #1fbe5b; }
+.product-detail__cart-hint {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-accent-botanical);
+}
+.product-detail__cart-hint[hidden] { display: none; }
+.product-detail__cart-hint a { font-weight: 700; text-decoration: underline; }
+.product-detail__cart-hint .icon { width: 1em; height: 1em; vertical-align: -2px; }
 @media (max-width: 720px) {
   .product-detail { grid-template-columns: 1fr; gap: 24px; }
   .product-detail__media { min-height: 300px; }
