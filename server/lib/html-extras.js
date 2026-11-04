@@ -37,12 +37,17 @@ const BADGE_SCRIPT = `
       var tag = document.getElementById('merchantWidgetScript');
       if (!tag) return;
       tag.addEventListener('load', function () {
-        if (!window.merchantwidget || !window.merchantwidget.start) return;
-        window.merchantwidget.start({
-          merchant_id: ${MERCHANT_ID},
-          position: 'BOTTOM_RIGHT',
-          region: 'AR'
-        });
+        try {
+          if (!window.merchantwidget || !window.merchantwidget.start) return;
+          window.merchantwidget.start({
+            merchant_id: ${MERCHANT_ID},
+            position: 'BOTTOM_RIGHT',
+            region: 'AR'
+          });
+        } catch (e) {
+          /* Un tercero que cambia su API no puede romper la página. */
+          if (window.console) console.warn('[google] insignia no disponible:', e && e.message);
+        }
       });
     })();
   </script>`;

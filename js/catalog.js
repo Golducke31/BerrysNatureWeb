@@ -866,6 +866,12 @@
                 });
               }
             }
+            /* Reseñas de Google: solo con el pago YA confirmado, y con los
+               datos reales del pedido. El módulo se encarga de no repetir
+               la invitación si el usuario recarga esta página. */
+            if (window.BerrysGoogleReviews) {
+              window.BerrysGoogleReviews.render(o);
+            }
             notify('Pedido ' + o.numero + ' confirmado', 'check');
             return;
           }
