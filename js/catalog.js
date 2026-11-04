@@ -151,6 +151,11 @@
     var agotado = sinStock(p);
     return '' +
       '<article class="guide-card product-card reveal" data-reveal data-product="' + escapeHtml(p.id) + '">' +
+        /* Link estirado sobre toda la tarjeta: antes solo el <h3> era
+           clickeable y la foto parecía muerta. Los controles interactivos
+           (botón del carrito, flechas y puntos del carrusel) quedan por
+           encima por z-index y cancelan la navegación con stopPropagation. */
+        '<a class="product-card__hit" href="' + url + '" aria-label="Ver ' + escapeHtml(p.nombre) + '"></a>' +
         mediaHtml(p) +
         '<div class="guide-card__body">' +
           '<h3 class="guide-card__title"><a href="' + url + '">' + escapeHtml(p.nombre) + '</a></h3>' +

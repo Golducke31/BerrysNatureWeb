@@ -59,6 +59,27 @@
 .store-grid .product-card__actions .cta-button { flex: 1 1 auto; }
 .store-grid .guide-card__title a { color: inherit; text-decoration: none; }
 .store-grid .guide-card__title a:hover { text-decoration: underline; }
+
+/* ---- Tarjeta completa clickeable ----
+   Un único <a> transparente cubre la tarjeta (.product-card ya es
+   position:relative). z-index 2 lo deja DEBAJO de los controles del
+   carrusel (3) y del botón de carrito (4), que por eso siguen siendo
+   clickeables sin navegar. El link del título queda arriba para que el
+   foco por teclado siga teniendo sentido. */
+.product-card__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  text-decoration: none;
+}
+.product-card__hit:focus-visible {
+  outline: 3px solid var(--color-accent-botanical);
+  outline-offset: -3px;
+}
+.store-grid .product-card__actions { position: relative; z-index: 4; }
+.store-grid .guide-card__title,
+.store-grid .guide-card__title a { position: relative; z-index: 4; }
 .product-card__stockout {
   position: absolute;
   bottom: 14px;
@@ -984,7 +1005,9 @@
   pointer-events: none;
   transition: opacity 0.3s ease;
 }
-.product-carousel:hover .product-carousel__hover { opacity: 1; }
+/* Antes era .product-carousel:hover, pero el link estirado tapa el media:
+   el hover ahora se dispara desde la tarjeta entera. */
+.product-card:hover .product-carousel__hover { opacity: 1; }
 .product-carousel.is-manual .product-carousel__hover { opacity: 0 !important; }
 
 @media (max-width: 520px) {
