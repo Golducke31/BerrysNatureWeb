@@ -32,6 +32,7 @@ const reputation = require('../lib/reputation');
 const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
 const { BADGE_SCRIPT, asegurarFooter } = require('../lib/html-extras');
+const rating = require('../lib/rating');
 const reviews = require('./reviews');
 
 /* Fecha del último commit, escrita por scripts/build.cjs. Puede no existir en
@@ -971,6 +972,11 @@ async function renderProduct(req, res, { id }) {
     ? `<a class="cta-button cta-mp" href="${esc(row.mp)}" target="_blank" rel="noopener"><img class="mp-logo" src="/assets/pagos/mercadopago-color.svg" alt="MercadoPago" loading="lazy"> Comprar</a>`
     : '';
 
+  /* Prueba social ARRIBA, junto al precio. La sección de reseñas está al
+     final de la página y casi nadie llega hasta ahí antes de decidir.
+     ratingCercaHtml() devuelve '' si no hay reseñas. */
+  const ratingCerca = rating.ratingCercaHtml(resenas.resumen);
+
   // ---- Datos estructurados Product + Offer ----
   const productLd = {
     '@context': 'https://schema.org',
@@ -1081,6 +1087,7 @@ async function renderProduct(req, res, { id }) {
         <div class="product-detail__info">
           <h1 class="product-detail__title">${esc(row.nombre)}</h1>
           <p class="product-card__price${typeof precio === 'number' ? '' : ' is-consult'}">${esc(precioTxt)}</p>
+          ${ratingCerca}
           ${!enStock ? '<p class="product-detail__stockout">Sin stock — escribinos por disponibilidad.</p>' : (typeof row.stock === 'number' && row.stock > 0 ? '<p class="product-detail__stock">' + row.stock + ' disponibles</p>' : '')}
           <div class="product-accordion">
             ${row.descripcion ? `<details class="product-accordion__item" open>
