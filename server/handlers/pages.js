@@ -31,6 +31,7 @@ const features = require('../lib/features');
 const reputation = require('../lib/reputation');
 const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
+const { BADGE_SCRIPT, asegurarFooter } = require('../lib/html-extras');
 const reviews = require('./reviews');
 
 /* Fecha del último commit, escrita por scripts/build.cjs. Puede no existir en
@@ -269,6 +270,7 @@ ${body}
 ${authModalHtml()}
 ${footerHtml()}
 ${scripts || scriptsHtml()}
+${BADGE_SCRIPT}
 </body>
 </html>`;
 }
@@ -859,8 +861,11 @@ function reviewsSectionHtml(productId, nombre, resenas) {
     </section>`;
 }
 
-/* Scripts de la página de producto: base + el de reseñas. hilo.js y
-   mod-panel.js no aportan acá, así que no los cargamos. */
+/* Scripts de la página de producto: base + auth + reseñas.
+   community.js NO es opcional: ahí vive window.BerrysAuth, que producto.js
+   usa para mostrar el formulario de reseña y abrir el modal de login. Sin
+   él, aun estando logueado, el botón "Ingresá para opinar" no hacía nada.
+   hilo.js y mod-panel.js sí se omiten: no aportan acá. */
 function scriptsProducto() {
   return `
   <script src="/js/icons.js"></script>
@@ -868,6 +873,7 @@ function scriptsProducto() {
   <script src="/js/api-client.js"></script>
   <script src="/js/app.js"></script>
   <script src="/js/auth.js"></script>
+  <script src="/js/community.js"></script>
   <script src="/js/analytics-config.js"></script>
   <script src="/js/analytics.js"></script>
   <script src="/js/producto.js"></script>`;
@@ -1557,7 +1563,11 @@ function leerHtmlEstatico(nombre) {
   ];
   for (const full of candidatos) {
     try {
-      return { html: fs.readFileSync(full, 'utf8'), ruta: full };
+      /* La Function lee el HTML FUENTE (netlify.toml included_files), no
+         dist/. El build inyecta Facebook y la insignia de Google en dist/,
+         así que acá hay que aplicar la misma transformación o /tienda y
+         /foro se quedan sin ambos. */
+      return { html: asegurarFooter(fs.readFileSync(full, 'utf8')), ruta: full };
     } catch (e) { /* se prueba la siguiente */ }
   }
   return null;
