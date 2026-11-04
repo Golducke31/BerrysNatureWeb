@@ -5,7 +5,9 @@
      GET  /api/products/:id/reviews   → aprobadas + resumen agregado
 
    CON SESIÓN
-     POST /api/products/:id/reviews   → crear (una por usuario y producto)
+     POST   /api/products/:id/reviews        → crear (una por usuario y producto)
+     GET    /api/products/:id/reviews/mine  → mi reseña (o null)
+     PATCH  /api/reviews/:id                → editar la propia
 
    ADMIN (bajo /api/<slug>, rol admin + CSRF)
      GET    /reviews                  → todas, incluidas las ocultas
@@ -215,6 +217,77 @@ async function create(req, res, params, body) {
   json(res, 201, { resena: toReview(fila), resumen });
 }
 
+/* ---------------- Mi reseña (sesión, sin rol admin) ---------------- */
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * GET /api/products/:id/reviews/mine → la reseña del usuario logueado,
+ * o `null`. Se necesita porque la ficha es SSR con caché pública: el HTML
+ * no puede saber de quién es cada reseña.
+ */
+async function myReview(req, res, params) {
+  const current = await guards.requireUser(req, res);
+  if (!current) return;
+
+  const productId = String((params && params.id) || '').slice(0, 120);
+  if (!productId) return fail(res, 400, 'invalid_input', 'Falta el producto.');
+
+  const fila = await db.one(
+    'SELECT * FROM product_reviews WHERE product_id = $1 AND user_id = $2 LIMIT 1',
+    [productId, current.user.id]
+  );
+  json(res, 200, { resena: fila ? toReview(fila) : null });
+}
+
+/**
+ * PATCH /api/reviews/:id → editar la PROPIA reseña.
+ * No se puede editar la de otro ni cambiar `is_verified` / `is_approved`:
+ * esas las decide el servidor (o el admin), nunca el cliente.
+ */
+async function updateMine(req, res, params, body) {
+  const current = await guards.requireUser(req, res);
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+
+  const id = String((params && params.id) || '').slice(0, 64);
+  // Sin esto, un id que no es UUID hace que Postgres tire 500.
+  if (!UUID_RE.test(id)) return notFound(res);
+
+  const fila = await db.one('SELECT * FROM product_reviews WHERE id = $1', [id]);
+  if (!fila) return notFound(res);
+  if (!fila.user_id || fila.user_id !== current.user.id) {
+    return fail(res, 403, 'forbidden', 'Esa reseña no es tuya.');
+  }
+
+  const rating = V.int(body && body.rating, { min: 1, max: 5, field: 'puntaje' });
+  const cuerpo = V.str(body && body.cuerpo, {
+    min: LARGO_MIN, max: LARGO_MAX, field: 'reseña'
+  });
+
+  const actualizada = await db.one(
+    `UPDATE product_reviews
+        SET rating = $1, body = $2, updated_at = now()
+      WHERE id = $3
+      RETURNING *`,
+    [rating, cuerpo, id]
+  );
+
+  await audit.log({
+    actor: current.user,
+    action: 'review.update',
+    entityType: 'review',
+    entityId: id,
+    payload: { rating, producto: fila.product_id },
+    ip: getClientIp(req)
+  });
+
+  json(res, 200, {
+    resena: toReview(actualizada),
+    resumen: await resumenDe(fila.product_id)
+  });
+}
+
 /* ---------------- Admin ---------------- */
 
 async function listAdmin(req, res) {
@@ -301,7 +374,7 @@ async function deleteAdmin(req, res, params) {
 }
 
 module.exports = {
-  listForProduct, create, obtener, resumenesPara,
+  listForProduct, create, myReview, updateMine, obtener, resumenesPara,
   listAdmin, updateAdmin, deleteAdmin,
   resumenDe, toReview
 };

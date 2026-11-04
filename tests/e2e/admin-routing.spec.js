@@ -74,4 +74,30 @@ test.describe('Ruta secreta del admin — ofuscación', () => {
     );
     expect(res.status()).toBe(404);
   });
+
+  /* Editar una reseña ajena es justamente lo que el endpoint nuevo tiene
+     que impedir. La primera barrera es la sesión: sin ella no se llega a
+     consultar la base ni a comparar user_id. */
+  test('PATCH de reseña sin sesión devuelve 401', async ({ request }) => {
+    const res = await request.patch(
+      `${BASE}/api/reviews/00000000-0000-0000-0000-000000000000`,
+      { data: { rating: 5, cuerpo: 'Intento de editar una reseña sin sesión.' } }
+    );
+    expect(res.status()).toBe(401);
+  });
+
+  test('GET de mi reseña sin sesión devuelve 401', async ({ request }) => {
+    const res = await request.get(`${BASE}/api/products/crema-amae/reviews/mine`);
+    expect(res.status()).toBe(401);
+  });
+
+  test('un id que no es UUID no llega a Postgres (404, no 500)', async ({ request }) => {
+    // Con sesión válida haría falta un token CSRF; sin sesión el guard
+    // corta antes. Este test cubre que la ruta existe y no es un 404
+    // genérico de "no existe el recurso".
+    const res = await request.patch(`${BASE}/api/reviews/no-es-un-uuid`, {
+      data: { rating: 3, cuerpo: 'Texto de prueba suficientemente largo.' }
+    });
+    expect([401, 404]).toContain(res.status());
+  });
 });

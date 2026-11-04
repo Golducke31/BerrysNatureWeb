@@ -818,7 +818,7 @@ function reviewsSectionHtml(productId, nombre, resenas) {
 
   const listaHtml = items.length
     ? `<ul class="reviews-list" data-list>${items.map((r) => `
-        <li class="review" data-review>
+        <li class="review" data-review data-review-id="${esc(r.id)}">
           <div class="review__head">
             <span class="review__stars" aria-hidden="true">${starsHtml(r.rating)}</span>
             <span class="review__author">${esc(r.autor)}</span>

@@ -300,6 +300,12 @@
     createProductReview: function (productId, data) {
       return request('POST', '/api/products/' + encodeURIComponent(productId) + '/reviews', data);
     },
+    myProductReview: function (productId) {
+      return request('GET', '/api/products/' + encodeURIComponent(productId) + '/reviews/mine');
+    },
+    updateReview: function (id, data) {
+      return request('PATCH', '/api/reviews/' + encodeURIComponent(id), data);
+    },
     like: function (targetType, targetId) {
       return request('POST', '/api/likes', { targetType: targetType, targetId: targetId });
     },

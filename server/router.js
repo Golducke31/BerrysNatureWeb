@@ -326,13 +326,20 @@ async function handlePublic(req, res, method, seg) {
   /* Catálogo público de la tienda (tienda.html). */
   if (a === 'products') {
     if (b && c === 'reviews') {
-      if (method === 'GET') return reviews.listForProduct(req, res, { id: b });
-      if (method === 'POST') return reviews.create(req, res, { id: b }, await body(req));
+      if (seg[3] === 'mine' && method === 'GET') return reviews.myReview(req, res, { id: b });
+      if (!seg[3] && method === 'GET') return reviews.listForProduct(req, res, { id: b });
+      if (!seg[3] && method === 'POST') return reviews.create(req, res, { id: b }, await body(req));
       return http.notFound(res);
     }
     if (!b && method === 'GET') return products.listPublic(req, res);
     if (b && method === 'GET') return products.getPublic(req, res, { id: b });
     return http.notFound(res);
+  }
+
+  /* Editar la propia reseña. A diferencia de /api/<slug>/reviews, esta
+     ruta es pública pero exige sesión y CSRF adentro del handler. */
+  if (a === 'reviews' && b && !seg[3] && method === 'PATCH') {
+    return reviews.updateMine(req, res, { id: b }, await body(req));
   }
 
   /* Contenido público del sitio (p. ej. "Sobre Nosotros"). */

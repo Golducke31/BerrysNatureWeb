@@ -33,7 +33,7 @@
     var verified = r.verificada
       ? '<span class="review__verified">✔ Compra verificada</span>'
       : '';
-    return '<li class="review" data-review>' +
+    return '<li class="review" data-review data-review-id="' + escapeHtml(r.id) + '">' +
       '<div class="review__head">' +
         '<span class="review__stars" aria-hidden="true">' + starsText(r.rating) + '</span>' +
         '<span class="review__author">' + escapeHtml(r.autor) + '</span>' +
@@ -91,6 +91,20 @@
       else listWrap.appendChild(list);
     }
     list.insertAdjacentHTML('afterbegin', reviewHtml(r));
+  }
+
+  /* Reemplaza la tarjeta de una reseña ya existente (modo edición).
+     Se compara por atributo y no por selector CSS para no tener que
+     escapar un UUID dentro de [data-review-id="..."]. */
+  function aplicarEdicion(sec, r) {
+    var lis = sec.querySelectorAll('[data-review]');
+    for (var i = 0; i < lis.length; i++) {
+      if (lis[i].getAttribute('data-review-id') === String(r.id)) {
+        lis[i].outerHTML = reviewHtml(r);
+        return true;
+      }
+    }
+    return false;
   }
 
   function initGallery() {
@@ -179,15 +193,57 @@
     var form = $('#reviewForm');
     var loginBtn = $('#reviewLoginBtn');
     var hint = $('#reviewHint');
+    var btn = $('#reviewSubmit');
+    var api = window.BerrysAPI;
+
+    /* Si el usuario ya reseñó este producto, el MISMO formulario pasa a
+       modo edición: se precarga y el submit hace PATCH en vez de POST.
+       Así no hay dos formularios ni dos botones compitiendo. */
+    var editandoId = null;
+
+    function textoBoton() { return editandoId ? 'Guardar cambios' : 'Publicar reseña'; }
 
     function actualizarLogin() {
       var logged = !!(window.BerrysAuth && window.BerrysAuth.isLogged());
       if (form) form.hidden = !logged;
       if (loginBtn) loginBtn.hidden = logged;
-      if (hint) hint.hidden = logged;
+      if (hint) {
+        hint.hidden = logged && !editandoId;
+        hint.textContent = editandoId
+          ? 'Estás editando tu reseña.'
+          : 'Ingresá para dejar tu opinión.';
+      }
+      if (btn && !btn.disabled) btn.textContent = textoBoton();
+    }
+
+    function modoEdicion(r) {
+      editandoId = r && r.id ? r.id : null;
+      if (editandoId && form) {
+        var radio = form.querySelector('input[name="rating"][value="' + Number(r.rating) + '"]');
+        if (radio) radio.checked = true;
+        var cuerpo = $('#reviewCuerpo', form);
+        if (cuerpo) cuerpo.value = r.cuerpo || '';
+      } else if (form) {
+        form.reset();
+      }
+      actualizarLogin();
+    }
+
+    /* La ficha se sirve con caché pública, así que el HTML no puede saber
+       de quién es cada reseña. Se pregunta con la sesión del visitante. */
+    function cargarMiResena() {
+      if (!api || !api.available || !api.myProductReview) return Promise.resolve(null);
+      if (!(window.BerrysAuth && window.BerrysAuth.isLogged())) return Promise.resolve(null);
+      return api.myProductReview(productId)
+        .then(function (data) {
+          if (data && data.resena) modoEdicion(data.resena);
+          return data && data.resena;
+        })
+        .catch(function () { return null; });
     }
 
     actualizarLogin();
+    cargarMiResena();
 
     if (loginBtn) {
       loginBtn.addEventListener('click', function () {
@@ -212,26 +268,46 @@
         var cuerpo = (cuerpoEl && cuerpoEl.value || '').trim();
         if (cuerpo.length < 20) return window.toast && window.toast('Escribí al menos 20 caracteres.');
 
-        var api = window.BerrysAPI;
         if (!api || !api.available) return window.toast && window.toast('Necesitás el servidor para publicar.', 'warning');
 
-        var btn = $('#reviewSubmit');
-        if (btn) { btn.disabled = true; btn.textContent = 'Publicando…'; }
+        var eraEdicion = !!editandoId;
+        var datos = { rating: Number(ratingEl.value), cuerpo: cuerpo };
+        var peticion = eraEdicion
+          ? api.updateReview(editandoId, datos)
+          : api.createProductReview(productId, datos);
 
-        api.createProductReview(productId, { rating: Number(ratingEl.value), cuerpo: cuerpo })
+        if (btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
+
+        peticion
           .then(function (data) {
-            if (data && data.resena) {
+            if (!data || !data.resena) return;
+            if (eraEdicion) {
+              if (!aplicarEdicion(sec, data.resena)) aplicarNueva(sec, data.resena);
+            } else {
               aplicarNueva(sec, data.resena);
-              if (data.resumen) aplicarResumen(sec, data.resumen);
-              if (form) form.reset();
-              if (window.toast) window.toast('¡Gracias por tu reseña!', 'check');
+              modoEdicion(data.resena); // de ahora en más, editar
+            }
+            if (data.resumen) aplicarResumen(sec, data.resumen);
+            if (window.toast) {
+              window.toast(eraEdicion ? 'Reseña actualizada.' : '¡Gracias por tu reseña!', 'check');
             }
           })
           .catch(function (err) {
-            if (window.toast) window.toast((err && err.message) || 'No pudimos publicar tu reseña.', 'warning');
+            /* El POST devuelve 409 si ya existía (p. ej. sesión cambiada
+               o doble pestaña): en vez de dejar trabado al usuario,
+               cargamos su reseña y la ponemos en modo edición. */
+            if (!eraEdicion && err && err.code === 'already_reviewed') {
+              cargarMiResena().then(function (mia) {
+                if (mia && window.toast) window.toast('Ya tenías una reseña: ahora podés editarla.', 'warning');
+              });
+              return;
+            }
+            if (window.toast) {
+              window.toast((err && err.message) || 'No pudimos guardar tu reseña.', 'warning');
+            }
           })
           .then(function () {
-            if (btn) { btn.disabled = false; btn.textContent = 'Publicar reseña'; }
+            if (btn) { btn.disabled = false; btn.textContent = textoBoton(); }
             actualizarLogin();
           });
       });
