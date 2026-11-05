@@ -4,8 +4,8 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 254 tests que corren contra los `.html` con `file://`
-  (no requiere base de datos). Ver abajo los archivos 1–27.
+- **Suite estática (frontend):** 264 tests que corren contra los `.html` con `file://`
+  (no requiere base de datos). Ver abajo los archivos 1–28.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
   - `admin-routing.spec.js` (11 tests) — verifica la ofuscación de la ruta secreta del panel,
@@ -27,9 +27,9 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     pasa en verde tal cual.
 
 ## Test Files
-The static suite contains exactly 254 tests (the old catalog-hotspots and cart-integration specs
+The static suite contains exactly 264 tests (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (762 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (792 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
@@ -122,8 +122,16 @@ and WebKit (762 runs in total). The backend suite adds 50 tests (11 routing + 5 
       Reseñas de Google: payload real con pedido pagado, fecha futura, una sola invitación
       por pedido y ausencia de disparo sin email.
 
+28. `tests/e2e/ofertas-schema.spec.js` (10 tests)
+    - Regresión del incidente del 27/10/2026: 20 errores CRÍTICOS en Search Console
+      («Falta el campo price / priceSpecification.price» en `offers`). Cubre
+      `precioValido`, `tienePrecioValido` (incluido `priceSpecification` como objeto o
+      array), `ofertaJson`, que **ningún HTML fuente** publique un `Offer` sin precio,
+      que el respaldo estático de `tienda.html` quede vacío, y el SSR de `/tienda` con
+      precio nulo, cero y válido. El build (`check-urls.cjs`) falla si reaparece.
+
 ## Verification
-La suite estática (254 tests) está verificada y en verde. La suite de backend corre con
+La suite estática (264 tests) está verificada y en verde. La suite de backend corre con
 `npm run test:api`: los 11 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
 Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
 saltean si no hay `DATABASE_URL`.

@@ -33,6 +33,7 @@ const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
 const { BADGE_SCRIPT, asegurarFooter } = require('../lib/html-extras');
 const rating = require('../lib/rating');
+const oferta = require('../lib/oferta');
 const ficha = require('../lib/ficha');
 const reviews = require('./reviews');
 
@@ -1002,18 +1003,11 @@ async function renderProduct(req, res, { id }) {
   if (componentes.length) {
     productLd.isRelatedTo = componentes.map((c) => ({ '@type': 'Product', name: c.nombre }));
   }
-  if (typeof precio === 'number') {
-    productLd.offers = {
-      '@type': 'Offer',
-      price: precio,
-      priceCurrency: 'ARS',
-      availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      url: canonical,
-      itemCondition: 'https://schema.org/NewCondition',
-      seller: { '@type': 'Organization', name: "Berry's Nature", url: siteUrl() },
-      ...merchantPolicies()
-    };
-  }
+  const ofertaProducto = oferta.ofertaJson({
+    precio, url: canonical, enStock, base: siteUrl(), politicas: merchantPolicies()
+  });
+  // Sin precio real NO se publica Offer: hacerlo es un error crítico en GSC.
+  if (ofertaProducto) productLd.offers = ofertaProducto;
 
   // Prueba social visible para Google: promedio + cantidad de reseñas.
   if (resenas.resumen.total > 0) {
@@ -1631,18 +1625,14 @@ function buildCatalogoJsonLd(productos, resenasMap) {
 
       // stock null = sin control de stock → disponible.
       const enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
-      if (typeof p.precio === 'number') {
-        item.offers = {
-          '@type': 'Offer',
-          price: p.precio,
-          priceCurrency: 'ARS',
-          availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-          url: `${base}/productos/${encodeURIComponent(p.id)}`,
-          itemCondition: 'https://schema.org/NewCondition',
-          seller: { '@type': 'Organization', name: "Berry's Nature", url: base },
-          ...merchantPolicies()
-        };
-      }
+      const ofertaItem = oferta.ofertaJson({
+        precio: p.precio,
+        url: `${base}/productos/${encodeURIComponent(p.id)}`,
+        enStock,
+        base,
+        politicas: merchantPolicies()
+      });
+      if (ofertaItem) item.offers = ofertaItem;
 
       const r = resenasMap && resenasMap[p.id];
       if (r && Number(r.total) > 0 && Number(r.promedio) > 0) {

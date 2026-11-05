@@ -163,6 +163,48 @@ if (!redirects) {
   }
 }
 
+/* 6) Ningún `Offer` puede publicarse sin precio.
+   Google marca «Falta el campo price (o priceSpecification.price)» como
+   error CRÍTICO en Merchant listings y Product snippets. El 27/10/2026
+   el respaldo estático de tienda.html publicó 20 ofertas así. Se revisa
+   el artefacto publicado Y los HTML que la Function lee del código
+   fuente (included_files), porque esos NO pasan por dist/. */
+const { tienePrecioValido } = require('../server/lib/oferta');
+
+function ofertasSinPrecio(html, etiqueta) {
+  const problemas = [];
+  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let m;
+  while ((m = re.exec(html))) {
+    let data;
+    try { data = JSON.parse(m[1]); } catch (e) { continue; }
+    const visitar = (nodo, ruta) => {
+      if (!nodo || typeof nodo !== 'object') return;
+      if (Array.isArray(nodo)) {
+        nodo.forEach((x, i) => visitar(x, `${ruta}[${i}]`));
+        return;
+      }
+      if (nodo['@type'] === 'Offer' && !tienePrecioValido(nodo)) {
+        problemas.push(`${etiqueta}: Offer sin price numérico > 0 (${ruta})`);
+      }
+      for (const [k, v] of Object.entries(nodo)) visitar(v, `${ruta}.${k}`);
+    };
+    visitar(data, 'ld+json');
+  }
+  return problemas;
+}
+
+for (const rel of archivosHtml(DIR)) {
+  for (const e of ofertasSinPrecio(leer(rel) || '', rel)) errores.push(e);
+}
+for (const fuente of ['tienda.html', 'foro.html', '404.html']) {
+  const full = path.join(__dirname, '..', fuente);
+  if (!fs.existsSync(full)) continue;
+  for (const e of ofertasSinPrecio(fs.readFileSync(full, 'utf8'), `fuente/${fuente}`)) {
+    errores.push(e);
+  }
+}
+
 /* ---------------- Resultado ---------------- */
 
 if (errores.length) {

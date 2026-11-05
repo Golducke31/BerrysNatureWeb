@@ -412,6 +412,30 @@ contenidos, y el alcance de las fórmulas publicadas).
 Los enlaces están en el footer de todas las páginas y en la línea legal del modal de registro
 (que antes prometía "aceptás las reglas de la comunidad" sin ningún lugar adonde ir).
 
+## Datos estructurados de producto (Google)
+
+La ficha de cada producto (`/productos/<slug>`) y el `ItemList` de `/tienda` se generan en el
+servidor desde la BD. La regla que no se puede romper:
+
+> **Nunca publicar un `Offer` sin `price` numérico mayor que cero** (o
+> `priceSpecification.price`). Google lo marca como error **crítico** en los informes
+> *Fichas de comerciante* y *Fragmentos de productos*, y deja fuera los resultados enriquecidos.
+> `priceCurrency` solo, o un `price: 0` para «consultar precio», no sirven.
+
+- `server/lib/oferta.js` es la única constructora de `Offer`: si el precio no es válido devuelve
+  `null` y **no se emite la oferta** (el producto sigue con nombre, imagen y descripción).
+- `scripts/check-urls.cjs` recorre todos los `<script type="application/ld+json">` del build (y
+  los HTML que la Function lee del fuente) y **falla el build** si aparece un `Offer` sin precio.
+- El `#catalogoJsonLd` estático de `tienda.html` queda vacío a propósito: el SSR lo reemplaza
+  con datos reales y el navegador no lo pisa con el catálogo semilla hasta que `/api/products`
+  responde. Un respaldo estático con 20 ofertas sin precio causó 20 errores críticos el
+  27/10/2026.
+
+Tras desplegar un cambio de schema, en Search Console hay que abrir cada informe y pulsar
+**«Validar corrección»** (y, si hace falta, *Inspeccionar una URL → Solicitar indexación* sobre
+`/marca.html`, que hoy redirige 301 a `/tienda`). Los errores no desaparecen hasta que Google
+vuelve a rastrear; el 301 ya transfiere la autoridad de la URL vieja.
+
 ## Documentación
 
 - `PROJECT.md` — arquitectura, hitos y contratos de interfaz.

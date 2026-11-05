@@ -921,9 +921,20 @@
     return origin + (u.charAt(0) === '/' ? u : '/' + u);
   }
 
-  function actualizarJsonLd() {
+  function actualizarJsonLd(soloSiVacio) {
     var el = document.getElementById('catalogoJsonLd');
     if (!el || !productos.length) return;
+    /* El SSR ya entregó el ItemList con precios reales de la BD. Si el
+       cliente lo pisara con el catálogo semilla (20 productos, algunos sin
+       precio y con valores viejos) en el primer paint, Google podría leer
+       datos desactualizados. Solo rellenamos cuando el bloque viene vacío
+       (caída de la BD o file://); tras /api/products sí se reescribe. */
+    if (soloSiVacio) {
+      try {
+        var actual = JSON.parse(el.textContent);
+        if (actual && Array.isArray(actual.itemListElement) && actual.itemListElement.length) return;
+      } catch (e) { /* ilegible: lo regeneramos */ }
+    }
     var origin = window.location.origin || 'https://berrysnature.com.ar';
     var data = {
       '@context': 'https://schema.org',
@@ -940,7 +951,9 @@
           category: p.categoria
         };
         var enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
-        if (typeof p.precio === 'number') {
+        /* Nunca publicar un Offer sin price numérico > 0: Google lo marca
+           como error CRÍTICO en fichas de comerciante y de producto. */
+        if (typeof p.precio === 'number' && isFinite(p.precio) && p.precio > 0) {
           item.offers = {
             '@type': 'Offer',
             price: p.precio,
@@ -980,7 +993,7 @@
     renderProducts();
     renderCart();
     cargarZonas();
-    actualizarJsonLd();
+    actualizarJsonLd(true); // no pisa el ItemList del SSR
     cargarDesdeApi();
 
     var fab = $('#cartFab');
