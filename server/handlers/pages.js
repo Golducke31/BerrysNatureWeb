@@ -40,12 +40,15 @@ const reviews = require('./reviews');
 /* Fecha del último commit, escrita por scripts/build.cjs. Puede no existir en
    desarrollo (si nadie corrió el build): en ese caso el sitemap omite
    <lastmod> en vez de inventar la fecha actual. */
-let FECHA_BUILD = '';
 let SHA_BUILD = '';
+/* Mapa url → fecha real del último cambio del HTML, generado por el build
+   desde el historial de git. Vacío en desarrollo o en clones sin historia:
+   en ese caso el sitemap omite <lastmod> en vez de mentir. */
+let LASTMOD_ESTATICAS = {};
 try {
   const info = require('../lib/build-info');
-  FECHA_BUILD = info.date || '';
   SHA_BUILD = info.sha || '';
+  LASTMOD_ESTATICAS = info.lastmod || {};
 } catch (e) { /* sin build-info */ }
 
 /* El HTML que sale de acá no pasa por scripts/build.cjs (se lee del fuente),
@@ -187,6 +190,13 @@ function footerHtml() {
         <a href="/privacidad">Política de privacidad</a>
         <span aria-hidden="true">·</span>
         <a href="/terminos">Términos de uso</a>
+      </p>
+      <p class="footer-legal footer-nav" data-footer-nav>
+        <a href="/tienda">Tienda</a><span aria-hidden="true">·</span>
+        <a href="/academia">Academia</a><span aria-hidden="true">·</span>
+        <a href="/foro">Foro</a><span aria-hidden="true">·</span>
+        <a href="/glosario">Glosario</a><span aria-hidden="true">·</span>
+        <a href="/berrys-lab">Berry's Lab</a>
       </p>
       <div class="footer-social">
         <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
@@ -1486,14 +1496,15 @@ async function renderSitemap(req, res) {
   }
 
   const guiasEstaticas = guiasConPagina();
-  /* Sin build-info (desarrollo) queda vacío y las entradas estáticas salen
-     SIN <lastmod>, en lugar de mentir con la fecha del request. */
-  const hoy = FECHA_BUILD;
 
+  /* Nada de `hoy`: un lastmod idéntico en 23 páginas es una señal que
+     Google ignora por autogenerada. Cada estática declara la fecha real
+     de su último cambio (build-info.js); si no se conoce, sale SIN
+     <lastmod>. Las entidades de BD ya traen su updated_at. */
   const entradas = [
     ...PAGINAS_FIJAS.map((p) => ({
       loc: `${siteUrl()}${p.path}`,
-      lastmod: hoy,
+      lastmod: LASTMOD_ESTATICAS[p.path] || '',
       changefreq: p.changefreq,
       priority: p.priority
     })),
@@ -1501,31 +1512,31 @@ async function renderSitemap(req, res) {
     // afuera para no contradecir al meta.
     ...(legalesPublicadas ? PAGINAS_LEGALES.map((p) => ({
       loc: `${siteUrl()}${p.path}`,
-      lastmod: hoy,
+      lastmod: LASTMOD_ESTATICAS[p.path] || '',
       changefreq: p.changefreq,
       priority: p.priority
     })) : []),
     ...guiasEstaticas.map((g) => ({
       loc: `${siteUrl()}${g}`,
-      lastmod: hoy,
+      lastmod: LASTMOD_ESTATICAS[g] || '',
       changefreq: 'monthly',
       priority: '0.8'
     })),
     ...guiasDinamicas.map((g) => ({
       loc: `${siteUrl()}${g.path}`,
-      lastmod: g.lastmod || hoy,
+      lastmod: g.lastmod || '',
       changefreq: 'monthly',
       priority: '0.8'
     })),
     ...hilos.map((h) => ({
       loc: `${siteUrl()}${h.path}`,
-      lastmod: h.lastmod || hoy,
+      lastmod: h.lastmod || '',
       changefreq: 'weekly',
       priority: '0.6'
     })),
     ...productos.map((p) => ({
       loc: `${siteUrl()}${p.path}`,
-      lastmod: p.lastmod || hoy,
+      lastmod: p.lastmod || '',
       changefreq: 'weekly',
       priority: '0.7'
     }))
@@ -1768,7 +1779,14 @@ async function renderTienda(req, res) {
     console.error('[tienda] no se pudo generar el JSON-LD desde la BD:', err && err.message);
   }
 
-  return html(res, 200, versionar(markup));
+  /* html() por defecto manda `no-store`: correcto para un 404 o un perfil,
+     pero acá es la página hub que Google usa para descubrir las 14 fichas.
+     Sin caché de borde cada rastreo pega a la Function y el TTFB sube.
+     X-Robots-Tag explícito, igual que en las fichas y los hilos. */
+  return html(res, 200, versionar(markup), {
+    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
+    'X-Robots-Tag': 'index, follow'
+  });
 }
 
 /* ============================================================
@@ -1904,7 +1922,11 @@ async function renderForo(req, res) {
     console.error('[foro] no se pudo leer los hilos:', err && err.message);
   }
 
-  return html(res, 200, versionar(markup));
+  /* Mismo criterio que /tienda: es el hub de descubrimiento de los hilos. */
+  return html(res, 200, versionar(markup), {
+    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
+    'X-Robots-Tag': 'index, follow'
+  });
 }
 
 /**

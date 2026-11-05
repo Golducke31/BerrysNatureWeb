@@ -725,6 +725,16 @@
   border-bottom-color: var(--color-accent-dark);
 }
 
+/* Nav de descubrimiento: enlaces a los hubs desde TODAS las páginas.
+   Reusa .footer-legal para no duplicar estilos, pero se distingue con
+   un poco más de peso para que no compita con los enlaces legales. */
+.footer-nav {
+  margin-top: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.footer-nav a { color: var(--color-accent-dark); }
+
 @media (prefers-reduced-motion: reduce) {
   .footer-legal a { transition: none; }
 }

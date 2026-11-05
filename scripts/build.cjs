@@ -54,9 +54,43 @@ function commitDate() {
   return '';
 }
 
+/* Fecha del ÚLTIMO CAMBIO de un archivo, no del build.
+   Un mismo <lastmod> para las 23 páginas estáticas es exactamente lo que
+   Google describe como "generado automáticamente" y por lo tanto ignora.
+   Con el historial de git cada página declara CUÁNDO se tocó de verdad.
+   Si el clon es superficial y no hay historia, devolvemos '' y el sitemap
+   OMITE el lastmod (mejor ausente que falso). */
+function fechaDeArchivo(relativo) {
+  try {
+    return execSync(`git log -1 --format=%cI -- ${JSON.stringify(relativo)}`,
+      { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch (e) { return ''; }
+}
+
+function lastmodPorUrl() {
+  const mapa = {};
+  for (const p of urls.PAGINAS) {
+    const fecha = fechaDeArchivo(p.archivo);
+    if (fecha) mapa[p.url] = fecha;
+  }
+  const carpeta = path.join(ROOT, 'academia');
+  if (fs.existsSync(carpeta)) {
+    for (const nombre of fs.readdirSync(carpeta)) {
+      if (!nombre.endsWith('.html')) continue;
+      const relativo = `academia/${nombre}`;
+      const limpia = urls.urlDeArchivo(relativo);
+      const fecha = fechaDeArchivo(relativo);
+      if (limpia && fecha) mapa[limpia] = fecha;
+    }
+  }
+  return mapa;
+}
+
 function escribirBuildInfo() {
   /* Sin git (o clon sin historia) se usa la hora del build: sigue siendo una
-     fecha real del deploy, no la del request. */
+     fecha real del deploy, no la del request. Solo se usa como último
+     recurso; las URLs estáticas prefieren su fecha por archivo y, si no
+     la hay, salen SIN <lastmod>. */
   const fecha = commitDate() || new Date().toISOString();
   const destino = path.join(ROOT, 'server', 'lib', 'build-info.js');
   const contenido =
@@ -64,7 +98,8 @@ function escribirBuildInfo() {
     "'use strict';\n\n" +
     'module.exports = {\n' +
     `  sha: ${JSON.stringify(VERSION)},\n` +
-    `  date: ${JSON.stringify(fecha)}\n` +
+    `  date: ${JSON.stringify(fecha)},\n` +
+    `  lastmod: ${JSON.stringify(lastmodPorUrl(), null, 2)}\n` +
     '};\n';
   fs.mkdirSync(path.dirname(destino), { recursive: true });
   fs.writeFileSync(destino, contenido, 'utf8');

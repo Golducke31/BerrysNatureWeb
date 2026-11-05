@@ -4,8 +4,8 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 264 tests que corren contra los `.html` con `file://`
-  (no requiere base de datos). Ver abajo los archivos 1–28.
+- **Suite estática (frontend):** 272 tests que corren contra los `.html` con `file://`
+  (no requiere base de datos). Ver abajo los archivos 1–29.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
   - `admin-routing.spec.js` (11 tests) — verifica la ofuscación de la ruta secreta del panel,
@@ -27,9 +27,9 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     pasa en verde tal cual.
 
 ## Test Files
-The static suite contains exactly 264 tests (the old catalog-hotspots and cart-integration specs
+The static suite contains exactly 272 tests (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (792 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (816 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
@@ -130,15 +130,23 @@ and WebKit (792 runs in total). The backend suite adds 50 tests (11 routing + 5 
       que el respaldo estático de `tienda.html` quede vacío, y el SSR de `/tienda` con
       precio nulo, cero y válido. El build (`check-urls.cjs`) falla si reaparece.
 
+29. `tests/e2e/indexabilidad.spec.js` (8 tests)
+    - Regresión de la auditoría del 05/11/2026 (13 de 45 páginas en GSC).
+      Verifica los 5 enlaces internos a los hubs en los 29 footers y su
+      idempotencia, el `lastmod` real por URL (sin fecha global), que el
+      `build-info` generado tenga fechas variadas, que `check:index` esté
+      registrado y detecte bloqueos, y que `/tienda` y `/foro` salgan con
+      `s-maxage` + `X-Robots-Tag: index, follow` en vez de `no-store`.
+
 ## Verification
-La suite estática (264 tests) está verificada y en verde. La suite de backend corre con
+La suite estática (272 tests) está verificada y en verde. La suite de backend corre con
 `npm run test:api`: los 11 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
 Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
 saltean si no hay `DATABASE_URL`.
 
 - **Corrida verificada (05/11/2026):** backend **50/50** con `DATABASE_URL` (36 passed +
-  14 skipped sin DB). Estática **Chromium 264/264** en verde sobre el estado final.
-- Cross-browser completa: **792 corridas** (264 tests × 3 navegadores) → **760 passed,
+  14 skipped sin DB). Estática **Chromium 272/272** en verde sobre el estado final.
+- Cross-browser completa: **816 corridas** (272 tests × 3 navegadores) → **760 passed,
   31 failed, 1 flaky**; los 32 son todos WebKit por timeouts de `page.goto` sobre `file://`.
   Es una falla **preexistente del entorno**, no de estos cambios: el 03/11/2026 dio 602 de 633
   con la misma diferencia de 31, y se reproduce con un `index.html` sin scripts externos.

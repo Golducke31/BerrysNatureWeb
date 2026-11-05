@@ -19,6 +19,19 @@
 const MERCHANT_ID = 5896319322;
 const FB_URL = 'https://www.facebook.com/share/1JjL83dtQu/';
 
+/* Enlaces internos a las páginas hub. Google descubre las 34 fichas
+   (12 guías + 8 hilos + 14 productos) a través de estos listados; si el
+   único camino era el sitemap.xml, las páginas nuevas de un sitio con
+   poca autoridad tardan semanas en rastrearse. Van en TODOS los footers
+   para que cada página pase autoridad a los hubs. */
+const NAV_FOOTER = `      <p class="footer-legal footer-nav" data-footer-nav>
+        <a href="/tienda">Tienda</a><span aria-hidden="true">·</span>
+        <a href="/academia">Academia</a><span aria-hidden="true">·</span>
+        <a href="/foro">Foro</a><span aria-hidden="true">·</span>
+        <a href="/glosario">Glosario</a><span aria-hidden="true">·</span>
+        <a href="/berrys-lab">Berry's Lab</a>
+      </p>`;
+
 /* Mismo SVG que usa index.html y footerHtml() del SSR. Así las tres
    variantes del footer son idénticas. */
 const FB_ANCHOR = `
@@ -65,6 +78,17 @@ const BADGE_SCRIPT = `
     })();
   </script>`;
 
+/** Inserta el nav de hubs antes de los iconos sociales, una sola vez. */
+function asegurarNavFooter(html) {
+  const texto = String(html);
+  if (texto.includes('data-footer-nav')) return texto;
+  if (!/<div class="footer-social">/i.test(texto)) return texto;
+  return texto.replace(
+    /([ \t]*)(<div class="footer-social">)/i,
+    (m, sangria, div) => `${NAV_FOOTER}\n${sangria}${div}`
+  );
+}
+
 /** Inserta Facebook después del anchor de Instagram (Instagram · Facebook · WhatsApp). */
 function asegurarFacebook(html) {
   const texto = String(html);
@@ -85,7 +109,7 @@ function asegurarInsigniaGoogle(html) {
 }
 
 function asegurarFooter(html) {
-  return asegurarInsigniaGoogle(asegurarFacebook(html));
+  return asegurarInsigniaGoogle(asegurarNavFooter(asegurarFacebook(html)));
 }
 
 module.exports = {
@@ -93,7 +117,9 @@ module.exports = {
   FB_URL,
   FB_ANCHOR,
   BADGE_SCRIPT,
+  NAV_FOOTER,
   asegurarFacebook,
+  asegurarNavFooter,
   asegurarInsigniaGoogle,
   asegurarFooter
 };

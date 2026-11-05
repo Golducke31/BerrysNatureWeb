@@ -355,6 +355,45 @@ El `sitemap.xml` estático de la raíz **es solo un respaldo**: en Netlify la re
 tiene `force = true`, así que la Function gana siempre. Si se toca ese archivo hay que respetar la
 misma política (solo URLs finales) porque `scripts/check-urls.cjs` lo verifica en el build.
 
+## Índice de páginas: por qué GSC puede mostrar menos URLs que el sitemap
+
+`npm run check:index` audita **todas** las URLs del sitemap y responde si el problema es del
+sitio o de Google: estado HTTP, `canonical`, `noindex` (meta y cabecera HTTP), `Cache-Control`
+y cantidad de texto visible en `<main>`. Falla solo con bloqueos reales; el contenido delgado
+y `no-store` salen como avisos. Con `npm run check:index -- --json` se puede consumir desde CI.
+
+Diagnóstico del 05/11/2026 con 45 URLs: **45 indexables, 0 bloqueadas**. `robots.txt` permite
+todo, ninguna URL devuelve `noindex` y todos los canonical coinciden. Si Search Console sigue
+mostrando 13 páginas, **no es un bloqueo del sitio**: el informe «Páginas indexadas» tiene un
+retraso de días/semanas (el CSV exportado solo traía datos del 21–22 de octubre, anteriores a la
+reestructuración de URLs). Google necesita volver a rastrear cada URL nueva.
+
+Qué se hizo para acelerar ese rastreo:
+
+- **`<lastmod>` real por URL.** Antes 23 páginas compartían el timestamp del build; Google
+  documenta que un `lastmod` así se considera autogenerado y se ignora. `scripts/build.cjs`
+  ahora calcula la fecha del último cambio de cada HTML con `git log` y la guarda en
+  `server/lib/build-info.js`. Si no hay historial, el sitemap **omite** el `lastmod` en vez de
+  inventarlo. Las entidades de BD (guías, hilos, productos) ya usaban su `updated_at`.
+- **Caché en los hubs.** `/tienda` y `/foro` salían con `no-store` (default de `http.html()`),
+  lo que obliga a cada rastreo a pegarle a la Function. Ahora entregan `s-maxage=300` con
+  `stale-while-revalidate` y `X-Robots-Tag: index, follow`, igual que las fichas.
+- **Enlaces internos.** El footer de las 29 páginas enlaza a Tienda, Academia, Foro, Glosario
+  y Berry's Lab, para que las 34 fichas de detalle se descubran por enlaces y no solo por XML.
+
+### Sugerencias (del lado del negocio / de Search Console)
+
+1. **Completar las fichas.** Las 14 páginas de producto tienen ~700 caracteres en `<main>` y se
+   parecen entre sí (65–77 % de vocabulario compartido): es el motivo típico de
+   «Rastreada, actualmente no indexada». Los campos `descripcion_larga`, `beneficios`,
+   `modo_uso`, `advertencias` y `videos` ya son editables desde el panel y están **vacíos**.
+   Cargar contenido real de cada producto es la mejora con más impacto.
+2. En Search Console: *Inspeccionar una URL → Solicitar indexación* para las páginas clave,
+   y revisar el motivo en *Páginas → Rastreada, actualmente no indexada*.
+3. Reenviar/validar el sitemap (`/sitemap.xml`) después de cada deploy y darle unos días:
+   el recuento de páginas indexadas no se actualiza en tiempo real.
+4. Sumar enlaces contextuales desde las guías de la Academia hacia los productos relacionados.
+
 ## Verificación del sitio publicado
 
 `scripts/check-live.cjs` (`npm run check:live`) sale a la red y audita el dominio real. Es lo único
