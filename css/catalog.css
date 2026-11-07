@@ -246,6 +246,28 @@
   letter-spacing: 1.2px;
   color: var(--color-accent-terracota);
 }
+/* Precio de oferta en la tarjeta: original tachado + oferta en rojo. */
+.product-card__price--oferta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  padding: 5px 12px;
+  line-height: 1.05;
+}
+.product-card__old {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+.product-card__oferta {
+  font-family: var(--font-title);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-accent-terracota);
+}
 
 /* ---- Acciones de la tarjeta ---- */
 .product-card__actions {
@@ -698,7 +720,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: inherit;
 }
 .product-detail__title {
@@ -718,6 +740,35 @@
   border-radius: 0;
   box-shadow: none;
   color: var(--color-text);
+}
+/* Bloque de precio con oferta en la ficha: original tachado + oferta roja. */
+.product-detail__price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+.product-detail__price-old {
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+.product-detail__price-oferta {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-accent-terracota);
+}
+.product-detail__price-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  background: var(--color-accent-terracota);
+  padding: 3px 9px;
+  border-radius: 999px;
 }
 /* Resumen de reseñas junto al precio: ancla a la sección completa. */
 .product-detail__rating {
@@ -1076,6 +1127,39 @@
   padding: 0;
 }
 .product-gallery__thumb.is-active { border-color: var(--color-accent-terracota); }
+/* Miniatura de video: fondo neutro + botón de play centrado. */
+.product-gallery__thumb--video {
+  background-color: #2b2722;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.product-gallery__play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 252, 249, 0.92);
+  color: var(--color-accent-terracota);
+  font-size: 13px;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+}
+/* Video embebido en la media principal: ocupa todo el contenedor. */
+.product-detail__media-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+  background: #000;
+}
 
 /* ---- Barra de envío gratis en el carrito ---- */
 .cart-freeship { margin: 0 0 12px; }

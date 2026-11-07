@@ -40,6 +40,7 @@ function toProduct(r) {
     componentes: Array.isArray(r.componentes) ? r.componentes : [],
     activos: Array.isArray(r.activos) ? r.activos : [],
     precio: r.precio === null ? null : Number(r.precio),
+    oferta: (r.oferta === null || r.oferta === undefined) ? null : Number(r.oferta),
     imagen: r.imagen,
     imagenes: Array.isArray(r.imagenes) ? r.imagenes : [],
     origen: r.origen,
@@ -148,6 +149,20 @@ async function columnasSoportadas() {
 /** Precio: null = "Consultar precio". */
 function precioOpcional(value) {  if (value === null || value === undefined || value === '') return null;
   return V.int(value, { min: 0, max: 99999999 });
+}
+
+/* Precio de oferta (venta). null = sin oferta.
+   Reglas:
+   - Solo numeros positivos mayores a 0.
+   - Debe ser MENOR al precio pleno (precioRef): si no lo es, no es un
+     descuento real y lo guardamos como NULL para no mostrar basura.
+   - Si no hay precio pleno (consultar precio), tampoco hay oferta. */
+function ofertaOpcional(value, precioRef) {
+  if (value === null || value === undefined || value === '') return null;
+  const n = V.int(value, { min: 0, max: 99999999 });
+  if (n === null || n <= 0) return null;
+  if (typeof precioRef === 'number' && n >= precioRef) return null;
+  return n;
 }
 
 /** Stock: null = sin control. */
@@ -262,9 +277,14 @@ async function createProduct(req, res, body) {
   const soportadas = await columnasSoportadas();
   const ficha = valoresFicha(body);
   const extras = CAMPOS_FICHA.filter((c) => !soportadas || soportadas.has(c));
+  /* Oferta (migración 023): igual de gated que la ficha larga. */
+  const extrasOferta = (!soportadas || soportadas.has('oferta')) ? ['oferta'] : [];
 
-  const columnas = columnasBase.concat(extras);
-  const valores = valoresBase.concat(extras.map((c) => ficha[c]));
+  const columnas = columnasBase.concat(extras, extrasOferta);
+  const valores = valoresBase.concat(
+    extras.map((c) => ficha[c]),
+    extrasOferta.map(() => ofertaOpcional(body.oferta, precioOpcional(body.precio)))
+  );
   const placeholders = valores.map((_, i) => `$${i + 1}`).join(',');
 
   const row = await db.one(
@@ -297,6 +317,12 @@ async function updateProduct(req, res, params, body) {
   if (body.componentes !== undefined) patch.componentes = JSON.stringify(listaComponentes(body.componentes));
   if (body.activos !== undefined) patch.activos = JSON.stringify(listaTexto(body.activos, 8, 60));
   if (body.precio !== undefined) patch.precio = precioOpcional(body.precio);
+  if (body.oferta !== undefined) {
+    const precioRef = (body.precio !== undefined)
+      ? precioOpcional(body.precio)
+      : (row.precio === null ? null : Number(row.precio));
+    patch.oferta = ofertaOpcional(body.oferta, precioRef);
+  }
   if (body.imagen !== undefined) patch.imagen = V.clean(body.imagen).slice(0, 300);
   if (body.imagenes !== undefined) {
     const imagenes = listaImagenes(body.imagenes);
@@ -330,6 +356,10 @@ async function updateProduct(req, res, params, body) {
         delete patch[campo];
         console.warn(`[productos] falta la migración 022; se ignoró ${campo}`);
       }
+    }
+    if ('oferta' in patch && !soportadas.has('oferta')) {
+      delete patch.oferta;
+      console.warn('[productos] falta la migración 023; se ignoró oferta');
     }
   }
 

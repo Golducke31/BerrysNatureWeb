@@ -113,14 +113,49 @@
     var main = gallery.querySelector('#productGalleryMain');
     var thumbs = gallery.querySelectorAll('[data-gallery-thumb]');
     if (!main || thumbs.length < 2) return;
+
+    var nombre = ((document.querySelector('.product-detail__title') || {}).textContent || 'Producto');
+
+    function catText() {
+      var c = main.querySelector('.guide-card__cat');
+      return c ? c.textContent : '';
+    }
+    function mostrarImagen(url) {
+      var cat = catText();
+      main.innerHTML = '<img class="product-detail__img" src="' + escapeHtml(url) + '" alt="' +
+        escapeHtml(nombre) + '" loading="eager" decoding="async">' +
+        (cat ? '<span class="guide-card__cat">' + escapeHtml(cat) + '</span>' : '');
+    }
+    function mostrarVideo(embed) {
+      var esIframe = !/\.(mp4|webm|ogv)(?:[?#]|$)/i.test(embed);
+      main.innerHTML = '';
+      var el;
+      if (esIframe) {
+        el = document.createElement('iframe');
+        el.className = 'product-detail__media-video';
+        el.src = embed;
+        el.title = 'Video del producto';
+        el.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        el.allowFullscreen = true;
+        el.setAttribute('loading', 'lazy');
+      } else {
+        el = document.createElement('video');
+        el.className = 'product-detail__media-video';
+        el.src = embed;
+        el.controls = true;
+        el.setAttribute('preload', 'none');
+      }
+      main.appendChild(el);
+    }
+
     Array.prototype.forEach.call(thumbs, function (btn) {
       btn.addEventListener('click', function () {
         var url = btn.getAttribute('data-gallery-thumb');
-        var img = main.querySelector('img');
-        if (img) img.src = url;
-        else main.style.backgroundImage = "url('" + url + "')";
+        var tipo = btn.getAttribute('data-gallery-type');
         Array.prototype.forEach.call(thumbs, function (b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
+        if (tipo === 'video') mostrarVideo(url);
+        else mostrarImagen(url);
       });
     });
   }

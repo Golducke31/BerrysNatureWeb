@@ -1211,6 +1211,8 @@
         '</div>' +
         field('pPrecio', 'Precio (ARS)', 'number', 'Vacío = consultar precio',
           p && typeof p.precio === 'number' ? String(p.precio) : '') +
+        field('pOferta', 'Precio de oferta (ARS)', 'number', 'Vacío = sin oferta. Debe ser menor al precio.',
+          p && typeof p.oferta === 'number' ? String(p.oferta) : '') +
         field('pStock', 'Stock', 'number', 'Vacío = sin control de stock',
           p && typeof p.stock === 'number' ? String(p.stock) : '') +
         '<div class="admin-field admin-field--full"><label>Imágenes</label>' +
@@ -1284,6 +1286,7 @@
         var meta = $('#pMeta').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
         var activos = $('#pActivos').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
         var precioRaw = $('#pPrecio').value.trim();
+        var ofertaRaw = $('#pOferta').value.trim();
         var stockRaw = $('#pStock').value.trim();
 
         var payload = {
@@ -1305,6 +1308,7 @@
           meta: meta,
           activos: activos,
           precio: precioRaw === '' ? null : Number(precioRaw),
+          oferta: ofertaRaw === '' ? null : Number(ofertaRaw),
           stock: stockRaw === '' ? null : Number(stockRaw),
           orden: Number($('#pOrden').value) || 100,
           disponible: $('#pDisponible').checked,
@@ -1315,6 +1319,12 @@
         if (!payload.categoria) return toast('Falta la categoría.');
         if (precioRaw !== '' && (!Number.isFinite(payload.precio) || payload.precio < 0)) {
           return toast('El precio tiene que ser un número positivo.');
+        }
+        if (ofertaRaw !== '' && (!Number.isFinite(payload.oferta) || payload.oferta < 0)) {
+          return toast('El precio de oferta tiene que ser un número positivo.');
+        }
+        if (ofertaRaw !== '' && typeof payload.precio === 'number' && payload.oferta >= payload.precio) {
+          return toast('El precio de oferta debe ser menor al precio.');
         }
         if (stockRaw !== '' && (!Number.isFinite(payload.stock) || payload.stock < 0)) {
           return toast('El stock tiene que ser un número positivo.');

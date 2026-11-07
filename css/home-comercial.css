@@ -160,6 +160,9 @@
 .home-product h3 a { color: var(--color-text); text-decoration: none; }
 .home-product h3 a:hover { color: var(--color-terracota-deep); }
 .home-product__price { margin: 0; font-size: 16px; font-weight: 700; color: var(--color-accent-dark); }
+/* Precio de oferta en destacados: original tachado + oferta en rojo. */
+.home-product__price del { font-weight: 400; color: var(--color-text-muted); margin-right: 6px; }
+.home-product__oferta { color: var(--color-accent-terracota); }
 .home-product__btn {
   margin-top: auto;
   display: inline-block;

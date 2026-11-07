@@ -66,6 +66,13 @@
 
   function precioHtml(p) {
     if (typeof p.precio === 'number') {
+      var oferta = (typeof p.oferta === 'number' && p.oferta > 0 && p.oferta < p.precio) ? p.oferta : null;
+      if (oferta) {
+        return '<span class="product-card__price product-card__price--oferta">' +
+          '<del class="product-card__old">' + ars(p.precio) + '</del>' +
+          '<span class="product-card__oferta">' + ars(oferta) + '</span>' +
+        '</span>';
+      }
       return '<span class="product-card__price">' + ars(p.precio) + '</span>';
     }
     return '<span class="product-card__price is-consult">Consultar precio</span>';

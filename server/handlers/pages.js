@@ -24,6 +24,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const db = require('../lib/db');
+const videosLib = require('../lib/videos');
 const S = require('../lib/serialize');
 const indexability = require('../lib/indexability');
 const urls = require('../lib/urls');
@@ -34,7 +35,7 @@ const { esc } = require('../admin-ui');
 const { BADGE_SCRIPT, asegurarFooter } = require('../lib/html-extras');
 const nav = require('../lib/nav');
 const rating = require('../lib/rating');
-const oferta = require('../lib/oferta');
+const ofertaLib = require('../lib/oferta');
 const ficha = require('../lib/ficha');
 const reviews = require('./reviews');
 
@@ -889,9 +890,13 @@ async function renderProduct(req, res, { id }) {
   }
 
   const precio = (row.precio === null || row.precio === undefined) ? null : Number(row.precio);
+  const oferta = (row.oferta === null || row.oferta === undefined) ? null : Number(row.oferta);
   const imagenes = (Array.isArray(row.imagenes) && row.imagenes.length)
     ? row.imagenes.slice()
     : (row.imagen ? [row.imagen] : []);
+  /* Videos de uso (normalizados a embed seguro). Antes no se mostraban en
+     la ficha; ahora alimentan la galería junto con las imágenes. */
+  const videos = videosLib.listaVideos(row.videos);
   const componentes = Array.isArray(row.componentes) ? row.componentes : [];
   // Stock null = sin control de stock → se considera disponible.
   const enStock = (row.stock === null || row.stock === undefined) ? true : Number(row.stock) > 0;
@@ -900,6 +905,12 @@ async function renderProduct(req, res, { id }) {
   const precioTxt = typeof precio === 'number'
     ? '$ ' + precio.toLocaleString('es-AR')
     : 'Consultar precio';
+  /* Precio de oferta válido: es un número menor al precio pleno. Si no,
+     se ignora (no es un descuento real). precioReal es el que paga el
+     cliente y el que va al Offer de Google (rich results + Merchant). */
+  const ofertaValido = (typeof precio === 'number' && typeof oferta === 'number' && oferta > 0 && oferta < precio);
+  const ofertaTxt = ofertaValido ? '$ ' + oferta.toLocaleString('es-AR') : '';
+  const precioReal = ofertaValido ? oferta : precio;
   const meta = Array.isArray(row.meta) ? row.meta.filter(Boolean) : [];
   const activos = Array.isArray(row.activos) ? row.activos.filter(Boolean) : [];
   /* Si el dueño cargó la descripción ampliada, también alimenta el meta
@@ -949,8 +960,8 @@ async function renderProduct(req, res, { id }) {
   if (componentes.length) {
     productLd.isRelatedTo = componentes.map((c) => ({ '@type': 'Product', name: c.nombre }));
   }
-  const ofertaProducto = oferta.ofertaJson({
-    precio, url: canonical, enStock, base: siteUrl(), politicas: merchantPolicies()
+  const ofertaProducto = ofertaLib.ofertaJson({
+    precio: precioReal, url: canonical, enStock, base: siteUrl(), politicas: merchantPolicies()
   });
   // Sin precio real NO se publica Offer: hacerlo es un error crítico en GSC.
   if (ofertaProducto) productLd.offers = ofertaProducto;
@@ -1013,7 +1024,7 @@ async function renderProduct(req, res, { id }) {
     bodyAttrs: ` data-view-type="product" data-view-id="${esc(row.id)}"`,
     body: `
   <main>
-    <script type="application/json" id="analyticsProduct">${JSON.stringify({ id: row.id, nombre: row.nombre, precio }).replace(/</g, '\\u003c')}</script>
+    <script type="application/json" id="analyticsProduct">${JSON.stringify({ id: row.id, nombre: row.nombre, precio: precioReal }).replace(/</g, '\\u003c')}</script>
     <section class="product-detail-section">
       <p class="product-detail__breadcrumb">
         <a href="/">Inicio</a><span class="sep">/</span>
@@ -1023,14 +1034,19 @@ async function renderProduct(req, res, { id }) {
       <div class="product-detail">
         <div class="product-gallery" data-gallery>
           <div class="product-detail__media" id="productGalleryMain">
-            <img class="product-detail__img" src="${esc(imagenes[0] || '')}" alt="${esc(row.nombre)}" loading="eager" fetchpriority="high" decoding="async">
-            ${row.categoria ? `<span class="guide-card__cat">${esc(row.categoria)}</span>` : ''}
+            ${galeriaMainHtml(imagenes, videos, row)}
           </div>
-          ${imagenes.length > 1 ? `<div class="product-gallery__thumbs">${imagenes.map((u, i) => `<button type="button" class="product-gallery__thumb${i === 0 ? ' is-active' : ''}" data-gallery-thumb="${esc(u)}" style="background-image:url('${esc(u)}')" aria-label="Imagen ${i + 1}"></button>`).join('')}</div>` : ''}
+          ${(imagenes.length + videos.length) > 1 ? `<div class="product-gallery__thumbs">${galeriaThumbsHtml(imagenes, videos)}</div>` : ''}
         </div>
         <div class="product-detail__info">
           <h1 class="product-detail__title">${esc(row.nombre)}</h1>
-          <p class="product-card__price${typeof precio === 'number' ? '' : ' is-consult'}">${esc(precioTxt)}</p>
+          ${ofertaValido
+            ? `<p class="product-detail__price">
+                 <del class="product-detail__price-old">${esc(precioTxt)}</del>
+                 <span class="product-detail__price-oferta">${esc(ofertaTxt)}</span>
+                 <span class="product-detail__price-tag">Oferta</span>
+               </p>`
+            : `<p class="product-card__price${typeof precio === 'number' ? '' : ' is-consult'}">${esc(precioTxt)}</p>`}
           ${ratingCerca}
           ${!enStock ? '<p class="product-detail__stockout">Sin stock — escribinos por disponibilidad.</p>' : (typeof row.stock === 'number' && row.stock > 0 ? '<p class="product-detail__stock">' + row.stock + ' disponibles</p>' : '')}
           <div class="product-accordion">
@@ -1545,6 +1561,7 @@ function productoParaLd(r) {
     descripcion: r.descripcion,
     imagen: r.imagen,
     precio: (r.precio === null || r.precio === undefined) ? null : Number(r.precio),
+    oferta: (r.oferta === null || r.oferta === undefined) ? null : Number(r.oferta),
     stock: (r.stock === null || r.stock === undefined) ? null : Number(r.stock)
   };
 }
@@ -1572,7 +1589,7 @@ function buildCatalogoJsonLd(productos, resenasMap) {
 
       // stock null = sin control de stock → disponible.
       const enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
-      const ofertaItem = oferta.ofertaJson({
+      const ofertaItem = ofertaLib.ofertaJson({
         precio: p.precio,
         url: `${base}/productos/${encodeURIComponent(p.id)}`,
         enStock,
@@ -1607,6 +1624,49 @@ function precioArs(n) {
   return '$ ' + Number(n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 });
 }
 
+/* Poster de YouTube para la miniatura de video (Vimeo/archivo: sin poster). */
+function videoPoster(v) {
+  const m = /^https:\/\/www\.youtube-nocookie\.com\/embed\/([A-Za-z0-9_-]{11})/.exec(v.embed);
+  return m ? `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg` : '';
+}
+
+/* Media principal inicial de la galería: primera imagen, o primer video si
+   no hay imágenes. `tipo` se usa para que el JS sepa cómo reconstruirla. */
+function galeriaMainHtml(imagenes, videos, row) {
+  if (imagenes.length) {
+    return `<img class="product-detail__img" src="${esc(imagenes[0])}" alt="${esc(row.nombre)}" loading="eager" fetchpriority="high" decoding="async">` +
+      (row.categoria ? `<span class="guide-card__cat">${esc(row.categoria)}</span>` : '');
+  }
+  if (videos.length) {
+    const v = videos[0];
+    return v.tipo === 'iframe'
+      ? `<iframe class="product-detail__media-video" src="${esc(v.embed)}" title="${esc(v.titulo)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>`
+      : `<video class="product-detail__media-video" src="${esc(v.embed)}" controls preload="none" aria-label="${esc(v.titulo)}"></video>`;
+  }
+  return '';
+}
+
+/* Miniaturas de la galería: imágenes + videos. Cada una lleva data-gallery-type
+   para que js/producto.js sepa si al hacer click muestra foto o video. */
+function galeriaThumbsHtml(imagenes, videos) {
+  const parts = imagenes.map((u, i) =>
+    `<button type="button" class="product-gallery__thumb${i === 0 ? ' is-active' : ''}" ` +
+    `data-gallery-thumb="${esc(u)}" data-gallery-type="image" ` +
+    `style="background-image:url('${esc(u)}')" aria-label="Imagen ${i + 1}"></button>`
+  );
+  videos.forEach((v, i) => {
+    const idx = imagenes.length + i;
+    const poster = videoPoster(v);
+    const style = poster ? `style="background-image:url('${esc(poster)}')"` : '';
+    parts.push(
+      `<button type="button" class="product-gallery__thumb product-gallery__thumb--video${idx === 0 ? ' is-active' : ''}" ` +
+      `data-gallery-thumb="${esc(v.embed)}" data-gallery-type="video" ${style} aria-label="Video ${i + 1}">` +
+      `<span class="product-gallery__play" aria-hidden="true">▶</span></button>`
+    );
+  });
+  return parts.join('');
+}
+
 /**
  * Tarjetas del catálogo, renderizadas en el servidor.
  *
@@ -1626,6 +1686,7 @@ function catalogoHtml(filas, resenasMap) {
     const p = productoParaLd(r);
     const url = `/productos/${encodeURIComponent(p.id)}`;
     const conPrecio = typeof p.precio === 'number';
+    const ofertaValida = conPrecio && typeof r.oferta === 'number' && r.oferta > 0 && r.oferta < p.precio;
     const stock = (p.stock === null || p.stock === undefined) ? null : Number(p.stock);
     const chipStock = stock === 0
       ? '<span class="product-card__stockout">Sin stock</span>'
@@ -1649,7 +1710,7 @@ function catalogoHtml(filas, resenasMap) {
             <div class="guide-card__media">
               ${imagen ? `<img class="product-card__img" src="${esc(imagen)}" alt="${esc(p.nombre)}" loading="lazy" decoding="async">` : ''}
               <span class="guide-card__cat">${esc(p.categoria || '')}</span>
-              ${chipStock}<span class="product-card__price${conPrecio ? '' : ' is-consult'}">${conPrecio ? precioArs(p.precio) : 'Consultar precio'}</span>
+              ${chipStock}<span class="product-card__price${conPrecio ? '' : ' is-consult'}${ofertaValida ? ' product-card__price--oferta' : ''}">${conPrecio ? (ofertaValida ? `<del class="product-card__old">${precioArs(p.precio)}</del><span class="product-card__oferta">${precioArs(r.oferta)}</span>` : precioArs(p.precio)) : 'Consultar precio'}</span>
             </div>
             <div class="guide-card__body">
               <h3 class="guide-card__title"><a href="${esc(url)}">${esc(p.nombre)}</a></h3>
@@ -1891,6 +1952,11 @@ async function renderFeed(req, res) {
 
   const items = productos.map((p) => {
     const enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
+    /* Precio real de venta: oferta si es válida (menor al precio pleno),
+       sino el precio pleno. Así el feed coincide con lo que ve el usuario. */
+    const precioFinal = (typeof p.oferta === 'number' && p.oferta > 0 && p.oferta < p.precio)
+      ? p.oferta
+      : p.precio;
     const link = `${base}/productos/${encodeURIComponent(p.id)}`;
     const desc = String(
       p.descripcion || `${p.nombre} — cosmética natural artesanal de Berry's Nature.`
@@ -1901,7 +1967,7 @@ async function renderFeed(req, res) {
       <g:description>${escXml(desc)}</g:description>
       <g:link>${escXml(link)}</g:link>
       <g:image_link>${escXml(absAsset(p.imagen))}</g:image_link>
-      <g:price>${Number(p.precio).toFixed(2)} ARS</g:price>
+      <g:price>${Number(precioFinal).toFixed(2)} ARS</g:price>
       <g:availability>${enStock ? 'in stock' : 'out of stock'}</g:availability>
       <g:condition>new</g:condition>
       <g:brand>Berry's Nature</g:brand>
