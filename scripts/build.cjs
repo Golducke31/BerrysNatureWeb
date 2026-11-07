@@ -15,7 +15,8 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { execSync } = require('node:child_process');
+const crypto = require('node:crypto');
+const { execSync, execFileSync } = require('node:child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
@@ -54,23 +55,76 @@ function commitDate() {
   return '';
 }
 
-/* Fecha del ÚLTIMO CAMBIO de un archivo, no del build.
-   Un mismo <lastmod> para las 23 páginas estáticas es exactamente lo que
-   Google describe como "generado automáticamente" y por lo tanto ignora.
-   Con el historial de git cada página declara CUÁNDO se tocó de verdad.
-   Si el clon es superficial y no hay historia, devolvemos '' y el sitemap
-   OMITE el lastmod (mejor ausente que falso). */
-function fechaDeArchivo(relativo) {
+/* Huella del CONTENIDO SIGNIFICATIVO de una página.
+
+   `git log -1 -- archivo` no alcanza: un commit global (footer, insignia,
+   cache-bust de assets) toca los 23 HTML a la vez y TODAS las páginas pasan
+   a declarar la fecha de ese commit aunque su texto no haya cambiado. Eso es
+   exactamente lo que Google describe como lastmod "generado automáticamente"
+   y por eso lo ignora (build-sitemap: "Google uses the <lastmod> value if
+   it's consistently and verifiably accurate").
+
+   Para que la fecha sea real por página se descartan antes de hashear:
+   scripts inyectados, bloques globales [data-footer-nav], comentarios y el
+   ?v=<sha> del cache-bust. Lo que queda es el contenido propio de la página. */
+function huellaContenido(html) {
+  return String(html)
+    /* Sólo scripts EXTERNOS: el JSON-LD (application/ld+json) SÍ cuenta,
+       Google lo nombra explícitamente como cambio significativo. */
+    .replace(/<script\b[^>]*\bsrc=[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<[^>]*\bdata-footer-nav\b[^>]*>[\s\S]*?<\/p>/gi, ' ')
+    .replace(/\?v=[0-9a-f]+/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hash(texto) {
+  return crypto.createHash('sha256').update(texto).digest('hex');
+}
+
+/* Fecha del commit que INTRODUJO el contenido que se publica hoy.
+   Se recorre el historial desde el más nuevo hacia atrás mientras la huella
+   coincida: los commits cosméticos posteriores se saltean y queda la fecha
+   real del último cambio de contenido. Si no hay git/historia devuelve '' y
+   el sitemap OMITE <lastmod> (mejor ausente que falso). */
+function fechaCambioSignificativo(relativo) {
+  let actual;
   try {
-    return execSync(`git log -1 --format=%cI -- ${JSON.stringify(relativo)}`,
-      { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    actual = hash(huellaContenido(fs.readFileSync(path.join(ROOT, relativo), 'utf8')));
   } catch (e) { return ''; }
+
+  let historial;
+  try {
+    historial = execFileSync('git', ['log', '--format=%H%x09%cI', '--', relativo],
+      { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1024 * 1024 })
+      .toString().trim().split(/\r?\n/).filter(Boolean);
+  } catch (e) { return ''; }
+  if (!historial.length) return '';
+
+  let fecha = '';
+  for (const linea of historial) {
+    const [sha, iso] = linea.split('\t');
+    let contenido;
+    try {
+      contenido = execFileSync('git', ['show', `${sha}:${relativo}`],
+        { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 8 * 1024 * 1024 })
+        .toString('utf8');
+    } catch (e) { break; }  // el archivo no existía en ese commit
+    if (hash(huellaContenido(contenido)) !== actual) break;
+    fecha = iso;            // seguimos hacia atrás: queda la fecha MÁS VIEJA con este contenido
+  }
+
+  /* Working tree con cambios sin commitear: la huella no coincide con ningún
+     commit. Usamos la fecha del último commit real del archivo (nunca la hora
+     del build). Tras el commit, el cálculo vuelve a ser exacto. */
+  return fecha || historial[0].split('\t')[1] || '';
 }
 
 function lastmodPorUrl() {
   const mapa = {};
   for (const p of urls.PAGINAS) {
-    const fecha = fechaDeArchivo(p.archivo);
+    const fecha = fechaCambioSignificativo(p.archivo);
     if (fecha) mapa[p.url] = fecha;
   }
   const carpeta = path.join(ROOT, 'academia');
@@ -79,7 +133,7 @@ function lastmodPorUrl() {
       if (!nombre.endsWith('.html')) continue;
       const relativo = `academia/${nombre}`;
       const limpia = urls.urlDeArchivo(relativo);
-      const fecha = fechaDeArchivo(relativo);
+      const fecha = fechaCambioSignificativo(relativo);
       if (limpia && fecha) mapa[limpia] = fecha;
     }
   }
@@ -268,6 +322,19 @@ function verificarUrls() {
   }
 }
 
+/** Guarda: si el mapa de lastmod volvió a colapsar, el deploy no sale. */
+function verificarLastmod() {
+  try {
+    execSync(`node "${path.join(ROOT, 'scripts', 'check-lastmod.cjs')}"`, {
+      cwd: ROOT,
+      stdio: 'inherit'
+    });
+  } catch (err) {
+    console.error('\n  ✘ El mapa de <lastmod> no es confiable (ver arriba)\n');
+    process.exit(1);
+  }
+}
+
 /** Recorre dist/ y procesa (flags + cache-busting) todos los .html. */
 function versionAllHtml(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -344,8 +411,9 @@ function main() {
   const reglas = escribirRedirects();
   console.log(`  _redirects   ${reglas} reglas de URL limpia`);
 
-  /* Guarda: si el artefacto contradice la política, el deploy no sale. */
+  /* Guardas: si el artefacto contradice la política, el deploy no sale. */
   verificarUrls();
+  verificarLastmod();
 
   console.log(`\n  ✔ dist/ listo — ${mb} MB\n`);
 }

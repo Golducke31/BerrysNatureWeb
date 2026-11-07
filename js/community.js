@@ -37,6 +37,19 @@
     return escapeHtml(String(name || 'U').trim().charAt(0).toUpperCase() || 'U');
   }
 
+  /* "Mi cuenta" apunta a un shell `noindex` que conserva .html a propósito
+     (ver server/lib/urls.js). Pero el href tiene que ser ABSOLUTO en
+     producción: este script también corre en URLs anidadas como
+     /academia/<guia> o /foro/hilo/<id>, donde "cuenta.html" resolvería a
+     /academia/cuenta.html y daría 404. Bajo file:// (tests y apertura local)
+     no hay rewrites, así que ahí sigue siendo relativo. Mismo criterio que
+     hiloUrl() en js/api-client.js. */
+  function cuentaUrl() {
+    return (typeof window !== 'undefined' && window.location.protocol === 'file:')
+      ? 'cuenta.html'
+      : '/cuenta.html';
+  }
+
   /* ============================================================
      PINTAR LA NAV
      ============================================================ */
@@ -54,7 +67,7 @@
           '<span class="user-avatar">' + initial(currentUser.nombre) + '</span>' +
           '<span class="user-name">' + escapeHtml(currentUser.nombre) + '</span>' +
         '</button>' +
-        '<a class="nav-ghost-btn" id="accountBtn" href="cuenta.html">Mi cuenta</a>' +
+        '<a class="nav-ghost-btn" id="accountBtn" href="' + cuentaUrl() + '">Mi cuenta</a>' +
         extra +
         '<button class="nav-ghost-btn" id="logoutBtn" type="button">Salir</button>';
 

@@ -372,9 +372,20 @@ Qué se hizo para acelerar ese rastreo:
 
 - **`<lastmod>` real por URL.** Antes 23 páginas compartían el timestamp del build; Google
   documenta que un `lastmod` así se considera autogenerado y se ignora. `scripts/build.cjs`
-  ahora calcula la fecha del último cambio de cada HTML con `git log` y la guarda en
-  `server/lib/build-info.js`. Si no hay historial, el sitemap **omite** el `lastmod` en vez de
-  inventarlo. Las entidades de BD (guías, hilos, productos) ya usaban su `updated_at`.
+  calcula la fecha del **último cambio de contenido** de cada HTML: recorre el historial de git
+  comparando una huella del contenido significativo, así un commit global (footer, insignia,
+  cache-bust) no hace que todas las páginas declaren la misma fecha. El JSON-LD **sí** cuenta
+  (Google lo considera cambio significativo). El resultado va a
+  `server/lib/build-info.js` (generado, gitignored). Si no hay historial, el sitemap **omite**
+  el `lastmod` en vez de inventarlo. `npm run check:lastmod` falla el build si el mapa vuelve
+  a colapsar en una sola fecha o si alguna fecha es inválida/futura. Las entidades de BD
+  (guías, hilos, productos) ya usaban su `updated_at`.
+- **Enlaces internos `.html` también en JS/SSR.** `scripts/check-urls.cjs` sólo escaneaba
+  `dist/*.html`, pero la nav la inyecta `js/community.js` y los formularios los renderiza la
+  Function. Se agregó esa cobertura: falla si un `href` apunta a la versión `.html` de una
+  página con URL limpia (301 evitable) o si un `.html` va como ruta relativa (en URLs anidadas
+  como `/academia/<guía>` resuelve a `/academia/cuenta.html`, 404). `cuentaUrl()` usa ruta
+  absoluta en `http(s)` y relativa bajo `file://` para no romper los tests locales.
 - **Caché en los hubs.** `/tienda` y `/foro` salían con `no-store` (default de `http.html()`),
   lo que obliga a cada rastreo a pegarle a la Function. Ahora entregan `s-maxage=300` con
   `stale-while-revalidate` y `X-Robots-Tag: index, follow`, igual que las fichas.

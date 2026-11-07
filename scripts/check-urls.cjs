@@ -205,6 +205,35 @@ for (const fuente of ['tienda.html', 'foro.html', '404.html']) {
   }
 }
 
+/* 6) Enlaces internos que NO están en dist/*.html.
+   El escaneo de arriba sólo ve HTML estático, pero la nav de sesión la
+   inyecta js/community.js y los formularios los renderiza la Function
+   (server/handlers/pages.js). Un href relativo a un .html rompe en URLs
+   anidadas (/academia/<guia>, /foro/hilo/<id>), y un href a la versión
+   .html de una página con URL limpia obliga a un 301 en cada clic. Ninguno
+   de los dos aparecía en el artefacto, así que el build los dejaba pasar. */
+for (const dir of ['js', 'server/handlers']) {
+  const abs = path.join(__dirname, '..', dir);
+  if (!fs.existsSync(abs)) continue;
+  for (const nombre of fs.readdirSync(abs)) {
+    if (!/\.(js|cjs)$/.test(nombre)) continue;
+    const rel = `${dir}/${nombre}`;
+    const codigo = fs.readFileSync(path.join(abs, nombre), 'utf8');
+    for (const m of codigo.matchAll(/href=["']([^"']*\.html[^"']*)["']/gi)) {
+      const destino = m[1];
+      const limpio = urls.destinoLimpio(destino);
+      if (limpio) {
+        errores.push(`${rel}: enlace a ${destino} (debería ser ${limpio})`);
+      } else if (!destino.startsWith('/') && !/^https?:\/\//i.test(destino)) {
+        errores.push(
+          `${rel}: href relativo "${destino}" a un .html; en URLs anidadas resuelve mal ` +
+          `(usá ruta absoluta o una URL calculada según el protocolo)`
+        );
+      }
+    }
+  }
+}
+
 /* ---------------- Resultado ---------------- */
 
 if (errores.length) {
