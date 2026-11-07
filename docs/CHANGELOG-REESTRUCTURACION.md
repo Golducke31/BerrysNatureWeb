@@ -10,7 +10,8 @@ Alcance aprobado: **plan reducido** (diagnóstico Fase 0 → intervención quir�
 |---|---|---|
 | `9be05f7` | F1/F2 | Componente compartido de navegación + tienda en la misma pestaña + carrito global |
 | `697ae8b` | F3 | Home como puerta comercial |
-| *(este)* | F5 | Auditoría de enlaces, corrección de 12 anclas rotas, tests y documentación |
+| `e516814` | F5 | Auditoría de enlaces, corrección de 12 anclas rotas, tests y documentación |
+| *(fix)* | Visual | Tres correcciones detectadas al revisar las capturas (ver abajo) |
 
 `b0d699b` (commit local previo, ya existente antes de esta rama) queda incluido como base: *"SEO: lastmod por contenido real y cobertura de enlaces .html en JS/SSR"*.
 
@@ -39,12 +40,21 @@ Alcance aprobado: **plan reducido** (diagnóstico Fase 0 → intervención quir�
 - Sin testimonios, estrellas, reseñas ni cifras inventadas. Sin URLs nuevas.
 - **Nuevo** `css/home-comercial.css`, respetando paleta y tipografías existentes.
 
-## F5 — Auditoría y documentación (este commit)
+## F5 — Auditoría y documentación (commiteado)
 
 - **Nuevo** `scripts/audit-links.js`: resuelve cada `href` como el hosting, detecta enlaces rotos, anclas inexistentes, páginas huérfanas y URLs del sitemap sin destino. Corre sobre `dist/`.
 - 12 guías de `academia/` enlazaban a `/academia#foro`, un ancla que ya no existe → ahora apuntan a `/foro`.
 - **Nuevo** `tests/e2e/audit-links.spec.js` (3 casos de regresión).
 - Documentos: este changelog, `mapa-de-redirecciones.md`, `mapa-de-keywords.md`, `SEO-RECOMENDACIONES.md`, `informe-final.md`.
+
+## Visual — correcciones de las capturas (commiteado)
+
+Detectadas al revisar las capturas de hero/menús en desktop y móvil:
+
+- **`css/home-comercial.css`** — tarjetas de "Productos destacados" con altura de imagen desigual (273/484/363/340 px porque el `aspect-ratio` se perdía contra la altura intrínseca de cada `.webp`). Se fija en `aspect-ratio: 1/1` + `object-fit: contain` + `height:auto`, dejando las 4 tarjetas alineadas. También la etiqueta "Selección de la tienda" pasó de `display:block` (barra blanca de ancho completo) a `inline-block` (pill, igual que el resto del sitio).
+- **`css/nav-shared.css`** — la flecha (caret) del submenú móvil "Categorías" apuntaba a la izquierda (heredaba un `rotate(90deg)` pensado para otro icono). Ahora rota `90deg` a la derecha cuando el grupo está abierto, coherente con un submenú expandido.
+
+Sin cambios de estructura: sólo CSS, sin tocar HTML ni JS de la página. Build OK y suite Chromium **285 passed, 0 rotos** tras los fixes.
 
 ## Diferido explícitamente por el usuario
 

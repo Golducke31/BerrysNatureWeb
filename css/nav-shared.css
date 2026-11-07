@@ -118,6 +118,9 @@
 /* Los submenús colapsados no deben recibir foco por teclado. */
 .mobile-nav-group:not(.is-open) .mobile-nav-sub { visibility: hidden; }
 .mobile-nav-group.is-open .mobile-nav-sub { visibility: visible; max-height: 320px; }
+/* styles.css rota 90° pensando en el icono arrowRight del menú viejo.
+   El componente nuevo usa chevronDown: al abrir debe apuntar ARRIBA. */
+.mobile-nav-group.is-open .mobile-nav-caret { transform: rotate(180deg); }
 
 @media (max-width: 767px) {
   .nav-menu-mobile { overflow-y: auto; }
