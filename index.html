@@ -68,6 +68,7 @@
   }
   </script>
   <link rel="stylesheet" href="css/nav-shared.css">
+  <link rel="stylesheet" href="css/home-comercial.css">
 </head>
 <body>
 
@@ -199,29 +200,170 @@
             Cosmética natural, <br><span class="accent-text">hecha a mano</span>
           </h1>
           <p class="hero-description">
-            Jabones, champús y acondicionadores sólidos, sérums y cremas con activos de origen vegetal.
-            Comprá en nuestra tienda, aprendé en la Academia y sumate a la comunidad de formuladores.
+            Jabones, champús y acondicionadores sólidos, sérums y cremas con activos de
+            origen vegetal, elaborados en pequeños lotes.
           </p>
           <div class="hero-actions-grid">
-            <a href="/tienda" class="cta-button" data-magnetic="5"><i data-icon="cart"></i> Tienda Berry's Nature</a>
-            <a href="/academia" class="cta-button" data-magnetic="5"><i data-icon="leaf"></i> Explorar la Academia</a>
-            <a href="/foro" class="cta-button cta-outline" data-magnetic="5"><i data-icon="chat"></i> Comunidad</a>
+            <a href="/tienda" class="cta-button hero-cta-primary" data-magnetic="5"><i data-icon="cart" aria-hidden="true"></i> Explorar la tienda</a>
           </div>
-          <a href="/glosario" class="hero-text-link">Explorar el glosario de ingredientes <span aria-hidden="true">→</span></a>
-          <ul class="hero-trust-row">
-            <li><i data-icon="seedling"></i> Elaboración artesanal por lotes</li>
-            <li><i data-icon="pin"></i> Hecho en Argentina, Buenos Aires</li>
-            <li><i data-icon="chat"></i> Comunidad activa</li>
-          </ul>
+          <p class="hero-secondary-links">
+            <a href="/academia">Aprendé en la Academia</a>
+            <span aria-hidden="true">·</span>
+            <a href="/foro">Comunidad</a>
+            <span aria-hidden="true">·</span>
+            <a href="/glosario">Glosario de ingredientes</a>
+          </p>
         </div>
 
       </div>
     </section>
 
     <!-- ============================================================
-         BERRY'S LAB — destacado arriba del todo
-         Producto de mayor ticket y rentabilidad de la marca:
-         se promociona justo debajo del hero para máxima visibilidad.
+         SEÑALES DE CONFIANZA — solo afirmaciones ya publicadas en el sitio
+    ============================================================= -->
+    <section id="confianza" class="home-section home-trust" aria-labelledby="confianza-title">
+      <div class="home-wrap">
+        <h2 id="confianza-title" class="home-h2">Cómo elaboramos</h2>
+        <ul class="home-trust-grid">
+          <li><i data-icon="seedling" aria-hidden="true"></i><span>Elaboración artesanal por lotes</span></li>
+          <li><i data-icon="pin" aria-hidden="true"></i><span>Hecho en Argentina</span></li>
+          <li><i data-icon="leaf" aria-hidden="true"></i><span>Ingredientes de origen vegetal</span></li>
+          <li><i data-icon="heart" aria-hidden="true"></i><span>Cruelty free</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CATEGORÍAS — enlazan a /tienda con hash, sin crear URLs nuevas
+    ============================================================= -->
+    <section id="categorias" class="home-section" aria-labelledby="categorias-title">
+      <div class="home-wrap">
+        <span class="section-label-tag">Tienda</span>
+        <h2 id="categorias-title" class="home-h2">Encontrá lo que buscás</h2>
+        <div class="home-cat-grid">
+          <a class="home-cat" href="/tienda#categoria-cabello">
+            <i data-icon="droplet" aria-hidden="true"></i>
+            <strong>Cabello</strong>
+            <span>Shampús, acondicionadores y crema de enjuague sólidos y en crema.</span>
+          </a>
+          <a class="home-cat" href="/tienda#categoria-facial">
+            <i data-icon="flask" aria-hidden="true"></i>
+            <strong>Facial</strong>
+            <span>Sérums, cremas y agua micelar para la rutina diaria.</span>
+          </a>
+          <a class="home-cat" href="/tienda#categoria-jabones">
+            <i data-icon="soap" aria-hidden="true"></i>
+            <strong>Jabones</strong>
+            <span>Jabones artesanales elaborados por lotes.</span>
+          </a>
+          <a class="home-cat" href="/tienda#categoria-corporal">
+            <i data-icon="gem" aria-hidden="true"></i>
+            <strong>Corporal</strong>
+            <span>Exfoliantes, aceites, cremas y sales de baño.</span>
+          </a>
+          <a class="home-cat" href="/tienda#categoria-labios">
+            <i data-icon="heart" aria-hidden="true"></i>
+            <strong>Labios</strong>
+            <span>Bálsamo labial de la línea artesanal.</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PRODUCTOS DESTACADOS — datos reales de js/catalog-data.js
+    ============================================================= -->
+    <section id="destacados" class="home-section" aria-labelledby="destacados-title">
+      <div class="home-wrap">
+        <span class="section-label-tag">Selección de la tienda</span>
+        <h2 id="destacados-title" class="home-h2">Productos destacados</h2>
+        <div class="home-product-grid">
+          <article class="home-product">
+            <a class="home-product__media" href="/productos/pack-jabones-x4">
+              <img src="assets/productos/p01-pack-jabones-x4.webp" width="512" height="512" alt="Pack Jabones Artesanales ×4 de Berry's Nature" loading="lazy" decoding="async">
+            </a>
+            <div class="home-product__body">
+              <p class="home-product__meta">Jabones · Pack de 4</p>
+              <h3><a href="/productos/pack-jabones-x4">Pack Jabones Artesanales ×4</a></h3>
+              <p class="home-product__price">$ 15.000</p>
+              <a class="home-product__btn" href="/productos/pack-jabones-x4">Ver producto</a>
+            </div>
+          </article>
+          <article class="home-product">
+            <a class="home-product__media" href="/productos/shampoo-solido">
+              <img src="assets/productos/p16-shampoo-solido.webp" width="288" height="512" alt="Shampoo Sólido de Berry's Nature" loading="lazy" decoding="async">
+            </a>
+            <div class="home-product__body">
+              <p class="home-product__meta">Cabello · 100 g</p>
+              <h3><a href="/productos/shampoo-solido">Shampoo Sólido</a></h3>
+              <p class="home-product__price">$ 14.000</p>
+              <a class="home-product__btn" href="/productos/shampoo-solido">Ver producto</a>
+            </div>
+          </article>
+          <article class="home-product">
+            <a class="home-product__media" href="/productos/serum-aqua-premium">
+              <img src="assets/productos/p06-serum-aqua-premium.webp" width="384" height="512" alt="Sérum Aqua Premium de Berry's Nature" loading="lazy" decoding="async">
+            </a>
+            <div class="home-product__body">
+              <p class="home-product__meta">Facial · 60 ml</p>
+              <h3><a href="/productos/serum-aqua-premium">Sérum Aqua Premium</a></h3>
+              <p class="home-product__price">$ 12.000</p>
+              <a class="home-product__btn" href="/productos/serum-aqua-premium">Ver producto</a>
+            </div>
+          </article>
+          <article class="home-product">
+            <a class="home-product__media" href="/productos/agua-micelar">
+              <img src="assets/productos/p18-agua-micelar.webp" width="410" height="512" alt="Agua Micelar Berry's Nature" loading="lazy" decoding="async">
+            </a>
+            <div class="home-product__body">
+              <p class="home-product__meta">Facial · 200 ml</p>
+              <h3><a href="/productos/agua-micelar">Agua Micelar Berry's Nature</a></h3>
+              <p class="home-product__price">$ 5.000</p>
+              <a class="home-product__btn" href="/productos/agua-micelar">Ver producto</a>
+            </div>
+          </article>
+        </div>
+        <p class="home-actions"><a class="cta-button" href="/tienda">Ver toda la tienda</a></p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         APRENDÉ Y COMUNIDAD — secundarios, sin afirmar actividad real
+    ============================================================= -->
+    <section id="aprende" class="home-section" aria-labelledby="aprende-title">
+      <div class="home-wrap">
+        <h2 id="aprende-title" class="home-h2">Aprendé y compartí</h2>
+        <div class="home-hub-grid">
+          <a class="home-hub" href="/academia">
+            <i data-icon="book" aria-hidden="true"></i>
+            <strong>Academia</strong>
+            <span>Guías sobre formulación, costos por lote y buenas prácticas.</span>
+          </a>
+          <a class="home-hub" href="/glosario">
+            <i data-icon="flask" aria-hidden="true"></i>
+            <strong>Glosario</strong>
+            <span>Qué es cada ingrediente, para qué se usa y su nombre INCI.</span>
+          </a>
+          <a class="home-hub" href="/foro">
+            <i data-icon="chat" aria-hidden="true"></i>
+            <strong>Comunidad</strong>
+            <span>Foro para intercambiar dudas y experiencias de formulación.</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         GUÍAS / PROVEEDORES / FÓRMULAS
+         Se mudaron a la página interna "Berry's Academy"
+         (academia.html) para descongestionar la home.
+         El menú apunta allí con anclas internas.
+    ============================================================= -->
+
+
+
+    <!-- ============================================================
+         BERRY'S LAB — secundario: después de tienda, categorías y comunidad
     ============================================================= -->
     <section id="berrys-lab" class="lab-featured" tabindex="-1">
       <div class="lab-featured__inner">
@@ -241,15 +383,6 @@
         </div>
       </div>
     </section>
-
-    <!-- ============================================================
-         GUÍAS / PROVEEDORES / FÓRMULAS
-         Se mudaron a la página interna "Berry's Academy"
-         (academia.html) para descongestionar la home.
-         El menú apunta allí con anclas internas.
-    ============================================================= -->
-
-
 
     <!-- ============================
          SOBRE NOSOTROS
@@ -388,6 +521,15 @@
           </a>
         </div>
 
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="home-final-cta" aria-labelledby="home-final-title">
+      <div class="home-wrap">
+        <h2 id="home-final-title">Tu rutina empieza acá</h2>
+        <p>Explorá el catálogo completo de cosmética natural artesanal.</p>
+        <a class="cta-button" href="/tienda">Explorar la tienda</a>
       </div>
     </section>
 

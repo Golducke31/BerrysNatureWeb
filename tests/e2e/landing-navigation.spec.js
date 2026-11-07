@@ -58,27 +58,26 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     expect(heroHeight).toBeGreaterThanOrEqual(viewport.height - 120);
   });
 
-  // T1-F2-02: CTA principal a la Academia
-  test('T1-F2-02: El CTA principal lleva a la Academia', async ({ page }) => {
-    const cta = page.locator('.hero-actions-grid a', { hasText: 'Explorar la Academia' });
+  // T1-F2-02: la home es puerta comercial → CTA principal a la tienda
+  test('T1-F2-02: El CTA principal lleva a la tienda', async ({ page }) => {
+    const cta = page.locator('.hero-actions-grid a', { hasText: 'Explorar la tienda' });
     await expect(cta).toBeVisible();
-    await expect(cta).toHaveAttribute('href', /^\/academia$/);
+    await expect(cta).toHaveAttribute('href', /^\/tienda$/);
   });
 
-  // T1-F2-03: los CTA del hero apuntan a páginas reales del sitio
-  test('T1-F2-03: Los 3 CTA del hero apuntan a URLs reales (sin redirecciones)', async ({ page }) => {
+  // T1-F2-03: un único CTA dominante, a una URL real del sitio
+  test('T1-F2-03: El CTA del hero apunta a una URL real (sin redirecciones)', async ({ page }) => {
     const urls = require('../../server/lib/urls.js');
     const cta = page.locator('.hero-actions-grid a.cta-button');
-    await expect(cta).toHaveCount(3);
+    await expect(cta).toHaveCount(1);
 
-    for (let i = 0; i < 3; i++) {
-      const href = await cta.nth(i).getAttribute('href');
-      // Cada destino tiene que ser una URL limpia conocida del sitio.
-      expect(urls.archivoDeUrl(href), href).not.toBeNull();
-      // Y no puede ser una que después redirija (gastaría un salto de rastreo).
-      expect(urls.destinoLimpio(href), href).toBeNull();
-      expect(urls.destinoSinBarra(href), href).toBeNull();
-    }
+    const href = await cta.getAttribute('href');
+    expect(urls.archivoDeUrl(href), href).not.toBeNull();
+    expect(urls.destinoLimpio(href), href).toBeNull();
+    expect(urls.destinoSinBarra(href), href).toBeNull();
+
+    // Academia, Comunidad y Glosario quedan como enlaces secundarios.
+    await expect(page.locator('.hero-secondary-links a')).toHaveCount(3);
   });
 
   // T1-F2-04: Tipografía del hero (Playfair Display)
@@ -89,10 +88,14 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
   });
 
   // T1-F2-05: Grilla de CTA del hero
-  test('T1-F2-05: El hero muestra la grilla de CTA con 3 botones', async ({ page }) => {
+  test('T1-F2-05: El hero muestra un único CTA dominante y 4 señales de confianza', async ({ page }) => {
     const grid = page.locator('.hero-actions-grid');
     await expect(grid).toBeVisible();
-    await expect(grid.locator('.cta-button')).toHaveCount(3);
+    await expect(grid.locator('.cta-button')).toHaveCount(1);
+    await expect(page.locator('.home-trust-grid li')).toHaveCount(4);
+    await expect(page.locator('#categorias .home-cat')).toHaveCount(5);
+    await expect(page.locator('#destacados .home-product')).toHaveCount(4);
+    await expect(page.locator('h1')).toHaveCount(1);
   });
 
   // T2-F1-01: Clase .scrolled tras scroll > 15px

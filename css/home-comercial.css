@@ -1,0 +1,202 @@
+/* ============================================================
+   home-comercial.css — secciones nuevas de la home
+
+   Reordena la home como puerta de entrada a la tienda. Usa EXCLUSIVAMENTE
+   las variables de color y tipografías de styles.css: no cambia la paleta.
+   Todas las grillas usan minmax(0, 1fr) y box-sizing para no generar
+   scroll horizontal en 320px (guarda responsive-overflow.spec.js).
+   ============================================================ */
+
+.home-wrap {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+.home-section { padding: 64px 0; }
+.home-section + .home-section { padding-top: 24px; }
+.home-h2 {
+  font-family: var(--font-title);
+  font-weight: 500;
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.2;
+  color: var(--color-text);
+  margin: 0 0 28px;
+}
+.home-section .section-label-tag { display: block; margin-bottom: 10px; }
+
+/* ---------- Hero: un CTA dominante, enlaces secundarios de menor peso ---------- */
+.hero-cta-primary {
+  background-color: var(--color-accent-dark);
+  color: var(--color-white);
+  border-color: var(--color-accent-dark);
+  font-size: 15px;
+  padding: 18px 40px;
+}
+.hero-cta-primary:hover,
+.hero-cta-primary:focus-visible {
+  background-color: var(--color-terracota-deep);
+  color: var(--color-white);
+}
+.hero-secondary-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 18px 0 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+.hero-secondary-links a {
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hero-secondary-links a:hover,
+.hero-secondary-links a:focus-visible { color: var(--color-terracota-deep); }
+
+/* ---------- Señales de confianza ---------- */
+.home-trust { background: var(--bg-card); padding: 48px 0; }
+.home-trust .home-h2 { margin-bottom: 22px; font-size: clamp(22px, 3vw, 30px); }
+.home-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home-trust-grid li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--color-line-warm);
+  border-radius: 12px;
+  background: var(--bg-main);
+  font-size: 14px;
+  color: var(--color-text);
+}
+.home-trust-grid svg { flex: 0 0 auto; width: 20px; height: 20px; color: var(--color-accent-dark); }
+
+/* ---------- Categorías ---------- */
+.home-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+.home-cat,
+.home-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 22px 18px;
+  border: 1px solid var(--color-line-warm);
+  border-radius: 14px;
+  background: var(--bg-card);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.home-cat:hover,
+.home-cat:focus-visible,
+.home-hub:hover,
+.home-hub:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--color-cta);
+}
+.home-cat svg,
+.home-hub svg { width: 26px; height: 26px; color: var(--color-accent-dark); }
+.home-cat strong,
+.home-hub strong { font-family: var(--font-title); font-size: 19px; font-weight: 500; }
+.home-cat span,
+.home-hub span { font-size: 13px; line-height: 1.5; color: var(--color-text-muted); }
+
+/* ---------- Productos destacados ---------- */
+.home-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.home-product {
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-line-warm);
+  border-radius: 14px;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+.home-product__media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--bg-main);
+}
+.home-product__media img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.home-product__body { display: flex; flex-direction: column; gap: 8px; padding: 16px; flex: 1 1 auto; }
+.home-product__meta { margin: 0; font-size: 12px; color: var(--color-text-muted); }
+.home-product h3 { margin: 0; font-family: var(--font-title); font-size: 18px; font-weight: 500; line-height: 1.3; }
+.home-product h3 a { color: var(--color-text); text-decoration: none; }
+.home-product h3 a:hover { color: var(--color-terracota-deep); }
+.home-product__price { margin: 0; font-size: 16px; font-weight: 700; color: var(--color-accent-dark); }
+.home-product__btn {
+  margin-top: auto;
+  display: inline-block;
+  align-self: flex-start;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--color-cta);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.home-product__btn:hover,
+.home-product__btn:focus-visible { background: var(--color-cta-hover); }
+.home-actions { margin: 28px 0 0; text-align: center; }
+
+/* ---------- Aprendé y Comunidad ---------- */
+.home-hub-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+
+/* ---------- CTA final ---------- */
+.home-final-cta {
+  padding: 64px 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--color-line-warm);
+  text-align: center;
+}
+.home-final-cta h2 {
+  font-family: var(--font-title);
+  font-weight: 500;
+  font-size: clamp(26px, 4vw, 38px);
+  margin: 0 0 10px;
+  color: var(--color-text);
+}
+.home-final-cta p { margin: 0 0 24px; color: var(--color-text-muted); }
+
+/* ---------- Adaptación ---------- */
+@media (max-width: 980px) {
+  .home-cat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .home-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-trust-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .home-wrap { padding: 0 18px; }
+  .home-section { padding: 40px 0; }
+  .home-cat-grid,
+  .home-hub-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-cta-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .home-product-grid,
+  .home-cat-grid,
+  .home-hub-grid,
+  .home-trust-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-cta-primary { padding: 16px 24px; font-size: 14px; }
+}
