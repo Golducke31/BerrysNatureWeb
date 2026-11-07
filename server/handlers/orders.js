@@ -126,7 +126,10 @@ function normalizarItems(raw) {
 /**
  * Recalcula el pedido contra la base. NUNCA se confía en el precio que
  * manda el navegador: el carrito vive en localStorage y es trivial de
- * editar. Acá el precio sale de `products.precio`.
+ * editar. Acá el precio sale de `products.precio`, y si el producto tiene
+ * una oferta válida (oferta es número > 0 y estrictamente menor al precio
+ * pleno) se cobra la oferta. El descuento se calcula siempre en el
+ * servidor, nunca con el valor que manda el cliente.
  */
 async function resolverLineas(items) {
   const ids = items.map((i) => i.id);
@@ -141,10 +144,18 @@ async function resolverLineas(items) {
     if (p.precio === null || p.precio === undefined) {
       V.fail(`"${p.nombre}" se consulta por WhatsApp, no se puede pagar online.`, 'items');
     }
+    const precioBase = Number(p.precio);
+    /* Oferta válida: número > 0 y menor al precio pleno. Cualquier otro
+       valor (null, 0, >= precio) se ignora y se cobra el precio base.
+       Sin la migración 023 aún aplicada, p.oferta es undefined → precioBase. */
+    const oferta = (typeof p.oferta === 'number' && p.oferta > 0 && p.oferta < precioBase)
+      ? Number(p.oferta)
+      : null;
+    const precioFinal = oferta !== null ? oferta : precioBase;
     lineas.push({
       product_id: p.id,
       nombre: p.nombre,
-      precio: Number(p.precio),
+      precio: precioFinal,
       qty: it.qty
     });
   }
