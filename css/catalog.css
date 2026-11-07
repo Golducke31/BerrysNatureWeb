@@ -707,7 +707,18 @@
   margin: 0 0 12px;
   color: var(--color-text);
 }
-.product-detail__info .product-card__price { font-size: 26px; font-weight: 700; margin: 0 0 18px; }
+.product-detail__info .product-card__price {
+  position: static;
+  display: block;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 18px;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--color-text);
+}
 /* Resumen de reseñas junto al precio: ancla a la sección completa. */
 .product-detail__rating {
   display: inline-flex;
