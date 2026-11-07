@@ -321,7 +321,7 @@
       if (!items.length) {
         body.innerHTML =
           '<div class="cart-empty">' + icon('whatsapp') +
-          '<p>Tu carrito está vacío.<br>Sumá productos del catálogo y los coordinamos por WhatsApp.</p></div>';
+          '<p>Tu carrito está vacío.<br>Sumá productos del catálogo para finalizar la compra.</p></div>';
       } else {
         body.innerHTML = items.map(function (i) {
           var p = producto(i.id);
@@ -361,7 +361,7 @@
       } else if (cartHasPrices(items) && cartTotal(items) >= 50000) {
         noteEl.textContent = 'Pago seguro con MercadoPago · Hasta 3 cuotas.';
       } else {
-        noteEl.textContent = 'Pago seguro con MercadoPago (envío por zona o retiro sin costo).';
+        noteEl.textContent = 'Pago seguro con MercadoPago (envío por zona).';
       }
     }
 
@@ -680,12 +680,15 @@
   function pintarZonas(zones) {
     var cont = $('#coZonas');
     if (!cont) return;
-    if (!zones.length) {
+    /* La opción "retiro" la gestiona el panel/admin (backend orders.js intacto);
+       no se ofrece como retiro gratis en el checkout del cliente. */
+    var zs = (zones || []).filter(function (z) { return z.id !== 'retiro'; });
+    if (!zs.length) {
       cont.innerHTML = '<p class="checkout-error">No hay opciones de entrega disponibles.</p>';
       return;
     }
 
-    cont.innerHTML = zones.map(function (z, i) {
+    cont.innerHTML = zs.map(function (z, i) {
       var gratis = Number(z.precio) === 0;
       return '' +
         '<label class="checkout-zone">' +

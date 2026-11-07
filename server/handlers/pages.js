@@ -1048,7 +1048,7 @@ async function renderProduct(req, res, { id }) {
             <details class="product-accordion__item">
               <summary>Envío y devoluciones</summary>
               <div class="product-accordion__body">
-                <p>Enviamos a todo el país y coordinamos la entrega por WhatsApp. <a href="/envios">Ver envíos</a> · <a href="/devoluciones">Devoluciones</a>.</p>
+                <p>Enviamos a todo el país; el costo se calcula en el checkout según tu zona. <a href="/envios">Ver envíos</a> · <a href="/devoluciones">Devoluciones</a>.</p>
               </div>
             </details>
           </div>
