@@ -54,10 +54,10 @@ test.describe('Berry\'s Academy', () => {
     await expect(page.locator('#batchCalcForm')).toHaveCount(0);
   });
 
-  test('T1-A-07: El header de la Academia enlaza al Foro', async ({ page }) => {
-    const link = page.locator('.nav-menu-desktop a[href="/foro"]');
+  test('T1-A-07: El header de la Academia enlaza a la Comunidad (Foro)', async ({ page }) => {
+    const link = page.locator('.nav-menu-desktop.main-menu > li > a[href="/foro"]');
     await expect(link).toBeVisible();
-    await expect(link).toContainText('Foro');
+    await expect(link).toContainText('Comunidad');
   });
 
   test('T1-A-08: La sección de comunidad ya no vive en la Academia', async ({ page }) => {

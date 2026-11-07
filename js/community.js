@@ -9,7 +9,7 @@
      window.BerrysAuth = { open, close, isLogged, getUser }
      #authNavSlot, #authModal, #authForm, #authEmail, #authPass,
      #authName, #authNameField, #authSubmit, #authCloseBtn,
-     #loginBtn, #logoutBtn, #userChipBtn, #storeBtn
+     #loginBtn, #logoutBtn, #userChipBtn
    ============================================================ */
 
 (function () {
@@ -85,38 +85,16 @@
       if (out) out.addEventListener('click', doLogout);
 
     } else {
-      nav.innerHTML =
-        '<button class="nav-ghost-btn" id="loginBtn" type="button">Ingresar</button>' +
-        '<button class="nav-store-btn" id="storeBtn" type="button">' +
-          (typeof MI_MARCA !== 'undefined' ? escapeHtml(MI_MARCA.textoBoton) : "Tienda Berry's Nature") +
-        '</button>';
+      /* El acceso a la Tienda vive en el menú canónico (server/lib/nav.js)
+         como enlace normal, en la MISMA pestaña. Antes este botón hacía
+         una llamada a window.open con _blank y desde el foro abría una pestaña nueva;
+         además el drawer inyectaba un segundo link con target="_blank".
+         Se eliminan ambos: no duplicamos el ítem "Tienda". */
+      nav.innerHTML = '<button class="nav-ghost-btn" id="loginBtn" type="button">Ingresar</button>';
 
       var login = $('#loginBtn');
       if (login) login.addEventListener('click', function () { openAuthModal('login'); });
-
-      var store = $('#storeBtn');
-      if (store) store.addEventListener('click', function () {
-        var url = typeof MI_MARCA !== 'undefined' ? MI_MARCA.url : '#';
-        window.open(url, '_blank', 'noopener,noreferrer');
-      });
     }
-  }
-
-  /* En mobile el botón de la tienda sale del header (ver css/styles.css):
-     lo agregamos al menú lateral para que siga accesible. */
-  function injectStoreInDrawer() {
-    var list = $('#navMenuMobile');
-    if (!list || $('#storeDrawerLink')) return;
-
-    var url = typeof MI_MARCA !== 'undefined' ? MI_MARCA.url : '';
-    var texto = typeof MI_MARCA !== 'undefined' ? MI_MARCA.textoBoton : "Tienda Berry's Nature";
-    if (!url) return;
-
-    var li = document.createElement('li');
-    li.innerHTML =
-      '<a class="mobile-nav-link" id="storeDrawerLink" href="' + escapeHtml(url) +
-      '" target="_blank" rel="noopener noreferrer">' + escapeHtml(texto) + '</a>';
-    list.appendChild(li);
   }
 
   /* ============================================================
@@ -498,7 +476,6 @@
     paintSession();                 // pinta ya, sin esperar la red
     setupAuthModal();
     setupReport();
-    injectStoreInDrawer();
     loadSession();                  // y confirma contra el servidor
 
     if (window.BerrysMotion) {

@@ -28,14 +28,16 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     await expect(hamburger).toBeVisible();
   });
 
-  // T1-F1-03: 5 links de navegación con textos reales
-  test('T1-F1-03: La navegación tiene los 5 enlaces del modelo escuela/comunidad', async ({ page }) => {
-    const expected = ['Inicio', 'Academia', 'Glosario', 'Sobre Nosotros', 'Contacto'];
-    const links = page.locator('.nav-menu-desktop .nav-link');
+  // T1-F1-03: menú canónico (server/lib/nav.js), con Tienda primero
+  test('T1-F1-03: La navegación tiene los 6 enlaces del menú compartido', async ({ page }) => {
+    const expected = ['Tienda', 'Aprendé', 'Comunidad', "Berry's Lab", 'Sobre nosotros', 'Contacto'];
+    const links = page.locator('.nav-menu-desktop.main-menu > li > .nav-link');
     await expect(links).toHaveCount(expected.length);
     for (let i = 0; i < expected.length; i++) {
       await expect(links.nth(i)).toContainText(expected[i]);
     }
+    await expect(links.first()).toHaveAttribute('href', '/tienda');
+    await expect(links.first()).toHaveClass(/nav-link--store/);
   });
 
   // T1-F1-05: Logo cargado
@@ -126,14 +128,14 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     await expect(mobileMenu).not.toHaveClass(/open/);
   });
 
-  // T2-F1-05: Link activo según scroll
+  // T2-F1-05: Link activo según scroll (el menú compartido usa anclas a la home)
   test('T2-F1-05: El link activo cambia según la sección en viewport', async ({ page }) => {
     const aboutLink = page.locator('.nav-menu-desktop a[href="#sobre-nosotros"]');
-    const inicioLink = page.locator('.nav-menu-desktop a[href="#inicio"]');
+    const tiendaLink = page.locator('.nav-menu-desktop a[href="/tienda"]').first();
     await page.locator('#sobre-nosotros').scrollIntoViewIfNeeded();
     await page.waitForTimeout(600);
     await expect(aboutLink).toHaveClass(/active/);
-    await expect(inicioLink).not.toHaveClass(/active/);
+    await expect(tiendaLink).not.toHaveClass(/active/);
   });
 
   // T2-F2-01: Wrap en viewport ultra pequeño (320px)

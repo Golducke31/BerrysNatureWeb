@@ -44,39 +44,96 @@
     ]
   }
   </script>
+  <link rel="stylesheet" href="css/nav-shared.css">
 </head>
 <body class="page-normas">
 
   <header class="sticky-header">
     <div class="header-container">
-      <a href="/" class="logo-area" aria-label="Volver al inicio">
-        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" decoding="async">
+      <a href="/" class="logo-area" aria-label="Berry's Nature — Inicio">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" decoding="async" fetchpriority="high">
         <div class="logo-text-wrapper">
           <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
         </div>
       </a>
-      <nav>
-        <ul class="nav-menu-desktop">
-          <li><a href="/foro" class="nav-link"><i data-icon="arrowLeft"></i> Volver al foro</a></li>
-          <li><a href="/academia" class="nav-link">Academia</a></li>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <ul class="nav-menu-desktop main-menu">
+          <li class="nav-item nav-item--store">
+            <a href="/tienda" class="nav-link nav-link--store">Tienda</a>
+            <ul class="nav-submenu" aria-label="Categorías de la tienda">
+              <li><a href="/tienda">Todos los productos</a></li>
+              <li><a class="nav-submenu__link" href="/tienda#categoria-cabello">Cabello</a></li>
+            <li><a class="nav-submenu__link" href="/tienda#categoria-facial">Facial</a></li>
+            <li><a class="nav-submenu__link" href="/tienda#categoria-jabones">Jabones</a></li>
+            <li><a class="nav-submenu__link" href="/tienda#categoria-corporal">Corporal</a></li>
+            <li><a class="nav-submenu__link" href="/tienda#categoria-labios">Labios</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="/academia" class="nav-link">Aprendé</a>
+            <ul class="nav-submenu" aria-label="Aprendé">
+              <li><a href="/academia">Academia</a></li>
+              <li><a href="/glosario">Glosario de ingredientes</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a href="/foro" class="nav-link">Comunidad</a></li>
+          <li class="nav-item"><a href="/berrys-lab" class="nav-link">Berry's Lab</a></li>
+          <li class="nav-item"><a href="/#sobre-nosotros" class="nav-link">Sobre nosotros</a></li>
+          <li class="nav-item"><a href="/#contacto" class="nav-link">Contacto</a></li>
         </ul>
       </nav>
+
       <div class="header-actions">
+        <a href="/tienda#carrito" class="nav-cart-btn" data-cart-link aria-label="Ver el carrito">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <circle cx="9" cy="20" r="1.4"></circle><circle cx="18" cy="20" r="1.4"></circle>
+          <path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.2"></path>
+        </svg>
+          <span class="nav-cart-count" data-cart-count hidden>0</span>
+        </a>
         <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
             <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
             <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
           </svg>
         </button>
       </div>
+
+      <div class="auth-nav-slot" id="authNavSlot"></div>
     </div>
   </header>
 
-  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
+  <nav id="navMenuMobileContainer" class="mobile-nav" aria-label="Menú móvil" inert>
     <ul class="nav-menu-mobile" id="navMenuMobile">
-      <li><a href="/foro" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al foro</a></li>
-      <li><a href="/academia" class="mobile-nav-link">Academia</a></li>
+      <li><a href="/tienda" class="mobile-nav-link mobile-nav-link--store">Tienda</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileCategorias">
+          Categorías <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileCategorias">
+          <li><a class="mobile-nav-link" href="/tienda">Todos los productos</a></li>
+          <li><a class="mobile-nav-link" href="/tienda#categoria-cabello">Cabello</a></li>
+            <li><a class="mobile-nav-link" href="/tienda#categoria-facial">Facial</a></li>
+            <li><a class="mobile-nav-link" href="/tienda#categoria-jabones">Jabones</a></li>
+            <li><a class="mobile-nav-link" href="/tienda#categoria-corporal">Corporal</a></li>
+            <li><a class="mobile-nav-link" href="/tienda#categoria-labios">Labios</a></li>
+        </ul>
+      </li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileAprende">
+          Aprendé <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileAprende">
+          <li><a class="mobile-nav-link" href="/academia">Academia</a></li>
+          <li><a class="mobile-nav-link" href="/glosario">Glosario de ingredientes</a></li>
+        </ul>
+      </li>
+      <li><a href="/foro" class="mobile-nav-link">Comunidad</a></li>
+      <li><a href="/berrys-lab" class="mobile-nav-link">Berry's Lab</a></li>
+      <li><a href="/#sobre-nosotros" class="mobile-nav-link">Sobre nosotros</a></li>
+      <li><a href="/#contacto" class="mobile-nav-link">Contacto</a></li>
     </ul>
   </nav>
 
@@ -168,29 +225,59 @@
 
   <footer class="main-footer">
     <div class="footer-container">
-      <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy" decoding="async">
-      <p class="footer-text">
-        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
-        Hecho con amor y rigor artesanal en Argentina, Buenos Aires.
-      </p>
-      <p class="footer-legal">
-        <a href="/normas">Normas de convivencia</a>
-        <span aria-hidden="true">·</span>
-        <a href="/privacidad">Política de privacidad</a>
-        <span aria-hidden="true">·</span>
-        <a href="/terminos">Términos de uso</a>
-        <span aria-hidden="true">·</span>
-        <a href="/devoluciones">Devoluciones</a>
-        <span aria-hidden="true">·</span>
-        <a href="/envios">Envíos</a>
-      </p>
-      <p class="footer-legal footer-nav" data-footer-nav>
-        <a href="/tienda">Tienda</a><span aria-hidden="true">·</span>
-        <a href="/academia">Academia</a><span aria-hidden="true">·</span>
-        <a href="/foro">Foro</a><span aria-hidden="true">·</span>
-        <a href="/glosario">Glosario</a><span aria-hidden="true">·</span>
-        <a href="/berrys-lab">Berry's Lab</a>
-      </p>
+      <div class="footer-brand">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy" decoding="async">
+        <p class="footer-text">
+          &copy; 2026 Berry's Nature&reg;. Todos los derechos reservados. <br>
+          Hecho con amor y rigor artesanal en Argentina, Buenos Aires.
+        </p>
+      </div>
+
+      <div class="footer-cols" data-footer-nav>
+        <div class="footer-col">
+          <h2>Tienda</h2>
+          <ul>
+            <li><a href="/tienda">Todos los productos</a></li>
+            <li><a class="" href="/tienda#categoria-cabello">Cabello</a></li>
+            <li><a class="" href="/tienda#categoria-facial">Facial</a></li>
+            <li><a class="" href="/tienda#categoria-jabones">Jabones</a></li>
+            <li><a class="" href="/tienda#categoria-corporal">Corporal</a></li>
+            <li><a class="" href="/tienda#categoria-labios">Labios</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Aprendé</h2>
+          <ul>
+            <li><a href="/academia">Academia</a></li>
+            <li><a href="/glosario">Glosario de ingredientes</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Comunidad</h2>
+          <ul>
+            <li><a href="/foro">Foro</a></li>
+            <li><a href="/normas">Normas de la comunidad</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Información</h2>
+          <ul>
+            <li><a href="/envios">Envíos</a></li>
+            <li><a href="/devoluciones">Devoluciones</a></li>
+            <li><a href="/privacidad">Privacidad</a></li>
+            <li><a href="/terminos">Términos de uso</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Contacto</h2>
+          <ul>
+            <li><a href="/#contacto">Escribinos</a></li>
+            <li><a href="mailto:berrysnatureok@gmail.com">berrysnatureok@gmail.com</a></li>
+            <li><a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+          </ul>
+        </div>
+      </div>
+
       <div class="footer-social">
         <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
           <i data-icon="instagram"></i>

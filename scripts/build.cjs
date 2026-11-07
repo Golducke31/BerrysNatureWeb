@@ -73,6 +73,16 @@ function huellaContenido(html) {
        Google lo nombra explícitamente como cambio significativo. */
     .replace(/<script\b[^>]*\bsrc=[^>]*>[\s\S]*?<\/script>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ')
+    /* Bloques generados por server/lib/nav.js: header, menú móvil y footer
+       son IDÉNTICOS en las 23 páginas. Un cambio global de navegación no
+       puede hacer que todas declaren la misma fecha de modificación: es
+       exactamente el caso de "commit global de footer" que esta huella
+       ya ignoraba. Se descartan ANTES de hashear para que <lastmod>
+       siga reflejando el contenido PROPIO de cada página. */
+    .replace(/<header class="sticky-header">[\s\S]*?<\/header>/gi, ' ')
+    .replace(/<nav id="navMenuMobileContainer"[^>]*>[\s\S]*?<\/nav>/gi, ' ')
+    .replace(/<footer class="main-footer">[\s\S]*?<\/footer>/gi, ' ')
+    .replace(/<link[^>]*nav-shared\.css[^>]*>/gi, ' ')
     .replace(/<[^>]*\bdata-footer-nav\b[^>]*>[\s\S]*?<\/p>/gi, ' ')
     .replace(/\?v=[0-9a-f]+/gi, '')
     .replace(/\s+/g, ' ')
@@ -200,10 +210,15 @@ function versionAssetsInHtml(html) {
    de dist/. Antes esto estaba solo acá y por eso /tienda no tenía
    Facebook. Ver el comentario de ese módulo. */
 const { asegurarFooter } = require('../server/lib/html-extras');
+/* Header / menú móvil / footer: UNA sola fuente (server/lib/nav.js).
+   Se aplica acá sobre el artefacto publicado y también en la Function
+   (server/handlers/pages.js) para /tienda, /foro y las páginas SSR. */
+const nav = require('../server/lib/nav.js');
 
-/** Asegura el footer y versiona los assets. */
-function processHtml(html) {
-  const out = asegurarFooter(html);
+/** Asegura la navegación compartida, el footer y versiona los assets. */
+function processHtml(html, base) {
+  const conNav = nav.aplicarNav(html, { base });
+  const out = asegurarFooter(conNav);
   return versionAssetsInHtml(out);
 }
 
@@ -335,14 +350,18 @@ function verificarLastmod() {
   }
 }
 
-/** Recorre dist/ y procesa (flags + cache-busting) todos los .html. */
+/** Recorre dist/ y procesa (nav + footer + cache-busting) todos los .html. */
 function versionAllHtml(dir) {
+  /* Prefijo de assets según la profundidad: '' en la raíz, '../' en
+     academia/. Así el mismo componente funciona en /academia/<guia>. */
+  const rel = path.relative(DIST, dir).replace(/\\/g, '/');
+  const base = rel ? '../'.repeat(rel.split('/').length) : '';
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       versionAllHtml(full);
     } else if (entry.name.endsWith('.html')) {
-      fs.writeFileSync(full, processHtml(fs.readFileSync(full, 'utf8')));
+      fs.writeFileSync(full, processHtml(fs.readFileSync(full, 'utf8'), base));
     }
   }
 }

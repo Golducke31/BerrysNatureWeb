@@ -53,10 +53,14 @@ test.describe('Señales de indexación', () => {
     expect(asegurarNavFooter(una)).toBe(una);
   });
 
-  test('IX-03: el footer del SSR también lleva el nav', () => {
+  test('IX-03: el footer del SSR sale del mismo componente compartido', () => {
     const pages = leer('server/handlers/pages.js');
-    expect(pages).toContain('data-footer-nav');
-    expect(pages).toContain('href="/berrys-lab"');
+    // Tras el refactor, el markup vive en server/lib/nav.js y pages.js delega.
+    expect(pages).toContain("nav.footerHtml('/')");
+    expect(pages).toContain('nav.aplicarNav(');
+    const nav = leer('server/lib/nav.js');
+    expect(nav).toContain('data-footer-nav');
+    expect(nav).toContain('href="/berrys-lab"');
   });
 
   test('IX-04: el sitemap usa lastmod por URL y no una fecha global', () => {
@@ -64,8 +68,12 @@ test.describe('Señales de indexación', () => {
     expect(pages).toContain('LASTMOD_ESTATICAS[p.path]');
     expect(pages).toContain('LASTMOD_ESTATICAS[g]');
     expect(pages).not.toContain('lastmod: hoy');
-    expect(leer('scripts/build.cjs')).toContain('function lastmodPorUrl()');
-    expect(leer('scripts/build.cjs')).toContain('git log -1 --format=%cI --');
+    const build = leer('scripts/build.cjs');
+    expect(build).toContain('function lastmodPorUrl()');
+    expect(build).toContain('function fechaCambioSignificativo(');
+    expect(build).toContain('function huellaContenido(');
+    // La fecha real sale del historial por archivo, no de new Date().
+    expect(build).toContain("'log', '--format=%H%x09%cI'");
   });
 
   test('IX-05: build-info generado trae fechas reales y variadas', () => {

@@ -74,7 +74,7 @@ test.describe('Foro de formuladores', () => {
   });
 
   test('T1-F-10: El header permite volver a la Academia', async ({ page }) => {
-    const link = page.locator('.nav-menu-desktop a[href="/academia"]');
+    const link = page.locator('.nav-menu-desktop.main-menu > li > a[href="/academia"]');
     await expect(link).toBeVisible();
   });
 });

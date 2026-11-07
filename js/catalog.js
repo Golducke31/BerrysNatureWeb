@@ -41,6 +41,8 @@
   function saveCart(items) {
     try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) { /* modo privado */ }
     renderCart();
+    /* El badge del header (js/app.js) escucha este evento. */
+    try { window.dispatchEvent(new Event('berrys:cart')); } catch (e) { /* navegador viejo */ }
   }
 
   function cartCount(items) {
@@ -252,6 +254,25 @@
         renderProducts();
       });
     });
+  }
+
+  /* El menú compartido enlaza a las categorías con un HASH (no crea URLs
+     nuevas ni parámetros indexables): /tienda#categoria-cabello, etc.
+     #carrito abre el drawer cuando se llega desde otra página. */
+  var CATEGORIAS_HASH = {
+    cabello: 'Cabello', facial: 'Facial', jabones: 'Jabones',
+    corporal: 'Corporal', labios: 'Labios'
+  };
+  function aplicarHash() {
+    var h = String(window.location.hash || '');
+    if (h === '#carrito') { openCart(); return; }
+    var m = /^#categoria-([a-z0-9-]+)$/i.exec(h);
+    if (!m) return;
+    var cat = CATEGORIAS_HASH[m[1].toLowerCase()];
+    if (!cat) return;
+    filtroActivo = cat;
+    renderFilters();
+    renderProducts();
   }
 
   /* ---------------- Acciones de producto ---------------- */
@@ -1007,6 +1028,10 @@
     });
     var btnCheckout = $('#cartCheckout');
     if (btnCheckout) btnCheckout.addEventListener('click', openCheckout);
+
+    // Categoría preseleccionada o carrito abierto desde el menú compartido.
+    aplicarHash();
+    window.addEventListener('hashchange', aplicarHash);
 
     // Si venimos de MercadoPago, mostramos el resultado del pago.
     revisarRetornoDePago();

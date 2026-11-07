@@ -32,6 +32,7 @@ const reputation = require('../lib/reputation');
 const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
 const { BADGE_SCRIPT, asegurarFooter } = require('../lib/html-extras');
+const nav = require('../lib/nav');
 const rating = require('../lib/rating');
 const oferta = require('../lib/oferta');
 const ficha = require('../lib/ficha');
@@ -94,40 +95,7 @@ function fechaCorta(value) {
 /* ---------------- Fragmentos compartidos ---------------- */
 
 function headerHtml() {
-  return `
-  <header class="sticky-header">
-    <div class="header-container">
-      <a href="/" class="logo-area" aria-label="Volver al inicio">
-        <img src="/assets/logo_berrys_nature-112.jpg" srcset="/assets/logo_berrys_nature-112.webp 1x, /assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" fetchpriority="high">
-        <div class="logo-text-wrapper">
-          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
-        </div>
-      </a>
-      <nav>
-        <ul class="nav-menu-desktop">
-          <li><a href="/foro" class="nav-link"><i data-icon="arrowLeft"></i> Volver al Foro</a></li>
-          <li><a href="/academia" class="nav-link">Academia</a></li>
-        </ul>
-      </nav>
-      <div class="header-actions">
-        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
-            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
-            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="auth-nav-slot" id="authNavSlot"></div>
-    </div>
-  </header>
-
-  <nav id="navMenuMobileContainer" aria-label="Menú Móvil" inert>
-    <ul class="nav-menu-mobile" id="navMenuMobile">
-      <li><a href="/foro" class="mobile-nav-link"><i data-icon="arrowLeft"></i> Volver al Foro</a></li>
-      <li><a href="/academia" class="mobile-nav-link">Academia</a></li>
-    </ul>
-  </nav>`;
+  return nav.headerHtml('/') + '\n' + nav.mobileNavHtml();
 }
 
 function authModalHtml() {
@@ -178,39 +146,7 @@ function authModalHtml() {
 }
 
 function footerHtml() {
-  return `
-  <footer class="main-footer">
-    <div class="footer-container">
-      <img src="/assets/logo_berrys_nature-112.jpg" srcset="/assets/logo_berrys_nature-112.webp 1x, /assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy">
-      <p class="footer-text">
-        &copy; 2026 Berry's Nature®. Todos los derechos reservados. <br>
-        Hecho con rigor científico y amor natural en la Patagonia Argentina.
-      </p>
-      <p class="footer-legal">
-        <a href="/privacidad">Política de privacidad</a>
-        <span aria-hidden="true">·</span>
-        <a href="/terminos">Términos de uso</a>
-      </p>
-      <p class="footer-legal footer-nav" data-footer-nav>
-        <a href="/tienda">Tienda</a><span aria-hidden="true">·</span>
-        <a href="/academia">Academia</a><span aria-hidden="true">·</span>
-        <a href="/foro">Foro</a><span aria-hidden="true">·</span>
-        <a href="/glosario">Glosario</a><span aria-hidden="true">·</span>
-        <a href="/berrys-lab">Berry's Lab</a>
-      </p>
-      <div class="footer-social">
-        <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-          <i data-icon="instagram"></i>
-        </a>
-        <a href="https://www.facebook.com/share/1JjL83dtQu/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="22" height="22"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.43-4.94 8.43-9.94Z"/></svg>
-        </a>
-        <a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-          <i data-icon="whatsapp"></i>
-        </a>
-      </div>
-    </div>
-  </footer>`;
+  return nav.footerHtml('/');
 }
 
 function scriptsHtml() {
@@ -237,11 +173,11 @@ function scriptsPerfil() {
 }
 
 /** Hojas de estilo del foro (por defecto). */
-const CSS_FORO = ['styles', 'sections', 'academia', 'foro'];
+const CSS_FORO = ['styles', 'sections', 'academia', 'foro', 'nav-shared'];
 /** Hojas de estilo de una guía: reusa el layout de los artículos. */
-const CSS_GUIA = ['styles', 'sections', 'academia', 'guide-article'];
+const CSS_GUIA = ['styles', 'sections', 'academia', 'guide-article', 'nav-shared'];
 /** Hojas de estilo de la página de producto (tienda). */
-const CSS_PRODUCTO = ['styles', 'sections', 'academia', 'catalog', 'reviews'];
+const CSS_PRODUCTO = ['styles', 'sections', 'academia', 'catalog', 'reviews', 'nav-shared'];
 
 /** Layout completo de una página de contenido. */
 function layout({ title, description, canonical, robots, ogImage, jsonLdBlocks = [], body, extraHead = '', css = CSS_FORO, scripts = null, bodyAttrs = '' }) {
@@ -1112,7 +1048,7 @@ async function renderProduct(req, res, { id }) {
             <details class="product-accordion__item">
               <summary>Envío y devoluciones</summary>
               <div class="product-accordion__body">
-                <p>Enviamos a todo el país y podés retirar sin cargo. <a href="/envios">Ver envíos</a> · <a href="/devoluciones">Devoluciones</a>.</p>
+                <p>Enviamos a todo el país y coordinamos la entrega por WhatsApp. <a href="/envios">Ver envíos</a> · <a href="/devoluciones">Devoluciones</a>.</p>
               </div>
             </details>
           </div>
@@ -1594,7 +1530,7 @@ function leerHtmlEstatico(nombre) {
          dist/. El build inyecta Facebook y la insignia de Google en dist/,
          así que acá hay que aplicar la misma transformación o /tienda y
          /foro se quedan sin ambos. */
-      return { html: asegurarFooter(fs.readFileSync(full, 'utf8')), ruta: full };
+      return { html: nav.aplicarNav(asegurarFooter(fs.readFileSync(full, 'utf8')), { base: '/' }), ruta: full };
     } catch (e) { /* se prueba la siguiente */ }
   }
   return null;

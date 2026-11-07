@@ -1,0 +1,175 @@
+/* ============================================================
+   nav-shared.css — estilos del componente compartido de navegación
+   Generado/inyectado por server/lib/nav.js. Se carga DESPUÉS de
+   styles.css y sections.css para poder corregir las reglas viejas
+   (nth-child que ocultaban ítems del menú en tablet, submenús sin
+   visibilidad, etc.) sin tocar la paleta ni las tipografías.
+   ============================================================ */
+
+/* ---------- Menú de escritorio ---------- */
+.main-nav { display: flex; align-items: center; }
+.nav-menu-desktop.main-menu > li { position: relative; display: list-item; }
+
+/* Reglas viejas: ocultaban los ítems 2/3/4 en pantallas medianas.
+   El menú nuevo es más corto y tiene submenús, así que los mostramos. */
+@media (max-width: 1180px) {
+  .nav-menu-desktop.main-menu > li:nth-child(3),
+  .nav-menu-desktop.main-menu > li:nth-child(4) { display: list-item; }
+}
+@media (max-width: 980px) {
+  .nav-menu-desktop.main-menu > li:nth-child(2) { display: list-item; }
+}
+
+/* Tienda: primer ítem y con mayor contraste. */
+.nav-link--store {
+  background: var(--color-accent-dark);
+  color: var(--color-white);
+  font-weight: 700;
+  border-color: var(--color-accent-dark);
+}
+.nav-link--store:hover,
+.nav-link--store:focus-visible {
+  background: var(--color-terracota-deep);
+  color: var(--color-white);
+}
+
+/* Submenús: hover y, sobre todo, :focus-within para teclado. */
+.nav-submenu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 210px;
+  padding: 8px;
+  margin: 0;
+  list-style: none;
+  background: var(--bg-card);
+  border: 1px solid var(--color-line-warm);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(74, 63, 53, 0.14);
+  z-index: 1200;
+  text-align: left;
+}
+.nav-menu-desktop.main-menu > li:hover > .nav-submenu,
+.nav-menu-desktop.main-menu > li:focus-within > .nav-submenu { display: block; }
+.nav-submenu li { display: block; }
+.nav-submenu a {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav-submenu a:hover,
+.nav-submenu a:focus-visible {
+  background: rgba(234, 184, 163, 0.22);
+  color: var(--color-terracota-deep);
+}
+
+/* ---------- Carrito siempre visible ---------- */
+.nav-cart-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--color-line-warm);
+  background: var(--bg-card);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.nav-cart-btn:hover,
+.nav-cart-btn:focus-visible {
+  background: rgba(234, 184, 163, 0.22);
+  border-color: var(--color-cta);
+}
+.nav-cart-count {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-accent-dark);
+  color: var(--color-white);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  font-weight: 700;
+}
+.nav-cart-count[hidden] { display: none; }
+
+/* ---------- Menú móvil ---------- */
+.mobile-nav-link--store {
+  background: var(--color-accent-dark);
+  color: var(--color-white);
+  font-weight: 700;
+}
+.mobile-nav-link--store:active,
+.mobile-nav-link--store.active { color: var(--color-white); }
+
+/* Los submenús colapsados no deben recibir foco por teclado. */
+.mobile-nav-group:not(.is-open) .mobile-nav-sub { visibility: hidden; }
+.mobile-nav-group.is-open .mobile-nav-sub { visibility: visible; max-height: 320px; }
+
+@media (max-width: 767px) {
+  .nav-menu-mobile { overflow-y: auto; }
+  .nav-cart-btn { width: 42px; height: 42px; }
+}
+
+/* A 768px el header completo (logo + 6 ítems + login + carrito) desbordaba
+   42px. En la franja 768–900px se ocultan los dos ítems de menor prioridad
+   (Sobre nosotros / Contacto siguen en el footer y en el menú móvil) y se
+   compacta el resto, sin cambiar la paleta ni el layout. */
+@media (min-width: 768px) and (max-width: 900px) {
+  .nav-menu-desktop.main-menu > li:nth-child(5),
+  .nav-menu-desktop.main-menu > li:nth-child(6) { display: none; }
+  .nav-menu-desktop.main-menu > li > .nav-link { padding: 8px 7px; font-size: 13px; }
+  .header-container { gap: 8px; }
+  .auth-nav-slot { margin-left: 0; }
+}
+
+/* ---------- Footer por columnas ---------- */
+.footer-brand { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+  margin: 12px 0 4px;
+  text-align: left;
+}
+.footer-col h2 {
+  font-family: var(--font-title);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-accent-dark);
+  margin: 0 0 10px;
+}
+.footer-col ul { list-style: none; margin: 0; padding: 0; }
+.footer-col li { margin: 0 0 7px; }
+.footer-col a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.footer-col a:hover,
+.footer-col a:focus-visible {
+  color: var(--color-terracota-deep);
+  text-decoration: underline;
+}
+
+@media (max-width: 980px) {
+  .footer-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+}

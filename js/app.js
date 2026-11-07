@@ -39,6 +39,45 @@
 })();
 
 /* ------------------------------------------------------------------
+   Contador del carrito en el header (todas las páginas)
+
+   El carrito vive en localStorage bajo `berrys_cart_v1` (misma clave que
+   js/catalog.js). Este módulo SÓLO LEE: no modifica ítems ni toca el
+   checkout de MercadoPago. catalog.js avisa con el evento `berrys:cart`
+   cuando cambia; `storage` cubre otras pestañas y `focus` al volver.
+   ------------------------------------------------------------------ */
+(function () {
+  var KEY = 'berrys_cart_v1';
+
+  function actualizar() {
+    var total = 0;
+    try {
+      var items = JSON.parse(localStorage.getItem(KEY) || '[]');
+      if (Array.isArray(items)) {
+        items.forEach(function (i) { total += Number(i && i.qty) || 0; });
+      }
+    } catch (e) { /* modo privado o JSON inválido */ }
+
+    document.querySelectorAll('[data-cart-count]').forEach(function (el) {
+      el.textContent = String(total);
+      el.hidden = total === 0;
+    });
+    document.querySelectorAll('[data-cart-link]').forEach(function (el) {
+      el.setAttribute('aria-label', total ? 'Ver el carrito, ' + total + ' productos' : 'Ver el carrito');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', actualizar);
+  } else {
+    actualizar();
+  }
+  window.addEventListener('storage', function (e) { if (!e.key || e.key === KEY) actualizar(); });
+  window.addEventListener('focus', actualizar);
+  window.addEventListener('berrys:cart', actualizar);
+})();
+
+/* ------------------------------------------------------------------
    Red de seguridad del reveal
 
    Los elementos con .reveal arrancan en opacity: 0 (definido en
@@ -59,6 +98,22 @@ window.addEventListener('load', function () {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  /* --- Anclas a secciones de la home ---
+     El menú compartido (server/lib/nav.js) es IDÉNTICO en las 29 páginas,
+     así que enlaza a "/#sobre-nosotros" y "/#contacto" para que funcionen
+     desde cualquier página. Estando YA en la home (o abriendo index.html
+     con file:// en los tests), esas URLs absolutas no resuelven: las
+     convertimos en anclas internas para conservar el scroll suave y el
+     estado activo del menú sin cambiar el HTML publicado. */
+  (function anclasPropias() {
+    const ruta = window.location.pathname || '';
+    const enHome = ruta === '/' || /(?:^|\/)index\.html$/i.test(ruta) || window.location.protocol === 'file:';
+    if (!enHome) return;
+    document.querySelectorAll('a[href^="/#"]').forEach((a) => {
+      a.setAttribute('href', a.getAttribute('href').slice(1));
+    });
+  })();
+
   /* --- Registro de vista (embudo) ---
      Las páginas renderizadas en el servidor (producto, guía, hilo, perfil)
      declaran qué se está viendo en el <body>. Se registra desde el navegador
@@ -266,19 +321,18 @@ document.addEventListener('DOMContentLoaded', () => {
       bestSection = 'inicio';
     }
 
+    // Acepta tanto "#seccion" (home) como "/#seccion" (resto del sitio).
+    const coincide = (link) => {
+      const href = link.getAttribute('href') || '';
+      const partes = href.split('#');
+      return partes.length === 2 && partes[1] === bestSection;
+    };
+
     // Actualizar desktop
-    navLinksDesktop.forEach(link => {
-      const href = link.getAttribute('href');
-      const isMatch = href === `#${bestSection}`;
-      link.classList.toggle('active', isMatch);
-    });
+    navLinksDesktop.forEach(link => link.classList.toggle('active', coincide(link)));
 
     // Actualizar mobile
-    navLinksMobile.forEach(link => {
-      const href = link.getAttribute('href');
-      const isMatch = href === `#${bestSection}`;
-      link.classList.toggle('active', isMatch);
-    });
+    navLinksMobile.forEach(link => link.classList.toggle('active', coincide(link)));
   }
 
   let ticking = false;
