@@ -145,7 +145,7 @@ function footerHtml(base) {
         <img src="${logo}" srcset="${logo1x} 1x, ${logo2x} 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy" decoding="async">
         <p class="footer-text">
           &copy; 2026 Berry's Nature&reg;. Todos los derechos reservados. <br>
-          Hecho con amor y rigor artesanal en Argentina, Buenos Aires.
+          Hecho con amor y rigor artesanal en Buenos Aires, Argentina.
         </p>
       </div>
 

@@ -233,7 +233,7 @@ function orderConfirmation({ order, items, url }) {
   const numero = String(order.numero || '').padStart(6, '0');
   const saludo = order.nombre ? `¡Gracias, ${order.nombre}!` : '¡Gracias por tu compra!';
   const entrega = order.delivery === 'retiro'
-    ? 'Retiro en persona en Argentina, Buenos Aires. Te escribimos para coordinar el día y la hora.'
+    ? 'Retiro en persona en Buenos Aires, Argentina. Te escribimos para coordinar el día y la hora.'
     : `Envío a ${order.shipping_address || 'la dirección que nos pasaste'}.`;
 
   return {
@@ -265,7 +265,7 @@ function orderAdminNotice({ order, items, url }) {
   const numero = String(order.numero || '').padStart(6, '0');
   const backorder = Boolean(order.backorder);
   const entrega = order.delivery === 'retiro'
-    ? 'Retiro en persona (Argentina, Buenos Aires)'
+    ? 'Retiro en persona (Buenos Aires, Argentina)'
     : `Envío — ${order.shipping_zone || 'zona sin definir'}: ${order.shipping_address || 'sin dirección'}`;
 
   return {

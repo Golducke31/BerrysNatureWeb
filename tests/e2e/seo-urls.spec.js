@@ -257,3 +257,54 @@ test.describe('HTML inicial — catálogo de la tienda', () => {
     expect(res.body).toContain('"price":4000');
   });
 });
+
+/* ---------------- SEO visible — metadatos y home ---------------- */
+
+test.describe('SEO visible — metadatos y jerarquía', () => {
+  const paginasHtml = [
+    ...fs.readdirSync(ROOT).filter((f) => f.endsWith('.html')),
+    ...fs.readdirSync(path.join(ROOT, 'academia'))
+      .filter((f) => f.endsWith('.html'))
+      .map((f) => `academia/${f}`)
+  ];
+
+  test('U: ninguna página HTML usa meta keywords ni la ubicación invertida', () => {
+    for (const archivo of paginasHtml) {
+      const html = leer(archivo);
+      expect(html, archivo).not.toMatch(/<meta\b[^>]*\bname=["']keywords["']/i);
+      expect(html, archivo).not.toContain('Argentina, Buenos Aires');
+    }
+    expect(paginasHtml.length).toBeGreaterThan(0);
+  });
+
+  test('U: la home mantiene título, descripciones, H1 y encabezados coherentes', () => {
+    const html = leer('index.html');
+    const title = /<title>([^<]+)<\/title>/i.exec(html)?.[1];
+    const description = /<meta\s+name="description"\s+content="([^"]+)"/i.exec(html)?.[1];
+    const ogTitle = /<meta\s+property="og:title"\s+content="([^"]+)"/i.exec(html)?.[1];
+    const twitterTitle = /<meta\s+name="twitter:title"\s+content="([^"]+)"/i.exec(html)?.[1];
+    const ogDescription = /<meta\s+property="og:description"\s+content="([^"]+)"/i.exec(html)?.[1];
+    const twitterDescription = /<meta\s+name="twitter:description"\s+content="([^"]+)"/i.exec(html)?.[1];
+    const h1s = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)];
+
+    expect(title).toBeTruthy();
+    expect(title.length).toBeLessThanOrEqual(60);
+    expect(description).toBeTruthy();
+    expect(description.length).toBeLessThanOrEqual(155);
+    expect(ogTitle).toBe(title);
+    expect(twitterTitle).toBe(title);
+    expect(ogDescription).toBe(description);
+    expect(twitterDescription).toBe(description);
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0][1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim())
+      .toBe('Cosmética natural artesanal, hecha a mano');
+    expect((html.match(/<h3\b/g) || []).length).toBe(4);
+
+    const niveles = [...html.matchAll(/<h([1-6])\b/gi)].map((m) => Number(m[1]));
+    expect(niveles[0]).toBe(1);
+    for (let i = 1; i < niveles.length; i += 1) {
+      expect(niveles[i]).toBeLessThanOrEqual(niveles[i - 1] + 1);
+    }
+    expect(html).not.toContain('Shampús');
+  });
+});

@@ -1,14 +1,14 @@
 # Mapa de palabras clave
 
-**Estado: hipótesis NO VALIDADA, sin aplicar.** No existe export de Search Console en `/seo-data/` ni en ninguna otra carpeta del repo. La lista inicial del brief se conserva acá como punto de partida, pero **no se modificó ningún `<title>` ni ninguna meta description** en esta rama: el usuario pidió dejar los metadatos pendientes.
+**Estado: hipótesis NO VALIDADA con Search Console.** No existe export de Search Console en `/seo-data/` ni en ninguna otra carpeta del repo. La propuesta de título y descripción para la home sí se aplicó; las demás filas siguen siendo una referencia inicial, no una estrategia validada por consultas reales.
 
-## Titles y meta descriptions publicados hoy (sin cambios)
+## Titles y meta descriptions publicados hoy
 
 | Página | `<title>` | `meta description` |
 |---|---|---|
-| `/` | Berry's Nature \| Cosmética Natural Artesanal Argentina | Berry's Nature — cosmética natural artesanal de Argentina, Buenos Aires. Jabones, champús y acondicionadores sólidos, sérums y cremas en pequeños lotes. Tienda online, Academia y comunidad. |
+| `/` | Cosmética natural artesanal en Argentina \| Berry's Nature | Cosmética natural artesanal: jabones, shampoo y acondicionador sólidos, sérums y cremas, hechos en lotes únicos en Buenos Aires. Envíos a todo el país. |
 | `/academia` | Berry's Academy \| Aprendé a formular cosmética natural | Berry's Academy — Hub de aprendizaje de cosmética natural: guías por nivel, fórmulas descargables y una comunidad de formuladores. |
-| `/tienda` | Tienda · Berry's Nature — Cosmética natural artesanal argentina | Tienda de Berry's Nature — cosmética natural artesanal argentina: jabones, champú y acondicionador sólidos, sérum hialurónico, Crema Eluné y más. Hecho en Argentina, Buenos Aires. |
+| `/tienda` | Tienda · Berry's Nature — Cosmética natural artesanal argentina | Tienda de Berry's Nature — cosmética natural artesanal argentina: jabones, champú y acondicionador sólidos, sérum hialurónico, Crema Eluné y más. Hecho en Buenos Aires, Argentina. |
 | `/berrys-lab` | Berry's Lab · Software de formulación cosmética artesanal \| Berry's Nature | Berry's Lab: software de formulación cosmética para Windows. Fórmulas, INCI automático, stock, producción por lote y precio de venta sugerido. Descarga inmediata. |
 | `/foro` | Foro de formuladores \| Berry's Nature | Foro de formuladores de Berry's Nature: compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo cosmética natural. |
 | `/glosario` | Glosario de Ingredientes \| Berry's Nature | Glosario de Ingredientes de Berry's Nature — Diccionario botánico y químico de cosmética natural: SCI, BTMS-50, Rosa Mosqueta, Karité, Ácido Hialurónico y más. |
@@ -41,4 +41,4 @@ Además hay 12 guías en `/academia/<slug>` con título y descripción propios; 
 1. Exportar *Rendimiento → Consultas* de Search Console (Últimos 3 / 6 / 12 meses) a `seo-data/`.
 2. Cruzar consultas con impresiones reales por URL; descartar las que no tengan volumen.
 3. Recién entonces asignar 1 principal + 2–3 secundarias por página, con uso natural y sin keyword stuffing.
-4. En paralelo, corregir los metadatos listados en `SEO-RECOMENDACIONES.md` (meta keywords, `og:title` ≠ `<title>`).
+4. En paralelo, revisar los metadatos pendientes listados en `SEO-RECOMENDACIONES.md`; la home ya sincroniza `<title>`, `og:title` y `twitter:title`.

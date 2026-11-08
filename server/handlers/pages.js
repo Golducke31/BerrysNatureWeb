@@ -1981,7 +1981,7 @@ async function renderFeed(req, res) {
   <channel>
     <title>Berry's Nature — Catálogo</title>
     <link>${escXml(base + '/tienda')}</link>
-    <description>Cosmética natural artesanal de Argentina, Buenos Aires.</description>
+    <description>Cosmética natural artesanal de Buenos Aires, Argentina.</description>
 ${items}
   </channel>
 </rss>

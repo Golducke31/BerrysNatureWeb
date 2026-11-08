@@ -38,12 +38,12 @@ Por instrucción expresa: *"Solo dejar banner de envío gratis y su funcionamien
 
 ---
 
-## 2. Metadatos (F4 — pendiente)
+## 2. Metadatos (F4 — parcialmente resuelto)
 
 | Hallazgo | Detalle | Acción propuesta |
 |---|---|---|
-| `meta name="keywords"` | Presente en **18** HTML. Google lo ignora desde 2009. | Eliminar la etiqueta en todos. |
-| `og:title` ≠ `<title>` | `index.html`, `berrys-lab.html`, `academia/costo-real-crema-margen.html`, `academia/primera-emulsion-estable-aceite-en-agua.html` y varias guías más. | Igualar `og:title` y `twitter:title` al `<title>`. |
+| `meta name="keywords"` | Estaba presente en **18** HTML; se retiró de todas las páginas HTML fuente. Google lo ignora desde 2009. | Resuelto en esta pasada. |
+| `og:title` ≠ `<title>` | Persiste en `berrys-lab.html`, `academia/costo-real-crema-margen.html`, `academia/primera-emulsion-estable-aceite-en-agua.html` y varias guías más. La home quedó sincronizada. | Igualar `og:title` y `twitter:title` al `<title>` en las páginas restantes. |
 | `twitter:title` recortado | Varias guías omiten el sufijo `\| Berry's Academy` que sí tiene el `<title>`. | Igual al punto anterior. |
 | Canonical absoluto hardcodeado al apex | `check-urls.cjs` deriva el esperado de `APP_URL`; si `APP_URL` cambia, el build falla. | Mantener la guarda; no tocar mientras el dominio sea el mismo. |
 
