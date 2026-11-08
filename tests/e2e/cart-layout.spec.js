@@ -121,6 +121,7 @@ const CART_FIXTURE = `
   });
 
   test('CL-04: la oferta dinámica se aplica en la línea del carrito y en el resumen de checkout', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.setContent(`<!doctype html><html><body>
       <div id="storeFilters"></div><div id="storeGrid"></div>
       <button id="cartFab"><span class="cart-fab__count"></span></button>
@@ -128,11 +129,16 @@ const CART_FIXTURE = `
       <aside id="cartDrawer" class="cart-drawer">
         <div id="cartBody"></div>
         <div class="cart-drawer__foot">
+          <div id="cartFreeShip" hidden></div>
           <span id="cartTotalValue"></span><p id="cartNote"></p>
-          <button id="cartCheckout" type="button">Finalizar compra</button>
+          <button id="cartCheckout" class="cta-button cta-mp" type="button">
+            <img class="mp-logo" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" width="60" height="24" alt="MercadoPago">
+            Finalizar compra
+          </button>
         </div>
       </aside>
     </body></html>`);
+    await page.addStyleTag({ path: path.join(ROOT, 'css/styles.css') });
 
     await page.evaluate(() => {
       const storage = Object.create(null);
@@ -164,13 +170,21 @@ const CART_FIXTURE = `
     await expect(page.locator('#cartBody .cart-item__price-old')).toHaveText('$ 30.000');
     await expect(page.locator('#cartBody .cart-item__price-sale')).toHaveText('$ 18.000');
     await expect(page.locator('#cartTotalValue')).toHaveText('$ 18.000');
+    await expect(page.locator('#cartFreeShip')).toContainText('12.000');
+    expect(await page.locator('#cartCheckout .mp-logo').evaluate((img) => getComputedStyle(img).height)).toBe('24px');
 
     await page.locator('#cartCheckout').click();
     await expect(page.locator('#coResumen')).toContainText('$ 18.000');
     await expect(page.locator('#coResumen')).not.toContainText('$ 30.000');
+    expect(await page.locator('#coPagar .mp-logo').evaluate((img) => getComputedStyle(img).height)).toBe('24px');
+    await page.locator('#coClose').click();
+    await page.locator('#cartBody [data-del]').evaluate((button) => button.click());
+    await expect(page.locator('#cartTotalValue')).toHaveText('$ 0');
+    await expect(page.locator('#cartTotalValue')).not.toContainText('A coordinar');
+    await expect(page.locator('#cartFreeShip')).toBeHidden();
   });
 
-  test('CL-05: el catálogo estático de respaldo no conserva los seis productos retirados', () => {
+  test('CL-06: el catálogo estático de respaldo no conserva los seis productos retirados', () => {
     const retiredIds = [
       'aceite-almendras', 'bruma-aurica', 'crema-karite',
       'jabon-arcilla-romero', 'kit-rutina-basic', 'sales-de-bano'

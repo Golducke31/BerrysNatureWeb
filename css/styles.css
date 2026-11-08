@@ -881,10 +881,11 @@ a.nav-ghost-btn {
 
 /* Logo de MercadoPago dentro de los botones de pago */
 .cta-mp .mp-logo {
-  height: 17px;
+  height: 24px;
   width: auto;
   display: block;
   flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .cta-button:hover {

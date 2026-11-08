@@ -388,7 +388,9 @@
     // Total + nota
     var totalEl = $('#cartTotalValue');
     if (totalEl) {
-      totalEl.textContent = cartHasPrices(items) ? ars(cartTotal(items)) : 'A coordinar';
+      totalEl.textContent = !items.length
+        ? ars(0)
+        : (cartHasPrices(items) ? ars(cartTotal(items)) : 'A coordinar');
     }
     var noteEl = $('#cartNote');
     if (noteEl) {
@@ -618,7 +620,7 @@
 
           '<div class="checkout-resumen" id="coResumen"></div>' +
 
-          '<button class="cta-button checkout-submit cta-mp" id="coPagar" type="submit"><img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" loading="lazy"> Pagar con MercadoPago</button>' +
+          '<button class="cta-button checkout-submit cta-mp" id="coPagar" type="submit"><img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" width="60" height="24" loading="lazy"> Pagar con MercadoPago</button>' +
           '<p class="checkout-error" id="coError" hidden></p>' +
           '<p class="checkout-note">Al continuar te redirigimos a MercadoPago. Tus datos de tarjeta no pasan por nuestro sitio.</p>' +
         '</form>' +

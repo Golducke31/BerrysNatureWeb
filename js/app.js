@@ -473,8 +473,10 @@ document.addEventListener('DOMContentLoaded', () => {
    de envíos (Panel → Envíos) para que nunca quede desactualizado.
    ------------------------------------------------------------------ */
 (function () {
+  var claveOcultamiento = 'berrys_topbar_dismissed_until';
   try {
-    if (localStorage.getItem('berrys_topbar_dismissed') === '1') return;
+    var ocultoHasta = Number(localStorage.getItem(claveOcultamiento)) || 0;
+    if (ocultoHasta > Date.now()) return;
   } catch (e) { /* modo privado */ }
 
   var header = document.querySelector('.sticky-header');
@@ -493,7 +495,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   bar.querySelector('.topbar-announce__close').addEventListener('click', function () {
     bar.remove();
-    try { localStorage.setItem('berrys_topbar_dismissed', '1'); } catch (e) { /* modo privado */ }
+    try {
+      localStorage.setItem(claveOcultamiento, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+    } catch (e) { /* modo privado */ }
   });
 
   fetch('/api/content/shipping')
