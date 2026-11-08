@@ -180,8 +180,19 @@
         <span class="section-label-tag">Diccionario Botánico & Químico</span>
         <h1 class="section-title">Glosario de Ingredientes</h1>
         <p class="section-subtitle">
-          Explorá insumos, descubrí qué problemas solucionan y aprendé a dosificarlos.
+          Buscá ingredientes por nombre o INCI y explorá sus usos y características.
         </p>
+      </div>
+
+      <div class="glossary-tools reveal">
+        <label class="glossary-search" for="glossarySearch">
+          <span>Buscar ingrediente</span>
+          <input id="glossarySearch" type="search" placeholder="Nombre o INCI…" autocomplete="off" aria-controls="glossaryList glossaryShowcase">
+        </label>
+        <div class="glossary-view-toggle" role="group" aria-label="Vista del glosario">
+          <button type="button" class="glossary-view-btn active" data-view="carousel" aria-pressed="true">Carrusel</button>
+          <button type="button" class="glossary-view-btn" data-view="list" aria-pressed="false">Lista</button>
+        </div>
       </div>
 
       <!-- Filtros dinámicos -->
@@ -229,6 +240,11 @@
       <!-- Indicadores inferiores (Dots) -->
       <div class="glossary-dots" id="glossaryDots"></div>
       <div class="glossary-counter" id="glossaryCounter">1 / 31</div>
+
+      <section class="glossary-list-view" id="glossaryList" aria-label="Resultados del glosario" hidden>
+        <p class="glossary-list-count" id="glossaryListCount" aria-live="polite"></p>
+        <div class="glossary-list-items" id="glossaryListItems"></div>
+      </section>
     </section>
 
     <!-- El índice completo se prerenderiza en el build (scripts/prerender.cjs)

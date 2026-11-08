@@ -15,6 +15,11 @@
       this.nextBtn = document.getElementById('glossaryNextBtn');
       this.filterBtns = document.querySelectorAll('.glossary-filter-btn');
       this.counterEl = document.getElementById('glossaryCounter');
+      this.searchInput = document.getElementById('glossarySearch');
+      this.viewBtns = document.querySelectorAll('.glossary-view-btn');
+      this.listView = document.getElementById('glossaryList');
+      this.listItems = document.getElementById('glossaryListItems');
+      this.listCount = document.getElementById('glossaryListCount');
 
       if (!this.stage || typeof GLOSSARY_DATA === 'undefined') return;
 
@@ -24,6 +29,9 @@
       this.isAnimating = false;
       this.autoTimer = null;
       this.touchStartX = 0;
+      this.viewMode = 'carousel';
+      this.activeFilter = 'all';
+      this.searchQuery = '';
 
       this.init();
     }
@@ -42,6 +50,74 @@
       this.renderMainCard();
       this.renderThumbs();
       this.renderDots();
+      this.renderList();
+    }
+
+    renderList() {
+      if (!this.listItems || !this.listCount) return;
+      this.listItems.innerHTML = '';
+      this.listCount.textContent = `${this.items.length} ${this.items.length === 1 ? 'ingrediente encontrado' : 'ingredientes encontrados'}`;
+
+      if (this.items.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'glossary-list-empty';
+        empty.textContent = 'No encontramos ingredientes con esa búsqueda. Probá con otro nombre, INCI o filtro.';
+        this.listItems.appendChild(empty);
+        return;
+      }
+
+      this.items.forEach((item) => {
+        const article = document.createElement('article');
+        article.className = 'glossary-list-item';
+        article.innerHTML = `
+          <div class="glossary-list-item__heading">
+            <div>
+              <span class="glossary-list-item__category">${esc(item.categoria)}</span>
+              <h2>${esc(item.nombre)}</h2>
+              <p class="glossary-list-item__inci">INCI: ${esc(item.inci)}</p>
+            </div>
+            <span class="glossary-list-item__dose"><strong>Dosis:</strong> ${esc(item.dosis)}</span>
+          </div>
+          <div class="glossary-list-item__details">
+            <p><strong>Soluciona / combate:</strong> ${esc(item.soluciona)}</p>
+            <p><strong>Ideal para:</strong> ${esc(item.usos)}</p>
+            <p class="glossary-list-item__tip"><strong>Tip:</strong> ${esc(item.tip)}</p>
+          </div>
+        `;
+        this.listItems.appendChild(article);
+      });
+    }
+
+    applySearchAndFilter() {
+      const query = normalizeText(this.searchQuery.trim());
+      this.items = this.allItems.filter((item) => {
+        const matchesFilter = this.activeFilter === 'all' || item.filtro === this.activeFilter;
+        const searchable = normalizeText(`${item.nombre} ${item.inci}`);
+        return matchesFilter && (!query || searchable.includes(query));
+      });
+      this.currentIndex = 0;
+      this.stopAuto();
+      this.renderAll();
+      this.updateUI();
+      if (this.viewMode === 'carousel') this.startAuto();
+    }
+
+    setView(mode) {
+      this.viewMode = mode === 'list' ? 'list' : 'carousel';
+      const showingList = this.viewMode === 'list';
+      if (this.listView) this.listView.hidden = !showingList;
+      const showcase = document.getElementById('glossaryShowcase');
+      if (showcase) showcase.hidden = showingList;
+      const dots = document.getElementById('glossaryDots');
+      if (dots) dots.hidden = showingList;
+      if (this.counterEl) this.counterEl.hidden = showingList;
+      this.viewBtns.forEach((button) => {
+        const active = button.dataset.view === this.viewMode;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      this.stopAuto();
+      if (!showingList) this.startAuto();
     }
 
     renderMainCard() {
@@ -213,7 +289,9 @@
 
     updateCounter() {
       if (this.counterEl) {
-        this.counterEl.textContent = `${this.currentIndex + 1} / ${this.items.length}`;
+        this.counterEl.textContent = this.items.length
+          ? `${this.currentIndex + 1} / ${this.items.length}`
+          : '0 / 0';
       }
     }
 
@@ -229,7 +307,7 @@
         document.body.appendChild(live);
       }
       const item = this.items[this.currentIndex];
-      if (item) live.textContent = `${item.nombre}. ${item.categoria}. ${item.soluciona}`;
+      live.textContent = item ? `${item.nombre}. ${item.categoria}. ${item.soluciona}` : 'No hay ingredientes para mostrar.';
     }
 
     /* ============================================================
@@ -262,20 +340,21 @@
       this.filterBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
           this.filterBtns.forEach(b => b.classList.remove('active'));
-          e.target.classList.add('active');
-
-          const filter = e.target.dataset.filter;
-          if (filter === 'all') {
-            this.items = [...this.allItems];
-          } else {
-            this.items = this.allItems.filter(item => item.filtro === filter);
-          }
-          this.currentIndex = 0;
-          this.stopAuto();
-          this.renderAll();
-          this.updateUI();
-          this.startAuto();
+          e.currentTarget.classList.add('active');
+          this.activeFilter = e.currentTarget.dataset.filter || 'all';
+          this.applySearchAndFilter();
         });
+      });
+
+      if (this.searchInput) {
+        this.searchInput.addEventListener('input', () => {
+          this.searchQuery = this.searchInput.value;
+          this.applySearchAndFilter();
+        });
+      }
+
+      this.viewBtns.forEach((button) => {
+        button.addEventListener('click', () => this.setView(button.dataset.view));
       });
 
       // Pause auto on hover
@@ -308,6 +387,13 @@
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  function normalizeText(value) {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('es');
   }
 
   document.addEventListener('DOMContentLoaded', () => {

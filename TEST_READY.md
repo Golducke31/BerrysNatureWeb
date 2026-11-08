@@ -4,7 +4,7 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 291 tests en 31 archivos que corren contra los `.html` con `file://`
+- **Suite estática (frontend):** 295 tests en 31 archivos que corren contra los `.html` con `file://`
   (no requiere base de datos). El inventario de abajo destaca algunos archivos.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
@@ -27,14 +27,14 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     pasa en verde tal cual.
 
 ## Test Files
-The static suite currently contains 291 tests in 31 files (the old catalog-hotspots and cart-integration specs
+The static suite currently contains 295 tests in 31 files (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (873 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (885 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
-2. `tests/e2e/academia.spec.js` (16 tests)
-   - Carrusel de rutas, grid de guías, filtro de categoría, fórmulas descargables, proveedores, enlace al Foro en el header + ausencia de la sección de comunidad, modal "Leer más", guías con página propia que enlazan en vez de abrir el modal, glosario (siguiente / contador / filtros / posición estable en móvil).
+2. `tests/e2e/academia.spec.js` (20 tests)
+   - Carrusel de rutas, grid de guías, filtros y guías con página propia; glosario con búsqueda por nombre/INCI, consulta sin acentos, vista lista, filtro combinado, estado vacío y controles móviles estables.
 3. `tests/e2e/auth-contacto.spec.js` (6 tests)
    - Menú compacto de cuenta, login/logout (localStorage `berrys_user`), pestaña "Crear cuenta" muestra nombre, formulario de contacto vacío y con datos (sin API no finge éxito).
 4. `tests/e2e/foro.spec.js` (10 tests)
@@ -142,7 +142,7 @@ Nuevo archivo: `tests/e2e/cart-layout.spec.js` (2 tests) valida la legibilidad d
 en notebook y que los controles no desborden en móvil.
 
 ## Verification
-La configuración actual registra 291 tests estáticos. La suite de backend corre con
+La configuración actual registra 295 tests estáticos. La suite de backend corre con
 `npm run test:api`: los 11 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
 Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
 saltean si no hay `DATABASE_URL`.

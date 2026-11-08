@@ -121,8 +121,74 @@
 }
 
 /* ------------------------------------------------------------
-   FILTROS
+   BÚSQUEDA, VISTA Y FILTROS
    ------------------------------------------------------------ */
+.glossary-tools {
+  max-width: 1100px;
+  margin: 0 auto 22px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  position: relative;
+  z-index: 2;
+}
+
+.glossary-search {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 420px;
+  max-width: 620px;
+  color: #4a5243;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.glossary-search input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 15px;
+  border: 1px solid var(--color-line-warm);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 15px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.04);
+}
+
+.glossary-search input:focus-visible,
+.glossary-view-btn:focus-visible {
+  outline: 3px solid rgba(130, 150, 107, .38);
+  outline-offset: 2px;
+}
+
+.glossary-view-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-line-warm);
+  border-radius: 12px;
+  background: rgba(255,255,255,.75);
+}
+
+.glossary-view-btn {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #555;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.glossary-view-btn.active {
+  background: var(--color-accent-botanical);
+  color: #fff;
+}
+
 .glossary-filters {
   display: flex;
   justify-content: center;
@@ -680,4 +746,118 @@
 @media (max-width: 640px) {
   .glossary-index { padding: 16px 18px 56px; }
   .glossary-index__grid { grid-template-columns: 1fr; gap: 16px; }
+}
+
+
+/* Vista en lista del glosario */
+.glossary-list-view {
+  max-width: 1000px;
+  margin: 30px auto 0;
+  position: relative;
+  z-index: 2;
+}
+
+.glossary-list-count {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.glossary-list-items {
+  display: grid;
+  gap: 12px;
+}
+
+.glossary-list-item {
+  padding: 18px 20px;
+  border: 1px solid var(--color-line-warm);
+  border-radius: 16px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 5px 18px rgba(45, 54, 36, .05);
+}
+
+.glossary-list-item__heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.glossary-list-item__category {
+  color: var(--color-accent-botanical);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.glossary-list-item h2 {
+  margin: 3px 0;
+  color: var(--color-text);
+  font-family: var(--font-title);
+  font-size: 19px;
+  line-height: 1.3;
+}
+
+.glossary-list-item__inci {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.glossary-list-item__dose {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #f1f5ec;
+  color: #3d4a30;
+  font-size: 12px;
+}
+
+.glossary-list-item__details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 18px;
+  margin-top: 12px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.glossary-list-item__details p { margin: 0; }
+.glossary-list-item__details strong { color: #4a5243; }
+.glossary-list-item__tip { grid-column: 1 / -1; }
+
+.glossary-list-empty {
+  margin: 0;
+  padding: 28px 18px;
+  border: 1px dashed var(--color-line-warm);
+  border-radius: 14px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .glossary-tools {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .glossary-search { max-width: none; }
+  .glossary-view-toggle { align-self: flex-start; }
+  .glossary-list-item { padding: 15px; }
+  .glossary-list-item__heading { flex-direction: column; gap: 8px; }
+  .glossary-list-item__details { grid-template-columns: 1fr; }
+  .glossary-list-item__tip { grid-column: auto; }
+}
+
+
+.glossary-showcase[hidden],
+.glossary-dots[hidden],
+.glossary-counter[hidden],
+.glossary-list-view[hidden] {
+  display: none !important;
 }

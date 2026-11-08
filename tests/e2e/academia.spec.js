@@ -170,4 +170,40 @@ test.describe('Glosario de Ingredientes', () => {
       }
     }
   });
+
+  test('T1-G-06: busca por nombre aunque la consulta no tenga acentos', async ({ page }) => {
+    await page.locator('#glossarySearch').fill('acido estearico');
+    await page.locator('[data-view="list"]').click();
+    await expect(page.locator('#glossaryListItems .glossary-list-item')).toHaveCount(1);
+    await expect(page.locator('#glossaryListItems h2')).toHaveText('Ácido Esteárico');
+  });
+
+  test('T1-G-07: busca por INCI y muestra los datos del ingrediente en lista', async ({ page }) => {
+    await page.locator('#glossarySearch').fill('cocamidopropyl betaine');
+    await page.locator('[data-view="list"]').click();
+    const item = page.locator('#glossaryListItems .glossary-list-item');
+    await expect(item).toHaveCount(1);
+    await expect(item).toContainText('Cocoamidopropil Betaína');
+    await expect(item).toContainText('INCI: Cocamidopropyl Betaine');
+    await expect(item).toContainText('Dosis:');
+  });
+
+  test('T1-G-08: combina búsqueda y categoría, y permite volver al carrusel', async ({ page }) => {
+    await page.locator('[data-view="list"]').click();
+    await page.locator('[data-filter="Siliconas"]').click();
+    await page.locator('#glossarySearch').fill('amodimeticona');
+    await expect(page.locator('#glossaryListItems .glossary-list-item')).toHaveCount(1);
+    await expect(page.locator('#glossaryListItems h2')).toHaveText('Amodimeticona');
+    await page.locator('[data-view="carousel"]').click();
+    await expect(page.locator('#glossaryShowcase')).toBeVisible();
+    await expect(page.locator('#glossaryCardStage .g-card-title')).toHaveText('Amodimeticona');
+  });
+
+  test('T1-G-09: informa cuando la búsqueda no tiene coincidencias', async ({ page }) => {
+    await page.locator('#glossarySearch').fill('ingrediente inexistente 12345');
+    await expect(page.locator('#glossaryCounter')).toHaveText('0 / 0');
+    await page.locator('[data-view="list"]').click();
+    await expect(page.locator('#glossaryListItems .glossary-list-empty')).toContainText('No encontramos ingredientes');
+    await expect(page.locator('#glossaryListCount')).toHaveText('0 ingredientes encontrados');
+  });
 });
