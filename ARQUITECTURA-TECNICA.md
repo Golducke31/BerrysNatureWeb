@@ -5,7 +5,7 @@
 > Este archivo proponía migrar el sitio a **WordPress.org** y trazaba un roadmap de 10–16 días
 > para hacerlo. **Esa migración quedó descartada** (decisión D5, 21/09/2026).
 >
-> El motivo es concreto: la implementación **serverless actual** (Vercel + Neon, en `server/`)
+> El motivo es concreto: la implementación **serverless actual** (Netlify Functions + Neon, en `server/`)
 > ya resuelve todo lo que WordPress iba a resolver —contenido, comunidad, cuentas, sesiones,
 > moderación, auditoría y pago único— sin comisiones de plugins, sin licencias y con el
 > front-end que ya existe. Migrar sería pagar dos veces por lo mismo.
@@ -31,8 +31,8 @@
 Además del prototipo estático, este repo ya contiene una **implementación desplegable serverless** que
 cumple el mismo objetivo de fondo (contenido + comunidad + login + pago único) sin esperar a WordPress:
 
-- **Backend:** `server/` (router único + handlers) servido por una función serverless de Vercel
-  (`api/[...route].js`) o por `scripts/dev-server.cjs` en local. Usa **Neon Postgres** vía el driver HTTP.
+- **Backend:** `server/` (router único + handlers) servido por una función serverless de Netlify
+  (`netlify/functions/api.js`) o por `scripts/dev-server.cjs` en local. Usa **Neon Postgres** vía el driver HTTP.
 - **Cuentas reales:** registro/login/logout con sesiones httpOnly (`sessions`), rate-limiting y
   protección Turnstile (se desactiva si no hay clave).
 - **Foro y Academia** servidos desde la base (el contenido semilla de `js/content-data.js` se migra con
@@ -230,6 +230,6 @@ Lo único que se descarta es la **simulación de sesión en `localStorage`** (`b
 
 > ~~**WordPress.org + tema hijo liviano + ACF/CPT UI para el contenido + BuddyBoss (o bbPress+BuddyPress) para login y comunidad + Formidable/Gravity Forms con MercadoPago para el pago único**, sobre un VPS con Redis y Cloudflare. El prototipo actual ya es el 80% del front-end.~~
 
-**Vigente:** el sitio se queda en **serverless (Vercel + Neon)** con el backend propio de `server/`.
+**Vigente:** el sitio se queda en **serverless (Netlify Functions + Neon)** con el backend propio de `server/`.
 El contenido vive en Postgres y se sirve desde funciones serverless; la comunidad, las cuentas y la
 moderación ya están implementadas. Para el plan de ejecución, ver `PLAN-PRODUCCION.md`.

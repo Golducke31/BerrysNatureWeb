@@ -63,7 +63,6 @@ Detalle de la verificación funcional: un único H1, CTA a `/tienda`, 4 señales
 3. **El backend mantiene la zona de entrega `retiro` con costo 0** y el panel dice *"Retiro en persona es siempre gratis"*. Cambiarlo requiere una decisión de negocio y tocaría el flujo de pedidos; no se hizo.
 4. **`AggregateRating` sigue emitiéndose** desde reseñas reales de la BD (`product_reviews`). El brief original decía que no había reseñas; no se quitó para no perder rich results sin confirmación. Decisión pendiente.
 5. **Las páginas SSR dependen de Neon.** En local respondieron 200 con datos reales; si la BD falla en producción, `/tienda` y `/foro` sirven grillas vacías (comportamiento previo, no modificado).
-6. **`vercel.json` sigue sin rewrite de `/productos/*`** y duplica reglas a mano. No se tocó porque el deploy es Netlify; si algún día se usa Vercel, las fichas darán 404.
 7. **`dist/` y `server/lib/build-info.js` son gitignored**: el artefacto se regenera en Netlify con el mismo `npm run build`, así que lo verificado localmente es lo que se publica.
 8. **El archivo de verificación de Google se conserva** (ver `SEO-RECOMENDACIONES.md` §6). No bloquearlo por `robots.txt`.
 

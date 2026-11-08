@@ -11,15 +11,15 @@
 
 ## 0. Requisitos previos
 
-- [ ] Cuenta en **Vercel** con el proyecto importado desde GitHub (`Golducke31/BerrysNatureWeb`).
+- [ ] Cuenta en **Netlify** con el proyecto importado desde GitHub (`Golducke31/BerrysNatureWeb`).
 - [ ] Base **Neon** creada (usar el endpoint **pooled**, con `-pooler` en el host).
 - [ ] Cuenta de **MercadoPago** con una **aplicación** creada (para las credenciales).
 - [ ] Cuenta de **Resend** con el **dominio verificado** (para que los correos salgan).
-- [ ] Dominio apuntando a Vercel (`berrysnature.com`).
+- [ ] Dominio apuntando a Netlify (`berrysnature.com`).
 
 ---
 
-## 1. Variables de entorno en Vercel
+## 1. Variables de entorno en Netlify
 
 Cargar en **Settings → Environment Variables** (Production y Preview). Nada de esto va al repo.
 
@@ -68,7 +68,7 @@ npm run db:status     # confirmar que quedaron todas aplicadas
 
 ## 3. Deploy y verificación de rewrites
 
-Los rewrites de `vercel.json` **no se pueden probar en local** (el dev server no los aplica).
+Los rewrites de `netlify.toml` **no se pueden probar en local** (el dev server no los aplica).
 Hay que verlos en un **Preview**.
 
 - [ ] Desplegar (push a `main`, o un Preview desde la rama).
@@ -132,7 +132,7 @@ Eso saca el aviso de borrador, pasa el meta a `index, follow` y habilita las pá
 
 Recién con los legales publicados:
 
-- [ ] Cargar `PERFILES_PUBLICOS=1` en Vercel.
+- [ ] Cargar `PERFILES_PUBLICOS=1` en Netlify.
 - [ ] Verificar que `/perfil/<id>` responde 200.
 
 ---
@@ -141,7 +141,7 @@ Recién con los legales publicados:
 
 - [ ] **Backups de Neon** con retención definida + **PITR** verificado (restaurar a un punto en el tiempo).
 - [ ] **Error tracking** (Sentry o similar) + **uptime** con alertas.
-- [ ] **Staging**: Vercel Preview + una base de prueba (no la de producción).
+- [ ] **Staging**: Netlify Deploy Preview + una base de prueba (no la de producción).
 - [ ] **Rendimiento**: Lighthouse contra la **URL de producción** (meta: LCP < 2,5 s en móvil).
       Pendiente menor: convertir los videos a WebM (hoy ~1,5 MB cada uno). El `poster` del hero ya está.
 
@@ -163,5 +163,5 @@ Recién con los legales publicados:
 | Qué | Cómo |
 |---|---|
 | Una migración | `npm run db:rollback` (usa el `.down.sql`; se niega si no hay reverso) |
-| Un deploy | En Vercel → Deployments → **Promote to Production** de un deploy anterior |
+| Un deploy | En Netlify → Deployments → **Promote to Production** de un deploy anterior |
 | Los legales | Volver a poner `legalesPublicadas = false` y el meta en `noindex` |

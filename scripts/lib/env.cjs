@@ -127,7 +127,7 @@ function requireDb() {
     die(
       'Falta DATABASE_URL.\n' +
       '  Copiá .env.example a .env y pegá la cadena de conexión de Neon.\n' +
-      '  En Vercel: Settings → Environment Variables.'
+      '  En Netlify: Settings → Environment Variables.'
     );
   }
 }

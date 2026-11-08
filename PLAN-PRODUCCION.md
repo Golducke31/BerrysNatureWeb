@@ -33,10 +33,10 @@ Todo lo de abajo se comprobó leyendo el código y **ejecutando** la suite, no p
 
 | # | Afirmación del plan | Veredicto | Evidencia |
 |---|---|---|---|
-| 1 | Backend real (Vercel + Neon), sesiones, rate-limit, foro, auditoría | ✅ Correcto | `server/router.js`, `server/lib/{rate-limit,audit}.js`, `db/schema.sql` |
+| 1 | Backend real (Netlify Functions + Neon), sesiones, rate-limit, foro, auditoría | ✅ Correcto | `server/router.js`, `server/lib/{rate-limit,audit}.js`, `db/schema.sql` |
 | 2 | Cuentas reales local + Google OAuth, roles y permisos finos | ✅ Correcto | `server/lib/google.js`, `users.provider CHECK ('local','google')`, `users.permissions jsonb` |
-| 3 | Panel admin oculto (slug + gate key + 2FA), assets no públicos | ✅ Correcto | `vercel.json:19-20`, `server/router.js:184-187`, `adminUI.readAsset()` |
-| 4 | Seguridad base: CSP, headers, `noindex` en `/api/`, rutas ofuscadas | ✅ Correcto | `vercel.json:22-44` |
+| 3 | Panel admin oculto (slug + gate key + 2FA), assets no públicos | ✅ Correcto | `netlify.toml:19-20`, `server/router.js:184-187`, `adminUI.readAsset()` |
+| 4 | Seguridad base: CSP, headers, `noindex` en `/api/`, rutas ofuscadas | ✅ Correcto | `netlify.toml:22-44` |
 | 5 | Suite de 79 tests (68 estáticos + 11 backend) | ⚠️ Número correcto, **estado no** | El conteo es 68+11, pero **1 test estático falla** (ver §2.5) |
 | 6 | SEO técnico presente en index/academia/glosario y 3 guías | ✅ Correcto | 2 bloques JSON-LD en las 3 páginas, 3 en cada guía migrada |
 | 7 | `foro.html` sin canonical, og:url, og:image, Twitter, JSON-LD, favicon, lazy | ⚠️ **Impreciso** | Sí falta todo eso, pero **ya tiene** `description`, `keywords`, `og:title` y `og:description` (ver §2.1) |
@@ -46,7 +46,7 @@ Todo lo de abajo se comprobó leyendo el código y **ejecutando** la suite, no p
 | 11 | Falta `DiscussionForumPosting` y `FAQPage` en el Glosario | ✅ Correcto | 0 bloques JSON-LD en `foro.html` y `hilo.html` |
 | 12 | No hay analítica instalada | ✅ Correcto | No hay script de analítica; `connect-src` no incluye terceros |
 | 13 | Videos del hero ~1,5 MB sin optimizar | ✅ Correcto | `hero-cream-pour.mp4` 1.540.581 B; `calc-oil-pour.mp4` 1.387.901 B |
-| 14 | `vercel.json` no define cache para `/assets/` | ✅ Correcto | `vercel.json:22-44` solo define headers de seguridad y `/api/(.*)` |
+| 14 | `netlify.toml` no define cache para `/assets/` | ✅ Correcto | `netlify.toml:22-44` solo define headers de seguridad y `/api/(.*)` |
 | 15 | `content_views` ya trackea vistas de hilos y guías | ✅ Correcto | `db/schema.sql:170-179` |
 | 16 | `is_resolved`, `is_hidden`, likes y contadores ya existen | ✅ Correcto | `db/schema.sql:95-100`, `129-138` |
 | 17 | Los perfiles públicos de usuario no existen | ✅ Correcto | No hay tabla ni ruta; solo `users.display_name` y `avatar_url` |
@@ -83,8 +83,8 @@ Esto no es un detalle cosmético:
 El plan propone "una ruta serverless (`api/sitemap.xml.js`)". Tres problemas concretos:
 
 1. **La URL queda mal.** El router solo atiende `/api/*`: `server/router.js:179` devuelve `notFound` si `parts[0] !== 'api'`. Un archivo `api/sitemap.xml.js` se sirve en **`/api/sitemap.xml`**, no en `/sitemap.xml`.
-2. **Hereda headers que no corresponden.** La regla `vercel.json:37-43` aplica a `/api/(.*)` un `X-Robots-Tag: noindex, nofollow` y `Cache-Control: no-store`. Un sitemap necesita exactamente lo contrario.
-3. **El archivo estático gana.** En Vercel, un archivo estático de la raíz **tiene prioridad sobre un `rewrite`**. Mientras exista `sitemap.xml` en el repo, el rewrite a la función nunca se ejecuta.
+2. **Hereda headers que no corresponden.** La regla `netlify.toml:37-43` aplica a `/api/(.*)` un `X-Robots-Tag: noindex, nofollow` y `Cache-Control: no-store`. Un sitemap necesita exactamente lo contrario.
+3. **El archivo estático gana.** La publicación de un archivo estático en la raíz puede prevalecer sobre un rewrite; comprobar el orden de reglas de `_redirects`. Mientras exista `sitemap.xml` en el repo, el rewrite a la función nunca se ejecuta.
 
 **Implementación correcta:** función en `/api/sitemap` → `rewrite` de `/sitemap.xml` a `/api/sitemap` → **borrar** el `sitemap.xml` estático → header propio `Content-Type: application/xml; charset=utf-8` + `Cache-Control: public, s-maxage=3600, stale-while-revalidate=86400`. El handler debe devolver XML a mano (el router solo sabe responder JSON/HTML vía `server/lib/http.js`; hay que agregar un helper `http.xml()`).
 
@@ -324,7 +324,7 @@ No hay `.github/workflows`. Los tests se corren a mano (hoy, de hecho, en rojo).
 
 - Workflow que corra la suite estática + la de routing en cada push/PR. **→ Resuelto en la Etapa 8.**
 - Estrategia de migraciones versionadas (`db/schema.sql` es idempotente y está bien, pero no hay historial de cambios ni forma de revertir).
-- Un entorno de staging (Vercel Preview + una rama de Neon, o al menos una base de prueba).
+- Un entorno de staging (Netlify Deploy Preview + una rama de Neon, o al menos una base de prueba).
 
 **Bloqueante encontrado al implementar el CI:** el `package-lock.json` estaba desincronizado con `package.json` y `npm ci` fallaba. Ver §2.12 — ya corregido.
 
@@ -371,7 +371,7 @@ El plan pide `og:title`/`og:description` dinámicos para los hilos pero no `og:i
 | R4 | Sin CI ni migraciones versionadas → un cambio de schema rompe producción | Media | Alto | Workflow de tests + migraciones versionadas + staging |
 | R5 | Newsletter sin ESP ni doble opt-in → dominio marcado como spam / incumplimiento | Media | Alto | ESP transaccional + doble opt-in + baja en un clic |
 | R6 | Perfiles públicos sin política de privacidad → incumplimiento Ley 25.326 | Media | Alto | Política + consentimiento + borrado de cuenta antes de exponer perfiles |
-| R7 | La CSP es estricta: cada tercero nuevo exige tocar `vercel.json` y si se olvida, se rompe el sitio | Alta | Medio | Checklist por integración + test automatizado que valide la CSP contra los dominios usados |
+| R7 | La CSP es estricta: cada tercero nuevo exige tocar `netlify.toml` y si se olvida, se rompe el sitio | Alta | Medio | Checklist por integración + test automatizado que valide la CSP contra los dominios usados |
 | R8 | Videos de ~1,5 MB en el hero → LCP degradado | Alta | Medio | `poster`, WebM, `preload="none"` si no están above-the-fold, cache inmutable |
 | R9 | El plan mezcla quick wins de SEO con construir comunidad → dispersión | Media | Medio | Separar en tracks (SEO / Comunidad / Operación / Contenido) y no abrir más de 2 en paralelo |
 | R10 | Doble fuente de verdad del contenido (`content-data.js` vs `guides`) → deriva silenciosa | Media | Medio | Resolver en D5: una sola fuente, documentada |
@@ -412,7 +412,7 @@ Llevar Berry's Nature de "prototipo desplegable con backend real" a **producto e
 | O8 | Sostenibilidad de contenido | Cadencia editorial | 1 guía nueva cada 2 semanas |
 | O9 | **Monetizar con tráfico** | Ingresos reales por audiencia (desbloqueos PRO + afiliados/destacados) | ≥ 1 pago real en 30 días; ≥ 20 desbloqueos PRO en 90 días |
 
-> **O9 (2026-09-24, en marcha):** convierte la audiencia en ingresos. **Integración de MercadoPago implementada** — Checkout Pro + webhook que revalida el pago contra la API, valida la firma HMAC y otorga `users.permissions.calculadora_pro`. El evento `pro_desbloqueado` ahora se emite **desde el webhook** (conversión real), no desde el navegador. **Falta:** cargar `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` y `PRO_PRICE_ARS` en Vercel, correr la migración `006`, y **publicar los legales** (D12) antes de cobrar. El panel del admin ya tiene la pestaña **Ingresos** (total en ARS, desbloqueos, pendientes, accesos PRO activos, serie diaria y últimos pagos). La meta de 20 desbloqueos es un punto de partida a ajustar.
+> **O9 (2026-09-24, en marcha):** convierte la audiencia en ingresos. **Integración de MercadoPago implementada** — Checkout Pro + webhook que revalida el pago contra la API, valida la firma HMAC y otorga `users.permissions.calculadora_pro`. El evento `pro_desbloqueado` ahora se emite **desde el webhook** (conversión real), no desde el navegador. **Falta:** cargar `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` y `PRO_PRICE_ARS` en Netlify, correr la migración `006`, y **publicar los legales** (D12) antes de cobrar. El panel del admin ya tiene la pestaña **Ingresos** (total en ARS, desbloqueos, pendientes, accesos PRO activos, serie diaria y últimos pagos). La meta de 20 desbloqueos es un punto de partida a ajustar.
 
 ---
 
@@ -481,7 +481,7 @@ Llevar Berry's Nature de "prototipo desplegable con backend real" a **producto e
 |---|---|
 | T1 | CI que corra la suite estática y la de routing en cada push |
 | T2 | Migraciones versionadas y reversibles (no solo `schema.sql` idempotente) |
-| T3 | Entorno de staging (Vercel Preview + base de prueba) |
+| T3 | Entorno de staging (Netlify Deploy Preview + base de prueba) |
 | T4 | Backups de Neon con retención definida + PITR verificado |
 | T5 | Error tracking y monitoreo de uptime con alertas |
 | T6 | Los 79 tests existentes en verde **antes** de empezar la Etapa 1 |
@@ -495,12 +495,12 @@ Llevar Berry's Nature de "prototipo desplegable con backend real" a **producto e
 | ID | Decisión | Resultado | Nota |
 |---|---|---|---|
 | **D1** | ¿Se indexan los hilos del foro? | ✅ **SÍ, con umbrales objetivos.** `noindex` por defecto; pasa a indexable con **≥ 3 likes**, o **resuelto**, o **≥ 2 respuestas con al menos una persona distinta del autor**. `is_hidden` nunca indexa. | Implementado en `server/lib/indexability.js`. La regla original ("solo si `is_resolved`") dejaba afuera los hilos de debate, que por definición nunca se marcan resueltos. Ver §2.15. |
-| **D2** | Patrón de URL de hilo | ✅ **`/foro/hilo/<id>`**, con el id como fuente de verdad. **No hizo falta columna `slug`**: el id ya lo trae adentro. | Rewrite en `vercel.json` + los **dos** lugares que armaban el enlace (`js/foro.js`, `js/mod-panel.js`). Ver §2.15(c). |
+| **D2** | Patrón de URL de hilo | ✅ **`/foro/hilo/<id>`**, con el id como fuente de verdad. **No hizo falta columna `slug`**: el id ya lo trae adentro. | Rewrite en `netlify.toml` + los **dos** lugares que armaban el enlace (`js/foro.js`, `js/mod-panel.js`). Ver §2.15(c). |
 | **D3** | Analítica | ✅ **Dashboard propio** sobre `content_views`. Sin terceros, sin cookies, sin tocar la CSP. Sumar una tabla `events` mínima para conversión. | El panel ya expone `vistas{hoy,semana,mes}` + top hilos/guías en `GET /api/<slug>/metrics`. Falta la agregación por día y los 4 eventos clave. |
-| **D4** | Email transaccional | ✅ **Resend.** Orden de urgencia: verificación en registro → recuperación de contraseña → newsletter. | Ya implementado como transporte (`MAIL_TRANSPORT=resend`). **Falta solo cargar `MAIL_*` en Vercel**: la verificación y la recuperación ya están construidas (Etapa 4). |
+| **D4** | Email transaccional | ✅ **Resend.** Orden de urgencia: verificación en registro → recuperación de contraseña → newsletter. | Ya implementado como transporte (`MAIL_TRANSPORT=resend`). **Falta solo cargar `MAIL_*` en Netlify**: la verificación y la recuperación ya están construidas (Etapa 4). |
 | **D5** | Stack del contenido | ✅ **Seguir en serverless.** Página de guía con un handler propio que devuelve HTML. WordPress **descartado**. | `ARQUITECTURA-TECNICA.md` quedó marcado como superado. El handler de guías necesita un rewrite, igual que el de hilos (§2.15(e)). |
 | **D6** | ¿Perfiles públicos ahora o después de privacidad? | ✅ **Privacidad primero (opción a).** No se exponen datos personales (`/perfil/<usuario>`) hasta que la política de privacidad y los términos estén publicados (D12). La Etapa 5 queda bloqueada por **D12**, no por D6. | Resolución de política. El cableado de la Etapa 5 se construye recién tras D12. |
-| **D7** | ¿Newsletter ahora o después del ESP? | ✅ **Después del ESP (opción a).** Sin proveedor de email configurado, capturar emails es un pasivo legal (Ley 25.326) y de spam. Se construye tras cargar `MAIL_*` en Vercel (D4). La Etapa 6 queda bloqueada por **D4**, no por D7. | La abstracción de transporte ya existe (D4); falta configurar el ESP. |
+| **D7** | ¿Newsletter ahora o después del ESP? | ✅ **Después del ESP (opción a).** Sin proveedor de email configurado, capturar emails es un pasivo legal (Ley 25.326) y de spam. Se construye tras cargar `MAIL_*` en Netlify (D4). La Etapa 6 queda bloqueada por **D4**, no por D7. | La abstracción de transporte ya existe (D4); falta configurar el ESP. |
 | **D9** | ¿Quién resuelve el contenido y la moderación? | ✅ **Solo el dueño por ahora (opción a).** No hay programa de moderadores voluntarios todavía. Habilita construir la infraestructura de moderación (cola de reportes + panel) en la Etapa 5 con el dueño como único moderador. | Define el modelo operativo; la Etapa 5 construye la herramienta. |
 | **D11** | ¿Se hashea la IP en `sessions`, `auth_attempts` y `audit_log`? | ✅ **Solo `auth_attempts` (opción b), implementado.** `server/lib/rate-limit.js` guarda `auth.hashIp(ip)` en vez de la IP cruda. `sessions.ip` y `audit_log.ip` quedan en claro pero con retención acotada y documentada (no se pierde la capacidad de investigar abuso). `content_views.ip_hash` y `events.ip_hash` ya estaban hasheados. | `server/lib/rate-limit.js` (record/failuresForIp). Hash determinístico ⇒ el rate-limit por IP sigue funcionando. |
 | **D13** | ¿Se extiende la validación CSRF a los endpoints públicos que mutan datos? | ✅ **Sí, a todos (opción a), implementado.** `csrf.assertValid` cubre admin, cuenta (`auth.js`) y foro (`threads.js`: crear/editar/borrar hilo y respuesta, y like). El cliente ya manda `X-CSRF-Token`. Corregido el comentario de `csrf.js` que decía lo contrario. | `server/handlers/threads.js` (createThread/createReply/toggleLike + los 4 existentes) + comentario en `server/lib/csrf.js`. |
@@ -529,7 +529,7 @@ Se asumen hasta que se diga lo contrario. Si alguno es incorrecto, cambia la eta
 | ID | Supuesto | Afecta |
 |---|---|---|
 | A1 | El dominio de producción es `berrysnature.com` (es el que ya usan `canonical`, `sitemap.xml` y `robots.txt`) | Etapas 1, 2 |
-| A2 | Se implementa sobre el stack actual (Vercel + Neon + serverless), **no** WordPress, en este ciclo | Todas |
+| A2 | Se implementa sobre el stack actual (Netlify Functions + Neon + serverless), **no** WordPress, en este ciclo | Todas |
 | A3 | "Nivel de producción" = público, indexable, medible, con cuentas utilizables y operación sostenible | Todas |
 | A4 | Un solo idioma (es-AR); no hace falta i18n ni `hreflang` | Todas |
 | A5 | Emanuel decide producto y legal; la implementación técnica la hago yo | Todas |
@@ -568,7 +568,7 @@ Cada etapa tiene dependencias explícitas y criterios de éxito verificables (§
 - [x] `foro.html`: JSON-LD `Organization` + `BreadcrumbList` + `CollectionPage`.
 - [x] `foro.html`: atributos de carga en imágenes; `glosario.html` (footer) también (ver §15.2).
 - [x] `sitemap.xml`: agregar `foro.html` (solución de corto plazo) + nota que documenta el reemplazo por el sitemap dinámico de la Etapa 2.
-- [x] `vercel.json`: cache de `/assets/` (7 días, no `immutable` — ver §15.1).
+- [x] `netlify.toml`: cache de `/assets/` (7 días, no `immutable` — ver §15.1).
 - [x] `css/foro.css`: bloque `@media (prefers-reduced-motion: reduce)`.
 
 **Estado: completada.** Pendiente de validación externa: Rich Results Test sobre `foro.html` una vez desplegado.
@@ -582,12 +582,12 @@ Cada etapa tiene dependencias explícitas y criterios de éxito verificables (§
 
 - [x] ~~Columna `slug` en `forum_threads`~~ **No hizo falta** (D2): el id ya trae el slug adentro (`hilo-<slug>-<rand>`), tanto en los hilos creados por la API como en los semilla. Ver §2.15(d).
 - [x] **Página de hilo renderizada en el servidor** (`server/handlers/pages.js`): `<h1>`, cuerpo y respuestas en el HTML servido, con canonical, Open Graph, `og:image`, `og:locale`, Twitter Card y JSON-LD `DiscussionForumPosting` + `BreadcrumbList`.
-- [x] Rewrite `/foro/hilo/:id` → `/api/foro/hilo/:id` en `vercel.json` + los **dos** lugares que armaban el enlace (`js/foro.js`, `js/mod-panel.js`).
+- [x] Rewrite `/foro/hilo/:id` → `/api/foro/hilo/:id` en `netlify.toml` + los **dos** lugares que armaban el enlace (`js/foro.js`, `js/mod-panel.js`).
 - [x] `js/hilo.js` lee el id del path **o** del query, y **hidrata sin volver a pintar** cuando el HTML ya viene del servidor (`data-ssr="1"`), evitando el parpadeo.
 - [x] Canonicalización en el cliente: `hilo.html?id=` pasa a `/foro/hilo/<id>` con `replaceState`.
 - [x] **Política de indexación (D1)** en `server/lib/indexability.js`, aplicada en el servidor y reflejada en el `<meta name="robots">` **y** en el header `X-Robots-Tag`.
 - [x] `<base href="/">` + rutas absolutas, porque la página vive en `/foro/hilo/<id>`.
-- [ ] **Verificar el rewrite en un Preview de Vercel.** Es lo único que no se puede probar localmente: el dev server enruta por `server/router.js` pero no aplica los rewrites de `vercel.json`.
+- [ ] **Verificar el rewrite en un Preview de Netlify.** Es lo único que no se puede probar localmente: el dev server enruta por `server/router.js` pero no aplica los rewrites de `netlify.toml`.
 - [x] **Sitemap dinámico**: `renderSitemap` en `server/handlers/pages.js` + helper `http.xml()` + rewrite `/sitemap.xml` → `/api/sitemap` + **borrado del `sitemap.xml` estático** (un archivo estático le gana al rewrite) + header explícito de `Content-Type` y caché. Incluye solo los hilos que pasan la regla, y deriva las guías de `content-data.js`.
 - [x] ~~`noindex` en `foro.html` con parámetros de filtro/búsqueda~~ **No hace falta**: los filtros no se reflejan en la URL. Ver §2.16.
 - [ ] **301 desde `hilo.html?id=`** al formato nuevo. Baja prioridad: `hilo.html` siempre fue `noindex`, así que Google nunca indexó esas URLs y no hay ranking que preservar; el archivo sigue funcionando y canonicaliza la URL en el cliente. Queda como higiene de enlaces.
@@ -633,7 +633,7 @@ Cada etapa tiene dependencias explícitas y criterios de éxito verificables (§
 - [x] Recuperación de contraseña self-service: `POST /api/auth/forgot` (respuesta siempre genérica) → `recuperar.html?token=…` → `POST /api/auth/reset`. Token hasheado, 1 hora, un solo uso, y **cierra todas las sesiones** al cambiarla.
 - [x] Plantillas de email (`server/lib/emails.js`) con el lenguaje visual de la marca.
 - [x] Acceso desde el modal de ingreso (4 páginas) con el enlace "¿Olvidaste tu contraseña?".
-- [ ] **Elegir el proveedor y cargar `MAIL_*` en Vercel (D4).** Sin esto, en producción el email no sale.
+- [ ] **Elegir el proveedor y cargar `MAIL_*` en Netlify (D4).** Sin esto, en producción el email no sale.
 - [x] **Gestión de la cuenta** (`cuenta.html`): estado del email, reenvío de confirmación, cambio de email y cambio de contraseña, con sesión + CSRF obligatorios.
 - [x] **Cambio de email con confirmación en la dirección nueva**: migración `002_cambio_de_email` (`users.pending_email` + propósito `change_email`), `POST /api/auth/change-email` → enlace → `POST /api/auth/confirm-email-change`, con **aviso a la dirección anterior**.
 - [x] Política de privacidad y términos de uso **redactados** (`privacidad.html`, `terminos.html`), enlazados desde el footer de las 9 páginas y desde la línea legal del modal. **Son borradores**: tienen `[COMPLETAR]`, aviso visible, `noindex` y un test que lo exige (`T1-L-05`).
@@ -681,7 +681,7 @@ Cada etapa tiene dependencias explícitas y criterios de éxito verificables (§
 - [ ] Newsletter: tabla `newsletter_subscribers`, doble opt-in, baja en un clic, reutilizando Turnstile + rate-limit.
 - [ ] Formulario en footer y al final de cada guía.
 - [ ] Digest quincenal (hilos destacados + guía nueva).
-- [x] Pago real del desbloqueo PRO (**MercadoPago Checkout Pro + webhook**) — código listo (migración `006`); falta cargar credenciales en Vercel y publicar los legales (D12).
+- [x] Pago real del desbloqueo PRO (**MercadoPago Checkout Pro + webhook**) — código listo (migración `006`); falta cargar credenciales en Netlify y publicar los legales (D12).
 - [ ] Rol de proveedor-colaborador verificado + listado "Proveedores de la comunidad".
 - [ ] Afiliados y destacados pagos (solo con datos de la Etapa 3).
 - [x] Link **"Marca Personal"** en el header → **ya existía** (`community.js` inyecta `#storeBtn`; texto y URL desde `MI_MARCA` en `content-data.js`; abre en pestaña nueva). Solo falta **confirmar la URL real** de la tienda (hoy apunta a `https://berrysnature.com`).
@@ -713,7 +713,7 @@ Cada etapa tiene dependencias explícitas y criterios de éxito verificables (§
 - [x] `package-lock.json` sincronizado con `package.json` (si no, `npm ci` falla — ver §2.12).
 - [x] **Migraciones versionadas**: `db/migrations/` + tabla `schema_migrations` + `npm run db:migrate` / `db:status`.
 - [x] **Migraciones reversibles**: convención `NNN_nombre.down.sql` + `npm run db:rollback` (con `--steps N`). Si una migración no tiene reverso, el rollback se niega en vez de dejar la base a medias.
-- [ ] Staging: Vercel Preview + base de prueba.
+- [ ] Staging: Netlify Deploy Preview + base de prueba.
 - [ ] Backups de Neon con retención definida + PITR verificado.
 - [ ] Error tracking + uptime con alertas.
 - [ ] Presupuesto de rendimiento en CI (Lighthouse o equivalente).
@@ -807,7 +807,7 @@ Aplica a **cada** ítem de este plan:
 1. Funciona en Chromium, Firefox y WebKit.
 2. No rompe el guard de desborde horizontal (320–1280 px).
 3. Tiene test automatizado propio, y la suite completa sigue en verde.
-4. Respeta la CSP y no agrega terceros sin actualizar `vercel.json`.
+4. Respeta la CSP y no agrega terceros sin actualizar `netlify.toml`.
 5. Cumple WCAG AA en lo nuevo (foco, labels, teclado).
 6. Respeta `prefers-reduced-motion`.
 7. Todo texto inyectado pasa por `escapeHtml` (convención del proyecto).
@@ -839,7 +839,7 @@ Para no gastar esfuerzo donde no corresponde (coincide con el §7 del plan origi
 | 2026-09-21 | 1 | `foro.html`: JSON-LD `Organization` + `BreadcrumbList` + `CollectionPage` | ✅ 3 bloques, igual que index/academia/glosario |
 | 2026-09-21 | 1 | `foro.html` + `glosario.html`: `loading` en imágenes | ✅ Con criterio above-the-fold (ver §15.2) |
 | 2026-09-21 | 1 | `sitemap.xml`: entrada de `foro.html` | ✅ XML válido, 7 URLs parseadas |
-| 2026-09-21 | 1 | `vercel.json`: cache de `/assets/` | ⚠️ Ajustado: 7 días, **no** `immutable` (ver §15.1) |
+| 2026-09-21 | 1 | `netlify.toml`: cache de `/assets/` | ⚠️ Ajustado: 7 días, **no** `immutable` (ver §15.1) |
 | 2026-09-21 | 1 | `css/foro.css`: `prefers-reduced-motion` | ✅ Bloque agregado al final (sin `!important`) |
 | 2026-09-21 | 1 | Verificación de no-regresión | ✅ `npm run test:chromium` → 67/68, mismo fallo preexistente, 40,0 s |
 | 2026-09-21 | 0 | Suite puesta en verde: `T2-A-02` corregido + test de regresión `T2-A-04` | ✅ `npm run test:chromium` → **69/69 passed** (37,5 s) |
@@ -916,7 +916,7 @@ Lo implementado:
   "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }] }
 ```
 
-7 días de cache + revalidación en segundo plano: mejora real de rendimiento sobre el default de Vercel (`max-age=0, must-revalidate`) sin el riesgo de servir un logo obsoleto.
+7 días de cache + revalidación en segundo plano: mejora real de rendimiento sobre el comportamiento predeterminado de caché sin el riesgo de servir un logo obsoleto.
 
 **Para llegar al `immutable` del plan hace falta un paso previo:** hashear los nombres de los assets en el build. Queda como **D10**.
 
@@ -940,15 +940,15 @@ Criterio aplicado:
 ## 16. Próximos pasos inmediatos
 
 1. ~~Corregir el test `T2-A-02` (Etapa 0) → suite en 68/68.~~ **Hecho: 173/173.**
-2. **Humear los rewrites en un Preview de Vercel**: `/foro/hilo/<id>` debe devolver la página renderizada, `/guias/<id>` la guía y `/sitemap.xml` el XML. Es lo único que no se puede probar localmente.
+2. **Humear los rewrites en un Preview de Netlify**: `/foro/hilo/<id>` debe devolver la página renderizada, `/guias/<id>` la guía y `/sitemap.xml` el XML. Es lo único que no se puede probar localmente.
 3. **Correr `npm run db:init`** para aplicar `001_email_tokens`, `002_cambio_de_email` y `003_events` — sin eso no funcionan la recuperación de contraseña, la gestión de cuenta ni las métricas de eventos. *(No lo ejecuté: es un cambio de esquema sobre la base de producción y preferí que lo autorices vos.)*
-4. **Configurar el email en Vercel (D4)**: `MAIL_TRANSPORT=resend`, `MAIL_FROM` y `MAIL_API_KEY`.
+4. **Configurar el email en Netlify (D4)**: `MAIL_TRANSPORT=resend`, `MAIL_FROM` y `MAIL_API_KEY`.
 5. **Completar y revisar las páginas legales (D12)**: reemplazar los `[COMPLETAR]` restantes, quitar el aviso de borrador y sacar el `noindex` del HTML, y luego habilitarlas en el sitemap con `setLegalesPublicadas(true)` en `server/handlers/pages.js` (ver §2.18). El cableado ya está listo: mientras sean borrador quedan afuera del sitemap automáticamente.
 6. **Migrar las 9 guías públicas restantes** a contenido real (hoy existen como páginas dinámicas, pero el cuerpo de varias está sin escribir).
 7. ~~**Responder D11 y D13** → encuadre de privacidad de las IPs y endurecimiento de CSRF.~~ **Hecho (2026-09-22):** D11 implementada en `server/lib/rate-limit.js`; D13 implementada en `server/handlers/threads.js` + comentario de `csrf.js` corregido.
-8. ~~**Conectar el pago real (MercadoPago + webhook)**~~ → **hecho (2026-09-24, código):** Checkout Pro + webhook con firma HMAC y revalidación del pago; `pro_desbloqueado` ahora es una conversión real. Falta cargar las credenciales `MERCADOPAGO_*` en Vercel, correr la migración `006` y publicar los legales con condiciones de pago y reembolso (D12) antes de cobrar.
+8. ~~**Conectar el pago real (MercadoPago + webhook)**~~ → **hecho (2026-09-24, código):** Checkout Pro + webhook con firma HMAC y revalidación del pago; `pro_desbloqueado` ahora es una conversión real. Falta cargar las credenciales `MERCADOPAGO_*` en Netlify, correr la migración `006` y publicar los legales con condiciones de pago y reembolso (D12) antes de cobrar.
 
-**Etapas 0, 1, 2, 3, 4 y 8 completadas** (la 2 salvo el 301 y el `FAQPage`). Las 5, 6 y 7 siguen pendientes de construcción: la 5 espera **D12** (privacidad publicada), la 6 espera **D4** (ESP configurado en Vercel) y la 7 espera migrar las 9 guías públicas restantes. **Decisiones D6/D7/D9/D11/D13 resueltas** (ver §9 y §15). Restan D8, D10 y D12.
+**Etapas 0, 1, 2, 3, 4 y 8 completadas** (la 2 salvo el 301 y el `FAQPage`). Las 5, 6 y 7 siguen pendientes de construcción: la 5 espera **D12** (privacidad publicada), la 6 espera **D4** (ESP configurado en Netlify) y la 7 espera migrar las 9 guías públicas restantes. **Decisiones D6/D7/D9/D11/D13 resueltas** (ver §9 y §15). Restan D8, D10 y D12.
 
 
 

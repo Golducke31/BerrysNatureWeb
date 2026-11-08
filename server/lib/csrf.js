@@ -32,7 +32,9 @@ function originAllowed(req) {
   if (appUrl) {
     try { allowed.add(new URL(appUrl).origin); } catch (e) { /* ignora */ }
   }
-  if (process.env.VERCEL_URL) allowed.add(`https://${process.env.VERCEL_URL}`);
+  [process.env.DEPLOY_PRIME_URL, process.env.DEPLOY_URL].filter(Boolean).forEach((url) => {
+    try { allowed.add(new URL(url).origin); } catch (e) { /* ignora */ }
+  });
   // En desarrollo local permitimos localhost en cualquier puerto
   if (!auth.IS_PROD) {
     allowed.add('http://localhost:3000');

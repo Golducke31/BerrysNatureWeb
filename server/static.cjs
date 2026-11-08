@@ -4,7 +4,7 @@
    - Compresión brotli/gzip (precomprimidos .br/.gz o al vuelo con caché)
    - Cache-Control por tipo: HTML revalida, assets hasheados inmutables
    - ETag + 304
-   - Headers de seguridad (los mismos de vercel.json)
+   - Headers de seguridad (los mismos de netlify.toml)
    Reutilizable por serve.cjs (preview/producción).
    ============================================================ */
 'use strict';
@@ -64,8 +64,8 @@ function headersSeguridad(req) {
 function cacheControl(rel) {
   if (rel.endsWith('.html') || rel === '/') return 'public, max-age=0, must-revalidate';
   if (HASHED.test(rel)) return 'public, max-age=31536000, immutable';
-  /* Misma política que netlify.toml/vercel.json: /assets es inmutable
-     salvo las fotos de producto, que el negocio reemplaza sin renombrar. */
+  /* Misma política que netlify.toml: /assets es inmutable salvo las fotos
+     de producto, que el negocio reemplaza sin renombrar. */
   if (rel.startsWith('/assets/productos/')) {
     return 'public, max-age=86400, stale-while-revalidate=604800';
   }

@@ -10,7 +10,7 @@
      Google antes de crear la sesión: acá NO se confía en el payload.
 
    ACTIVACIÓN EN PRODUCCIÓN:
-   - Configurá GOOGLE_CLIENT_ID (variable de entorno en Vercel) y el
+   - Configurá GOOGLE_CLIENT_ID (variable de entorno en Netlify) y el
      mismo valor en window.BERRYS_CONFIG.googleClientId del HTML.
    - En Google Cloud Console: OAuth 2.0 → "Web application", con el
      origen autorizado = tu dominio.

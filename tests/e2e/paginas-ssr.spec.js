@@ -4,12 +4,12 @@ const { test, expect } = require('@playwright/test');
   Página de hilo renderizada en el servidor (Etapa 2 de PLAN-PRODUCCION.md).
 
   Corre contra el dev server (`npm run test:api`), que enruta por el MISMO
-  `server/router.js` que usa Vercel. La ruta pública `/foro/hilo/:id` la
-  resuelve un rewrite de vercel.json que el dev server NO aplica, así que
+  `server/router.js` que usa Netlify. La ruta pública `/foro/hilo/:id` la
+  resuelve un rewrite de netlify.toml que el dev server NO aplica, así que
   acá se golpea el destino del rewrite (`/api/foro/hilo/:id`).
 
   Lo que sí queda sin verificar localmente es el rewrite en sí: hay que
-  humearlo en un Preview de Vercel.
+  humearlo en un Preview de Netlify.
 */
 
 const hayDb = Boolean(process.env.DATABASE_URL);

@@ -58,31 +58,41 @@
     if (!nav) return;
 
     if (currentUser) {
-      var extra = currentUser.rol === 'admin' || currentUser.rol === 'moderator'
-        ? '<button class="nav-ghost-btn" id="modPanelBtn" type="button">Moderación</button>'
-        : '';
-
+      var puedeModerar = currentUser.rol === 'admin' || currentUser.rol === 'moderator';
       nav.innerHTML =
-        '<button class="user-chip" id="userChipBtn" type="button" title="Ver sesión">' +
-          '<span class="user-avatar">' + initial(currentUser.nombre) + '</span>' +
-          '<span class="user-name">' + escapeHtml(currentUser.nombre) + '</span>' +
-        '</button>' +
-        '<a class="nav-ghost-btn" id="accountBtn" href="' + cuentaUrl() + '">Mi cuenta</a>' +
-        extra +
-        '<button class="nav-ghost-btn" id="logoutBtn" type="button">Salir</button>';
+        '<div class="account-menu">' +
+          '<button class="user-chip account-menu__toggle" id="userChipBtn" type="button" ' +
+            'aria-label="Abrir menú de cuenta" aria-haspopup="true" aria-expanded="false" aria-controls="accountMenu">' +
+            '<span class="user-avatar">' + initial(currentUser.nombre) + '</span>' +
+            '<span class="user-name">Cuenta</span>' +
+            '<span class="account-menu__chevron" aria-hidden="true"></span>' +
+          '</button>' +
+          '<div class="account-menu__panel" id="accountMenu" role="menu" hidden>' +
+            '<a class="account-menu__item" id="accountBtn" role="menuitem" href="' + cuentaUrl() + '">Mi cuenta</a>' +
+            (puedeModerar ? '<button class="account-menu__item" id="modPanelBtn" role="menuitem" type="button">Moderación</button>' : '') +
+            '<button class="account-menu__item" id="logoutBtn" role="menuitem" type="button">Salir</button>' +
+          '</div>' +
+        '</div>';
 
       var chip = $('#userChipBtn');
-      if (chip) chip.addEventListener('click', function () {
-        toast('Sesión activa como ' + currentUser.nombre, 'check');
+      var menu = $('#accountMenu');
+      if (chip && menu) chip.addEventListener('click', function () {
+        var open = chip.getAttribute('aria-expanded') !== 'true';
+        chip.setAttribute('aria-expanded', String(open));
+        menu.hidden = !open;
       });
 
       var modBtn = $('#modPanelBtn');
       if (modBtn) modBtn.addEventListener('click', function () {
+        closeAccountMenu();
         if (window.BerrysModPanel && window.BerrysModPanel.open) window.BerrysModPanel.open();
       });
 
       var out = $('#logoutBtn');
-      if (out) out.addEventListener('click', doLogout);
+      if (out) out.addEventListener('click', function () {
+        closeAccountMenu();
+        doLogout();
+      });
 
     } else {
       /* El acceso a la Tienda vive en el menú canónico (server/lib/nav.js)
@@ -90,11 +100,41 @@
          una llamada a window.open con _blank y desde el foro abría una pestaña nueva;
          además el drawer inyectaba un segundo link con target="_blank".
          Se eliminan ambos: no duplicamos el ítem "Tienda". */
-      nav.innerHTML = '<button class="nav-ghost-btn" id="loginBtn" type="button">Ingresar</button>';
+      nav.innerHTML =
+        '<div class="account-menu">' +
+          '<button class="user-chip account-menu__toggle" id="userChipBtn" type="button" ' +
+            'aria-label="Abrir menú de cuenta" aria-haspopup="true" aria-expanded="false" aria-controls="accountMenu">' +
+            '<span class="account-menu__guest-icon" aria-hidden="true">' +
+              '<svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>' +
+            '</span>' +
+            '<span class="user-name">Cuenta</span>' +
+            '<span class="account-menu__chevron" aria-hidden="true"></span>' +
+          '</button>' +
+          '<div class="account-menu__panel" id="accountMenu" role="menu" hidden>' +
+            '<button class="account-menu__item" id="loginBtn" role="menuitem" type="button">Ingresar</button>' +
+          '</div>' +
+        '</div>';
 
+      var guestChip = $('#userChipBtn');
+      var guestMenu = $('#accountMenu');
+      if (guestChip && guestMenu) guestChip.addEventListener('click', function () {
+        var open = guestChip.getAttribute('aria-expanded') !== 'true';
+        guestChip.setAttribute('aria-expanded', String(open));
+        guestMenu.hidden = !open;
+      });
       var login = $('#loginBtn');
-      if (login) login.addEventListener('click', function () { openAuthModal('login'); });
+      if (login) login.addEventListener('click', function () {
+        closeAccountMenu();
+        openAuthModal('login');
+      });
     }
+  }
+
+  function closeAccountMenu() {
+    var chip = $('#userChipBtn');
+    var menu = $('#accountMenu');
+    if (chip) chip.setAttribute('aria-expanded', 'false');
+    if (menu) menu.hidden = true;
   }
 
   /* ============================================================
@@ -474,6 +514,12 @@
 
   function init() {
     paintSession();                 // pinta ya, sin esperar la red
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest || !event.target.closest('.account-menu')) closeAccountMenu();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeAccountMenu();
+    });
     setupAuthModal();
     setupReport();
     loadSession();                  // y confirma contra el servidor

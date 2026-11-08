@@ -178,11 +178,11 @@ function checkFiles() {
   console.log(c.bold('  Archivos de deploy'));
 
   const files = [
-    'vercel.json',
-    '.vercelignore',
+    'netlify.toml',
+    '.gitignore',
     '.env.example',
     'db/schema.sql',
-    'api/[...route].js'
+    'netlify/functions/api.js'
   ];
   let missing = 0;
   for (const f of files) {

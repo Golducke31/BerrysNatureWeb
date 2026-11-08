@@ -21,7 +21,7 @@
 
    Lo usan: server/handlers/pages.js (sitemap + SSR), scripts/build.cjs
    (sitemap estático + verificación), scripts/dev-server.cjs (para que
-   local se comporte igual que producción) y netlify.toml / vercel.json
+   local se comporte igual que producción) y netlify.toml
    (las reglas se escriben a mano, pero esta lista es la referencia).
 
    Páginas que quedan con `.html` a propósito: las que son shells de la
@@ -110,7 +110,7 @@ function archivoDeUrl(url) {
 
 /**
  * ¿Esta URL es la versión "con extensión" de una URL limpia?
- * Se usa para el 301 (en Netlify/Vercel lo hacen las reglas de config;
+ * Se usa para el 301 (en Netlify lo hacen las reglas de config;
  * acá queda para el servidor local y para las pruebas).
  * @returns {string|null} destino limpio
  */

@@ -193,7 +193,7 @@ test.describe('Cuenta — mi cuenta', () => {
     await expect(page.locator('#passMsg')).toContainText('al menos 10 caracteres');
   });
 
-  test('T1-C-17: con sesión, el header ofrece el enlace "Mi cuenta"', async ({ page }) => {
+  test('T1-C-17: con sesión, el menú de cuenta ofrece el enlace "Mi cuenta"', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('berrys_user', JSON.stringify({
         id: 'demo', nombre: 'Ema', email: 'ema@ejemplo.com', rol: 'user'
@@ -201,6 +201,8 @@ test.describe('Cuenta — mi cuenta', () => {
     });
     await page.goto(url('index.html'));
 
+    await expect(page.locator('#accountMenu')).toBeHidden();
+    await page.locator('#userChipBtn').click();
     await expect(page.locator('#accountBtn')).toHaveAttribute('href', 'cuenta.html');
     await expect(page.locator('#accountBtn')).toContainText('Mi cuenta');
   });

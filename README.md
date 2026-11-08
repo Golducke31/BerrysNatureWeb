@@ -7,7 +7,7 @@ Prototipo de alta fidelidad para la marca de cosmética natural **Berry's Nature
 ## Estado actual
 
 - **Landing, navegación, academia, glosario, foro y tienda:** implementados.
-- **Backend serverless (Vercel + Neon Postgres):** cuentas públicas reales, foro y academia servidos desde la base, y un **panel de administración secreto con 2FA** (ruta ofuscada por slug + clave de puerta, assets no públicos). Ver `ARQUITECTURA-TECNICA.md`.
+- **Backend serverless (Netlify Functions + Neon Postgres):** cuentas públicas reales, foro y academia servidos desde la base, y un **panel de administración secreto con 2FA** (ruta ofuscada por slug + clave de puerta, assets no públicos). Ver `ARQUITECTURA-TECNICA.md`.
 - **Suite E2E (Playwright):** estática + backend (`admin-routing`, `api`, `paginas-ssr`, `etapa5`, `pagos`). Ver `TEST_READY.md`.
 - **Documentación:** arquitectura, brief y plan de migración a WordPress disponibles en los `.md` del repo.
 
@@ -31,7 +31,7 @@ Prototipo de alta fidelidad para la marca de cosmética natural **Berry's Nature
 | `scripts/` | CLI de operación: `migrate.cjs` (db:init / db:migrate / db:status), `seed.cjs` (seed), `create-admin.cjs`, `reset-password.cjs`, `db-check.cjs`, `dev-server.cjs` |
 | `db/schema.sql` | Esquema base idempotente de Postgres (Neon) |
 | `db/migrations/` | Migraciones incrementales, aplicadas en orden y registradas en `schema_migrations` |
-| `api/[...route].js` | Función serverless de Vercel (usa `server/router.js`) |
+| `netlify/functions/api.js` | Función serverless de Netlify (usa `server/router.js`) |
 | `tests/` | Suite E2E de Playwright (`tests/e2e/*.spec.js`, `tests/playwright.config.js`, `tests/playwright.api.config.js`) |
 | `package.json` / `package-lock.json` | Dependencias y scripts (incluye `dev`, `db:init`, `seed`, `test:api`) |
 | `*.md` | Documentación del proyecto |
@@ -49,7 +49,7 @@ python3 -m http.server 8000
 
 ```bash
 npm install        # instala @playwright/test
-npm test           # suite estática: 181 tests (543 corridas: Chromium + Firefox + WebKit)
+npm test           # suite estática: 288 tests (864 corridas: Chromium + Firefox + WebKit)
 npm run test:report # abre el reporte HTML
 
 # Suite de backend (levanta el dev server en :3000)
@@ -59,7 +59,7 @@ DATABASE_URL=postgres://... npm run test:api  # corre también los tests de API
 
 Detalle en `TEST_READY.md` y `TEST_INFRA.md`.
 
-## Backend y despliegue (Vercel + Neon)
+## Backend y despliegue (Netlify Functions + Neon)
 
 1. Copiá `.env.example` a `.env` y completá `DATABASE_URL` (Neon, endpoint *pooled*), `ADMIN_SLUG`,
    `ADMIN_GATE_KEY`, `SESSION_SECRET` y (opcional) `ADMIN_IP_ALLOWLIST`.
@@ -106,7 +106,7 @@ Detalle en `TEST_READY.md` y `TEST_INFRA.md`.
    ```
 4. En local: `npm run dev` → http://localhost:3000. El panel del admin está en la ruta `/api/<ADMIN_SLUG>?k=<ADMIN_GATE_KEY>`
    (oculto: inspeccionar el sitio no lo revela).
-5. En Vercel: conectá el repo, cargá las mismas variables de entorno y desplegá.
+5. En Netlify: conectá el repo, cargá las mismas variables de entorno y desplegá.
 
 ## Email transaccional
 
@@ -131,7 +131,7 @@ todas las sesiones abiertas**.
 
 ## Gestión de la cuenta
 
-Todo se hace desde `cuenta.html` (el enlace "Mi cuenta" aparece en el header con sesión iniciada).
+Todo se hace desde `cuenta.html` (el enlace "Mi cuenta" está dentro del menú de cuenta con sesión iniciada).
 Los endpoints que modifican datos exigen **sesión + token CSRF** (`X-CSRF-Token`, que el cliente ya
 envía en todo request no-GET).
 
@@ -204,7 +204,7 @@ La decisión se aplica en el servidor y queda reflejada **dos veces**: en el `<m
 y en el header `X-Robots-Tag`. El header es más confiable para algunos rastreadores y no depende
 del `<head>`.
 
-> **Pendiente de verificar en producción:** los rewrites de `vercel.json` (`/foro/hilo/:id` y
+> **Pendiente de verificar en producción:** los rewrites de `netlify.toml` (`/foro/hilo/:id` y
 > `/sitemap.xml`) son lo único que no se puede probar localmente: el dev server enruta por
 > `server/router.js` pero **no aplica los rewrites**. Conviene humearlos en un Preview antes de
 > mergear.
@@ -291,7 +291,6 @@ el `BreadcrumbList`.
 |---|---|
 | `netlify.toml` | `/tienda` y `/foro` los sirve la Function; el resto de las páginas, `dist/_redirects` |
 | `dist/_redirects` | **generado** en el build: `/pagina.html → 301 → /pagina` y `/pagina → 200 → /pagina.html` (salvo las SSR) |
-| `vercel.json` | los mismos `redirects` + `rewrites` (deploy alternativo) |
 | `server/handlers/pages.js` | canonical, `og:url`, JSON-LD y enlaces internos del SSR |
 | `scripts/check-urls.cjs` | **falla el build** si algo se desvía |
 | `scripts/check-live.cjs` | audita el sitio **publicado** (npm run check:live + cron diario) |
@@ -303,8 +302,7 @@ Reglas que hay que respetar al tocar el sitio:
 2. La versión `.html` **redirige 301** a la limpia (301, no 302: transfiere autoridad).
 3. La versión con **barra final** también redirige 301: `/glosario/` y `/academia/<slug>/` van a la
    forma sin barra. Solo se redirige cuando el destino sin barra es una ruta real del sitio, así un
-   404 con barra sigue siendo 404. En Netlify lo hacen las reglas de `_redirects`; en Vercel,
-   `"trailingSlash": false` (Vercel responde 308, igual de permanente para Google).
+   404 con barra sigue siendo 404. Netlify lo resuelve con las reglas generadas en `_redirects`.
 4. Los enlaces internos apuntan **directo a la URL final**: no se enlaza a algo que redirige.
 5. El sitemap lista **solo URLs finales**.
 6. Las páginas que siguen con `.html` son las shells de la app y `noindex` (`cuenta`, `recuperar`,

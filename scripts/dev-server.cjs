@@ -2,7 +2,7 @@
 /* ============================================================
    scripts/dev-server.cjs — Servidor local (desarrollo y tests)
 
-   Reemplaza a `vercel dev` sin depender del CLI de Vercel:
+   Servidor local de desarrollo sin depender del CLI de Netlify:
    - sirve los archivos estáticos del sitio (igual que el deploy)
    - enruta /api/* por server/router.js (el MISMO código que corre
      en la Serverless Function)
@@ -66,7 +66,8 @@ const { prerenderHtml } = require(path.join(ROOT, 'scripts', 'prerender.cjs'));
 
 /* ---------------- Rewrites a la Function (igual que el deploy) ----------------
 
-   En producción esto lo hacen netlify.toml y vercel.json. Acá se replican
+   En producción esto lo hacen netlify.toml y las reglas generadas en
+   dist/_redirects. Acá se replican
    para que `npm run dev` sirva exactamente las mismas URLs: sin esto las
    páginas renderizadas en el servidor (/productos/…, /guias/…) daban 404
    en local y el comportamiento SEO no se podía verificar antes de publicar. */
@@ -111,12 +112,12 @@ const MIME = {
   '.map': 'application/json; charset=utf-8'
 };
 
-// Igual que .vercelignore: nunca servimos estos directorios
+// Igual que .gitignore: nunca servimos estos directorios
 const BLOCKED = ['server', 'scripts', 'db', 'tests', 'node_modules',
   'playwright-report', 'test-results', '.git', '.workbuddy-ai', '.agents'];
 
 // Archivos que solo se entregan por la ruta secreta del panel
-// (en producción lo hace vercel.json con un rewrite a 404).
+// (en producción lo hace netlify.toml con un rewrite a 404).
 const BLOCKED_FILES = ['css/admin.css', 'js/admin.js'];
 
 function isBlocked(relPath) {
@@ -222,7 +223,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === '/api' || pathname.startsWith('/api/')) {
-    // Parsear el cuerpo igual que Vercel
+    // Parsear el cuerpo igual que Netlify
     try {
       const chunks = [];
       for await (const chunk of req) chunks.push(chunk);

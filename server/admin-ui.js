@@ -7,7 +7,7 @@
    401 y la página queda vacía: no hay nada que descubrir.
 
    Los assets del panel (admin.css, admin.js) tampoco se sirven de
-   forma pública: vercel.json bloquea /css/admin.css y /js/admin.js,
+   forma pública: netlify.toml bloquea /css/admin.css y /js/admin.js,
    y se entregan por /api/<ADMIN_SLUG>/_/<archivo>. Así, alguien que
    inspecciona el sitio no puede siquiera deducir que hay un panel.
 

@@ -20,7 +20,7 @@ const SCRYPT_KEYLEN = 64;
 const SCRYPT_MAXMEM = 64 * 1024 * 1024;   // 128*N*r = 32MB, con margen
 
 const IS_PROD =
-  Boolean(process.env.VERCEL) || /^https:/i.test(process.env.APP_URL || '');
+  Boolean(process.env.NETLIFY) || /^https:/i.test(process.env.APP_URL || '');
 
 const PUBLIC_COOKIE = IS_PROD ? '__Secure-berrys_session' : 'berrys_session';
 const ADMIN_COOKIE = IS_PROD ? '__Secure-berrys_admin' : 'berrys_admin';

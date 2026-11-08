@@ -1,6 +1,6 @@
 # Mapa de redirecciones
 
-**Estado de esta rama: sin redirecciones nuevas ni modificadas.** El alcance aprobado fue el plan reducido: no se crearon páginas de categoría, ni `/rutinas`, ni páginas por término del Glosario. Por lo tanto no hizo falta agregar ni cambiar ninguna regla de `netlify.toml`, `vercel.json` ni del generador de `_redirects`.
+**Estado de esta rama: sin redirecciones nuevas ni modificadas.** El alcance aprobado fue el plan reducido: no se crearon páginas de categoría, ni `/rutinas`, ni páginas por término del Glosario. Por lo tanto no hizo falta agregar ni cambiar ninguna regla de `netlify.toml` ni del generador de `_redirects`.
 
 ## Política canónica vigente (no tocada)
 

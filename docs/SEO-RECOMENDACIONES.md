@@ -97,7 +97,6 @@ Sobre las **44 enviadas / 14 indexadas**: `README.md:365-369` ya registró 45 UR
 ## 7. Otros pendientes documentados, fuera de este alcance
 
 - Páginas de categoría `/tienda/*`, `/rutinas`, páginas por término del Glosario: no publicadas (evita URLs delgadas y reinicios de rastreo). El filtrado por categoría funciona con hashes sobre `/tienda`.
-- `vercel.json` duplica a mano las reglas de `netlify.toml` y **no tiene rewrite de `/productos/*`** → en Vercel las fichas darían 404. No se tocó porque el deploy es Netlify.
 - `/guias/*` no tiene enlaces entrantes y `/perfil/*` está desactivado: dependen de la base; requieren decisión de producto.
 - `AggregateRating` y el html de verificación: ver secciones 4 y 6.
 - Export de Search Console: no existe en el repo. Ver `mapa-de-keywords.md`.

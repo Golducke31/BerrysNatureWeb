@@ -5,12 +5,12 @@ const { test, expect } = require('@playwright/test');
 
   El problema que cubre esta prueba es de cabeceras, no de HTML. La API
   entera responde con `X-Robots-Tag: noindex, nofollow, noarchive`
-  (netlify.toml y vercel.json) para que Google no indexe respuestas JSON.
+  (netlify.toml y netlify.toml) para que Google no indexe respuestas JSON.
   Pero /api/img/<hash>.webp cuelga de esa misma ruta y heredaba el noindex:
   las fotos de las fichas de producto quedaban fuera de Google Imágenes
   aunque estuvieran enlazadas y con alt correcto.
 
-  Se arregla en tres capas (handler + netlify.toml + vercel.json). Acá se
+  Se arregla en tres capas (handler + netlify.toml + netlify.toml). Acá se
   verifica la del handler, que es la única que se puede probar sin
   desplegar y la que vale en cualquier hosting.
 */

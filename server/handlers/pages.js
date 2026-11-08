@@ -601,7 +601,7 @@ function bodyGuia(g) {
 /**
  * GET /guias/:id — página de guía renderizada en el servidor.
  *
- * Se llega por un rewrite de vercel.json: /guias/:id → /api/guias/:id.
+ * Se llega por un rewrite de netlify.toml: /guias/:id → /api/guias/:id.
  */
 async function renderGuide(req, res, { id }) {
   const row = await db.one('SELECT * FROM guides WHERE id = $1', [id]);
@@ -1201,7 +1201,7 @@ function perfilNoDisponible(res, { usuario, titulo, mensaje }) {
 
 /**
  * GET /perfil/:usuario — perfil público (Etapa 5, F7).
- * Se llega por un rewrite de vercel.json: /perfil/:usuario → /api/perfil/:usuario.
+ * Se llega por un rewrite de netlify.toml: /perfil/:usuario → /api/perfil/:usuario.
  */
 async function renderProfile(req, res, { usuario }) {
   // Gate de privacidad (D6). Sin esto, no se expone nada.

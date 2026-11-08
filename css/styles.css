@@ -407,12 +407,60 @@ img {
   white-space: nowrap;
 }
 
-/* Slot de acceso: login + botón a la tienda de la marca personal */
+/* Acceso de cuenta compacto: sus acciones viven en un desplegable. */
 .auth-nav-slot {
   display: flex;
   align-items: center;
-  gap: 10px;
   margin-left: 6px;
+}
+
+.account-menu { position: relative; }
+.account-menu__toggle { min-height: 44px; }
+.account-menu__chevron {
+  width: 8px;
+  height: 8px;
+  margin-left: 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.account-menu__toggle[aria-expanded="true"] .account-menu__chevron {
+  transform: translateY(2px) rotate(225deg);
+}
+.account-menu__panel {
+  position: absolute;
+  z-index: 1300;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 176px;
+  padding: 6px;
+  border: 1px solid var(--color-line-warm);
+  border-radius: 14px;
+  background: var(--bg-card);
+  box-shadow: 0 12px 32px rgba(74, 63, 53, 0.18);
+}
+.account-menu__panel[hidden] { display: none; }
+.account-menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--color-text);
+  font: 600 14px var(--font-body);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.account-menu__item:hover,
+.account-menu__item:focus-visible {
+  outline: none;
+  background: rgba(234, 184, 163, 0.2);
+  color: var(--color-terracota-deep);
 }
 
 .nav-ghost-btn {
@@ -479,6 +527,12 @@ a.nav-ghost-btn {
   transition: transform 0.25s ease;
 }
 
+.account-menu__toggle:focus-visible,
+#loginBtn:focus-visible {
+  outline: 3px solid rgba(185, 112, 90, 0.45);
+  outline-offset: 2px;
+}
+
 .user-chip:hover { transform: translateY(-1px); }
 
 .user-avatar {
@@ -492,6 +546,26 @@ a.nav-ghost-btn {
   justify-content: center;
   font-weight: 700;
   font-size: 13px;
+}
+
+.account-menu__guest-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-cta);
+  color: #4A3F35;
+}
+.account-menu__guest-icon svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .user-name {

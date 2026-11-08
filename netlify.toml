@@ -86,14 +86,14 @@
   status = 200
   force = true
 
-# ---- API: todo /api/* va a la Function (mismo router que Vercel) ----
+# ---- API: todo /api/* va a la Function (router compartido en `server/router.js`) ----
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
-# ---- URLs lindas renderizadas por el servidor (igual que en Vercel) ----
+# ---- URLs lindas renderizadas por el servidor (rutas limpias configuradas en esta tabla) ----
 [[redirects]]
   from = "/guias/*"
   to = "/.netlify/functions/api/guias/:splat"
@@ -151,7 +151,7 @@
   to = "/404.html"
   status = 404
 
-# ---- Cabeceras de seguridad (igual que vercel.json) ----
+# ---- Cabeceras de seguridad (configuradas en este archivo) ----
 [[headers]]
   for = "/*"
   [headers.values]

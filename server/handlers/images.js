@@ -141,7 +141,7 @@ async function serve(req, res, params) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   /* Estas imágenes SÍ deben indexarse (Google Imágenes). Sin esto heredan
      el `noindex` de la regla general de /api/* (netlify.toml y
-     vercel.json), que existe para las respuestas JSON de la API. El
+     netlify.toml), que existe para las respuestas JSON de la API. El
      `noindex` viaja en la cabecera, no en el HTML: la imagen se sirve
      igual pero queda fuera del índice. Lo fijamos acá además de en los
      configs para que valga en cualquier hosting. */

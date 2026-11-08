@@ -1,7 +1,7 @@
 /* ============================================================
    netlify/functions/api.js — API de Berry's Nature en Netlify
 
-   Mismo backend que corría en Vercel (server/router.js), envuelto en
+   Mismo backend que corría en Netlify (server/router.js), envuelto en
    una Netlify Function. El adaptador traduce el evento estilo Lambda
    de Netlify a un req/res compatible con Node (el router usa req.url,
    req.method, req.headers, req.body y res.setHeader/statusCode/end).

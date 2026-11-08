@@ -28,7 +28,7 @@
 'use strict';
 
 const IS_PROD =
-  Boolean(process.env.VERCEL) || /^https:/i.test(process.env.APP_URL || '');
+  Boolean(process.env.NETLIFY) || /^https:/i.test(process.env.APP_URL || '');
 
 const DEFAULT_FROM = "Berry's Nature <no-reply@berrysnature.com.ar>";
 
@@ -176,7 +176,7 @@ async function send(msg) {
     // t === 'none' o desconocido
     console.error(
       `[mailer] No hay transporte de email configurado (MAIL_TRANSPORT=${t}). ` +
-      'El email NO se envió. Configurá MAIL_TRANSPORT=resend|webhook en Vercel ' +
+      'El email NO se envió. Configurá MAIL_TRANSPORT=resend|webhook en Netlify ' +
       'y sus credenciales, o el flujo de recuperación de contraseña no va a funcionar.'
     );
     return { ok: false, error: 'transport_not_configured' };

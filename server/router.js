@@ -1,8 +1,8 @@
 /* ============================================================
    server/router.js — Router único del backend
 
-   Toda la API entra por acá. Funciona igual en Vercel
-   (api/[...route].js) que en un servidor Node común
+   Toda la API entra por acá. Funciona igual en Netlify
+   (netlify/functions/api.js) que en un servidor Node común
    (scripts/dev-server.cjs).
 
    Reglas de la ruta secreta del admin:
@@ -94,7 +94,7 @@ async function handleAdmin(req, res, method, seg) {
   }
 
   /* Assets del panel: /api/<slug>/_/admin.css y /_/admin.js.
-     No son accesibles por /css/ ni /js/ (bloqueados en vercel.json),
+     No son accesibles por /css/ ni /js/ (bloqueados en netlify.toml),
      así que inspeccionar el sitio no revela que el panel existe. */
   if (a === '_' && method === 'GET') {
     const asset = adminUI.readAsset(b);
@@ -247,7 +247,7 @@ async function handlePublic(req, res, method, seg) {
   }
 
   /* Páginas HTML renderizadas en el servidor.
-     Se llega por un rewrite de vercel.json: /foro/hilo/:id → /api/foro/hilo/:id.
+     Se llega por un rewrite de netlify.toml: /foro/hilo/:id → /api/foro/hilo/:id.
      La ruta pública es la bonita; esta es solo el destino del rewrite. */
   if (a === 'foro' && b === 'hilo' && c && method === 'GET') {
     let id = c;

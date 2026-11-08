@@ -1,7 +1,7 @@
 /* ============================================================
    server/lib/http.js — Helpers de request/response
 
-   Funciona igual en Vercel (Node runtime) y en un servidor Node
+   Funciona igual en Netlify (Node runtime) y en un servidor Node
    común, porque solo usa setHeader / statusCode / end.
    ============================================================ */
 'use strict';
@@ -103,7 +103,7 @@ function getClientIp(req) {
   return (req.socket && req.socket.remoteAddress) || '';
 }
 
-/** Lee el cuerpo como objeto. Vercel ya lo parsea; el dev server también. */
+/** Lee el cuerpo como objeto. Netlify ya lo parsea; el dev server también. */
 async function readBody(req) {
   if (req.body !== undefined && req.body !== null) {
     if (typeof req.body === 'object') return req.body;

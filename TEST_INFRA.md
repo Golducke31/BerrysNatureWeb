@@ -108,14 +108,15 @@ DATABASE_URL=postgres://... npm run test:api   # corre también los tests de API
 
 ## 5. Inventario de pruebas
 
-**Suite estática: 181 tests** en 14 archivos (3 navegadores → **543 corridas**).
+**Suite estática: 288 tests** en 31 archivos (3 navegadores → **864 corridas**; tabla de abajo: inventario parcial).
 **Suite de backend: 41 tests** en 5 archivos (`admin-routing.spec.js` 6 / `api.spec.js` 5 / `paginas-ssr.spec.js` 9 / `etapa5.spec.js` 13 / `pagos.spec.js` 8), contra el dev server.
 
 | Archivo | Tests | Qué cubre |
 |---|---:|---|
 | `landing-navigation.spec.js` | 18 | Header sticky, hamburguesa, 5 enlaces, hero, scroll, menú mobile, link activo, contraste WCAG AA, latencia de CTA. |
 | `academia.spec.js` | 15 | Rutas, guías + filtro, fórmulas, proveedores, enlace al Foro, modal "Leer más", guías con página propia, glosario. |
-| `auth-contacto.spec.js` | 5 | Login/logout (fallback offline `berrys_user`), pestaña registro, formulario de contacto vacío y con datos sin API. |
+| `auth-contacto.spec.js` | 6 | Menú compacto de cuenta, login/logout (fallback offline `berrys_user`), pestaña registro, formulario de contacto vacío y con datos sin API. |
+| `cart-layout.spec.js` | 2 | Anchura y legibilidad del drawer en notebook y ajuste responsive sin desbordamiento en móvil. |
 | `foro.spec.js` | 10 | Banner, lista, destacado, filtro, buscador, badge "Sin responder", avatares, gate de auth, estado vacío, volver a la Academia. |
 | `responsive-overflow.spec.js` | 11 | Cada página (index, academia, glosario, foro, perfil, recuperar, verificar, cuenta, privacidad, terminos, normas) sin desborde horizontal en 320/375/768/1024/1280px. |
 | `cuenta.spec.js` | 18 | Recuperación de contraseña (estados y validaciones), confirmación de email, cambio de email, acceso desde el modal y **gestión de la cuenta** (`cuenta.html`) con sesión simulada. |

@@ -8,7 +8,7 @@
 El código está listo: **Etapas 0–5 y 8 completas**, el **cobro (O9) implementado**, los **legales redactados**
 (solo faltan tus datos). Lo que queda es **configuración** y **operación** → detalle en `CHECKLIST-DESPLIEGUE.md`.
 
-**Bloqueantes para abrir al público:** migraciones `004/005/006`, variables en Vercel (`MAIL_*`, `MERCADOPAGO_*`,
+**Bloqueantes para abrir al público:** migraciones `004/005/006`, variables en Netlify (`MAIL_*`, `MERCADOPAGO_*`,
 secretos), verificar los rewrites en un Preview, y publicar los legales.
 
 ---
@@ -19,14 +19,14 @@ secretos), verificar los rewrites en un Preview, y publicar los legales.
 
 > Estoy en el proyecto Berry's Nature (`C:\Users\emanu\Desktop\All\Ema work\berrys web`).
 > Quiero dejar el sitio listo para producción siguiendo `CHECKLIST-DESPLIEGUE.md`.
-> Ya cargué en Vercel las variables `DATABASE_URL`, `ADMIN_SLUG`, `ADMIN_GATE_KEY`, `SESSION_SECRET`, `APP_URL`,
+> Ya cargué en Netlify las variables `DATABASE_URL`, `ADMIN_SLUG`, `ADMIN_GATE_KEY`, `SESSION_SECRET`, `APP_URL`,
 > `MAIL_*` (Resend) y `MERCADOPAGO_*`.
 > Ayudame a: (1) correr `npm run db:migrate` y confirmar el estado con `db:status`, (2) revisar que los rewrites
 > funcionen en un Preview (`/sitemap.xml`, `/guias/<id>`, `/foro/hilo/<id>`), (3) probar el email (verificación +
 > recuperación de contraseña), (4) probar una compra de prueba y verla en el panel → Ingresos.
 > Los datos legales todavía no los tengo: dejalos para el final.
 
-**Necesita de vos:** las credenciales (cargalas en Vercel o en el `.env` local, no hace falta pegarlas en el chat).
+**Necesita de vos:** las credenciales (cargalas en Netlify o en el `.env` local, no hace falta pegarlas en el chat).
 
 ---
 
@@ -57,7 +57,7 @@ secretos), verificar los rewrites en un Preview, y publicar los legales.
 **Prompt para pegar:**
 
 > En el proyecto Berry's Nature quiero dejar la operación lista: backups de Neon con **PITR verificado**,
-> **error tracking + uptime** con alertas, y **staging** (Vercel Preview + base de prueba).
+> **error tracking + uptime** con alertas, y **staging** (Netlify Deploy Preview + base de prueba).
 > También quiero pasar los videos a WebM y medir Lighthouse contra la URL de producción. Guiame paso a paso.
 
 ---
