@@ -120,7 +120,57 @@ const CART_FIXTURE = `
     expect(measure.noPageOverflow).toBe(true);
   });
 
-  test('CL-04: el catálogo estático de respaldo no conserva los seis productos retirados', () => {
+  test('CL-04: la oferta dinámica se aplica en la línea del carrito y en el resumen de checkout', async ({ page }) => {
+    await page.setContent(`<!doctype html><html><body>
+      <div id="storeFilters"></div><div id="storeGrid"></div>
+      <button id="cartFab"><span class="cart-fab__count"></span></button>
+      <div id="cartOverlay"></div>
+      <aside id="cartDrawer" class="cart-drawer">
+        <div id="cartBody"></div>
+        <div class="cart-drawer__foot">
+          <span id="cartTotalValue"></span><p id="cartNote"></p>
+          <button id="cartCheckout" type="button">Finalizar compra</button>
+        </div>
+      </aside>
+    </body></html>`);
+
+    await page.evaluate(() => {
+      const storage = Object.create(null);
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        value: {
+          getItem: (key) => Object.prototype.hasOwnProperty.call(storage, key) ? storage[key] : null,
+          setItem: (key, value) => { storage[key] = String(value); }
+        }
+      });
+      const producto = {
+        id: 'serum-premium', nombre: 'Sérum Premium', categoria: 'Facial',
+        descripcion: 'Sérum de prueba', imagen: 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=',
+        imagenes: [], precio: 30000, oferta: null, stock: 5, disponible: true,
+        destacado: false, meta: [], activos: [], componentes: [], mp: ''
+      };
+      window.catalogProducts = [producto];
+      window.fetch = async () => ({
+        ok: true,
+        json: async () => ({ items: [{ ...producto, oferta: 18000 }] })
+      });
+    });
+
+    await page.addScriptTag({ path: path.join(ROOT, 'js/catalog.js') });
+    await page.evaluate(() => document.dispatchEvent(new Event('DOMContentLoaded')));
+    await expect(page.locator('#storeGrid .product-card__oferta')).toHaveText('$ 18.000');
+
+    await page.locator('#storeGrid [data-add]').click();
+    await expect(page.locator('#cartBody .cart-item__price-old')).toHaveText('$ 30.000');
+    await expect(page.locator('#cartBody .cart-item__price-sale')).toHaveText('$ 18.000');
+    await expect(page.locator('#cartTotalValue')).toHaveText('$ 18.000');
+
+    await page.locator('#cartCheckout').click();
+    await expect(page.locator('#coResumen')).toContainText('$ 18.000');
+    await expect(page.locator('#coResumen')).not.toContainText('$ 30.000');
+  });
+
+  test('CL-05: el catálogo estático de respaldo no conserva los seis productos retirados', () => {
     const retiredIds = [
       'aceite-almendras', 'bruma-aurica', 'crema-karite',
       'jabon-arcilla-romero', 'kit-rutina-basic', 'sales-de-bano'

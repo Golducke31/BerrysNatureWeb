@@ -48,16 +48,38 @@
   function cartCount(items) {
     return items.reduce(function (t, i) { return t + i.qty; }, 0);
   }
+
+  function precioBase(p) {
+    if (!p || p.precio === null || p.precio === undefined || p.precio === '') return null;
+    var base = Number(p.precio);
+    return isFinite(base) && base > 0 ? base : null;
+  }
+
+  function precioOferta(p) {
+    var base = precioBase(p);
+    if (base === null || !p || p.oferta === null || p.oferta === undefined || p.oferta === '') return null;
+    var oferta = Number(p.oferta);
+    return isFinite(oferta) && oferta > 0 && oferta < base ? oferta : null;
+  }
+
+  function precioEfectivo(p) {
+    var base = precioBase(p);
+    if (base === null) return null;
+    var oferta = precioOferta(p);
+    return oferta === null ? base : oferta;
+  }
+
   function cartTotal(items) {
     return items.reduce(function (t, i) {
       var p = productos.find(function (x) { return x.id === i.id; });
-      return t + (p && typeof p.precio === 'number' ? p.precio * i.qty : 0);
+      var precio = precioEfectivo(p);
+      return t + (precio !== null ? precio * i.qty : 0);
     }, 0);
   }
   function cartHasPrices(items) {
     return items.some(function (i) {
       var p = productos.find(function (x) { return x.id === i.id; });
-      return p && typeof p.precio === 'number';
+      return precioEfectivo(p) !== null;
     });
   }
 
@@ -65,15 +87,16 @@
   var filtroActivo = 'Todas';
 
   function precioHtml(p) {
-    if (typeof p.precio === 'number') {
-      var oferta = (typeof p.oferta === 'number' && p.oferta > 0 && p.oferta < p.precio) ? p.oferta : null;
+    var base = precioBase(p);
+    if (base !== null) {
+      var oferta = precioOferta(p);
       if (oferta) {
         return '<span class="product-card__price product-card__price--oferta">' +
-          '<del class="product-card__old">' + ars(p.precio) + '</del>' +
+          '<del class="product-card__old">' + ars(base) + '</del>' +
           '<span class="product-card__oferta">' + ars(oferta) + '</span>' +
         '</span>';
       }
-      return '<span class="product-card__price">' + ars(p.precio) + '</span>';
+      return '<span class="product-card__price">' + ars(base) + '</span>';
     }
     return '<span class="product-card__price is-consult">Consultar precio</span>';
   }
@@ -302,7 +325,7 @@
     if (window.BerrysAnalytics && p) {
       window.BerrysAnalytics.track('add_to_cart', {
         currency: 'ARS',
-        value: Number(p.precio) || 0,
+        value: precioEfectivo(p) || 0,
         items: [window.BerrysAnalytics.itemParams(p, 1)]
       });
     }
@@ -333,8 +356,14 @@
         body.innerHTML = items.map(function (i) {
           var p = producto(i.id);
           if (!p) return '';
-          var precio = typeof p.precio === 'number'
-            ? ars(p.precio * i.qty)
+          var base = precioBase(p);
+          var oferta = precioOferta(p);
+          var efectivo = precioEfectivo(p);
+          var precio = efectivo !== null
+            ? (oferta !== null
+              ? '<del class="cart-item__price-old">' + ars(base * i.qty) + '</del>' +
+                '<span class="cart-item__price-sale">' + ars(efectivo * i.qty) + '</span>'
+              : ars(efectivo * i.qty))
             : 'Consultar precio';
           return '' +
             '<div class="cart-item" data-cart-item="' + escapeHtml(i.id) + '">' +
@@ -919,7 +948,7 @@
      reemplaza. Si la API falla, se queda el estático. */
   function firmaCatalogo(arr) {
     return arr.map(function (p) {
-      return p.id + ':' + p.precio + ':' + p.disponible + ':' + p.nombre;
+      return p.id + ':' + p.precio + ':' + p.oferta + ':' + p.disponible + ':' + p.nombre;
     }).join('|');
   }
 

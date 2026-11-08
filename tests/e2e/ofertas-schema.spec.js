@@ -4,6 +4,8 @@ const path = require('node:path');
 
 const RAIZ = path.resolve(__dirname, '../..');
 const { precioValido, tienePrecioValido, ofertaJson } = require('../../server/lib/oferta');
+const db = require('../../server/lib/db');
+const { calcularPrecioFinal, resolverLineas } = require('../../server/handlers/orders');
 
 const leer = (p) => fs.readFileSync(path.join(RAIZ, p), 'utf8');
 
@@ -116,6 +118,30 @@ test.describe('Offer nunca sale sin precio', () => {
     // El primer paint no debe sobrescribir el ItemList del SSR con la semilla.
     expect(leer('js/catalog.js')).toContain('actualizarJsonLd(true)');
     expect(leer('js/catalog.js')).toContain('function actualizarJsonLd(soloSiVacio)');
+  });
+
+  test('OS-08: checkout aplica ofertas numéricas o numéricas serializadas como string', () => {
+    expect(calcularPrecioFinal(30000, 18000)).toBe(18000);
+    expect(calcularPrecioFinal(30000, '18000')).toBe(18000);
+    for (const invalida of [null, undefined, '', 0, -1, 30000, 45000, 'no es un precio']) {
+      expect(calcularPrecioFinal(30000, invalida), String(invalida)).toBe(30000);
+    }
+  });
+
+  test('OS-09: las líneas del pedido usan la oferta leída de la base', async () => {
+    const queryOriginal = db.query;
+    db.query = async () => [{
+      id: 'serum-premium', nombre: 'Sérum Premium', disponible: true,
+      precio: 30000, oferta: '18000'
+    }];
+    try {
+      const lineas = await resolverLineas([{ id: 'serum-premium', qty: 2 }]);
+      expect(lineas).toEqual([{
+        product_id: 'serum-premium', nombre: 'Sérum Premium', precio: 18000, qty: 2
+      }]);
+    } finally {
+      db.query = queryOriginal;
+    }
   });
 });
 

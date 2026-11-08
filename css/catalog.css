@@ -537,7 +537,9 @@
   line-height: 1.3;
   margin-bottom: 6px;
 }
-.cart-item__price { font-size: 15px; color: var(--color-accent-terracota); font-weight: 700; }
+.cart-item__price { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: 15px; color: var(--color-accent-terracota); font-weight: 700; }
+.cart-item__price-old { color: var(--color-text-muted); font-size: 12px; font-weight: 500; text-decoration: line-through; }
+.cart-item__price-sale { color: var(--color-accent-terracota); font-weight: 700; }
 .cart-item__side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
 .cart-qty {
