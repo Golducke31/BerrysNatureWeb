@@ -4,7 +4,7 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 297 tests en 31 archivos que corren contra los `.html` con `file://`
+- **Suite estática (frontend):** 299 tests en 31 archivos que corren contra los `.html` con `file://`
   (no requiere base de datos). El inventario de abajo destaca algunos archivos.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
@@ -27,9 +27,9 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
     pasa en verde tal cual.
 
 ## Test Files
-The static suite currently contains 295 tests in 31 files (the old catalog-hotspots and cart-integration specs
+The static suite currently contains 299 tests in 31 files (the old catalog-hotspots and cart-integration specs
 were removed — they tested features that no longer exist). Tests run against Chromium, Firefox
-and WebKit (885 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
+and WebKit (897 runs in total). The backend suite adds 50 tests (11 routing + 5 API + 13 SSR + 13 Etapa 5 + 8 pagos).
 
 1. `tests/e2e/landing-navigation.spec.js` (18 tests)
    - Header sticky, hamburguesa solo en mobile, 5 enlaces (Inicio/Academia/Glosario/Sobre Nosotros/Contacto), logo carga, hero (≥90% viewport, Playfair Display, animación, sin desborde a 320px), clase `.scrolled` al hacer scroll, resize/escape del menú mobile, link activo por scroll, contraste WCAG AA, latencia de CTA.
@@ -138,11 +138,11 @@ and WebKit (885 runs in total). The backend suite adds 50 tests (11 routing + 5 
       registrado y detecte bloqueos, y que `/tienda` y `/foro` salgan con
       `s-maxage` + `X-Robots-Tag: index, follow` en vez de `no-store`.
 
-Nuevo archivo: `tests/e2e/cart-layout.spec.js` (2 tests) valida la legibilidad del carrito
-en notebook y que los controles no desborden en móvil.
+Nuevo archivo: `tests/e2e/cart-layout.spec.js` (4 tests) valida el ancho y espacio vertical del carrito
+en notebook, la adaptación móvil y la ausencia de seis productos retirados del catálogo de respaldo.
 
 ## Verification
-La configuración actual registra 295 tests estáticos. La suite de backend corre con
+La configuración actual registra 299 tests estáticos. La suite de backend corre con
 `npm run test:api`: los 11 tests de routing del admin, los 3 de `hiloUrl`/`event`, los 13 de
 Etapa 5 y los 8 de pagos pasan sin base de datos; los 5 de API y los 6 de render en servidor se
 saltean si no hay `DATABASE_URL`.

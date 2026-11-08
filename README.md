@@ -49,7 +49,7 @@ python3 -m http.server 8000
 
 ```bash
 npm install        # instala @playwright/test
-npm test           # suite estática: 297 tests (891 corridas: Chromium + Firefox + WebKit)
+npm test           # suite estática: 299 tests (897 corridas: Chromium + Firefox + WebKit)
 npm run test:report # abre el reporte HTML
 
 # Suite de backend (levanta el dev server en :3000)

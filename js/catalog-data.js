@@ -110,18 +110,6 @@ window.catalogProducts = [
     mp: ''
   },
   {
-    id: 'bruma-aurica',
-    nombre: 'Bruma Áurica',
-    categoria: 'Aromaterapia',
-    descripcion: 'Bruma aromática macerada para concentrar sus aromas. Regalo exclusivo al llevar el pack de jabones. Un mimo para los sentidos.',
-    activos: ['Aceites esenciales', 'Hidrolato'],
-    precio: null,
-    imagen: 'assets/productos/p08-bruma-aurica.webp',
-    origen: 'instagram',
-    meta: ['100 ml', 'Edición especial'],
-    mp: ''
-  },
-  {
     id: 'jabon-avena-miel',
     nombre: 'Jabón de Avena y Miel',
     categoria: 'Jabones',
@@ -143,67 +131,6 @@ window.catalogProducts = [
     imagen: 'assets/productos/p10-balsamo-labial.webp',
     origen: 'placeholder',
     meta: ['10 g', 'Reparador'],
-    mp: ''
-  },
-  {
-    id: 'aceite-almendras',
-    nombre: 'Aceite de Almendras Dulces',
-    categoria: 'Corporal',
-    descripcion: 'Primera presión en frío: el emoliente clásico para masajes y pieles secas. También ideal para quitar el maquillaje de ojos.',
-    activos: ['Aceite de almendras dulces (Prunus amygdalus dulcis)', 'Vitamina E'],
-    precio: null,
-    imagen: 'assets/productos/p11-aceite-almendras.webp',
-    origen: 'placeholder',
-    meta: ['100 ml', 'Multiuso'],
-    mp: ''
-  },
-  {
-    id: 'jabon-arcilla-romero',
-    nombre: 'Jabón de Arcilla y Romero',
-    categoria: 'Jabones',
-    descripcion: 'Purificante y equilibrante: la arcilla absorbe el exceso de sebo y el romero tonifica. Aroma fresco, herbáceo.',
-    activos: ['Arcilla verde', 'Aceite esencial de romero', 'Aceite de oliva'],
-    precio: null,
-    imagen: 'assets/productos/p12-jabon-arcilla-romero.webp',
-    origen: 'placeholder',
-    meta: ['100 g', 'Equilibrante'],
-    mp: ''
-  },
-  {
-    id: 'crema-karite',
-    nombre: 'Crema Corporal de Karité',
-    categoria: 'Corporal',
-    descripcion: 'Body butter de absorción lenta para codos, talones y zonas muy secas. Nutrición intensa durante todo el día.',
-    activos: ['Manteca de karité (Butyrospermum parkii)', 'Aceite de coco', 'Vitamina E'],
-    precio: null,
-    imagen: 'assets/productos/p13-crema-karite.webp',
-    origen: 'placeholder',
-    meta: ['200 g', 'Nutrición intensa'],
-    mp: ''
-  },
-  {
-    id: 'sales-de-bano',
-    nombre: 'Sales de Baño Relajantes',
-    categoria: 'Corporal',
-    descripcion: 'Sales minerales con lavanda y manzanilla para un baño de relax al final del día. Disolvé un puñado bajo el grifo de agua tibia.',
-    activos: ['Sales de Epsom', 'Aceite esencial de lavanda', 'Extracto de manzanilla'],
-    precio: null,
-    imagen: 'assets/productos/p14-sales-de-bano.webp',
-    origen: 'placeholder',
-    meta: ['300 g', 'Relax'],
-    mp: ''
-  },
-  {
-    id: 'kit-rutina-basic',
-    nombre: 'Kit Rutina BASIC',
-    categoria: 'Kits',
-    descripcion: 'La rutina completa en una caja: limpieza + sérum hialurónico + crema Eluné. Piel hidratada y jugosa en tres pasos sencillos. La constancia hace el cambio.',
-    activos: ['Jabón de limpieza', 'Sérum hialurónico', 'Crema Eluné'],
-    precio: null,
-    imagen: 'assets/productos/p15-kit-rutina-basic.webp',
-    origen: 'placeholder',
-    destacado: true,
-    meta: ['Kit ×3', 'Ideal para regalar'],
     mp: ''
   },
   {
