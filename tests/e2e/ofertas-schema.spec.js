@@ -110,7 +110,7 @@ test.describe('Offer nunca sale sin precio', () => {
 
   test('OS-07: SSR y cliente usan el guardia; el build lo verifica', () => {
     const pages = leer('server/handlers/pages.js');
-    expect(pages.match(/oferta\.ofertaJson\(/g)).toHaveLength(2);
+    expect(pages.match(/ofertaLib\.ofertaJson\(/g)).toHaveLength(2);
     expect(leer('js/catalog.js')).toContain("typeof p.precio === 'number' && isFinite(p.precio) && p.precio > 0");
     expect(leer('scripts/check-urls.cjs')).toContain('tienePrecioValido');
     // El primer paint no debe sobrescribir el ItemList del SSR con la semilla.
