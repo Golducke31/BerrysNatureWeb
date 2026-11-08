@@ -313,6 +313,19 @@ test.describe('SEO visible — metadatos y jerarquía', () => {
     expect(paginasHtml.length).toBeGreaterThan(0);
   });
 
+  test('U: Open Graph y Twitter comparten título y descripción en las páginas estáticas', () => {
+    for (const archivo of paginasHtml) {
+      const html = leer(archivo);
+      const ogTitle = /<meta\s+property="og:title"\s+content="([^"]*)"/i.exec(html)?.[1];
+      const twitterTitle = /<meta\s+name="twitter:title"\s+content="([^"]*)"/i.exec(html)?.[1];
+      const ogDescription = /<meta\s+property="og:description"\s+content="([^"]*)"/i.exec(html)?.[1];
+      const twitterDescription = /<meta\s+name="twitter:description"\s+content="([^"]*)"/i.exec(html)?.[1];
+
+      expect(ogTitle, archivo).toBe(twitterTitle);
+      expect(ogDescription, archivo).toBe(twitterDescription);
+    }
+  });
+
   test('U: la home mantiene título, descripciones, H1 y encabezados coherentes', () => {
     const html = leer('index.html');
     const title = /<title>([^<]+)<\/title>/i.exec(html)?.[1];

@@ -4,7 +4,7 @@ The Playwright E2E test suite for **Berry's Nature** has been fully written and 
 
 ## Dos suites
 
-- **Suite estática (frontend):** 296 tests en 31 archivos que corren contra los `.html` con `file://`
+- **Suite estática (frontend):** 297 tests en 31 archivos que corren contra los `.html` con `file://`
   (no requiere base de datos). El inventario de abajo destaca algunos archivos.
 - **Suite de backend (API + ruta secreta del admin + página de hilo + Etapa 5 + pagos):** vive en
   `tests/playwright.api.config.js` y corre contra el dev server (`npm run dev`). Se divide en:
