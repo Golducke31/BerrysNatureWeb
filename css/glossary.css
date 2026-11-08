@@ -491,7 +491,7 @@
     order: 1;
     flex-basis: 100%;
     max-width: 100%;
-    min-height: auto;
+    min-height: 480px;
   }
 
   .glossary-main-nav {
@@ -500,8 +500,13 @@
     order: 2;
   }
 
+  .glossary-main-nav:hover,
+  .glossary-main-nav:focus-visible {
+    transform: none;
+  }
+
   .glossary-card {
-    min-height: auto;
+    min-height: 480px;
     padding: 22px 18px;
   }
 
@@ -561,6 +566,13 @@
     min-height: 24px;
     padding: 8px;
     background-clip: content-box;
+  }
+
+  .glossary-dot.active {
+    width: 24px;
+    border-radius: 50%;
+    outline: 2px solid var(--color-accent-botanical);
+    outline-offset: 1px;
   }
 }
 

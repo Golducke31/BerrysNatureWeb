@@ -784,7 +784,7 @@ const MI_MARCA = {
 
 /* ------------------------------------------------------------
    6. GLOSARIO DE INGREDIENTES BOTÁNICOS Y QUÍMICOS
-   Alimenta el carrusel 3D rotativo de academia.html
+   Alimenta el carrusel y el índice prerenderizado de glosario.html
    ------------------------------------------------------------ */
 const GLOSSARY_DATA = [
   {
@@ -880,7 +880,7 @@ const GLOSSARY_DATA = [
     soluciona: 'Piel áspera, sensación de tirantez y falta de elasticidad.',
     usos: 'Tónicos, cremas, geles, aftersun, mascarillas hidratantes.',
     dosis: '2% – 10%',
-    filtro: 'Piel Seca',
+    filtro: 'Humectantes',
     tip: 'En climas muy secos, no superar el 5%: puede resecar al invertir el efecto.'
   },
   {
@@ -892,7 +892,7 @@ const GLOSSARY_DATA = [
     soluciona: 'Texturas grasosas, absorción lenta y sensación pesada en la piel.',
     usos: 'Sérums ligeros, aceites capilares, cremas de rápida absorción.',
     dosis: '1% – 20%',
-    filtro: 'Limpieza Suave',
+    filtro: 'Emolientes',
     tip: 'No se solidifica en frío: ideal para fórmulas que deben fluir siempre.'
   },
   {
@@ -930,6 +930,234 @@ const GLOSSARY_DATA = [
     dosis: '0.1% – 1%',
     filtro: 'Conservantes',
     tip: 'Preparar solución al 10% en agua destilada y agregar de a gotas hasta el pH deseado.'
+  },
+  {
+    id: 'alcohol_cetoestearilico',
+    nombre: 'Alcohol Cetoestearílico',
+    inci: 'Cetearyl Alcohol',
+    categoria: 'Alcohol graso emoliente',
+    ecocert: false,
+    soluciona: 'Emulsiones demasiado fluidas o con poca estructura y consistencia.',
+    usos: 'Cremas, lociones, acondicionadores y mascarillas capilares.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Emolientes',
+    tip: 'Es un alcohol graso; no es equivalente al alcohol etílico. Revisá compatibilidad y punto de fusión.'
+  },
+  {
+    id: 'alcohol_cetilico',
+    nombre: 'Alcohol Cetílico',
+    inci: 'Cetyl Alcohol',
+    categoria: 'Alcohol graso',
+    ecocert: false,
+    soluciona: 'Fórmulas que necesitan más cuerpo y un tacto emoliente.',
+    usos: 'Emulsiones, acondicionadores capilares y cremas hidratantes.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Emolientes',
+    tip: 'Ajustá la cantidad según la textura buscada y la combinación de emulsionantes.'
+  },
+  {
+    id: 'acido_estearico',
+    nombre: 'Ácido Esteárico',
+    inci: 'Stearic Acid',
+    categoria: 'Ácido graso estructurante',
+    ecocert: false,
+    soluciona: 'Fórmulas que necesitan más estructura, dureza o consistencia.',
+    usos: 'Jabones, bálsamos, barras cosméticas y emulsiones densas.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Emolientes',
+    tip: 'Su efecto depende del sistema: puede modificar dureza, viscosidad y estabilidad.'
+  },
+  {
+    id: 'propilenglicol',
+    nombre: 'Propilenglicol USP',
+    inci: 'Propylene Glycol',
+    categoria: 'Humectante y solvente',
+    ecocert: false,
+    soluciona: 'Dificultad para incorporar ciertos ingredientes solubles en agua o en mezclas compatibles.',
+    usos: 'Geles, extractos fluidos y sérums, según compatibilidad de la fórmula.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Humectantes',
+    tip: 'No todos los activos son compatibles; verificá solubilidad y tolerancia en la fórmula final.'
+  },
+  {
+    id: 'sorbitol',
+    nombre: 'Sorbitol',
+    inci: 'Sorbitol',
+    categoria: 'Humectante',
+    ecocert: false,
+    soluciona: 'Pérdida de humedad y tacto poco suave en geles y productos acuosos.',
+    usos: 'Geles, pastas, shampoos y lociones, de acuerdo con la fórmula.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Humectantes',
+    tip: 'Considerá su efecto sobre la viscosidad y la sensación final del producto.'
+  },
+  {
+    id: 'lauril_eter_sulfato_sodio',
+    nombre: 'Lauril Éter Sulfato de Sodio (LESS)',
+    inci: 'Sodium Laureth Sulfate',
+    categoria: 'Tensioactivo aniónico',
+    ecocert: false,
+    soluciona: 'Limpieza y formación de espuma en productos de enjuague.',
+    usos: 'Shampoos, geles de ducha y limpiadores, según el tipo de fórmula.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Tensioactivos',
+    tip: 'La suavidad depende de la concentración y de los otros tensioactivos de la fórmula.'
+  },
+  {
+    id: 'cocoamidopropil_betaina',
+    nombre: 'Cocoamidopropil Betaína',
+    inci: 'Cocamidopropyl Betaine',
+    categoria: 'Tensioactivo anfótero',
+    ecocert: false,
+    soluciona: 'Fórmulas de limpieza que buscan combinar espuma y sensación suave.',
+    usos: 'Shampoos, limpiadores faciales y geles de baño.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Tensioactivos',
+    tip: 'La tolerancia depende de la calidad del insumo y de la fórmula completa.'
+  },
+  {
+    id: 'oxido_lauramina',
+    nombre: 'Óxido de Lauramina',
+    inci: 'Lauramine Oxide',
+    categoria: 'Tensioactivo y estabilizador de espuma',
+    ecocert: false,
+    soluciona: 'Espuma poco estable o fórmulas limpiadoras con baja viscosidad.',
+    usos: 'Shampoos, espumas faciales y geles de baño.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Tensioactivos',
+    tip: 'Probá la compatibilidad con los demás tensioactivos y el espesante elegido.'
+  },
+  {
+    id: 'cloruro_cetrimonio',
+    nombre: 'Cloruro de Cetrimonio',
+    inci: 'Cetrimonium Chloride',
+    categoria: 'Acondicionador catiónico',
+    ecocert: false,
+    soluciona: 'Electricidad estática y dificultad para desenredar el cabello.',
+    usos: 'Acondicionadores, mascarillas y productos para peinar.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Frizz / Capilar',
+    tip: 'Verificá compatibilidad: los catiónicos pueden ser incompatibles con algunos tensioactivos aniónicos.'
+  },
+  {
+    id: 'goma_xantana',
+    nombre: 'Goma Xantana',
+    inci: 'Xanthan Gum',
+    categoria: 'Espesante y estabilizante',
+    ecocert: false,
+    soluciona: 'Geles acuosos o emulsiones que necesitan más viscosidad y estabilidad.',
+    usos: 'Geles, sérums acuosos y lociones, según el proceso de elaboración.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Textura',
+    tip: 'Dispersala correctamente para reducir grumos y dejá hidratar según las indicaciones del proveedor.'
+  },
+  {
+    id: 'carbomer',
+    nombre: 'Carbómero',
+    inci: 'Carbomer',
+    categoria: 'Polímero gelificante',
+    ecocert: false,
+    soluciona: 'Geles acuosos que requieren viscosidad y una textura uniforme.',
+    usos: 'Geles cosméticos y sérums, con neutralización adecuada.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Textura',
+    tip: 'Necesita un neutralizante compatible para desarrollar viscosidad; controlá el pH final.'
+  },
+  {
+    id: 'glycol_distearate',
+    nombre: 'Diestearato de Etilenglicol',
+    inci: 'Glycol Distearate',
+    categoria: 'Nacarante y opacificante',
+    ecocert: false,
+    soluciona: 'Fórmulas de limpieza que buscan un aspecto perlado u opaco.',
+    usos: 'Shampoos, geles de ducha y limpiadores líquidos.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Textura',
+    tip: 'La apariencia perlada depende del proceso y de la compatibilidad con el sistema tensioactivo.'
+  },
+  {
+    id: 'benzoato_sodio_sorbato_potasio',
+    nombre: 'Benzoato de Sodio y Sorbato de Potasio',
+    inci: 'Sodium Benzoate, Potassium Sorbate',
+    categoria: 'Sistema conservante',
+    ecocert: false,
+    soluciona: 'Ayuda a controlar el crecimiento microbiano en formulaciones compatibles.',
+    usos: 'Productos acuosos, si el pH y el sistema conservante son adecuados.',
+    dosis: 'Según ficha técnica y pH de la fórmula',
+    filtro: 'Conservantes',
+    tip: 'La eficacia depende del pH y de la fórmula; validá la conservación con pruebas apropiadas.'
+  },
+  {
+    id: 'parabenos',
+    nombre: 'Parabenos (Metilparabeno y Propilparabeno)',
+    inci: 'Methylparaben, Propylparaben',
+    categoria: 'Conservantes',
+    ecocert: false,
+    soluciona: 'Protección antimicrobiana de algunas formulaciones cosméticas.',
+    usos: 'Cremas, lociones y maquillaje, de acuerdo con la normativa y la fórmula.',
+    dosis: 'Según normativa aplicable y ficha técnica',
+    filtro: 'Conservantes',
+    tip: 'Usá solo materias primas cosméticas y respetá los límites regulatorios de cada ingrediente.'
+  },
+  {
+    id: 'cloruro_benzalconio',
+    nombre: 'Cloruro de Benzalconio',
+    inci: 'Benzalkonium Chloride',
+    categoria: 'Agente antimicrobiano catiónico',
+    ecocert: false,
+    soluciona: 'Control microbiano en aplicaciones permitidas y formuladas para ese fin.',
+    usos: 'Usos cosméticos específicos, según concentración y regulación aplicable.',
+    dosis: 'Según normativa aplicable y ficha técnica',
+    filtro: 'Conservantes',
+    tip: 'No es de uso universal: verificá límites regulatorios, compatibilidad y seguridad del producto final.'
+  },
+  {
+    id: 'dimeticona',
+    nombre: 'Dimeticona',
+    inci: 'Dimethicone',
+    categoria: 'Silicona emoliente',
+    ecocert: false,
+    soluciona: 'Tacto áspero y falta de deslizamiento en productos para piel o cabello.',
+    usos: 'Cremas, productos capilares y maquillaje, según la viscosidad elegida.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Siliconas',
+    tip: 'Elegí el grado y la viscosidad según la aplicación; no es soluble en agua por sí sola.'
+  },
+  {
+    id: 'amodimeticona',
+    nombre: 'Amodimeticona',
+    inci: 'Amodimethicone',
+    categoria: 'Silicona acondicionadora',
+    ecocert: false,
+    soluciona: 'Falta de suavidad y manejabilidad en algunas fórmulas capilares.',
+    usos: 'Acondicionadores, mascarillas y tratamientos capilares.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Siliconas',
+    tip: 'La deposición y el resultado dependen del grado comercial y del sistema de acondicionamiento.'
+  },
+  {
+    id: 'extracto_sauce_blanco',
+    nombre: 'Extracto de Corteza de Sauce Blanco',
+    inci: 'Salix Alba Bark Extract',
+    categoria: 'Extracto botánico',
+    ecocert: false,
+    soluciona: 'Aporta un extracto vegetal a fórmulas cosméticas de cuidado de la piel.',
+    usos: 'Tónicos y sérums, según composición y ficha técnica del extracto.',
+    dosis: 'Según ficha técnica del proveedor',
+    filtro: 'Activos Botánicos',
+    tip: 'El extracto no equivale automáticamente al ácido salicílico; revisá composición y claims permitidos.'
+  },
+  {
+    id: 'dioxido_titanio',
+    nombre: 'Dióxido de Titanio',
+    inci: 'Titanium Dioxide',
+    categoria: 'Pigmento mineral y opacificante',
+    ecocert: false,
+    soluciona: 'Aporta color blanco u opacidad en productos cosméticos.',
+    usos: 'Pigmentos, maquillaje y productos opacificantes.',
+    dosis: 'Según grado, aplicación y ficha técnica',
+    filtro: 'Minerales',
+    tip: 'No lo consideres protector solar por sí solo: esa función requiere un producto formulado y evaluado para ello.'
   }
 ];
 

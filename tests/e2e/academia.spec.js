@@ -122,4 +122,52 @@ test.describe('Glosario de Ingredientes', () => {
     await page.waitForTimeout(200);
     await expect(page.locator('#glossaryCardStage')).toBeVisible();
   });
+
+  test('T1-G-05: flechas y puntos mantienen su posición al recorrer el glosario en móvil', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.addInitScript(() => {
+      const interval = window.setInterval.bind(window);
+      window.setInterval = (callback, delay, ...args) =>
+        delay === 5000 ? 0 : interval(callback, delay, ...args);
+    });
+    await page.reload();
+    await page.addStyleTag({ content: '.reveal { opacity: 1 !important; transform: none !important; transition: none !important; }' });
+    await page.evaluate(() => document.fonts.ready);
+    await page.locator('#glossaryShowcase').scrollIntoViewIfNeeded();
+
+    const counter = page.locator('#glossaryCounter');
+    await expect(counter).toHaveText('1 / 31');
+    const posicionesIniciales = await page.evaluate(() => {
+      const y = (selector) => {
+        const rect = document.querySelector(selector).getBoundingClientRect();
+        return Math.round(rect.top + window.scrollY);
+      };
+      return {
+        anterior: y('#glossaryPrevBtn'),
+        siguiente: y('#glossaryNextBtn'),
+        puntos: y('#glossaryDots'),
+        contador: y('#glossaryCounter')
+      };
+    });
+
+    for (let indice = 2; indice <= 31; indice++) {
+      await page.locator('#glossaryNextBtn').click({ force: true });
+      await expect(counter).toHaveText(`${indice} / 31`);
+      const posiciones = await page.evaluate(() => {
+        const y = (selector) => {
+          const rect = document.querySelector(selector).getBoundingClientRect();
+          return Math.round(rect.top + window.scrollY);
+        };
+        return {
+          anterior: y('#glossaryPrevBtn'),
+          siguiente: y('#glossaryNextBtn'),
+          puntos: y('#glossaryDots'),
+          contador: y('#glossaryCounter')
+        };
+      });
+      for (const control of Object.keys(posicionesIniciales)) {
+        expect(Math.abs(posiciones[control] - posicionesIniciales[control]), `${control} en ${indice}/31`).toBeLessThanOrEqual(1);
+      }
+    }
+  });
 });
