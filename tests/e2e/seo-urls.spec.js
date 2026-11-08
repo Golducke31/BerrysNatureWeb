@@ -256,6 +256,42 @@ test.describe('HTML inicial — catálogo de la tienda', () => {
     // Y el JSON-LD con precio real sigue ahí.
     expect(res.body).toContain('"price":4000');
   });
+
+  test('U: las ocho fichas con nombres largos usan títulos SEO breves sin cambiar sus H1', async () => {
+    const casos = [
+      ['jabon-calendula', 'Jabón Botánico de Caléndula & Glicerina'],
+      ['jabon-carbon', 'Jabón Facial & Corporal Detox – Carbón Activado'],
+      ['serum-hialuronico', 'Sérum Facial Hidratante Intensivo – Rosa & Hialurónico'],
+      ['serum-aqua-premium', 'Sérum Facial Antioxidante & Reparador – Niacinamida + Green Tea'],
+      ['crema-elune', 'Crema ELUNÉ - Rosa Damascena, Arándano Rojo & Lavanda'],
+      ['shampoo-solido', 'Shampoo Sólido Purificante & Nutritivo – Mango, Coco & Canela'],
+      ['acondicionador-solido', 'Acondicionador Sólido Ultra Reparador – Cacao & Proteínas de Seda'],
+      ['agua-micelar', 'Agua Micelar Calmante – Lavanda Botánica & Glicerina']
+    ];
+    reviews.obtener = async () => ({ resumen: { total: 0, promedio: 0 }, items: [] });
+
+    for (const [id, nombre] of casos) {
+      db.one = async () => ({
+        id, nombre, categoria: 'Facial', descripcion: 'Descripción del producto.',
+        descripcion_larga: '', inci: '', imagen: 'assets/productos/test.webp',
+        imagenes: [], videos: [], precio: 4000, oferta: null, stock: 5,
+        disponible: true, meta: [], activos: [], componentes: [], orden: 1
+      });
+      const res = resFalsa();
+      await pages.renderProduct({}, res, { id });
+
+      const title = /<title>([^<]+)<\/title>/i.exec(res.body)?.[1];
+      const ogTitle = /<meta\s+property="og:title"\s+content="([^"]+)"/i.exec(res.body)?.[1];
+      const twitterTitle = /<meta\s+name="twitter:title"\s+content="([^"]+)"/i.exec(res.body)?.[1];
+      const h1 = /<h1\b[^>]*>([\s\S]*?)<\/h1>/i.exec(res.body)?.[1];
+
+      expect(title, id).toBeTruthy();
+      expect(title.length, id).toBeLessThanOrEqual(60);
+      expect(ogTitle, id).toBe(title);
+      expect(twitterTitle, id).toBe(title);
+      expect(h1.replace(/&amp;/g, '&'), id).toContain(nombre);
+    }
+  });
 });
 
 /* ---------------- SEO visible — metadatos y home ---------------- */

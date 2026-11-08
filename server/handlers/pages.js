@@ -855,6 +855,17 @@ function merchantPolicies() {
   };
 }
 
+const TITULOS_SEO_PRODUCTO = {
+  'jabon-calendula': 'Jabón de Caléndula | Berry\'s Nature',
+  'jabon-carbon': 'Jabón Facial de Carbón Activado | Berry\'s Nature',
+  'serum-hialuronico': 'Sérum de Rosa e Hialurónico | Berry\'s Nature',
+  'serum-aqua-premium': 'Sérum Antioxidante con Niacinamida | Berry\'s Nature',
+  'crema-elune': 'Crema Facial Eluné | Berry\'s Nature',
+  'shampoo-solido': 'Shampoo Sólido Nutritivo | Berry\'s Nature',
+  'acondicionador-solido': 'Acondicionador Sólido Reparador | Berry\'s Nature',
+  'agua-micelar': 'Agua Micelar de Lavanda | Berry\'s Nature'
+};
+
 async function renderProduct(req, res, { id }) {
   let row = null;
   try {
@@ -1010,7 +1021,7 @@ async function renderProduct(req, res, { id }) {
   };
 
   const markup = layout({
-    title: `${row.nombre} | Tienda Berry's Nature`,
+    title: TITULOS_SEO_PRODUCTO[row.id] || `${row.nombre} | Tienda Berry's Nature`,
     description: recortar(descripcionSeo || row.nombre, 155),
     canonical,
     robots: null, // indexable
