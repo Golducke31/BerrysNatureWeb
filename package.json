@@ -8,7 +8,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "node scripts/build.cjs",
+    "build": "node scripts/generate-glossary-details.cjs && node scripts/build.cjs",
+    "generate:glossary": "node scripts/generate-glossary-details.cjs",
     "dev": "node scripts/dev-server.cjs",
     "seed": "node scripts/seed.cjs",
     "seed:force": "node scripts/seed.cjs --force",

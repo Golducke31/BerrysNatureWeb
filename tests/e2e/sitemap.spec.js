@@ -82,6 +82,16 @@ test.describe('Sitemap — qué incluye', () => {
     expect(urls.filter((u) => /\.html(?:$|\?)/i.test(u))).toEqual([]);
   });
 
+  test('S1b: incluye una URL limpia para cada ficha de ingrediente', async () => {
+    const res = await sitemap();
+    const urls = locs(res.body);
+    const items = require('../../js/content-data.js').GLOSSARY_DATA;
+    for (const item of items) {
+      const slug = String(item.id).replace(/_/g, '-');
+      expect(urls).toContain(`https://berrysnature.com.ar/glosario/${slug}`);
+    }
+  });
+
   test('S2: incluye las guías con página propia, leídas de content-data.js', async () => {
     const res = await sitemap();
     const urls = locs(res.body);

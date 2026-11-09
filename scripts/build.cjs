@@ -137,11 +137,12 @@ function lastmodPorUrl() {
     const fecha = fechaCambioSignificativo(p.archivo);
     if (fecha) mapa[p.url] = fecha;
   }
-  const carpeta = path.join(ROOT, 'academia');
-  if (fs.existsSync(carpeta)) {
+  for (const carpetaNombre of ['academia', 'glosario']) {
+    const carpeta = path.join(ROOT, carpetaNombre);
+    if (!fs.existsSync(carpeta)) continue;
     for (const nombre of fs.readdirSync(carpeta)) {
       if (!nombre.endsWith('.html')) continue;
-      const relativo = `academia/${nombre}`;
+      const relativo = `${carpetaNombre}/${nombre}`;
       const limpia = urls.urlDeArchivo(relativo);
       const fecha = fechaCambioSignificativo(relativo);
       if (limpia && fecha) mapa[limpia] = fecha;
@@ -173,7 +174,7 @@ function escribirBuildInfo() {
 const BUILD_DATE = escribirBuildInfo();
 
 /* Carpetas y archivos que forman parte del sitio público. */
-const DIRS = ['css', 'js', 'assets', 'academia'];
+const DIRS = ['css', 'js', 'assets', 'academia', 'glosario'];
 const FILES = ['robots.txt', 'sitemap.xml', 'googlec9455e9c4623b814.html'];
 
 function rmrf(target) {
@@ -286,18 +287,22 @@ function escribirRedirects() {
     lineas.push(`${p.url}    /${p.archivo}    200`);
   }
 
-  const guias = fs.existsSync(path.join(DIST, 'academia'))
-    ? fs.readdirSync(path.join(DIST, 'academia')).filter((f) => f.endsWith('.html'))
-    : [];
-
-  if (guias.length) {
+  for (const carpeta of ['academia', 'glosario']) {
+    const paginas = fs.existsSync(path.join(DIST, carpeta))
+      ? fs.readdirSync(path.join(DIST, carpeta)).filter((f) => f.endsWith('.html'))
+      : [];
+    if (!paginas.length) continue;
     lineas.push('');
-    lineas.push('# Guías de la Academia (una regla por archivo publicado).');
-    for (const archivo of guias) {
-      const slug = archivo.replace(/\.html$/, '');
-      lineas.push(`/academia/${slug}    /academia/${archivo}    200`);
-      lineas.push(`/academia/${archivo}    /academia/${slug}    301!`);
-      lineas.push(`${conWww}/academia/${archivo}    ${host}/academia/${slug}    301!`);
+    lineas.push(carpeta === 'academia'
+      ? '# Guías de la Academia (una regla por archivo publicado).'
+      : '# Fichas individuales del glosario (una regla por ingrediente).');
+    for (const archivo of paginas) {
+      const relativo = `${carpeta}/${archivo}`;
+      const limpia = urls.urlDeArchivo(relativo);
+      if (!limpia) continue;
+      lineas.push(`${limpia}    /${relativo}    200`);
+      lineas.push(`/${relativo}    ${limpia}    301!`);
+      lineas.push(`${conWww}/${relativo}    ${host}${limpia}    301!`);
     }
   }
 
@@ -348,6 +353,26 @@ function verificarLastmod() {
     console.error('\n  ✘ El mapa de <lastmod> no es confiable (ver arriba)\n');
     process.exit(1);
   }
+}
+
+/** Añade las fichas del glosario al sitemap estático de respaldo. */
+function completarSitemapEstatico() {
+  const archivo = path.join(DIST, 'sitemap.xml');
+  const carpeta = path.join(DIST, 'glosario');
+  if (!fs.existsSync(archivo) || !fs.existsSync(carpeta)) return;
+  const origen = String(process.env.APP_URL || 'https://berrysnature.com.ar').trim().replace(/\/+$/, '');
+  let xml = fs.readFileSync(archivo, 'utf8');
+  const existentes = new Set([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+  const nuevas = fs.readdirSync(carpeta)
+    .filter((nombre) => nombre.endsWith('.html'))
+    .map((nombre) => urls.urlDeArchivo(`glosario/${nombre}`))
+    .filter(Boolean)
+    .map((ruta) => `${origen}${ruta}`)
+    .filter((loc) => !existentes.has(loc));
+  if (!nuevas.length) return;
+  const bloques = nuevas.map((loc) => `  <url>\n    <loc>${loc}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`).join('\n');
+  xml = xml.replace('</urlset>', `${bloques}\n</urlset>`);
+  fs.writeFileSync(archivo, xml, 'utf8');
 }
 
 /** Recorre dist/ y procesa (nav + footer + cache-busting) todos los .html. */
@@ -402,6 +427,8 @@ function main() {
     copyDir(src, path.join(DIST, dir));
     console.log(`  ${dir}/          ok`);
   }
+
+  completarSitemapEstatico();
 
   const bytes = sizeOf(DIST);
   const mb = (bytes / 1024 / 1024).toFixed(1);

@@ -111,9 +111,9 @@ for (const pagina of urls.PAGINAS) {
   }
 }
 for (const rel of archivosHtml(DIR)) {
-  if (!rel.startsWith('academia/')) continue;
+  if (!rel.startsWith('academia/') && !rel.startsWith('glosario/')) continue;
   const limpia = urls.urlDeArchivo(rel);
-  if (!limpia) errores.push(`${rel} está en academia/ y no resuelve a una URL limpia`);
+  if (!limpia) errores.push(`${rel} no resuelve a una URL limpia`);
 }
 
 /* 5) _redirects: ninguna regla puede apuntar a sí misma.

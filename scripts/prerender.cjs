@@ -11,7 +11,7 @@
    QUÉ HACE
    Inyecta, en el momento del build, un bloque semántico ya renderizado:
 
-   - glosario.html  → índice alfabético de los 12 ingredientes (nombre,
+   - glosario.html  → índice alfabético de los ingredientes originales (nombre,
      INCI, qué resuelve, dosis, usos, tip) + JSON-LD `DefinedTermSet`.
    - academia.html  → tarjetas de las guías con título, resumen y ENLACE
      a cada guía + JSON-LD `ItemList`.
@@ -69,6 +69,7 @@ function inyectarJsonLd(html, id, obj) {
 
 function bloqueGlosario(items) {
   const tarjetas = items.map((t) => {
+    const fichaUrl = `/glosario/${String(t.id).replace(/_/g, '-')}`;
     const ecocert = t.ecocert
       ? '<span class="glossary-term__badge">Apto ECOCERT</span>'
       : '';
@@ -77,13 +78,14 @@ function bloqueGlosario(items) {
       : '';
     return `      <article class="glossary-term" id="termino-${esc(t.id)}">
         <p class="glossary-term__meta">${esc(t.categoria)}${ecocert ? ' · ' + ecocert : ''}</p>
-        <h3 class="glossary-term__name">${esc(t.nombre)}</h3>
+        <h3 class="glossary-term__name"><a href="${esc(fichaUrl)}">${esc(t.nombre)}</a></h3>
         <p class="glossary-term__inci"><span class="glossary-term__label">INCI:</span> ${esc(t.inci)}</p>
         <p class="glossary-term__text">${esc(t.soluciona)}</p>
         <dl class="glossary-term__facts">
           <dt>Dosis</dt><dd>${esc(t.dosis)}</dd>
           <dt>Se usa en</dt><dd>${esc(t.usos)}</dd>
         </dl>${tip}
+        <a class="glossary-term__link" href="${esc(fichaUrl)}">Ver ficha completa <span aria-hidden="true">→</span></a>
       </article>`;
   }).join('\n');
 
@@ -114,7 +116,7 @@ ${tarjetas}
       name: t.nombre,
       termCode: t.inci,
       description: `${t.soluciona} Dosis de uso: ${t.dosis}.`,
-      url: `${SITE}/glosario#termino-${t.id}`,
+      url: `${SITE}/glosario/${String(t.id).replace(/_/g, '-')}`,
       inDefinedTermSet: `${SITE}/glosario`
     }))
   };

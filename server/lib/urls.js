@@ -47,8 +47,8 @@ const PAGINAS = [
   { archivo: 'terminos.html', url: '/terminos', indexable: true }
 ];
 
-/* Prefijo de carpeta que también se sirve sin extensión: /academia/<slug>. */
-const CARPETAS_LIMPIAS = ['academia'];
+/* Carpetas estáticas que también se sirven sin extensión. */
+const CARPETAS_LIMPIAS = ['academia', 'glosario'];
 
 /* Rutas que sirve una Function (no hay archivo detrás). Necesitan el
    mismo 301 de la variante con barra final que las páginas estáticas,

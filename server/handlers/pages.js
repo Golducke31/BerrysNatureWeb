@@ -1354,6 +1354,19 @@ function guiasConPagina() {
   }
 }
 
+/** Fichas individuales estáticas del glosario, con URLs limpias. */
+function fichasGlosarioConPagina() {
+  try {
+    const data = require('../../js/content-data.js');
+    return (data.GLOSSARY_DATA || [])
+      .map((item) => urls.urlDeArchivo(`glosario/${String(item.id).replace(/_/g, '-')}.html`))
+      .filter(Boolean);
+  } catch (err) {
+    console.error('[sitemap] no se pudieron leer las fichas del glosario:', err && err.message);
+    return [];
+  }
+}
+
 /** Ids de guías que YA tienen página estática: para esas, la dinámica cede. */
 function idsConPaginaEstatica() {
   try {
@@ -1459,6 +1472,7 @@ async function renderSitemap(req, res) {
   }
 
   const guiasEstaticas = guiasConPagina();
+  const fichasGlosario = fichasGlosarioConPagina();
 
   /* Nada de `hoy`: un lastmod idéntico en 23 páginas es una señal que
      Google ignora por autogenerada. Cada estática declara la fecha real
@@ -1484,6 +1498,12 @@ async function renderSitemap(req, res) {
       lastmod: LASTMOD_ESTATICAS[g] || '',
       changefreq: 'monthly',
       priority: '0.8'
+    })),
+    ...fichasGlosario.map((f) => ({
+      loc: `${siteUrl()}${f}`,
+      lastmod: LASTMOD_ESTATICAS[f] || '',
+      changefreq: 'monthly',
+      priority: '0.6'
     })),
     ...guiasDinamicas.map((g) => ({
       loc: `${siteUrl()}${g.path}`,

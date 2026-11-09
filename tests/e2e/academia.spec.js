@@ -206,4 +206,16 @@ test.describe('Glosario de Ingredientes', () => {
     await expect(page.locator('#glossaryListItems .glossary-list-empty')).toContainText('No encontramos ingredientes');
     await expect(page.locator('#glossaryListCount')).toHaveText('0 ingredientes encontrados');
   });
+
+  test('T1-G-10: la tarjeta del carrusel enlaza a la ficha completa', async ({ page }) => {
+    const link = page.locator('#glossaryCardStage .glossary-detail-link');
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('href', /^\/glosario\/[a-z0-9-]+$/);
+  });
+
+  test('T1-G-11: el buscador conserva una altura compacta en móvil', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const box = await page.locator('#glossarySearch').boundingBox();
+    expect(box.height).toBeLessThanOrEqual(60);
+  });
 });

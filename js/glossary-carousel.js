@@ -69,6 +69,7 @@
       this.items.forEach((item) => {
         const article = document.createElement('article');
         article.className = 'glossary-list-item';
+        const detailUrl = `/glosario/${String(item.id).replace(/_/g, '-')}`;
         article.innerHTML = `
           <div class="glossary-list-item__heading">
             <div>
@@ -83,6 +84,7 @@
             <p><strong>Ideal para:</strong> ${esc(item.usos)}</p>
             <p class="glossary-list-item__tip"><strong>Tip:</strong> ${esc(item.tip)}</p>
           </div>
+          <a class="glossary-detail-link" href="${esc(detailUrl)}">Ver ficha completa <span aria-hidden="true">→</span></a>
         `;
         this.listItems.appendChild(article);
       });
@@ -128,6 +130,7 @@
       }
 
       const item = this.items[this.currentIndex];
+      const detailUrl = `/glosario/${String(item.id).replace(/_/g, '-')}`;
       const card = document.createElement('div');
       card.className = 'glossary-card is-visible';
       card.setAttribute('role', 'article');
@@ -155,6 +158,7 @@
           <div class="g-card-tip">
             <strong>Tip del Químico:</strong> ${esc(item.tip)}
           </div>
+          <a class="glossary-detail-link" href="${esc(detailUrl)}">Ver ficha completa <span aria-hidden="true">→</span></a>
         </div>
 
         <div>

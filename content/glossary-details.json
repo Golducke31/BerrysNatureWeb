@@ -1,0 +1,895 @@
+[
+  {
+    "cosmeticRole": "Su función principal es la limpieza; también puede contribuir a la espuma y acompañar a otros tensioactivos en una fórmula. No es un activo médico ni su presencia, por sí sola, permite afirmar que un producto será suave: el resultado depende del conjunto de la fórmula y de cómo se use.",
+    "formulationTips": [
+      "Pesá el polvo con barbijo y trabajá con cuidado para no dispersarlo en el aire.",
+      "Consultá las indicaciones de proceso correspondientes al grado comercial que compraste.",
+      "Probá la integración, la textura y la espuma en una muestra pequeña antes de escalar.",
+      "Medí el pH final y observá la estabilidad de la fórmula con el tiempo."
+    ],
+    "h1": "SCI (Sodium Cocoyl Isethionate): qué es y cómo se usa",
+    "howToUse": "Tratándolo como un tensioactivo sólido, incorporalo según el proceso recomendado para el grado comercial que tengas. No hay una única forma de sumarlo que sirva para todas las presentaciones y bases: evaluá cómo se dispersa o integra en tu matriz y ajustá el proceso con pruebas pequeñas. Al pesar el polvo fino, usá barbijo y evitá levantar partículas. Después, revisá la textura, la espuma y el pH final del producto, y observá su estabilidad en el tiempo.",
+    "id": "sci",
+    "inci": "Sodium Cocoyl Isethionate",
+    "intro": "Si estás formulando un shampoo sólido o una barrita limpiadora, el SCI puede ser una opción para aportar limpieza y espuma. Acá te contamos qué rol cumple y qué conviene probar antes de cerrar tu fórmula.",
+    "keepInMind": "El nivel de uso, la textura y el desempeño cambian según la fórmula y la presentación comercial del SCI. Evitá trasladar sin pruebas una proporción de una receta a otra. La manipulación del polvo merece atención para reducir la inhalación de partículas; cuidá también el pH y la estabilidad del producto terminado.",
+    "name": "SCI (Sodium Cocoyl Isethionate)",
+    "naturalCosmetics": "El SCI puede incluir materias primas de origen vegetal asociadas al coco, pero eso no alcanza para clasificarlo como natural: su ruta de elaboración también puede involucrar insumos sintéticos. Si formulás cosmética natural, revisá la identidad y el origen declarados para el grado específico, y definí si encaja con tus criterios. No deduzcas certificaciones ni atributos ambientales solo por el INCI.",
+    "readingMinutes": 3,
+    "seoDescription": "Conocé qué hace el SCI, en qué limpiadores se usa y qué tener en cuenta al formular shampoo sólido y barras syndet.",
+    "seoTitle": "SCI (Sodium Cocoyl Isethionate) | Berry's Nature",
+    "slug": "sci",
+    "subtitle": "Un tensioactivo sólido que ayuda a limpiar y generar espuma en productos de enjuague.",
+    "useLevel": "El perfil de referencia menciona un nivel de uso de 10% a 60% para la ficha original. Tomalo como orientativo, no como una proporción universal: la cantidad adecuada depende del producto, del resto de los tensioactivos y del grado comercial. Hacé pruebas de formulación antes de definirla.",
+    "uses": [
+      "Shampoo sólido.",
+      "Barritas limpiadoras faciales.",
+      "Jabones tipo syndet, formulados con tensioactivos y no como jabón tradicional.",
+      "Otros productos de higiene de enjuague, según el diseño de la fórmula."
+    ],
+    "whatItIs": "El SCI, o Sodium Cocoyl Isethionate, es un tensioactivo aniónico: una materia prima que ayuda a que el agua y la suciedad se desprendan durante el lavado. Se presenta como un sólido y se usa sobre todo en cosméticos de enjuague. Su nombre alude a una porción derivada de ácidos grasos de coco, pero eso no significa que el ingrediente completo sea necesariamente de origen natural: la composición y el proceso pueden incluir insumos sintéticos."
+  },
+  {
+    "cosmeticRole": "Su función principal es acondicionar el cabello: ayuda a reducir la estática y aporta deslizamiento, lo que facilita el desenredo. También contribuye al cuerpo y la consistencia de emulsiones. Se comercializa para fórmulas aceite-en-agua y productos capilares; el resultado final depende del conjunto de ingredientes y del proceso.",
+    "formulationTips": [
+      "Revisá el INCI del envase: la composición puede variar entre grados comerciales.",
+      "Asegurate de fundir por completo el sólido antes de emulsionar.",
+      "Como es catiónico, puede interactuar con ingredientes aniónicos; evaluá la combinación y observá estabilidad.",
+      "Probá la textura y el desempeño durante el enfriado y en el producto terminado."
+    ],
+    "h1": "BTMS-50: acondicionador para tus fórmulas capilares",
+    "howToUse": "Incorporalo en la fase oleosa y calentá lo suficiente para que el sólido se funda por completo. En emulsiones, procesá las fases según la fórmula, emulsioná con agitación y seguí mezclando mientras enfría. Ajustá temperaturas y procedimiento al grado comercial que tengas y a los demás componentes; no tomes un valor de fusión como universal.",
+    "id": "btms50",
+    "inci": "Behentrimonium Methosulfate (and) Cetearyl Alcohol",
+    "intro": "Si formulás productos para el cabello, el BTMS-50 puede ayudarte a crear fórmulas con buen deslizamiento y una textura cremosa. Acá te contamos qué hace y qué observar al usarlo.",
+    "keepInMind": "El nombre comercial no define por sí solo la composición exacta ni un nivel de uso universal. Confirmá el grado que compraste y observá posibles interacciones, en especial al combinarlo con aniónicos. La evaluación del producto terminado depende de su fórmula, uso previsto y exposición.",
+    "name": "BTMS-50",
+    "naturalCosmetics": "Puede contener componentes derivados de aceites vegetales, pero su origen concreto depende del proveedor y del lote. Se obtiene mediante transformación química, así que no corresponde asumir que es un ingrediente natural solo por su posible materia prima vegetal. En cosmética natural, evaluá si su origen y proceso encajan con el criterio de tu proyecto, y valorá la fórmula completa.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el BTMS-50 al cabello, en qué fórmulas se usa y qué tener en cuenta al incorporarlo.",
+    "seoTitle": "BTMS-50: qué es y cómo se usa | Berry's Nature",
+    "slug": "btms50",
+    "subtitle": "Deslizamiento, desenredo y cuerpo para acondicionadores y emulsiones.",
+    "useLevel": "El nivel de uso depende del tipo de producto, el efecto buscado, la fórmula y el grado comercial. No hay un rango único aplicable a todos los BTMS-50: seguí la recomendación correspondiente a tu materia prima y hacé pruebas en tu formulación.",
+    "uses": [
+      "Acondicionadores sólidos y enjuagables.",
+      "Mascarillas capilares y emulsiones acondicionadoras.",
+      "Fórmulas capilares donde buscás deslizamiento y ayuda para desenredar."
+    ],
+    "whatItIs": "El BTMS-50 es una materia prima sólida, habitualmente presentada en escamas o pastillas. Su INCI combina Behentrimonium Methosulfate, un agente catiónico, con Cetearyl Alcohol, un alcohol graso que aporta consistencia. El nombre BTMS-50 no garantiza que todos los grados comerciales tengan idéntica composición: revisá siempre el INCI y las indicaciones del producto que compraste."
+  },
+  {
+    "cosmeticRole": "En cosmética funciona como emoliente y acondicionador: aporta sensación de suavidad y ayuda a mantener la piel en buen estado. Su fase oleosa lo vuelve útil para enriquecer fórmulas con aceites y emulsiones.",
+    "formulationTips": [
+      "Sumalo a la fase oleosa o a una mezcla anhidra; no lo agregues directamente al agua.",
+      "Si tu proceso lo permite, incorporalo durante el enfriamiento para limitar la exposición al calor.",
+      "Revisá el origen de la materia prima, el método de obtención y las condiciones de conservación del grado comercial.",
+      "Evaluá olor, color y aspecto del aceite al recibirlo y durante el almacenamiento."
+    ],
+    "h1": "Aceite de Rosa Mosqueta: usos en cosmética",
+    "howToUse": "Como es liposoluble, incorporalo en la fase oleosa de una emulsión o mezclalo directamente con otros aceites en una fórmula anhidra. Mezclá lo suficiente para homogeneizar. No se disuelve en agua: en una fórmula acuosa necesitás una fase oleosa con emulsificante o un sistema dispersante adecuado. Para reducir su exposición al calor, podés agregarlo durante el enfriamiento si el proceso de tu fórmula lo permite; verificá las indicaciones del grado que compraste.",
+    "id": "rosa_mosqueta",
+    "inci": "Rosa Canina Fruit Oil",
+    "intro": "¿Estás pensando en sumar aceite de rosa mosqueta a una fórmula? Acá te contamos qué aporta, en qué productos suele usarse y qué tener en cuenta al incorporarlo.",
+    "keepInMind": "Es sensible a la luz y al calor, así que protegelo de la exposición y seguí las indicaciones de conservación del proveedor. La composición puede variar entre grados; no asumas que las instrucciones de un extracto o producto distinto aplican al aceite que tenés. En mezclas acuosas, asegurá un sistema de emulsión o dispersión validado.",
+    "name": "Aceite de Rosa Mosqueta",
+    "naturalCosmetics": "Es un insumo de origen vegetal, pero sus características dependen de la materia prima y de cómo se obtuvo o refinó. En cosmética natural, comprobá esos datos para elegir un grado acorde a tu fórmula. Ser vegetal no significa que sea apto para todas las personas; la calidad, el estado de oxidación y la sensibilidad individual también cuentan.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el aceite de rosa mosqueta, en qué cosméticos se usa y cómo incorporarlo en fórmulas naturales.",
+    "seoTitle": "Aceite de Rosa Mosqueta | Berry's Nature",
+    "slug": "rosa-mosqueta",
+    "subtitle": "Un aceite vegetal emoliente para sumar suavidad y acondicionamiento a tus fórmulas.",
+    "useLevel": "El nivel depende de la fórmula y del grado comercial. No hay un rango universal confirmado para todos los aceites de rosa mosqueta: guiáte por la documentación del producto y por las pruebas de formulación del cosmético final.",
+    "uses": [
+      "Sérums faciales nocturnos y mezclas de aceites anhidras.",
+      "Emulsiones y aceites corporales, incluidos productos de uso post-solar."
+    ],
+    "whatItIs": "Es un aceite fijo asociado al fruto de Rosa canina, también llamada rosa silvestre. Su INCI identifica el aceite de fruto; el origen concreto de la materia prima y el método de obtención pueden variar según el grado comercial. No es un aceite esencial floral. Revisá la información del producto para saber si se obtiene del fruto o de sus semillas, y si es prensado, refinado o extraído."
+  },
+  {
+    "cosmeticRole": "Como emoliente y acondicionador cutáneo, ayuda a dejar una sensación suave y protegida. En fórmulas anhidras también contribuye a dar cuerpo y consistencia; puede usarse además como acondicionador del cabello.",
+    "formulationTips": [
+      "Sumala a la fase oleosa; no intentes disolverla directamente en agua.",
+      "Fundila con aceites o ceras y mezclá hasta homogeneizar.",
+      "Enfriá rápidamente, por ejemplo en la heladera, para ayudar a evitar una textura granulosa.",
+      "Revisá el aspecto y la consistencia del grado elegido: pueden variar con el origen y el refinado."
+    ],
+    "h1": "Manteca de Karité",
+    "howToUse": "Fundila junto con los aceites y ceras de la fase oleosa. En una emulsión, incorporala en esa fase antes de emulsionar; en un bálsamo, mezclala fundida con los demás componentes liposolubles. Homogeneizá y enfriá de manera controlada. La manteca pura no tiene un pH aplicable; si formulás una emulsión, definí el pH según el producto completo y sus otros ingredientes.",
+    "id": "karite",
+    "inci": "Butyrospermum Parkii Butter",
+    "intro": "La manteca de karité es una grasa vegetal sólida muy usada en cosmética. Aporta emoliencia y una sensación más envolvente, tanto en productos sin agua como en algunas emulsiones.",
+    "keepInMind": "La consistencia final depende de la proporción de manteca, aceites y ceras, además del enfriado y del grado comercial. Hacé una prueba de textura en tu fórmula y observá cómo se mantiene tras reposar. Para emulsiones, evaluá el producto terminado en conjunto: no hay un pH propio de la manteca pura.",
+    "name": "Manteca de Karité",
+    "naturalCosmetics": "Es un insumo de origen vegetal, no sintético. Puede comercializarse mínimamente procesado o refinado; por eso, el aspecto y el comportamiento pueden cambiar entre grados. Al elegirla para cosmética natural, considerá el procesamiento y las características declaradas para el producto que vas a usar.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta la manteca de karité, en qué cosméticos se usa y cómo incorporarla en fórmulas naturales con una textura cuidada.",
+    "seoTitle": "Manteca de Karité: usos y formulación | Berry's Nature",
+    "slug": "karite",
+    "subtitle": "Una manteca vegetal emoliente para sumar cuerpo y suavidad a tus fórmulas.",
+    "useLevel": "El perfil disponible menciona un nivel de uso de 3%–20% como referencia para esta ficha. Ajustalo según la textura buscada, el conjunto de la fórmula y el grado comercial; no es un valor universal para todos los productos.",
+    "uses": [
+      "Bálsamos labiales y otros productos anhidros.",
+      "Mantecas corporales de textura rica.",
+      "Cremas nutritivas y emulsiones con fase oleosa.",
+      "Productos acondicionadores para el cabello."
+    ],
+    "whatItIs": "Se obtiene del fruto de Butyrospermum parkii, también conocido como Vitellaria paradoxa. Se comercializa principalmente como una manteca sólida; su color, aroma y consistencia pueden variar según el origen y el procesamiento. Su composición contiene principalmente ácidos grasos esteárico y oleico. Es liposoluble: se integra en la fase grasa, no en el agua."
+  },
+  {
+    "cosmeticRole": "Su función cosmética principal es humectar y acondicionar la piel: favorece la retención de agua y puede mejorar la sensación de hidratación y el tacto. Según el grado y el sistema, también puede aportar viscosidad o formar una película. Estos efectos varían con la fórmula y no implican una garantía de penetración ni un resultado antiedad.",
+    "formulationTips": [
+      "Agregalo gradualmente a la fase acuosa con agitación para ayudar a dispersarlo.",
+      "Dale tiempo de hidratación y recién después evaluá grumos, textura y viscosidad.",
+      "Consultá la especificación del grado para definir el proceso y el nivel de uso.",
+      "Probá primero en pequeña escala: la respuesta puede variar según el sistema."
+    ],
+    "h1": "Ácido Hialurónico (Bajo Peso): qué aporta y cómo usarlo",
+    "howToUse": "Dispersalo de a poco en la fase acuosa con agitación para reducir la formación de grumos. Dejalo hidratarse antes de evaluar la textura y la viscosidad; el tiempo y el resultado pueden cambiar según el grado y la fórmula. No hay un protocolo único para todas las presentaciones: guiáte por la información de tu producto y probá el proceso en una muestra pequeña antes de escalarlo.",
+    "id": "acido_hialuronico",
+    "inci": "Sodium Hyaluronate",
+    "intro": "El hialuronato de sodio ayuda a que una fórmula cosmética aporte hidratación y un tacto agradable. Acá vas a encontrar cómo se usa en distintos productos y qué tener en cuenta al incorporarlo.",
+    "keepInMind": "“Bajo peso” no define una masa molecular concreta sin información adicional del grado. La hidratación, la viscosidad y el tiempo de incorporación dependen del producto y de la fórmula. Validá el proceso en banco y evitá extrapolar indicaciones de otros grados.",
+    "name": "Ácido Hialurónico (Bajo Peso)",
+    "naturalCosmetics": "El hialuronato de sodio puede obtenerse por fermentación y purificación, o derivarse de fuentes animales. El nombre por sí solo no confirma el origen: consultá al proveedor si ese dato es importante para tu proyecto. Que sea fermentado no alcanza para llamarlo natural en cualquier contexto; evitá atribuirle un origen que no esté confirmado.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el hialuronato de sodio de bajo peso y cómo incorporarlo en sérums, cremas y otras fórmulas cosméticas.",
+    "seoTitle": "Ácido Hialurónico Bajo Peso | Berry's Nature",
+    "slug": "acido-hialuronico",
+    "subtitle": "Un humectante para fórmulas acuosas, con detalles de uso que dependen de cada grado comercial.",
+    "useLevel": "El nivel de uso depende de la fórmula y del grado comercial. No tomes como universal un rango de otro peso molecular o presentación; seguí la recomendación correspondiente al producto que tengas.",
+    "uses": [
+      "Sérums hidratantes y otras fórmulas acuosas.",
+      "Cremas y productos de cuidado facial.",
+      "Contornos de ojos."
+    ],
+    "whatItIs": "Es hialuronato de sodio, una sal del ácido hialurónico. “Bajo peso” describe un grado de menor masa molecular, pero no señala un valor universal: ese dato depende del producto comercial. Suele presentarse en polvo y es hidrosoluble. Para conocer sus características precisas, consultá la especificación del grado que tengas."
+  },
+  {
+    "cosmeticRole": "En cosmética se utiliza como agente acondicionador de la piel y el cabello. Es un ingrediente funcional para incluir en productos de cuidado, no una promesa de resultados médicos: el efecto percibido depende de la fórmula completa y de cómo se usa el producto.",
+    "formulationTips": [
+      "Disolvela en la fase acuosa con mezcla hasta lograr una solución uniforme.",
+      "Verificá el pH final; el dato de pH de una solución de materia prima no fija por sí solo el pH del cosmético.",
+      "Validá el orden de agregado y las condiciones de proceso para tu fórmula y grado comercial.",
+      "Observá aspecto y estabilidad en pruebas de la fórmula terminada."
+    ],
+    "h1": "Niacinamida (Vitamina B3) en cosmética",
+    "howToUse": "Al ser hidrosoluble, se incorpora en una fase acuosa y se mezcla hasta que quede bien disuelta y uniforme. Definí el orden de agregado y las condiciones de proceso según tu fórmula y la ficha del grado comercial que tengas; no hace falta tratarla como un polvo insoluble para dispersar. Revisá el pH de la fórmula terminada y evitá diseñar el proceso con condiciones fuertemente ácidas o alcalinas. Hacé pruebas de estabilidad y observá el producto con el paso del tiempo.",
+    "id": "niacinamida",
+    "inci": "Niacinamide",
+    "intro": "La niacinamida es una opción conocida para sumar a tónicos, sérums y cremas livianas. Acá te contamos qué función cumple y cómo pensar su incorporación sin perder de vista las particularidades de cada fórmula.",
+    "keepInMind": "No confundas niacinamida con ácido nicotínico. Las condiciones de pH y proceso son propias de cada sistema; evitá asumir compatibilidad universal o que el origen de un ingrediente, por sí solo, determina cómo se comportará en el producto.",
+    "name": "Niacinamida (Vitamina B3)",
+    "naturalCosmetics": "La niacinamida puede obtenerse por distintas rutas industriales. Sin información del fabricante sobre el grado concreto, no corresponde presentarla como vegetal, biotecnológica ni de origen natural. En cosmética natural, describí con precisión el origen declarado de cada materia prima y considerá la fórmula como un conjunto.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta la niacinamida en cosmética, en qué productos se usa y qué tener en cuenta al incorporarla en fórmulas acuosas.",
+    "seoTitle": "Niacinamida (Vitamina B3) | Berry's Nature",
+    "slug": "niacinamida",
+    "subtitle": "Un activo hidrosoluble versátil para fórmulas de cuidado de la piel y el cabello.",
+    "useLevel": "No hay un nivel único que pueda recomendarse para todas las fórmulas y grados comerciales. Definilo con la información específica de tu materia prima y evaluá el resultado en la fórmula completa, en lugar de trasladar automáticamente un porcentaje de otra receta.",
+    "uses": [
+      "Tónicos faciales y sérums de cuidado de la piel.",
+      "Cremas livianas y limpiadores cosméticos.",
+      "Champús y tónicos capilares."
+    ],
+    "whatItIs": "También llamada nicotinamida, es una forma de la vitamina B3. Como materia prima cosmética suele encontrarse en polvo cristalino blanco y se disuelve en agua. No es lo mismo que el ácido nicotínico, otra forma relacionada con la vitamina B3."
+  },
+  {
+    "cosmeticRole": "Su función es contribuir a la conservación antimicrobiana del cosmético, ayudando a limitar el deterioro asociado a bacterias, levaduras y mohos. La protección real depende de la fórmula terminada: incorporarlo no reemplaza la evaluación de estabilidad y eficacia del producto.",
+    "formulationTips": [
+      "Controlá el pH de la fórmula terminada: el perfil indica una ventana de aplicación de pH 3–8 para este producto.",
+      "En emulsiones, incorporalo durante el enfriado; respetá el límite de temperatura indicado para tu grado.",
+      "Mezclá hasta lograr una distribución homogénea y observá cambios de aspecto, olor o textura.",
+      "Evaluá la conservación y la estabilidad en la fórmula final; el resultado no se deduce solo del porcentaje agregado."
+    ],
+    "h1": "Geogard ECT: conservación para tus fórmulas cosméticas",
+    "howToUse": "En términos generales, se incorpora en la fase acuosa o directamente en la fórmula, según el sistema. En emulsiones, se agrega durante el enfriado, una vez formada la emulsión. El material disponible para este producto indica añadirlo por debajo de 45 °C; confirmá la temperatura y el método recomendados para el grado que compraste. Mezclá de manera uniforme y revisá que quede bien integrado.",
+    "id": "geogard_ect",
+    "inci": "Benzyl Alcohol (and) Salicylic Acid (and) Glycerin (and) Sorbic Acid",
+    "intro": "Cuando una fórmula cosmética contiene agua, conservarla es parte del diseño. Geogard ECT combina varios componentes para ayudar a proteger el producto frente al deterioro microbiano. Acá te contamos qué hace y qué conviene revisar al formular.",
+    "keepInMind": "La tolerancia al pH, la temperatura de incorporación y el comportamiento pueden variar entre grados comerciales y fórmulas. No des por sentada la compatibilidad con todos los ingredientes o sistemas. Para un producto terminado, validá estabilidad y eficacia de conservación; cuidá también la higiene del proceso y el envase.",
+    "name": "Geogard ECT",
+    "naturalCosmetics": "Que un producto se asocie con criterios de aceptación para cosmética natural no vuelve naturales automáticamente todos sus componentes ni garantiza que una fórmula completa cumpla un estándar. En este perfil, Geogard ECT se clasifica como sintético, no como insumo vegetal, biotecnológico o mineral. Si formulás cosmética natural, verificá los requisitos de tu proyecto y el origen declarado para el grado comercial elegido.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta Geogard ECT, en qué cosméticos se usa y qué tener en cuenta al incorporarlo en tus fórmulas.",
+    "seoTitle": "Geogard ECT: conservante para cosmética | Berry's Nature",
+    "slug": "geogard-ect",
+    "subtitle": "Un blend conservante para ayudar a cuidar cremas, tónicos, geles y leches de limpieza.",
+    "useLevel": "Para este producto, el nivel informado es 0,6–1 %. Tomalo como referencia del grado comercial descrito, no como una indicación universal: verificá la ficha del que tengas y ajustá según el tipo de fórmula y su evaluación.",
+    "uses": [
+      "Cremas y emulsiones cosméticas.",
+      "Tónicos y otros productos acuosos.",
+      "Geles de ducha.",
+      "Leches de limpieza."
+    ],
+    "whatItIs": "Geogard ECT es el nombre comercial de una mezcla conservante, no una sustancia única. Su INCI reúne alcohol bencílico, ácido salicílico, glicerina y ácido sórbico. El perfil consultado lo clasifica como de origen sintético; por eso no corresponde presentarlo como un ingrediente vegetal o natural. El origen de las materias primas puede variar según el grado comercial."
+  },
+  {
+    "cosmeticRole": "Su función cosmética principal es humectante: ayuda a atraer agua y contribuye a acondicionar la piel. También puede aportar acondicionamiento al cabello y cumplir funciones tecnológicas, como solvente o modificador de viscosidad, según la fórmula.",
+    "formulationTips": [
+      "Para fórmulas acuosas, incorporala en la fase de agua o premezclala con ingredientes hidrosolubles.",
+      "No la trates como soluble en aceite; en emulsiones, considerá el proceso y la estructura completa de la fórmula.",
+      "Ajustá el orden y la temperatura de incorporación a tu proceso y al grado comercial.",
+      "Evaluá sensorialidad y desempeño en el producto terminado, no solo la proporción aislada."
+    ],
+    "h1": "Glicerina Vegetal: qué hace y cómo se usa",
+    "howToUse": "En productos con agua suele incorporarse en la fase acuosa; también podés premezclarla con otros ingredientes hidrosolubles. Se mezcla con agua, pero casi no se disuelve en aceites o grasas: para una fórmula oleosa necesitás una emulsión o estrategia de dispersión adecuada. Ajustá el orden de incorporación, la temperatura y el proceso al conjunto de la fórmula y a las indicaciones del grado comercial.",
+    "id": "glicerina",
+    "inci": "Glycerin",
+    "intro": "La glicerina es un ingrediente habitual en cosmética por su capacidad de atraer y retener agua. Acá vas a encontrar para qué sirve, en qué productos aparece y qué observar al formular con ella.",
+    "keepInMind": "En ambientes muy secos, el material de referencia aconseja no superar el 5%, ya que la sensación o el efecto humectante pueden no ser los esperados. Tomalo como una consideración contextual, no como un límite universal: el resultado depende de la fórmula y de las condiciones de uso. Evaluá cada desarrollo en su contexto.",
+    "name": "Glicerina Vegetal",
+    "naturalCosmetics": "La palabra “vegetal” describe el origen de esta glicerina, no garantiza por sí sola otras características del insumo. El INCI no distingue entre origen vegetal, animal o sintético; consultá la procedencia, calidad, impurezas y trazabilidad del grado específico. Sintético no significa automáticamente peligroso, y de un origen vegetal no se deben deducir propiedades no declaradas.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué hace la glicerina vegetal, en qué cosméticos se usa y qué tener en cuenta al incorporarla en tus fórmulas.",
+    "seoTitle": "Glicerina Vegetal: usos y formulación | Berry's Nature",
+    "slug": "glicerina",
+    "subtitle": "Un humectante versátil para fórmulas acuosas y emulsiones cosméticas.",
+    "useLevel": "El nivel orientativo del material de referencia es 2%–10%. No es un rango universal: la proporción adecuada depende del tipo de producto, el efecto buscado y el grado comercial. Revisá la información específica del ingrediente y evaluá el resultado en tu fórmula.",
+    "uses": [
+      "Tónicos y geles acuosos.",
+      "Cremas y emulsiones.",
+      "Aftersun y mascarillas hidratantes.",
+      "Productos capilares con función acondicionadora."
+    ],
+    "whatItIs": "La glicerina, también llamada glicerol, es un líquido incoloro y viscoso que se mezcla con agua. El INCI Glycerin identifica la sustancia, pero no indica por sí solo su procedencia: puede obtenerse de fuentes vegetales o animales, o producirse por vías sintéticas. Si buscás una opción vegetal, verificá el origen declarado para el grado comercial que elijas."
+  },
+  {
+    "cosmeticRole": "Actúa como emoliente y acondicionador: aporta deslizamiento y suavidad, y ayuda a reducir la sensación de sequedad superficial. También puede servir de vehículo para componentes liposolubles y formar parte de la fase oleosa de una emulsión. No emulsiona por sí solo una mezcla de aceite y agua.",
+    "formulationTips": [
+      "Sumalo a la fase oleosa antes de emulsionar; en aceites anhidros, mezclalo con los otros aceites.",
+      "No esperes que se disuelva en agua ni que estabilice por sí solo una emulsión.",
+      "Probá la textura y la estabilidad de la fórmula terminada; consultá los datos del grado comercial que estés usando."
+    ],
+    "h1": "Aceite de Coco Fraccionado (MCT): usos cosméticos",
+    "howToUse": "En una fórmula anhidra, mezclalo directamente con los demás aceites. Si preparás una emulsión, incorporalo en la fase oleosa antes de emulsionar y usá un sistema emulsificante adecuado. Para dispersarlo en agua, necesitás un emulsificante o solubilizante apropiado, elegido y validado para tu fórmula: el MCT no cumple esa función por sí solo. Revisá las indicaciones del grado comercial y probá el proceso en tu formulación.",
+    "id": "coco_fraccionado",
+    "inci": "Caprylic/Capric Triglyceride",
+    "intro": "Si buscás una fase oleosa fluida que deje una sensación suave, el aceite de coco fraccionado puede ser una opción versátil. Acá vemos qué aporta y qué tener en cuenta al formular.",
+    "keepInMind": "Es un ingrediente oleoso, no una solución acuosa ni un emulsionante. El nombre comercial no asegura una composición idéntica entre grados. La compatibilidad, el proceso y la estabilidad se evalúan en el contexto de cada fórmula; revisá los datos del grado que tengas y hacé pruebas del producto final.",
+    "name": "Aceite de Coco Fraccionado (MCT)",
+    "naturalCosmetics": "Puede ser de origen vegetal, por ejemplo de coco o palmiste, y se obtiene mediante fraccionamiento y esterificación. El INCI no revela por sí solo la materia prima de origen. Si buscás una fórmula de perfil vegetal, confirmá origen, trazabilidad e identidad con quien provee el insumo; no des por sentada su procedencia solo por el nombre.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el MCT a la piel, en qué cosméticos se usa y cómo incorporarlo en fórmulas naturales con criterio.",
+    "seoTitle": "Aceite de Coco Fraccionado MCT | Berry's Nature",
+    "slug": "coco-fraccionado",
+    "subtitle": "Un emoliente líquido y liviano para sumar deslizamiento y suavidad a tus fórmulas.",
+    "useLevel": "El perfil del ingrediente consigna un uso de 1–20%. Tomalo como referencia para ese grado, no como una regla universal: el nivel conveniente depende de la fórmula y del grado comercial. Ajustá y validá en el producto final.",
+    "uses": [
+      "Sérums oleosos de textura ligera.",
+      "Aceites capilares.",
+      "Cremas de rápida absorción como parte de la fase oleosa."
+    ],
+    "whatItIs": "Es una mezcla de triglicéridos compuesta principalmente por ácidos grasos caprílico (C8) y cáprico (C10). Se presenta como un aceite líquido y prácticamente insoluble en agua. Aunque suele llamarse “de coco” o MCT, el nombre y el INCI no confirman por sí solos que el origen sea exclusivamente coco ni que todos los grados tengan la misma composición."
+  },
+  {
+    "cosmeticRole": "En cosmética funciona como emoliente y acondicionador de la piel, forma una película y puede colaborar con la emulsificación. También aporta consistencia, cuerpo y firmeza, especialmente en fórmulas con una fase oleosa importante. El resultado sensorial depende de cuánto uses y de cómo interactúe con los demás componentes.",
+    "formulationTips": [
+      "Para una barra más firme, evaluá el balance entre la cera y los aceites; cambiá de a poco y probá la textura al enfriar.",
+      "Pesá la cera y fundila con la fase oleosa; no intentes incorporarla directamente al agua.",
+      "En emulsiones, verificá que el sistema emulsificante elegido se ajuste a la fórmula completa.",
+      "Si buscás una alternativa vegana, podés probar cera de candelilla; recalculá la cantidad y testeá la firmeza, porque no se comporta igual."
+    ],
+    "h1": "Cera de Abeja: qué hace y cómo se usa",
+    "howToUse": "En una fórmula anhidra, incorporala fundida junto con los aceites de la fase oleosa. En una emulsión, suele fundirse con la fase grasa antes de emulsionar con la fase acuosa, siguiendo el sistema elegido. No se disuelve en agua; si la fórmula tiene una fase acuosa, necesitás una emulsificación o dispersión apropiada. Ajustá temperatura y agitación a la ficha del grado que tengas y evitá calentarla más de lo necesario.",
+    "id": "cera_abeja",
+    "inci": "Cera Alba",
+    "intro": "Si formulás bálsamos, barras o emulsiones, la Cera de Abeja puede ayudarte a darles cuerpo y firmeza. Acá vas a encontrar para qué se usa y cómo incorporarla de manera general.",
+    "keepInMind": "Puede endurecer la fase oleosa y modificar el deslizamiento o la sensación de la fórmula. El efecto cambia según la proporción, los aceites y el resto de los ingredientes. No tomes la temperatura de fusión de un producto comercial como universal: seguí la especificación del material que tengas y hacé pruebas de textura y estabilidad.",
+    "name": "Cera de Abeja",
+    "naturalCosmetics": "Su origen es animal, por lo que no es una opción vegetal ni vegana. Que provenga del panal no significa que todos los grados sean iguales: el procesamiento puede variar. En cosmética natural, elegí el insumo según el origen y las características declaradas para el grado que vas a usar, y formulá considerando el resultado final, no solo la procedencia.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta la Cera de Abeja a bálsamos, barras y emulsiones, cómo incorporarla y qué tener en cuenta al formular cosmética natural.",
+    "seoTitle": "Cera de Abeja: usos y formulación | Berry's Nature",
+    "slug": "cera-abeja",
+    "subtitle": "Una cera de origen animal que aporta estructura y consistencia a distintas fórmulas cosméticas.",
+    "useLevel": "El nivel de uso depende de la textura buscada, del conjunto de la fórmula y del grado comercial. Como referencia para las aplicaciones descritas en el glosario del perfil, se indica 5–30%; no es un rango universal y conviene validarlo con pruebas a pequeña escala.",
+    "uses": [
+      "Bálsamos labiales y otros bálsamos anhidros.",
+      "Cremas en barra y productos sólidos que necesitan estructura.",
+      "Ungüentos y emulsiones, como parte de la fase grasa.",
+      "Velas de masaje, según el diseño de la fórmula."
+    ],
+    "whatItIs": "La Cera de Abeja, identificada en INCI como Cera Alba, se obtiene del panal. No es una molécula única, sino una mezcla de componentes cerosos. Es un insumo de origen animal: no es vegetal ni sintético, aunque su grado comercial puede recibir distintos procesos de refinación o blanqueo."
+  },
+  {
+    "cosmeticRole": "En cosmética se usa principalmente como humectante para la piel y acondicionador superficial para el cabello. Puede aportar una sensación de hidratación y suavidad; el resultado depende de la fórmula completa y del producto terminado.",
+    "formulationTips": [
+      "Confirmá si tu insumo es pantenol puro o una solución diluida; mirá el INCI completo.",
+      "Dispersalo en la fase acuosa y mezclá hasta integrarlo de manera uniforme.",
+      "Si podés, agregalo durante el enfriamiento para limitar la exposición al calor.",
+      "Evaluá pH, textura y estabilidad en la fórmula final."
+    ],
+    "h1": "Pantenol (D-Pantenol): cuidado para piel y pelo",
+    "howToUse": "Como es hidrosoluble, incorporalo en la fase acuosa o, si el proceso lo permite, durante el enfriamiento. La forma pura puede ser viscosa; una solución comercial puede resultar más sencilla de dosificar. No hay una temperatura universal de agregado: seguí la información del grado elegido y evitá exponerlo innecesariamente al calor. Comprobá el pH y la estabilidad de la fórmula terminada, en lugar de asumir compatibilidad con todos los ingredientes.",
+    "id": "pantenol",
+    "inci": "Panthenol",
+    "intro": "El pantenol es un ingrediente funcional versátil para cosméticos de cuidado de la piel y el cabello. Puede ayudar a mejorar la sensación de hidratación y dejar el pelo con una sensación más acondicionada.",
+    "keepInMind": "No confundas el ingrediente Panthenol con un producto comercial diluido que también puede contener agua u otros componentes. La viscosidad y la facilidad de incorporación varían según el grado. Evaluá siempre el resultado en la fórmula completa; el origen, por sí solo, no define cómo se comportará.",
+    "name": "Pantenol (D-Pantenol)",
+    "naturalCosmetics": "El INCI Panthenol no alcanza para saber si el insumo es sintético o de origen bio-basado. Consultá al proveedor por el origen y las características del grado específico, y describilo con precisión. No lo presentes como vegetal o natural sin información que lo respalde: el origen no se deduce del nombre.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el pantenol a la piel y el pelo, en qué cosméticos se usa y cómo incorporarlo en fórmulas de cuidado personal.",
+    "seoTitle": "Pantenol (D-Pantenol): usos | Berry's Nature",
+    "slug": "pantenol",
+    "subtitle": "Un activo hidrosoluble que suma humectación y acondicionamiento a tus fórmulas.",
+    "useLevel": "El nivel orientativo que figura para este ingrediente es 1–5%. No es una regla universal: elegí la cantidad según el objetivo, la fórmula y el grado comercial. Si el producto que compraste viene diluido, tené en cuenta su composición al calcular la incorporación.",
+    "uses": [
+      "Shampoo y acondicionadores para el cuidado del pelo.",
+      "Cremas y lociones de cuidado de la piel.",
+      "Productos para después del sol, como parte de una rutina cosmética."
+    ],
+    "whatItIs": "El pantenol es el alcohol análogo del ácido pantoténico, conocido como vitamina B5. D-pantenol nombra una de sus formas; también existe DL-pantenol, que es una mezcla de formas. El INCI Panthenol identifica el ingrediente, pero no revela por sí solo el origen de la materia prima ni si se trata de un grado diluido. Revisá la composición completa del insumo que elijas."
+  },
+  {
+    "cosmeticRole": "Su función más habitual es bajar o ajustar el pH de una preparación acuosa hasta el valor que buscás. Como quelante, puede interactuar con iones metálicos presentes en la fórmula. El desempeño concreto depende del conjunto de ingredientes y del sistema; no reemplaza la evaluación del producto terminado.",
+    "formulationTips": [
+      "Para un ajuste final, incorporá la solución en pequeñas adiciones y mezclá entre cada una.",
+      "Medí el pH durante el ajuste y repetí la medición después del equilibrio de la fórmula.",
+      "Revisá la estabilidad, el sistema tampón y los ingredientes sensibles al pH en tu propia fórmula."
+    ],
+    "h1": "Ácido cítrico en cosmética",
+    "howToUse": "Podés disolverlo en la fase acuosa con agitación o preparar una solución acuosa para ajustar el producto al final. Si trabajás con una solución, agregala de a poco, mezclá bien y medí el pH entre adiciones. Volvé a medir después de que la fórmula haya tenido tiempo de equilibrarse. No hay una cantidad universal: guiáte por el pH objetivo y observá cómo responde la preparación.",
+    "id": "acido_citrico",
+    "inci": "Citric Acid",
+    "intro": "El ácido cítrico se usa sobre todo para ajustar el pH de productos cosméticos. Te contamos cómo incorporarlo de manera gradual y qué revisar para que el resultado responda a tu fórmula.",
+    "keepInMind": "El pH influye en el comportamiento de la fórmula y puede afectar ingredientes sensibles. No supongas que una cantidad o un orden de incorporación funciona igual en todos los productos: evaluá cada sistema y revisá el pH final. El origen y el grado comercial también pueden variar.",
+    "name": "Ácido Cítrico",
+    "naturalCosmetics": "Si el origen es importante para tu proyecto, pedile al proveedor información sobre el sustrato y el proceso del lote. La posibilidad de producirlo por fermentación no confirma por sí sola el origen de cualquier insumo. En cosmética natural, diferenciá el origen documentado de la función: un ingrediente de origen renovable no garantiza por sí mismo un resultado específico en la fórmula.",
+    "readingMinutes": 3,
+    "seoDescription": "Conocé cómo se usa el ácido cítrico para ajustar el pH y qué observar al formular cremas, tónicos, geles y shampoos.",
+    "seoTitle": "Ácido cítrico: ajuste de pH | Berry's Nature",
+    "slug": "acido-citrico",
+    "subtitle": "Un recurso para ajustar el pH y acompañar el equilibrio de tus fórmulas.",
+    "useLevel": "La cantidad depende de la fórmula, del pH inicial y del objetivo, además del grado comercial elegido. No tomes un rango general como receta: ajustá gradualmente y medí el pH durante el proceso y luego del equilibrio.",
+    "uses": [
+      "Ajuste de pH en cremas y tónicos.",
+      "Ajuste de pH en geles y shampoos.",
+      "Puede cumplir una función quelante en fórmulas cosméticas."
+    ],
+    "whatItIs": "Es un ácido orgánico soluble en agua. En cosmética se emplea principalmente como ajustador de pH y también puede actuar como quelante: forma complejos con ciertos iones metálicos. El origen no se deduce solo por el nombre. Puede obtenerse mediante fermentación de fuentes de carbono renovables, pero el sustrato y el proceso dependen del lote y del proveedor; también puede tener un origen industrial distinto."
+  },
+  {
+    "cosmeticRole": "En una fórmula puede dejar un tacto más deslizante, sumar cuerpo y aumentar la viscosidad. También puede colaborar como coemulsionante y modificar la opacidad y la textura. No estabiliza por sí solo cualquier emulsión: el resultado depende del emulsionante y del conjunto de la fórmula.",
+    "formulationTips": [
+      "Fundilo en la fase oleosa; no esperes que se disuelva en agua.",
+      "Revisá el punto de fusión del grado comercial y asegurate de fundirlo por completo.",
+      "Evaluá viscosidad, tacto y estabilidad en la fórmula terminada.",
+      "Considerá el emulsionante y las proporciones del sistema al ajustar la textura."
+    ],
+    "h1": "Alcohol Cetoestearílico: cuerpo y suavidad",
+    "howToUse": "Como es lipófilo, no se disuelve en agua. Incorporalo en la fase oleosa y calentá hasta fundirlo junto con los aceites o ceras; luego emulsioná con la fase acuosa según el proceso de tu sistema emulsionante. Seguí las indicaciones del grado comercial que tengas y verificá que el proceso y la textura final funcionen en tu fórmula.",
+    "id": "alcohol_cetoestearilico",
+    "inci": "Cetearyl Alcohol",
+    "intro": "Si buscás más cuerpo y un tacto suave para una crema o un acondicionador, este ingrediente puede cumplir un rol interesante. Te contamos qué hace y cómo tenerlo en cuenta al formular.",
+    "keepInMind": "Aunque se llame alcohol, es un alcohol graso y no equivale al alcohol etílico. Su desempeño cambia según el grado, las proporciones y el sistema emulsionante. Probá la fórmula completa y observá su textura y estabilidad antes de darla por terminada.",
+    "name": "Alcohol Cetoestearílico",
+    "naturalCosmetics": "Puede obtenerse a partir de aceites vegetales o producirse por rutas sintéticas; el nombre INCI no alcanza para saber su origen. Si buscás una materia prima de origen vegetal para cosmética natural, confirmalo con el proveedor y revisá la documentación del grado específico.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el alcohol cetoestearílico a cremas y acondicionadores, cómo incorporarlo y qué tener en cuenta al formular.",
+    "seoTitle": "Alcohol Cetoestearílico | Berry's Nature",
+    "slug": "alcohol-cetoestearilico",
+    "subtitle": "Un alcohol graso que ayuda a dar textura y emoliencia a tus fórmulas.",
+    "useLevel": "No hay un nivel universal indicado para este ingrediente. La cantidad depende de la fórmula, el sistema emulsionante y el grado comercial; guiáte por la especificación de tu proveedor y ajustá mediante pruebas.",
+    "uses": [
+      "Cremas y lociones para el cuidado de la piel.",
+      "Acondicionadores y mascarillas capilares."
+    ],
+    "whatItIs": "El alcohol cetoestearílico es una mezcla de alcoholes grasos de cadena larga, principalmente cetílico y estearílico. Suele presentarse como un sólido blanco ceroso y casi no se disuelve en agua. No es alcohol etílico ni cumple la misma función: se usa para aportar textura y emoliencia en cosmética."
+  },
+  {
+    "cosmeticRole": "Aporta emoliencia y una sensación más cremosa. También ayuda a espesar y dar estructura a emulsiones, y puede contribuir a su estabilidad según el sistema completo. El resultado depende de cómo se combine con el emulsionante y los demás ingredientes.",
+    "formulationTips": [
+      "Fundilo en la fase oleosa antes de emulsionar; es prácticamente insoluble en agua.",
+      "Ajustá la cantidad de a poco: puede modificar el cuerpo y la viscosidad de la emulsión.",
+      "Probá la combinación con tu emulsionante y evaluá textura y estabilidad al enfriar."
+    ],
+    "h1": "Alcohol cetílico: textura y estructura",
+    "howToUse": "Incorporalo fundido en la fase oleosa, junto con los aceites y otros ingredientes lipófilos; después, emulsioná con la fase acuosa siguiendo el proceso de tu sistema emulsionante. Calentá lo necesario para que el grado comercial se funda: la temperatura y el manejo pueden variar. No lo tomes como sustituto automático del emulsionante principal y evaluá textura y estabilidad en la fórmula terminada.",
+    "id": "alcohol_cetilico",
+    "inci": "Cetyl Alcohol",
+    "intro": "Si buscás una textura más consistente y agradable al tacto, el alcohol cetílico puede ser un buen aliado de formulación. Se usa sobre todo para dar cuerpo a emulsiones y mejorar la sensorialidad, sin reemplazar por sí solo al emulsionante principal.",
+    "keepInMind": "No es un emulsionante universal ni reemplaza automáticamente al emulsionante principal. Su desempeño depende de la fórmula completa y del grado comercial. Probá cada ajuste en una muestra y observá la textura y la estabilidad del producto terminado.",
+    "name": "Alcohol Cetílico",
+    "naturalCosmetics": "El alcohol cetílico puede ser de origen vegetal, animal o de fabricación industrial. El INCI no permite distinguir la fuente, así que si el origen es importante para tu proyecto, pedile al proveedor una declaración de procedencia y trazabilidad. No lo llames vegetal o natural sin confirmación del grado que compraste.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el alcohol cetílico a cremas y acondicionadores, cómo incorporarlo y qué tener en cuenta sobre su origen.",
+    "seoTitle": "Alcohol Cetílico: usos y formulación | Berry's Nature",
+    "slug": "alcohol-cetilico",
+    "subtitle": "Un alcohol graso que aporta cuerpo, emoliencia y una sensación más cremosa a tus fórmulas.",
+    "useLevel": "No hay un nivel único aplicable a todas las fórmulas. Ajustá la cantidad según la textura buscada, la combinación de emulsionantes y el grado comercial; consultá las indicaciones correspondientes a ese grado.",
+    "uses": [
+      "Cremas hidratantes y otras emulsiones cosméticas.",
+      "Acondicionadores capilares.",
+      "Fórmulas en las que se busca más cuerpo y una sensación cremosa al aplicar."
+    ],
+    "whatItIs": "Es un alcohol graso de cadena larga, sólido y ceroso a temperatura ambiente. No es etanol ni un alcohol volátil: cumple una función tecnológica dentro de la fórmula. Su INCI es Cetyl Alcohol; el nombre INCI no indica de qué origen proviene."
+  },
+  {
+    "cosmeticRole": "Su función principal es aportar consistencia y espesar; también puede dar opacidad y contribuir a una sensación emoliente. En ciertas fórmulas participa en emulsiones y sistemas limpiadores. Si se neutraliza, puede formar estearatos con un comportamiento distinto al del ácido libre.",
+    "formulationTips": [
+      "Incorporalo fundido en la fase oleosa cuando la fórmula lo requiera.",
+      "Ajustá la agitación y el proceso según el sistema; observá dureza, viscosidad y estabilidad.",
+      "Si vas a neutralizarlo, tené en cuenta que formar estearatos modifica su comportamiento.",
+      "Probá la fórmula final: pequeñas variaciones pueden cambiar la textura y la consistencia."
+    ],
+    "h1": "Ácido Esteárico: estructura y consistencia",
+    "howToUse": "Como tiene muy baja solubilidad en agua, suele incorporarse fundido en la fase oleosa, con calentamiento y agitación adecuada. Seguí las indicaciones del grado comercial elegido: el punto de fusión y el comportamiento pueden variar. Si buscás formar estearatos mediante neutralización, considerá que cambia el proceso; el ácido libre y sus sales no son intercambiables. Evaluá la textura, la estabilidad y el pH del producto terminado según el sistema que estés formulando.",
+    "id": "acido_estearico",
+    "inci": "Stearic Acid",
+    "intro": "Si querés ajustar la textura de una emulsión, un bálsamo o una barra, el ácido esteárico puede cumplir un papel estructurante. Su resultado depende del conjunto de la fórmula y de cómo lo incorpores.",
+    "keepInMind": "El grado comercial y el sistema donde lo uses influyen en su desempeño. No confundas el ácido esteárico con sus sales: pueden tener propiedades y usos diferentes. Observá cómo cambia la consistencia y validá estabilidad en el producto terminado.",
+    "name": "Ácido Esteárico",
+    "naturalCosmetics": "En cosmética natural, no lo des por vegetal solo por su nombre: el ácido esteárico puede tener origen vegetal o animal, o provenir de procesos industriales. Confirmá la fuente del insumo con quien lo comercializa y elegí según los criterios de tu proyecto. El origen no reemplaza la evaluación de la fórmula completa.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el ácido esteárico, en qué cosméticos se usa y qué tener en cuenta al incorporarlo en tus fórmulas.",
+    "seoTitle": "Ácido Esteárico: usos cosméticos | Berry's Nature",
+    "slug": "acido-estearico",
+    "subtitle": "Un ácido graso que ayuda a dar cuerpo, opacidad y textura a distintas fórmulas cosméticas.",
+    "useLevel": "No hay un nivel único que sirva para todas las fórmulas. Definilo según el objetivo de textura, el sistema y el grado comercial; consultá las indicaciones del producto elegido y validá el resultado en tu fórmula.",
+    "uses": [
+      "Jabones y sistemas limpiadores.",
+      "Bálsamos y barras cosméticas.",
+      "Emulsiones densas y productos de cuidado de la piel o maquillaje."
+    ],
+    "whatItIs": "Es un ácido graso de 18 carbonos que se presenta como un sólido ceroso a temperatura ambiente y se disuelve muy poco en agua. En cosmética se utiliza como materia prima funcional: el nombre INCI no alcanza para saber si el insumo proviene de fuentes vegetales, animales o de procesos industriales. Revisá el origen declarado para el grado que elijas."
+  },
+  {
+    "cosmeticRole": "En una fórmula puede actuar como humectante, solvente o vehículo, y ayudar a compatibilizar ciertos componentes. También puede influir en la viscosidad. Ninguna de estas funciones asegura por sí sola que un activo se disuelva o que una mezcla quede estable: hay que evaluar la fórmula completa.",
+    "formulationTips": [
+      "Probá primero la solubilidad del componente que querés vehiculizar; no presupongas compatibilidad universal.",
+      "Incorporalo en la fase acuosa o premezclalo con agua, y evaluá el orden de adición en tu fórmula.",
+      "Observá cambios de viscosidad y estabilidad en el producto terminado.",
+      "Tomá como referencia la información del grado comercial específico para definir cantidad y temperatura."
+    ],
+    "h1": "Propilenglicol USP en cosmética",
+    "howToUse": "Podés incorporarlo en la fase acuosa o premezclarlo con agua, ya que ambos se mezclan. Definí el orden de agregado y la temperatura según el grado comercial elegido y las características de tu fórmula. Si lo usás para vehiculizar otro componente, comprobá que realmente se disuelva y observá el producto terminado durante pruebas de estabilidad.",
+    "id": "propilenglicol",
+    "inci": "Propylene Glycol",
+    "intro": "El propilenglicol USP es un líquido soluble en agua que se usa en cosmética como humectante y vehículo. Puede formar parte de geles, sérums y extractos fluidos; su aporte concreto depende de los demás ingredientes y del producto que estés formulando.",
+    "keepInMind": "La denominación USP describe un grado, no una promesa sobre el origen ni el desempeño en cualquier fórmula. Revisá la identidad y características del producto elegido, y evaluá tolerancia y estabilidad en el cosmético final.",
+    "name": "Propilenglicol USP",
+    "naturalCosmetics": "Si buscás una propuesta de cosmética natural, verificá el origen y la ruta de producción del propilenglicol ofrecido: puede ser fósil o tener origen bio-basado, según el proveedor. Una atribución bio-basada o reciclada no implica necesariamente que cada molécula del lote provenga físicamente de esa fuente. Considerá también los criterios de tu proyecto y cómo querés comunicar el ingrediente.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el propilenglicol USP, en qué cosméticos se usa y qué tener en cuenta al incorporarlo en una fórmula.",
+    "seoTitle": "Propilenglicol USP: usos en cosmética | Berry's Nature",
+    "slug": "propilenglicol",
+    "subtitle": "Un ingrediente versátil que puede ayudar a vehiculizar y humectar, según la fórmula.",
+    "useLevel": "No hay un nivel universal indicado para todas las fórmulas. La cantidad depende del producto, los demás ingredientes y el grado comercial; consultá la información del grado que elegiste y ajustá mediante ensayos de formulación.",
+    "uses": [
+      "Geles y sérums, de acuerdo con la compatibilidad de sus ingredientes.",
+      "Extractos fluidos y otras preparaciones donde se busque un vehículo soluble en agua."
+    ],
+    "whatItIs": "Es un diol, un tipo de compuesto que puede retener humedad y mezclarse con agua. El grado USP identifica una calidad del ingrediente, no una función cosmética distinta. Su origen puede variar: según el proveedor, se obtiene a partir de materias primas fósiles, bio-basadas o con contenido reciclado atribuido. Por eso, no corresponde asumir que todo propilenglicol es de origen vegetal o natural."
+  },
+  {
+    "cosmeticRole": "Su función principal es humectante: ayuda a retener agua en la fórmula. También actúa como acondicionador de la piel. En productos pertinentes para uso oral puede cumplir una función saborizante, según la formulación.",
+    "formulationTips": [
+      "Disolvé el polvo en la fase acuosa o prepará una solución previa.",
+      "Si elegís un grado líquido, contabilizá el agua que incorpora al balance de la fórmula.",
+      "Observá cómo modifica la viscosidad y la sensación final del producto.",
+      "Verificá las indicaciones del grado comercial elegido antes de fijar el proceso."
+    ],
+    "h1": "Sorbitol: un humectante versátil",
+    "howToUse": "En polvo, suele disolverse en agua; podés incorporarlo a la fase acuosa o disolverlo previamente antes de sumar esa solución a la fórmula. Si usás una presentación líquida, tené en cuenta que ya aporta agua y ajustá la composición en consecuencia. Adaptá el proceso a la presentación y a las características del producto: no hay una temperatura u orden de incorporación universal para todos los grados.",
+    "id": "sorbitol",
+    "inci": "Sorbitol",
+    "intro": "El sorbitol es un ingrediente funcional que puede sumar humectación y acondicionamiento a productos de cuidado personal. Lo encontrás en distintas presentaciones; la elegida y su efecto dependen de la fórmula y del grado comercial.",
+    "keepInMind": "El sorbitol puede influir tanto en la viscosidad como en la sensación sobre la piel, así que probá la fórmula completa y ajustá según el resultado. Las presentaciones sólida y líquida no son intercambiables sin revisar el aporte de agua y el proceso. La procedencia por sí sola no determina cómo se comportará el ingrediente en tu producto.",
+    "name": "Sorbitol",
+    "naturalCosmetics": "El sorbitol puede tener origen vegetal, pero no conviene asumir que todo producto comercial es natural: también se obtiene mediante procesos industriales a partir de azúcares vegetales. Confirmá el origen y las características del insumo con quien lo provee. En cosmética natural, evaluá además cómo encaja ese material en el criterio de formulación que estés siguiendo.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el sorbitol como humectante, en qué cosméticos se usa y qué tener en cuenta al incorporarlo en tus fórmulas.",
+    "seoTitle": "Sorbitol: humectante para cosmética | Berry's Nature",
+    "slug": "sorbitol",
+    "subtitle": "Ayuda a retener agua en la fórmula y aporta acondicionamiento en distintos tipos de cosméticos.",
+    "useLevel": "El nivel de uso depende del tipo de producto, el resultado buscado y el grado comercial. Definilo a partir de la información del material elegido y de pruebas en tu propia fórmula; no hay un rango único aplicable a todas las presentaciones.",
+    "uses": [
+      "Geles y lociones, según las necesidades de la fórmula.",
+      "Shampoos y pastas cosméticas.",
+      "Productos de cuidado oral cuando la formulación lo requiere."
+    ],
+    "whatItIs": "También llamado D-glucitol, el sorbitol es un polialcohol relacionado químicamente con la glucosa. Puede presentarse como sólido cristalino o como solución acuosa. Aunque está presente de forma natural en algunas frutas, el sorbitol comercial puede obtenerse industrialmente a partir de azúcares vegetales. Para conocer el origen de un insumo concreto, consultá la información de quien lo provee."
+  },
+  {
+    "cosmeticRole": "En productos de enjuague actúa principalmente como agente limpiador y espumante. También puede cumplir funciones tecnológicas de emulsificación, estabilización o solubilización, según la composición y el diseño de la fórmula.",
+    "formulationTips": [
+      "Incorporalo gradualmente y mezclá con moderación para reducir la formación de espuma durante el proceso.",
+      "Ajustá los cálculos a la materia activa indicada para el grado comercial elegido.",
+      "Comprobá viscosidad, claridad y estabilidad en la fórmula final.",
+      "Evaluá la combinación con otros tensioactivos y electrolitos en tu propia fórmula."
+    ],
+    "h1": "Lauril Éter Sulfato de Sodio (LESS)",
+    "howToUse": "En una fórmula acuosa, podés incorporarlo de a poco a la fase acuosa con agitación moderada para ayudar a homogeneizar y limitar la espuma durante el mezclado. Calculá la cantidad según la materia activa del grado que tengas y evaluá la fórmula terminada: observá viscosidad, claridad y estabilidad. No hay un único proceso que aplique a todos los grados; revisá la información técnica del material y hacé pruebas a pequeña escala.",
+    "id": "lauril_eter_sulfato_sodio",
+    "inci": "Sodium Laureth Sulfate",
+    "intro": "El LESS es un ingrediente habitual en productos de limpieza cosmética. Acá te contamos qué aporta, dónde suele usarse y qué conviene tener en cuenta al formularlo.",
+    "keepInMind": "La suavidad percibida depende de la concentración y de los otros tensioactivos presentes; no se deduce solo del nombre del ingrediente. Los distintos grados pueden variar, así que revisá sus especificaciones y probá la fórmula terminada. El origen vegetal no equivale por sí solo a una categoría natural.",
+    "name": "Lauril Éter Sulfato de Sodio (LESS)",
+    "naturalCosmetics": "El origen puede ser parcialmente vegetal si se parte de alcoholes grasos vegetales, pero su elaboración incluye etoxilación y sulfatación, transformaciones químicas. También pueden emplearse materias primas de origen fósil. Por eso, no lo clasifiques automáticamente como natural o sintético sin conocer la trazabilidad y el criterio que estés usando; considerá el perfil completo del insumo y de la fórmula.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué hace el LESS, en qué cosméticos se usa y qué observar al incorporarlo en fórmulas de enjuague y cosmética natural.",
+    "seoTitle": "Lauril Éter Sulfato de Sodio | Berry's Nature",
+    "slug": "lauril-eter-sulfato-sodio",
+    "subtitle": "Un tensioactivo limpiador y espumante para fórmulas de enjuague.",
+    "useLevel": "No hay un nivel de uso universal: depende de la fórmula, la materia activa y el grado comercial, que puede presentarse más concentrado o diluido. Definilo según las especificaciones del material y las necesidades del producto final.",
+    "uses": [
+      "Shampoos.",
+      "Geles de ducha.",
+      "Limpiadores cosméticos de enjuague, según la fórmula."
+    ],
+    "whatItIs": "Es un tensioactivo aniónico, es decir, ayuda a desprender la suciedad y facilitar su enjuague. Su INCI, Sodium Laureth Sulfate, comprende mezclas de alcoholes grasos etoxilados y luego sulfatados; no corresponde a una única molécula de composición fija. El grado comercial y sus especificaciones pueden variar."
+  },
+  {
+    "cosmeticRole": "Además de colaborar con la limpieza, puede contribuir a la espuma y a modular la viscosidad. En mezclas con otros tensioactivos también puede mejorar la percepción sensorial, aunque el resultado depende de la fórmula completa y del grado utilizado.",
+    "formulationTips": [
+      "Incorporala de forma gradual y mezclá lo necesario para lograr una preparación homogénea.",
+      "Evitá agitar en exceso: la aireación puede dificultar la evaluación de la espuma y la viscosidad.",
+      "Probá la combinación con otros tensioactivos en la fórmula final; sales, pH y concentración activa pueden cambiar el resultado.",
+      "Tomá los datos de pH o proceso como propios del grado consultado, no como valores universales."
+    ],
+    "h1": "Cocoamidopropil Betaína: qué es y para qué se usa",
+    "howToUse": "En el grado consultado es soluble en agua y puede incorporarse a la fase acuosa. Agregala con agitación suficiente para homogeneizar, procurando no batir de más para evitar incorporar aire. El orden de incorporación y cualquier condición particular dependen del grado comercial: verificá las indicaciones específicas del insumo. Puede combinarse con otros tensioactivos para ajustar limpieza, espuma o viscosidad; evaluá el resultado en la fórmula completa.",
+    "id": "cocoamidopropil_betaina",
+    "inci": "Cocamidopropyl Betaine",
+    "intro": "Si formulás productos de limpieza, este ingrediente puede ayudarte a construir una experiencia más equilibrada. Acá te contamos qué hace, dónde suele usarse y qué mirar al incorporarlo.",
+    "keepInMind": "La tolerancia y el desempeño dependen tanto de la calidad y el grado del insumo como de la fórmula completa. No extrapoles a todos los productos datos de un único grado; observá cómo responde tu preparación y seguí las indicaciones específicas disponibles.",
+    "name": "Cocoamidopropil Betaína",
+    "naturalCosmetics": "En cosmética natural, distinguí el origen de una parte de las materias primas del ingrediente final: que pueda derivar parcialmente del coco no significa que sea una sustancia sin transformación ni que el producto final sea automáticamente natural. Considerá el grado, su documentación y el posicionamiento que querés dar a tu fórmula, sin asumir que natural equivale a inocuo o que sintético equivale a peligroso.",
+    "readingMinutes": 3,
+    "seoDescription": "Conocé qué aporta la Cocoamidopropil Betaína a shampoos y limpiadores, cómo incorporarla y qué observar al formular cosmética natural.",
+    "seoTitle": "Cocoamidopropil Betaína: usos | Berry's Nature",
+    "slug": "cocoamidopropil-betaina",
+    "subtitle": "Un tensioactivo anfótero que acompaña la limpieza y ayuda a ajustar la espuma de tus fórmulas.",
+    "useLevel": "No hay un nivel de uso universal que pueda recomendarse para todos los grados y productos. Definilo según la función buscada, la composición de la fórmula y las indicaciones del grado comercial que tengas.",
+    "uses": [
+      "Shampoos y otros limpiadores capilares.",
+      "Limpiadores faciales.",
+      "Geles de baño y productos de higiene corporal."
+    ],
+    "whatItIs": "La Cocoamidopropil Betaína es un tensioactivo anfótero: en agua presenta grupos con carga positiva y negativa. El nombre reúne una mezcla de compuestos derivados de ácidos grasos del coco, por eso su composición puede variar entre grados comerciales. Se usa sobre todo en productos cosméticos de limpieza. Aunque parte de sus materias primas puede tener origen vegetal, el ingrediente requiere transformación química y otros reactivos; no corresponde describirlo simplemente como un ingrediente natural."
+  },
+  {
+    "cosmeticRole": "Puede potenciar y estabilizar la espuma, contribuir a modificar la viscosidad y aportar humectación. En una fórmula, su desempeño depende de la combinación con los demás tensioactivos, el espesante y las condiciones del producto; no conviene tomar cada función como un resultado garantizado.",
+    "formulationTips": [
+      "Probá cómo se integra con los demás tensioactivos y con el espesante elegido.",
+      "Incorporalo gradualmente y mezclá de manera pareja para evaluar su efecto en textura y espuma.",
+      "Controlá el pH final: puede influir en las propiedades de la fórmula.",
+      "Ensayá el proceso y la estabilidad en una muestra antes de escalar la elaboración."
+    ],
+    "h1": "Óxido de Lauramina en cosmética",
+    "howToUse": "Como muchos grados se ofrecen en solución acuosa, suele ser posible incorporarlo en la fase acuosa o durante la mezcla con los tensioactivos. El orden de agregado, la temperatura y el ajuste de pH dependen del grado comercial y de tu fórmula: seguí las indicaciones del proveedor y probá el proceso en una muestra pequeña. Evaluá el aspecto, la espuma y la viscosidad una vez que la preparación esté homogénea.",
+    "id": "oxido_lauramina",
+    "inci": "Lauramine Oxide",
+    "intro": "Si estás formulando un shampoo, una espuma facial o un gel de baño, el Óxido de Lauramina puede acompañar la limpieza y mejorar la experiencia de uso. Su aporte concreto depende de cómo se combine con el resto de la fórmula.",
+    "keepInMind": "El desempeño no se define por un ingrediente aislado: observá la combinación de tensioactivos, el espesante, el pH y el proceso. Hacé pruebas en la fórmula terminada y revisá la información específica del grado comercial que tengas, porque sus características pueden variar.",
+    "name": "Óxido de Lauramina",
+    "naturalCosmetics": "Si buscás formular cosmética natural, no lo des por vegetal solo por su nombre. Puede elaborarse a partir de materias primas de cadena grasa vegetal, pero el INCI no confirma el origen de un grado particular. Consultá trazabilidad y declaración del fabricante; luego evaluá si ese ingrediente se ajusta a los criterios de tu proyecto.",
+    "readingMinutes": 3,
+    "seoDescription": "Conocé qué aporta el Óxido de Lauramina a shampoos y geles, cómo incorporarlo en términos generales y qué mirar al formular.",
+    "seoTitle": "Óxido de Lauramina: uso en cosmética | Berry's Nature",
+    "slug": "oxido-lauramina",
+    "subtitle": "Un tensioactivo auxiliar que ayuda a formar espuma y ajustar la textura de productos de limpieza.",
+    "useLevel": "El nivel de uso depende de la fórmula y del grado comercial. No hay un rango único que pueda aplicarse a todos los productos: definilo con la documentación del grado que compraste y ensayos en tu formulación final.",
+    "uses": [
+      "Shampoos y limpiadores capilares.",
+      "Espumas faciales.",
+      "Geles de baño y productos de limpieza corporal."
+    ],
+    "whatItIs": "Es un tensioactivo auxiliar, habitualmente comercializado como una solución acuosa. Su INCI es Lauramine Oxide. El nombre no alcanza para saber de dónde provienen las materias primas de cada grado: puede elaborarse con materias primas de cadena grasa vegetal o de otras fuentes. Para conocer el origen de un producto específico, pedile esa información a quien te lo provee."
+  },
+  {
+    "cosmeticRole": "Acondiciona y suaviza el cabello, ayuda a desenredarlo y facilita el peinado en húmedo. También contribuye a reducir la electricidad estática. En sistemas adecuados puede cumplir funciones de tensioactivo catiónico y coemulsionante; el resultado depende del conjunto de la fórmula.",
+    "formulationTips": [
+      "Revisá la concentración y presentación del grado comercial antes de calcular la fórmula.",
+      "Si lo incorporás en fase acuosa, comprobá que quede bien distribuido y homogéneo.",
+      "Hacé pruebas de estabilidad y compatibilidad en la fórmula completa.",
+      "No des por compatible su combinación con tensioactivos aniónicos: puede formar complejos o precipitados."
+    ],
+    "h1": "Cloruro de Cetrimonio: acondicionamiento capilar",
+    "howToUse": "El modo de incorporación depende de la presentación comercial. Algunos grados líquidos acuosos pueden agregarse a la fase acuosa; si trabajás con material sólido o una concentración distinta, confirmá cómo disolverlo y procesarlo para ese grado. Mezclá lo suficiente para lograr una distribución homogénea. Validá en tu fórmula el orden de incorporación, la temperatura y el pH final, en lugar de asumir que hay un método único.",
+    "id": "cloruro_cetrimonio",
+    "inci": "Cetrimonium Chloride",
+    "intro": "Si formulás productos para el pelo, el cloruro de cetrimonio puede ser útil cuando buscás mejorar el deslizamiento y el peinado en húmedo. Acá te contamos qué hace y qué tener presente al incorporarlo.",
+    "keepInMind": "La compatibilidad, el método de incorporación y el desempeño varían según el grado comercial y el resto de la fórmula. No extrapoles datos de una presentación a otra: revisá la información correspondiente al producto que tenés y hacé pruebas antes de escalar.",
+    "name": "Cloruro de Cetrimonio",
+    "naturalCosmetics": "Puede tener una cadena grasa de origen vegetal o animal, pero el INCI no permite identificar la procedencia. Además, se transforma químicamente en una sal de amonio cuaternario; por eso, no corresponde presentarlo simplemente como un ingrediente natural. Si buscás formular cosmética natural, verificá el origen y el procesamiento del grado concreto y evaluá si encaja con los criterios de tu proyecto.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el cloruro de cetrimonio al cabello y cómo considerarlo al formular acondicionadores y otros cosméticos capilares.",
+    "seoTitle": "Cloruro de Cetrimonio | Berry's Nature",
+    "slug": "cloruro-cetrimonio",
+    "subtitle": "Un ingrediente catiónico que ayuda a suavizar, desenredar y facilitar el peinado.",
+    "useLevel": "No hay un nivel universal indicado para todos los grados. La cantidad depende de la fórmula y de la concentración del producto comercial; seguí la indicación específica del grado que uses y evaluá el resultado en pruebas de formulación.",
+    "uses": [
+      "Acondicionadores para el cabello.",
+      "Mascarillas capilares.",
+      "Productos para peinar.",
+      "Fórmulas capilares acondicionadoras que admitan un catiónico."
+    ],
+    "whatItIs": "Es una sal catiónica de amonio cuaternario que se usa principalmente como acondicionador capilar. Su carga positiva favorece su deposición sobre la superficie del cabello. El INCI no alcanza para saber de dónde proviene su cadena grasa: según el proveedor, puede derivar de materias primas vegetales o animales, y su transformación química forma parte de la obtención del ingrediente."
+  },
+  {
+    "cosmeticRole": "Su función principal es espesar y modificar la viscosidad. También puede contribuir a estabilizar emulsiones, mantener partículas dispersas y formar una película superficial. El resultado depende de la fórmula y del grado de goma elegido.",
+    "formulationTips": [
+      "Incorporala gradualmente con agitación para minimizar grumos.",
+      "Dale tiempo para hidratarse antes de juzgar la viscosidad final.",
+      "Probá la textura en la fórmula completa: pH, sales y otros componentes pueden influir.",
+      "Tomá el proceso y las recomendaciones del grado comercial como referencia."
+    ],
+    "h1": "Goma Xantana: textura y estabilidad en cosmética",
+    "howToUse": "Se incorpora en la fase acuosa. Agregala de a poco mientras mezclás para favorecer una buena dispersión y reducir la formación de grumos; después, dejala hidratar. Algunos procesos permiten pre-dispersarla o usar agua tibia para facilitar la incorporación, aunque también puede trabajarse en frío. No se disuelve en aceite: necesita agua para hidratarse y desarrollar viscosidad. Seguí las indicaciones correspondientes al grado que tengas y evaluá el resultado en tu fórmula.",
+    "id": "goma_xantana",
+    "inci": "Xanthan Gum",
+    "intro": "Si buscás mejorar la textura de un gel, sérum o loción, la goma xantana puede ser una aliada versátil. Te contamos qué hace y cómo tenerla en cuenta al formular.",
+    "keepInMind": "La viscosidad y la estabilidad pueden variar con el pH, las sales, los solventes y el resto de los ingredientes. No des por hecho que un resultado observado con un grado se repetirá con otro: hacé pruebas pequeñas y evaluá la fórmula terminada.",
+    "name": "Goma Xantana",
+    "naturalCosmetics": "Por su origen de fermentación, se considera un ingrediente biotecnológico; no es simplemente un extracto vegetal. El origen del sustrato y las etapas de procesamiento pueden variar, así que revisá la información del grado específico si ese aspecto es importante para tu proyecto. Que sea de origen biotecnológico no define por sí solo cómo se comporta ni la calidad de una fórmula.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta la goma xantana a geles, sérums y lociones, cómo incorporarla y qué observar al formular cosmética natural.",
+    "seoTitle": "Goma Xantana: usos y formulación | Berry's Nature",
+    "slug": "goma-xantana",
+    "subtitle": "Un ingrediente biotecnológico que ayuda a dar cuerpo a las fórmulas acuosas.",
+    "useLevel": "No hay un nivel único que pueda aplicarse a todos los grados y fórmulas. La cantidad adecuada depende de la textura buscada, el proceso y el grado comercial; consultá la recomendación específica del material y hacé pruebas en tu preparación.",
+    "uses": [
+      "Geles y sérums acuosos, para aportar cuerpo y mejorar la textura.",
+      "Lociones y emulsiones, donde puede colaborar con la estabilidad.",
+      "Preparaciones con partículas dispersas, para ayudar a mantenerlas distribuidas."
+    ],
+    "whatItIs": "La goma xantana es un polisacárido producido mediante fermentación bacteriana de azúcares. En cosmética se usa sobre todo para modificar la consistencia de sistemas con agua. No es un ingrediente vegetal extraído directamente de una planta: su origen es biotecnológico, y el sustrato y el procesamiento pueden variar según el grado comercial."
+  },
+  {
+    "cosmeticRole": "Aporta viscosidad y estructura. Según el grado y el sistema, también puede ayudar a mantener partículas dispersas o contribuir a la estabilidad de una emulsión. Son funciones físicas de formulación, no efectos sobre la piel.",
+    "formulationTips": [
+      "Agregalo gradualmente en agua y asegurate de que el polvo se moje y disperse antes de seguir.",
+      "Usá un neutralizante compatible; el orden y el pH de trabajo dependen del grado y de la fórmula.",
+      "Probá la viscosidad y el pH final en una muestra representativa de tu preparación.",
+      "Tené presente que los electrolitos pueden reducir su desempeño; la tolerancia varía entre grados."
+    ],
+    "h1": "Carbómero: qué es y cómo se usa en cosmética",
+    "howToUse": "Dispersalo de a poco en la fase acuosa con una agitación que permita mojar bien el polvo y distribuirlo, así reducís la formación de grumos. Luego dejalo hidratar y desarrollá la viscosidad mediante un neutralizante compatible. El orden de incorporación, el neutralizante y el pH objetivo dependen del grado y de la fórmula; consultá la indicación del grado comercial y probá el proceso en una muestra pequeña. Evitá sostenerlo bajo cizallamiento intenso durante mucho tiempo.",
+    "id": "carbomer",
+    "inci": "Carbomer",
+    "intro": "Si buscás una textura de gel o querés espesar una preparación acuosa, el carbómero puede cumplir ese rol. Su resultado depende del grado comercial y de cómo lo integres a la fórmula.",
+    "keepInMind": "Carbomer reúne grados con comportamientos distintos. La presencia de electrolitos puede afectar la viscosidad y la estructura del gel, y no todos los grados responden igual. Revisá la indicación correspondiente al insumo que tengas y observá cómo cambia la fórmula al neutralizarla y ajustar sus componentes.",
+    "name": "Carbómero",
+    "naturalCosmetics": "El carbómero descrito acá es un polímero sintético, no un insumo vegetal, biotecnológico ni mineral. Si formulás cosmética natural, tenelo en cuenta al definir el perfil y los criterios de selección de tu producto; no lo presentes como natural. La elección entre ingredientes se evalúa en el contexto de la fórmula, sin asumir que el origen por sí solo determina sus propiedades.",
+    "readingMinutes": 3,
+    "seoDescription": "Conocé qué aporta el carbómero a geles y sérums, cómo dispersarlo y qué tener en cuenta al formular cosmética natural.",
+    "seoTitle": "Carbómero: usos y formulación | Berry's Nature",
+    "slug": "carbomer",
+    "subtitle": "Un polímero gelificante para dar cuerpo y estructura a distintas fórmulas.",
+    "useLevel": "No hay un nivel universal aplicable a toda la familia: la cantidad depende del grado comercial, la textura buscada y el resto de la fórmula. Guiate por las instrucciones específicas del grado y validá el resultado en tu preparación.",
+    "uses": [
+      "Geles cosméticos de fase acuosa.",
+      "Sérums y otras preparaciones fluidas que buscan más cuerpo.",
+      "Fórmulas con partículas en suspensión, según el grado y el sistema.",
+      "Emulsiones en las que se busca apoyo en la estabilidad, según la fórmula."
+    ],
+    "whatItIs": "Carbomer es el nombre INCI de una familia de polímeros sintéticos de ácido acrílico, de alto peso molecular y reticulados. No describe un único grado idéntico: las características pueden variar entre versiones comerciales. En cosmética se emplea para modificar la consistencia y formar estructuras de gel."
+  },
+  {
+    "cosmeticRole": "Ayuda a reducir la transparencia y a crear una apariencia nacarada o perlada. En algunos grados también puede funcionar como emulsionante no iónico de bajo HLB y contribuir a estabilizar emulsiones; ese desempeño depende del producto comercial y del diseño de la fórmula.",
+    "formulationTips": [
+      "Revisá el punto de fusión y el proceso recomendado para el grado que tenés.",
+      "En sistemas tensioactivos, observá si la apariencia perlada se desarrolla de manera uniforme.",
+      "Probá el producto terminado tras el enfriado y durante su estabilidad; el resultado puede variar entre fórmulas."
+    ],
+    "h1": "Diestearato de Etilenglicol",
+    "howToUse": "Es insoluble en agua y suele requerir calentamiento para fundirse e incorporarse. Según la fórmula y el grado, puede añadirse a una fase oleosa o a una fase tensioactiva caliente. Seguí el procedimiento indicado para tu lote y asegurate de lograr una dispersión o disolución uniforme antes de continuar el proceso; el aspecto final también depende del sistema tensioactivo y del enfriado.",
+    "id": "glycol_distearate",
+    "inci": "Glycol Distearate",
+    "intro": "Si buscás un efecto perlado en un producto de higiene o cuidado, este ingrediente puede cumplir un rol visual y de textura. Su resultado depende del grado comercial y de cómo se integra en la fórmula.",
+    "keepInMind": "La apariencia perlada depende del proceso y de la compatibilidad con el sistema tensioactivo. El calentamiento necesario y el desempeño varían entre grados, y su uso como emulsionante no garantiza por sí solo la estabilidad de una fórmula. Hacé pruebas en tu sistema completo.",
+    "name": "Diestearato de Etilenglicol",
+    "naturalCosmetics": "El nombre del ingrediente no permite afirmar que sea de origen natural: puede elaborarse con materias primas de distintos orígenes. Si formulás cosmética natural, verificá la procedencia y la trazabilidad del grado específico, y evaluá si se ajusta a los criterios de tu proyecto. No generalices el origen declarado para un producto comercial a todos los ingredientes con este INCI.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el diestearato de etilenglicol, en qué cosméticos se usa y qué tener en cuenta al formular con él.",
+    "seoTitle": "Diestearato de Etilenglicol | Berry's Nature",
+    "slug": "glycol-distearate",
+    "subtitle": "Un ingrediente que aporta opacidad y un acabado nacarado a distintas fórmulas cosméticas.",
+    "useLevel": "No hay un nivel universal indicado para todos los grados. Definilo según la fórmula, el efecto visual que buscás y las instrucciones del proveedor del insumo; no extrapoles una dosificación de otro producto comercial.",
+    "uses": [
+      "Champús, para un acabado perlado.",
+      "Geles de ducha y jabones líquidos, para opacificar y dar apariencia nacarada.",
+      "Cremas y lociones, según el grado y la función buscada en la emulsión."
+    ],
+    "whatItIs": "El diestearato de etilenglicol es un éster que se presenta comercialmente como sólido ceroso o en escamas. Se usa sobre todo como opacificante y nacarante. El nombre INCI no alcanza para conocer el origen de las materias primas ni las características de cada grado: conviene revisar la documentación específica del insumo."
+  },
+  {
+    "cosmeticRole": "Su función es conservante: contribuye a limitar el crecimiento de microorganismos susceptibles dentro de la fórmula. No ofrece protección universal por sí solo; su desempeño depende del pH, la composición del producto y los microorganismos a controlar.",
+    "formulationTips": [
+      "Disolvé las sales en la fase acuosa y mezclá hasta lograr una incorporación uniforme.",
+      "Medí el pH de la fórmula terminada: la actividad de estas sales disminuye cuando el pH sube.",
+      "No des por hecho que una dosis conserva cualquier producto; verificá el desempeño con pruebas adecuadas."
+    ],
+    "h1": "Benzoato de Sodio y Sorbato de Potasio",
+    "howToUse": "En general, se incorpora disuelto en agua o en la fase acuosa, con agitación suficiente. Si tenés una premezcla líquida, seguí las indicaciones correspondientes a ese producto. No hay un orden de adición ni una condición de temperatura universal para todos los grados comerciales: consultá la información del insumo que estés usando. Después, revisá el pH de la fórmula y evaluá la conservación del producto terminado con pruebas apropiadas.",
+    "id": "benzoato_sodio_sorbato_potasio",
+    "inci": "Sodium Benzoate, Potassium Sorbate",
+    "intro": "El benzoato de sodio y el sorbato de potasio son dos sales conservantes que pueden ayudar a limitar el crecimiento de ciertos microorganismos en cosméticos con agua. Para formular con criterio, es importante considerar el pH y evaluar el producto terminado.",
+    "keepInMind": "El pH y la matriz pueden modificar la eficacia, así que el sistema no debe considerarse una solución universal. Elegí el grado en función de tu fórmula y verificá la conservación del producto terminado; el nivel de uso y las condiciones de incorporación también pueden variar.",
+    "name": "Benzoato de Sodio y Sorbato de Potasio",
+    "naturalCosmetics": "Si formulás cosmética natural, distinguí entre el origen de los ácidos relacionados y el de las sales comerciales: estas pueden obtenerse por procesos industriales. Confirmá con tu proveedor el origen y las características del grado disponible. La etiqueta “natural” no reemplaza la evaluación de la fórmula ni la verificación de su conservación.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé cómo actúa este sistema conservante, en qué cosméticos acuosos se usa y qué tener en cuenta al formular según el pH.",
+    "seoTitle": "Benzoato de Sodio y Sorbato de Potasio | Berry's Nature",
+    "slug": "benzoato-sodio-sorbato-potasio",
+    "subtitle": "Un sistema conservante para fórmulas acuosas, cuyo desempeño depende del pH y de cada fórmula.",
+    "useLevel": "El nivel de uso depende de la fórmula, el pH y el grado comercial. Seguí la indicación del proveedor para el insumo específico; no hay un rango único que pueda aplicarse a todas las preparaciones.",
+    "uses": [
+      "Cremas y lociones con fase acuosa, si el sistema de conservación resulta adecuado.",
+      "Geles, tónicos y otras preparaciones acuosas, según el pH y la fórmula."
+    ],
+    "whatItIs": "No se trata de un único compuesto, sino de la combinación de Sodium Benzoate (sal de sodio del ácido benzoico) y Potassium Sorbate (sal de potasio del ácido sórbico). Aunque los ácidos relacionados pueden encontrarse en la naturaleza, las sales comerciales pueden producirse mediante síntesis o neutralización industrial. El origen y el proceso dependen del proveedor; por eso no conviene asumir que el sistema es de origen natural."
+  },
+  {
+    "cosmeticRole": "Actúan como conservantes y contribuyen a cuidar la fórmula durante su uso. Que cumplan esa función no reemplaza la evaluación del producto terminado: la eficacia depende de la composición y del proceso, y conviene comprobarla en la fórmula final.",
+    "formulationTips": [
+      "Confirmá que el ingrediente esté completamente disuelto antes de juzgar su uniformidad.",
+      "Elegí fase, vehículo y temperatura a partir de la información del grado comercial.",
+      "Al enfriar o diluir, observá si aparecen cristales o cambios en la fórmula.",
+      "Comprobá la estabilidad y la eficacia del sistema conservante en el producto final."
+    ],
+    "h1": "Parabenos (Metilparabeno y Propilparabeno): usos cosméticos",
+    "howToUse": "Si trabajás con el ingrediente en polvo, necesitás disolverlo por completo antes de evaluar si quedó distribuido de manera uniforme. Consultá la información del grado comercial para elegir vehículo o solvente, fase y temperatura: puede requerir predisolución o calor, pero no hay una condición única para todas las fórmulas. Incorporalo con buena agitación siguiendo el proceso definido y revisá que no recristalice al enfriar o al diluir. Si usás una mezcla ya predisuelta, respetá el vehículo y las indicaciones propias de esa materia prima. Después, evaluá estabilidad y eficacia en el producto terminado.",
+    "id": "parabenos",
+    "inci": "Methylparaben, Propylparaben",
+    "intro": "El metilparabeno y el propilparabeno pertenecen a la familia de los parabenos. En una fórmula cosmética, su papel principal es ayudar a proteger el producto frente al deterioro microbiano.",
+    "keepInMind": "La solubilidad en agua es limitada, sobre todo para el propilparabeno, y no hay un pH ni una compatibilidad universal que pueda darse por válida para todas las fórmulas. Prestá atención a la disolución, la uniformidad y la posible recristalización. La respuesta depende de la fórmula y debe verificarse en el producto terminado.",
+    "name": "Parabenos (Metilparabeno y Propilparabeno)",
+    "naturalCosmetics": "Si formulás cosmética natural, distinguí el origen de la función: estos ingredientes son conservantes, pero eso no permite llamarlos naturales. El origen depende de la ruta de producción y del proveedor, y hace falta documentación del grado concreto para conocerlo. Si buscás un perfil de origen específico, verificá ese dato y evaluá el sistema conservante dentro de la fórmula; que algo sea natural o sintético, por sí solo, no determina cómo se comportará.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué hacen el metilparabeno y el propilparabeno, en qué cosméticos se usan y qué observar al formular.",
+    "seoTitle": "Parabenos en cosmética | Berry's Nature",
+    "slug": "parabenos",
+    "subtitle": "Qué función cumplen como conservantes y cómo pensarlos al formular cosméticos.",
+    "useLevel": "No hay un nivel universal aplicable a cualquier fórmula y grado comercial. Definilo según la composición, el formato de la materia prima y la información correspondiente a ese producto; no extrapoles una dosis entre grados distintos.",
+    "uses": [
+      "Cremas y lociones.",
+      "Maquillaje.",
+      "Otros cosméticos cuya fórmula requiera un sistema conservante evaluado para ese producto."
+    ],
+    "whatItIs": "Son ésteres del ácido p-hidroxibenzoico: el metilparabeno es el éster metílico y el propilparabeno, el n-propílico. “Parabenos” no nombra un único ingrediente, sino una familia. El origen de las materias primas puede ser biológico o petroquímico según la ruta de obtención y el proveedor; sin documentación específica no se puede afirmar que un grado comercial sea de origen natural."
+  },
+  {
+    "cosmeticRole": "Su función principal en cosmética es la de conservante; también puede ayudar a reducir la acumulación de electricidad estática. Estas funciones dependen de la fórmula terminada y no equivalen a una promesa médica o de desinfección.",
+    "formulationTips": [
+      "Disolvelo o incorporalo en la fase acuosa solo si el grado comercial lo permite.",
+      "Probá la compatibilidad con tensioactivos aniónicos y jabones antes de escalar.",
+      "Revisá estabilidad y desempeño del sistema conservante en el producto terminado."
+    ],
+    "h1": "Cloruro de Benzalconio en cosmética",
+    "howToUse": "Por su carácter catiónico y solubilidad en agua, suele considerarse su incorporación en la fase acuosa. La secuencia, la temperatura y las condiciones de proceso pueden variar según el grado comercial y la fórmula: seguí la información del insumo y comprobá el resultado en un lote de prueba. Evaluá la compatibilidad con los demás ingredientes, en especial si la fórmula contiene tensioactivos aniónicos o jabón, porque puede haber interacciones que afecten la estabilidad o el desempeño. La fórmula terminada debe evaluarse como un sistema, incluida su conservación.",
+    "id": "cloruro_benzalconio",
+    "inci": "Benzalkonium Chloride",
+    "intro": "El cloruro de benzalconio es un ingrediente funcional que aparece en algunas fórmulas cosméticas como conservante y agente antiestático. Su uso requiere mirar el conjunto de la fórmula, no solo elegir un nivel de incorporación.",
+    "keepInMind": "La composición puede variar entre grados comerciales y las interacciones con otros ingredientes importan. No extrapoles condiciones de incorporación de una fórmula a otra: revisá la información específica del insumo y hacé pruebas con el producto final.",
+    "name": "Cloruro de Benzalconio",
+    "naturalCosmetics": "No lo presentes automáticamente como vegetal o natural: el perfil no permite establecer el origen de las materias primas de cada grado. Si formulás cosmética natural, pedí información sobre la procedencia del insumo y valorá si encaja con los criterios de tu proyecto; la etiqueta de origen no reemplaza la evaluación de la fórmula completa.",
+    "readingMinutes": 2,
+    "seoDescription": "Qué función cumple el cloruro de benzalconio en cosmética, dónde se usa y qué tener en cuenta al formular con este ingrediente catiónico.",
+    "seoTitle": "Cloruro de Benzalconio | Berry's Nature",
+    "slug": "cloruro-benzalconio",
+    "subtitle": "Un ingrediente catiónico con usos específicos: conocé su función y cómo evaluar su incorporación.",
+    "useLevel": "No hay un nivel universal aplicable a todos los grados y fórmulas. Definilo según el grado comercial, el tipo de producto y las condiciones de uso; no extrapoles una dosis entre formulaciones distintas.",
+    "uses": [
+      "Fórmulas cosméticas de uso específico que requieran un sistema conservante compatible.",
+      "Productos donde se busque una función antiestática, evaluada dentro de la fórmula completa."
+    ],
+    "whatItIs": "Es una mezcla de compuestos de amonio cuaternario con carga positiva y carácter tensioactivo catiónico. No siempre corresponde a una molécula única: los grados pueden variar en la composición de sus cadenas. El nombre describe la identidad del ingrediente, pero por sí solo no permite afirmar el origen de las materias primas de un grado comercial."
+  },
+  {
+    "cosmeticRole": "En cosmética se utiliza sobre todo como acondicionador de piel y cabello. Según su grado y el diseño de la fórmula, puede dar emoliencia, facilitar el deslizamiento y la distribución del producto, reducir la sensación pegajosa y dejar una película superficial. El resultado depende de la combinación de ingredientes y de la aplicación.",
+    "formulationTips": [
+      "Elegí la viscosidad según la aplicación y la sensorialidad que buscás.",
+      "No la agregues al agua esperando que se disuelva: la dimeticona convencional no es soluble en agua.",
+      "Confirmá miscibilidad con los aceites y el método de emulsificación en tu sistema.",
+      "Ajustá el orden de incorporación al proceso y a las indicaciones del grado comercial."
+    ],
+    "h1": "Dimeticona: deslizamiento y emoliencia",
+    "howToUse": "La dimeticona convencional no es soluble en agua por sí sola. En términos generales, se incorpora a la fase oleosa o se dispersa en la emulsión con un proceso adecuado al producto. El momento de agregado puede ser durante la preparación o el enfriamiento: depende de la viscosidad, el sistema emulsificante y el proceso elegido. Revisá el grado comercial y su ficha técnica, y evaluá cómo se integra con los demás aceites antes de definir el procedimiento.",
+    "id": "dimeticona",
+    "inci": "Dimethicone",
+    "intro": "La dimeticona puede aportar deslizamiento, extensibilidad y una sensación menos pegajosa a una fórmula. Acá vemos qué hace, dónde se usa y qué conviene revisar al incorporarla.",
+    "keepInMind": "Dimeticona no identifica una viscosidad única. No confundas la forma convencional con siliconas modificadas, que pueden tener propiedades distintas. Evitá asumir un pH, una temperatura o un orden de incorporación válido para todos los grados: revisá la información del producto y probá la fórmula terminada.",
+    "name": "Dimeticona",
+    "naturalCosmetics": "Si formulás cosmética natural, tené presente que la dimeticona convencional es sintética y no un insumo vegetal, biotecnológico o mineral. Que el silicio exista en minerales no cambia su origen industrial. Podés evaluar alternativas según el perfil y el acabado que busques, sin asumir que un origen determina por sí solo el desempeño o la seguridad.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta la dimeticona a la piel y el cabello, en qué cosméticos se usa y qué tener en cuenta al formular.",
+    "seoTitle": "Dimeticona: usos y formulación | Berry's Nature",
+    "slug": "dimeticona",
+    "subtitle": "Una silicona de uso cosmético que modifica la sensorialidad de cremas, maquillaje y productos capilares.",
+    "useLevel": "No hay un nivel universal indicado para todos los grados de dimeticona. Definilo según la fórmula, la aplicación y la viscosidad del producto comercial elegido; consultá la ficha técnica correspondiente.",
+    "uses": [
+      "Cremas y emulsiones para el cuidado de la piel.",
+      "Productos capilares acondicionadores y de peinado.",
+      "Maquillaje, cuando se busca mejorar el deslizamiento y la extensibilidad."
+    ],
+    "whatItIs": "La dimeticona (INCI: Dimethicone) es un fluido polimérico de siloxanos. No hay un único grado comercial: puede variar en viscosidad y, con eso, en cómo se siente y se comporta dentro de una fórmula. La dimeticona convencional es de origen industrial sintético; que el silicio también exista en minerales no convierte al ingrediente en natural."
+  },
+  {
+    "cosmeticRole": "En el cabello actúa como acondicionador y agente antiestático. Puede aportar una sensación más suave, ayudar al peinado en húmedo o seco y mejorar la manejabilidad. El efecto concreto varía según el grado, la fórmula y el resto del sistema acondicionador.",
+    "formulationTips": [
+      "Confirmá si el insumo es una emulsión acuosa y revisá su composición INCI completa.",
+      "Seguí las indicaciones del grado para definir fase, orden de incorporación y mezcla.",
+      "Probá estabilidad, apariencia y viscosidad en la fórmula final, no solo en la base.",
+      "Al ajustar el sistema acondicionador, hacé pruebas pequeñas antes de escalar."
+    ],
+    "h1": "Amodimeticona: acondicionamiento para el cabello",
+    "howToUse": "Incorporá el producto comercial siguiendo las indicaciones correspondientes a ese grado, ya que el orden de adición, la fase y la intensidad de mezcla pueden variar. En lugar de asumir que cualquier amodimeticona se comporta igual, observá cómo se integra en tu base y evaluá la fórmula terminada. Hacé pruebas pequeñas y registrá apariencia, viscosidad y estabilidad durante el desarrollo. Si cambiás de grado o de sistema de acondicionamiento, volvé a comprobar el resultado.",
+    "id": "amodimeticona",
+    "inci": "Amodimethicone",
+    "intro": "Si buscás sumar deslizamiento y facilitar el peinado en una fórmula capilar, la amodimeticona puede cumplir un rol acondicionador. El resultado depende del grado comercial y del sistema completo.",
+    "keepInMind": "El nombre del INCI no describe por sí solo todos los componentes ni el comportamiento de cada grado comercial. La sensación y el desempeño dependen de la fórmula terminada, así que evitá prometer un resultado idéntico en cualquier cabello o producto.",
+    "name": "Amodimeticona",
+    "naturalCosmetics": "La amodimeticona es un polímero de silicona modificado y suele ser de fabricación industrial. No corresponde presentarla automáticamente como un ingrediente natural, vegetal o biotecnológico. Si formulás cosmética natural, definí primero los criterios de tu proyecto y evaluá si este tipo de silicona encaja con ellos; no alcanza con que el producto comercial venga disperso en agua.",
+    "readingMinutes": 3,
+    "seoDescription": "Conocé qué aporta la amodimeticona al cuidado capilar, en qué productos se usa y qué tener en cuenta al formular cosmética natural.",
+    "seoTitle": "Amodimeticona: suavidad capilar | Berry's Nature",
+    "slug": "amodimeticona",
+    "subtitle": "Una silicona acondicionadora que ayuda a mejorar la suavidad y la manejabilidad del pelo.",
+    "useLevel": "No hay un nivel de uso universal para el INCI: depende de la fórmula y del grado comercial. Guiate por las indicaciones de uso del producto específico; no traslades automáticamente una cantidad de un grado a otro.",
+    "uses": [
+      "Acondicionadores capilares, para facilitar el desenredo y el peinado.",
+      "Mascarillas y tratamientos capilares, como aporte de acondicionamiento y suavidad."
+    ],
+    "whatItIs": "La amodimeticona es un polímero de silicona con grupos amino incorporados. En productos cosméticos suele llegar como una emulsión acuosa, no necesariamente como polímero puro. Por eso, al elegir un insumo, revisá la composición INCI del producto comercial: puede incluir agua y componentes que ayudan a mantener la emulsión. No des por hecho que el polímero es soluble en agua; muchos grados se dispersan en sistemas acuosos como emulsiones o microemulsiones."
+  },
+  {
+    "cosmeticRole": "En cosmética se emplea principalmente como acondicionador de la piel. También puede cumplir funciones de acondicionamiento capilar u oclusividad, de acuerdo con la identidad y el grado. No lo presentes como equivalente al ácido salicílico ni atribuyas efectos terapéuticos o exfoliantes sin respaldo específico del producto final.",
+    "formulationTips": [
+      "Revisá la composición, el vehículo y la solubilidad del grado; el INCI no alcanza para anticiparlos.",
+      "Hacé pruebas de estabilidad y observá cambios de color, olor o precipitación.",
+      "Comprobá la compatibilidad con el sistema conservante en la fórmula terminada.",
+      "Evitá asumir que el extracto aporta ácido salicílico o que se comporta como ese ingrediente."
+    ],
+    "h1": "Extracto de Corteza de Sauce Blanco",
+    "howToUse": "Seguí las indicaciones del proveedor para el grado que tengas: pueden variar la solubilidad, el vehículo y el modo de incorporación. Algunos grados se describen como solubles o miscibles en agua y otros pueden presentarse en una base líquida con glicerina. En una fórmula acuosa, disolvelo o premezclalo según corresponda y agregalo en la fase indicada para ese producto. No hay una única temperatura, fase de adición o condición de pH que pueda asumirse para todos los extractos.",
+    "id": "extracto_sauce_blanco",
+    "inci": "Salix Alba Bark Extract",
+    "intro": "Si estás explorando activos de origen vegetal, este extracto puede ser una opción para sumar a tónicos, sérums y otras fórmulas de cuidado. Su comportamiento depende del grado comercial: no alcanza con conocer el INCI para saber cómo incorporarlo.",
+    "keepInMind": "El nombre botánico no define por sí solo la composición ni el desempeño del producto comercial. Evaluá el ingrediente en la fórmula concreta y comunicá únicamente aquello que puedas respaldar para ese grado y producto. Natural no significa inocuo; la evaluación depende de la identidad, la pureza, la exposición y la fórmula terminada.",
+    "name": "Extracto de Corteza de Sauce Blanco",
+    "naturalCosmetics": "Por su origen, es un ingrediente botánico cuando se obtiene de la corteza de Salix alba. Eso no significa que el producto comercial esté compuesto únicamente por material vegetal: puede contener solventes, vehículo u otros auxiliares. Si buscás una fórmula de perfil natural, revisá la composición completa del grado y evaluá cómo encaja con tus criterios.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el extracto de corteza de sauce blanco, en qué cosméticos se usa y qué revisar al formular con este ingrediente botánico.",
+    "seoTitle": "Extracto de Corteza de Sauce Blanco | Berry's Nature",
+    "slug": "extracto-sauce-blanco",
+    "subtitle": "Un ingrediente botánico para fórmulas de cuidado de la piel y el cabello.",
+    "useLevel": "Usá el nivel recomendado para el grado comercial que compraste y el tipo de fórmula que estés desarrollando. No hay un rango universal para esta identidad: consultá la ficha del producto y ajustá con pruebas en tu fórmula real.",
+    "uses": [
+      "Tónicos y sérums de cuidado facial, según la composición del extracto.",
+      "Fórmulas de cuidado capilar, cuando el grado y el diseño del producto lo permitan.",
+      "Otros productos de cuidado de la piel en los que resulte adecuado para la fórmula final."
+    ],
+    "whatItIs": "Se obtiene de la corteza de Salix alba, el sauce blanco. El INCI identifica la especie y la parte vegetal, pero no informa por sí solo qué solvente se usó, qué marcadores contiene ni cuál es su vehículo. Por eso, dos productos con el mismo INCI pueden tener características distintas. Es un extracto botánico; el producto comercial también puede incluir solventes, vehículo o auxiliares, según su proceso."
+  },
+  {
+    "cosmeticRole": "Su función principal es aportar color blanco y opacidad, y ayudar a lograr cobertura en una preparación. Algunos grados específicos se usan como filtro UV, pero el ingrediente por sí solo no convierte una fórmula en protector solar: esa función depende del grado, del producto terminado y de su evaluación.",
+    "formulationTips": [
+      "Revisá si el grado es compatible con un medio acuoso, oleoso o con una dispersión comercial.",
+      "Prehumectá y dispersá según las indicaciones del grado para reducir grumos y agregados.",
+      "Probá el orden de incorporación y el equipo recomendado en una muestra pequeña.",
+      "Evaluá uniformidad, color y estabilidad en la fórmula final."
+    ],
+    "h1": "Dióxido de Titanio en cosmética",
+    "howToUse": "No se disuelve en agua: se incorpora como partículas dispersas. En general, conviene prehumectarlo y dispersarlo en el medio indicado para ese grado, usando el equipo recomendado y sumándolo en el orden que corresponda a tu fórmula. Una dispersión concentrada puede simplificar el trabajo si resulta adecuada para el vehículo. Guiate por la documentación del grado comercial y verificá que la mezcla quede pareja, sin grumos ni agregados; después evaluá color, estabilidad y desempeño en el producto terminado.",
+    "id": "dioxido_titanio",
+    "inci": "Titanium Dioxide",
+    "intro": "Si buscás dar blancura o más cobertura a una preparación, el dióxido de titanio puede ser una opción. Su comportamiento depende del grado comercial y de cómo lo disperses en la fórmula.",
+    "keepInMind": "No asumas que todos los grados se comportan igual ni que el origen mineral garantiza inocuidad. La función como filtro UV requiere un grado y un producto formulado y evaluado para ese fin; no lo consideres protector solar por sí solo.",
+    "name": "Dióxido de Titanio",
+    "naturalCosmetics": "En cosmética natural, describilo con precisión: tiene origen mineral, pero es un material transformado industrialmente y algunos grados llevan tratamientos superficiales. No lo presentes como un polvo natural sin procesar. Para elegirlo, considerá la identidad y presentación del grado, su uso previsto y cómo se integra en tu fórmula.",
+    "readingMinutes": 2,
+    "seoDescription": "Conocé qué aporta el dióxido de titanio en maquillaje y cosmética, cómo incorporarlo y qué observar al elegir el grado para tu fórmula.",
+    "seoTitle": "Dióxido de Titanio: usos cosméticos | Berry's Nature",
+    "slug": "dioxido-titanio",
+    "subtitle": "Un pigmento mineral que aporta blancura, cobertura y opacidad.",
+    "useLevel": "No hay un nivel de uso universal: depende del grado comercial, la aplicación y la fórmula. Seguí la indicación específica del material que elijas y ajustá mediante pruebas del producto terminado.",
+    "uses": [
+      "Pigmentos y maquillaje, para aportar blancura o cobertura.",
+      "Preparaciones cosméticas opacificantes, cuando se busca una apariencia menos translúcida."
+    ],
+    "whatItIs": "Es un sólido inorgánico blanco que se usa en cosmética como pigmento. Aunque puede partir de minerales de titanio, el ingrediente comercial atraviesa una transformación industrial y puede tener tratamientos superficiales: origen mineral no significa polvo natural sin procesar. Hay distintos grados y presentaciones; el nombre INCI, por sí solo, no permite saber cómo se comportará cada uno."
+  }
+]
