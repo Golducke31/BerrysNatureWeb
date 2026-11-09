@@ -30,33 +30,38 @@
     "whatItIs": "El SCI, o Sodium Cocoyl Isethionate, es un tensioactivo aniónico: una materia prima que ayuda a que el agua y la suciedad se desprendan durante el lavado. Se presenta como un sólido y se usa sobre todo en cosméticos de enjuague. Su nombre alude a una porción derivada de ácidos grasos de coco, pero eso no significa que el ingrediente completo sea necesariamente de origen natural: la composición y el proceso pueden incluir insumos sintéticos."
   },
   {
-    "cosmeticRole": "Su función principal es acondicionar el cabello: ayuda a reducir la estática y aporta deslizamiento, lo que facilita el desenredo. También contribuye al cuerpo y la consistencia de emulsiones. Se comercializa para fórmulas aceite-en-agua y productos capilares; el resultado final depende del conjunto de ingredientes y del proceso.",
+    "cosmeticRole": "En un acondicionador ayuda a unir la fase oleosa con la acuosa y aporta deslizamiento y facilidad para desenredar. También influye en la consistencia del producto. No es un ingrediente de limpieza: se elige por su función acondicionadora.",
     "formulationTips": [
-      "Revisá el INCI del envase: la composición puede variar entre grados comerciales.",
-      "Asegurate de fundir por completo el sólido antes de emulsionar.",
-      "Como es catiónico, puede interactuar con ingredientes aniónicos; evaluá la combinación y observá estabilidad.",
-      "Probá la textura y el desempeño durante el enfriado y en el producto terminado."
+      "Leé el INCI de tu envase: dos productos vendidos como BTMS-50 pueden no tener la misma composición.",
+      "Esperá a que las pastillas se fundan por completo antes de emulsionar; los restos sólidos pueden dejar una textura irregular.",
+      "Si tu fórmula lleva tensioactivos aniónicos, probá la compatibilidad en pequeño y observá estabilidad, viscosidad y sensación al enjuagar."
     ],
-    "h1": "BTMS-50: acondicionador para tus fórmulas capilares",
-    "howToUse": "Incorporalo en la fase oleosa y calentá lo suficiente para que el sólido se funda por completo. En emulsiones, procesá las fases según la fórmula, emulsioná con agitación y seguí mezclando mientras enfría. Ajustá temperaturas y procedimiento al grado comercial que tengas y a los demás componentes; no tomes un valor de fusión como universal.",
+    "h1": "BTMS-50: cómo formular acondicionadores",
+    "howToUse": "Incorporalo en la fase oleosa y calentá siguiendo las indicaciones de tu proveedor hasta que se funda por completo. Si la fórmula lleva fase acuosa, prepará ambas fases y emulsioná según el procedimiento de la receta. Mantené la mezcla uniforme mientras enfría y probá primero en una muestra pequeña. Si falta cuerpo, ajustá el estructurante de forma deliberada en vez de agregar más BTMS a ciegas.",
     "id": "btms50",
     "inci": "Behentrimonium Methosulfate (and) Cetearyl Alcohol",
-    "intro": "Si formulás productos para el cabello, el BTMS-50 puede ayudarte a crear fórmulas con buen deslizamiento y una textura cremosa. Acá te contamos qué hace y qué observar al usarlo.",
-    "keepInMind": "El nombre comercial no define por sí solo la composición exacta ni un nivel de uso universal. Confirmá el grado que compraste y observá posibles interacciones, en especial al combinarlo con aniónicos. La evaluación del producto terminado depende de su fórmula, uso previsto y exposición.",
+    "intro": "Si leés “methosulfate” en la etiqueta y dudás si es un sulfato limpiador, acá lo aclaramos. Vas a ver qué aporta a un acondicionador, cómo incorporarlo y qué revisar para que el BTMS que compres coincida con tu fórmula.",
+    "keepInMind": "El “methosulfate” del nombre no significa que sea un limpiador como Sodium Laureth Sulfate: en esta materia prima el papel es acondicionar. No asumas compatibilidad con cualquier tensioactivo aniónico; comprobá la combinación en una muestra.",
     "name": "BTMS-50",
-    "naturalCosmetics": "Puede contener componentes derivados de aceites vegetales, pero su origen concreto depende del proveedor y del lote. Se obtiene mediante transformación química, así que no corresponde asumir que es un ingrediente natural solo por su posible materia prima vegetal. En cosmética natural, evaluá si su origen y proceso encajan con el criterio de tu proyecto, y valorá la fórmula completa.",
+    "naturalCosmetics": "Que una parte de la materia prima pueda tener origen vegetal no confirma por sí solo que el grado completo cumpla el estándar natural de tu proyecto. Consultá al proveedor sobre composición, procedencia y documentación antes de hacer una afirmación de origen o certificación.",
     "readingMinutes": 2,
-    "seoDescription": "Conocé qué aporta el BTMS-50 al cabello, en qué fórmulas se usa y qué tener en cuenta al incorporarlo.",
-    "seoTitle": "BTMS-50: qué es y cómo se usa | Berry's Nature",
+    "seoDescription": "Aprendé qué aporta el BTMS-50 a los acondicionadores, cómo incorporarlo y por qué conviene verificar el INCI del proveedor.",
+    "seoTitle": "BTMS-50 en cosmética capilar | Berry's Nature",
     "slug": "btms50",
-    "subtitle": "Deslizamiento, desenredo y cuerpo para acondicionadores y emulsiones.",
-    "useLevel": "El nivel de uso depende del tipo de producto, el efecto buscado, la fórmula y el grado comercial. No hay un rango único aplicable a todos los BTMS-50: seguí la recomendación correspondiente a tu materia prima y hacé pruebas en tu formulación.",
+    "subtitle": "Acondiciona y da cuerpo; su composición exacta depende del proveedor.",
+    "useLevel": "El 50 del nombre no es un porcentaje de uso. En muchos grados alude a una concentración activa aproximada, pero la mezcla acompañante y la recomendación cambian entre proveedores. Seguí la ficha de tu materia prima y hacé un lote piloto; no reemplaces un BTMS-25 u otro grado gramo por gramo sin reformular.",
     "uses": [
-      "Acondicionadores sólidos y enjuagables.",
-      "Mascarillas capilares y emulsiones acondicionadoras.",
-      "Fórmulas capilares donde buscás deslizamiento y ayuda para desenredar."
+      "Acondicionadores capilares de enjuague y mascarillas.",
+      "Acondicionadores sólidos o bálsamos capilares diseñados para usarlo.",
+      "Fórmulas sin enjuague, solo cuando el grado comercial y la fórmula completa lo permitan."
     ],
-    "whatItIs": "El BTMS-50 es una materia prima sólida, habitualmente presentada en escamas o pastillas. Su INCI combina Behentrimonium Methosulfate, un agente catiónico, con Cetearyl Alcohol, un alcohol graso que aporta consistencia. El nombre BTMS-50 no garantiza que todos los grados comerciales tengan idéntica composición: revisá siempre el INCI y las indicaciones del producto que compraste."
+    "whatItIs": "El BTMS-50 es una materia prima sólida que combina un agente acondicionador catiónico con alcoholes grasos. El INCI de esta ficha es Behentrimonium Methosulfate (and) Cetearyl Alcohol: el primero aporta el efecto acondicionador y el segundo ayuda a dar cuerpo. BTMS-50 es un nombre de grado comercial, no una receta idéntica para todas las marcas; otros proveedores pueden incluir componentes distintos. Revisá siempre el INCI del envase y la información del grado que compraste.",
+    "useLevelHeading": "Cómo elegir la cantidad",
+    "detail": "Aunque la palabra “methosulfate” suene a un sulfato limpiador, no es lo mismo que Sodium Laureth Sulfate. En BTMS-50 el interés es el acondicionamiento catiónico. Esa carga puede interactuar con ciertos ingredientes aniónicos, así que no lo combines a ciegas: probá el sistema completo.",
+    "image": "/assets/ingredients/btms50.webp",
+    "imageAlt": "Pastillas cerosas color marfil de BTMS-50 junto a una muestra de crema acondicionadora capilar.",
+    "imageWidth": 1600,
+    "imageHeight": 1200
   },
   {
     "cosmeticRole": "En cosmética funciona como emoliente y acondicionador: aporta sensación de suavidad y ayuda a mantener la piel en buen estado. Su fase oleosa lo vuelve útil para enriquecer fórmulas con aceites y emulsiones.",

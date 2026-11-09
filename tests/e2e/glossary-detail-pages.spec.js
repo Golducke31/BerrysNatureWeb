@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const urls = require('../../server/lib/urls');
 const terms = require('../../js/content-data.js').GLOSSARY_DATA;
+const details = require('../../content/glossary-details.json');
+const detailById = new Map(details.map((item) => [item.id, item]));
 const ROOT = path.resolve(__dirname, '../..');
 const SITE = 'https://berrysnature.com.ar';
 
@@ -53,15 +55,17 @@ test.describe('Fichas individuales del glosario', () => {
       expect(twitterTitle).toBe(title);
       expect(ogDescription).toBe(description);
       expect(twitterDescription).toBe(description);
+      expect(twitterImage).toBe(ogImage);
       expect(twitterImage).toMatch(/^https:\/\//);
       expect(html).not.toMatch(/<meta\s+name="keywords"/i);
       expect(h1s).toHaveLength(1);
       expect(decodeBasic(h1s[0][1]).toLocaleLowerCase('es-AR')).toContain(term.nombre.toLocaleLowerCase('es-AR'));
-      if (slug === 'acido-citrico') {
-        expect(html).toContain('<img src="/assets/ingredients/acido-citrico.webp"');
-        expect(html).not.toContain('data-image-placeholder="acido-citrico"');
-        expect(ogImage).toBe(`${SITE}/assets/ingredients/acido-citrico.webp`);
-        expect(fs.existsSync(path.join(ROOT, 'assets/ingredients/acido-citrico.webp'))).toBe(true);
+      const detail = detailById.get(term.id);
+      if (detail.image) {
+        expect(html).toContain(`<img src="${detail.image}"`);
+        expect(html).not.toContain(`data-image-placeholder="${slug}"`);
+        expect(ogImage).toBe(`${SITE}${detail.image}`);
+        expect(fs.existsSync(path.join(ROOT, detail.image.replace(/^\//, '')))).toBe(true);
         expect(jsonLd.some((item) => item['@type'] === 'DefinedTerm' && item.image === ogImage)).toBe(true);
       } else {
         expect(html).toContain(`data-image-placeholder="${slug}"`);
