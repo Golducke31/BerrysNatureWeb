@@ -322,32 +322,37 @@
     "whatItIs": "El pantenol es el alcohol análogo del ácido pantoténico, conocido como vitamina B5. D-pantenol nombra una de sus formas; también existe DL-pantenol, que es una mezcla de formas. El INCI Panthenol identifica el ingrediente, pero no revela por sí solo el origen de la materia prima ni si se trata de un grado diluido. Revisá la composición completa del insumo que elijas."
   },
   {
-    "cosmeticRole": "Su función más habitual es bajar o ajustar el pH de una preparación acuosa hasta el valor que buscás. Como quelante, puede interactuar con iones metálicos presentes en la fórmula. El desempeño concreto depende del conjunto de ingredientes y del sistema; no reemplaza la evaluación del producto terminado.",
+    "cosmeticRole": "El pH indica cuán ácida o alcalina es una preparación. Ajustarlo puede ser necesario para que la mezcla sea compatible con los demás ingredientes. El conservante, los espesantes y otros activos deben funcionar dentro de sus rangos adecuados. El ácido cítrico baja el pH, pero no reemplaza un conservante ni garantiza por sí solo la estabilidad.",
     "formulationTips": [
-      "Para un ajuste final, incorporá la solución en pequeñas adiciones y mezclá entre cada una.",
-      "Medí el pH durante el ajuste y repetí la medición después del equilibrio de la fórmula.",
-      "Revisá la estabilidad, el sistema tampón y los ingredientes sensibles al pH en tu propia fórmula."
+      "Calibrá el medidor de pH y medí la fórmula a temperatura ambiente; las tiras dan una orientación menos precisa.",
+      "Probá primero en una muestra pequeña. Un agregado concentrado puede bajar el pH de golpe.",
+      "Volvé a medir cuando la preparación se haya equilibrado y comprobá que su textura y viscosidad sigan estables."
     ],
-    "h1": "Ácido cítrico en cosmética",
-    "howToUse": "Podés disolverlo en la fase acuosa con agitación o preparar una solución acuosa para ajustar el producto al final. Si trabajás con una solución, agregala de a poco, mezclá bien y medí el pH entre adiciones. Volvé a medir después de que la fórmula haya tenido tiempo de equilibrarse. No hay una cantidad universal: guiáte por el pH objetivo y observá cómo responde la preparación.",
+    "h1": "Ácido cítrico: ajuste de pH paso a paso",
+    "howToUse": "Prepará una solución acuosa pequeña siguiendo el grado y las indicaciones del proveedor. Tomá una muestra de la fórmula, incorporá la solución en pequeñas cantidades y mezclá bien entre cada adición. Medí el pH con un instrumento adecuado, dejá reposar la preparación y volvé a medir. Si trabajás con una emulsión, revisá que ese ajuste sea compatible con su sistema antes de hacerlo en el lote completo.",
     "id": "acido_citrico",
     "inci": "Citric Acid",
-    "intro": "El ácido cítrico se usa sobre todo para ajustar el pH de productos cosméticos. Te contamos cómo incorporarlo de manera gradual y qué revisar para que el resultado responda a tu fórmula.",
-    "keepInMind": "El pH influye en el comportamiento de la fórmula y puede afectar ingredientes sensibles. No supongas que una cantidad o un orden de incorporación funciona igual en todos los productos: evaluá cada sistema y revisá el pH final. El origen y el grado comercial también pueden variar.",
+    "intro": "En cosmética, el ácido cítrico suele cumplir un trabajo concreto: bajar el pH de una preparación acuosa. Acá vas a ver cuándo usarlo, cómo agregarlo de a poco y qué revisar para no pasarte.",
+    "keepInMind": "El jugo de limón no reemplaza una materia prima cosmética: su acidez y composición varían de una fruta a otra y no está controlado para formular. Si buscás un efecto exfoliante, ya no se trata de un simple ajuste de pH; ese producto requiere un desarrollo distinto y una evaluación propia.",
     "name": "Ácido Cítrico",
-    "naturalCosmetics": "Si el origen es importante para tu proyecto, pedile al proveedor información sobre el sustrato y el proceso del lote. La posibilidad de producirlo por fermentación no confirma por sí sola el origen de cualquier insumo. En cosmética natural, diferenciá el origen documentado de la función: un ingrediente de origen renovable no garantiza por sí mismo un resultado específico en la fórmula.",
+    "naturalCosmetics": "Si te importa que el ingrediente cumpla un estándar de cosmética natural, pedile al proveedor información del grado y su procedencia. El INCI identifica el ingrediente, pero por sí solo no certifica el origen ni un sello.",
     "readingMinutes": 3,
-    "seoDescription": "Conocé cómo se usa el ácido cítrico para ajustar el pH y qué observar al formular cremas, tónicos, geles y shampoos.",
-    "seoTitle": "Ácido cítrico: ajuste de pH | Berry's Nature",
+    "seoDescription": "Aprendé para qué sirve el ácido cítrico en cosmética natural, cómo incorporarlo para ajustar el pH y qué medir antes de cerrar una fórmula.",
+    "seoTitle": "Ácido cítrico en cosmética natural | Berry's Nature",
     "slug": "acido-citrico",
-    "subtitle": "Un recurso para ajustar el pH y acompañar el equilibrio de tus fórmulas.",
-    "useLevel": "La cantidad depende de la fórmula, del pH inicial y del objetivo, además del grado comercial elegido. No tomes un rango general como receta: ajustá gradualmente y medí el pH durante el proceso y luego del equilibrio.",
+    "subtitle": "Un ajuste pequeño, medido con cuidado, puede cambiar cómo responde toda la fórmula.",
+    "useLevel": "No hay un porcentaje único para ajustar el pH: la cantidad depende del valor inicial, el objetivo y la capacidad de la fórmula para resistir cambios de pH. Definí el pH de destino antes de empezar y registrá cuánto agregaste. No copies una dosis genérica de otra receta.",
     "uses": [
-      "Ajuste de pH en cremas y tónicos.",
-      "Ajuste de pH en geles y shampoos.",
-      "Puede cumplir una función quelante en fórmulas cosméticas."
+      "Ajuste de pH en fórmulas acuosas como geles, tónicos, shampoos y algunas emulsiones.",
+      "Correcciones pequeñas al final de la elaboración, cuando la receta y el sistema permiten ese ajuste.",
+      "Apoyo quelante en fórmulas donde esa función esté contemplada; el resultado depende de los demás ingredientes."
     ],
-    "whatItIs": "Es un ácido orgánico soluble en agua. En cosmética se emplea principalmente como ajustador de pH y también puede actuar como quelante: forma complejos con ciertos iones metálicos. El origen no se deduce solo por el nombre. Puede obtenerse mediante fermentación de fuentes de carbono renovables, pero el sustrato y el proceso dependen del lote y del proveedor; también puede tener un origen industrial distinto."
+    "whatItIs": "Es un ácido orgánico soluble en agua. En una fórmula cosmética actúa principalmente como regulador de pH. También puede unirse a ciertas trazas de metales, una función llamada quelante, que ayuda a cuidar la apariencia y estabilidad de algunas preparaciones. Su papel depende de la fórmula: no es automáticamente un exfoliante ni un activo principal.",
+    "useLevelHeading": "Cómo definir la cantidad",
+    "image": "/assets/ingredients/acido-citrico.webp",
+    "imageAlt": "Cristales blancos de ácido cítrico junto a un limón, en una escena editorial de cosmética natural.",
+    "imageWidth": 1600,
+    "imageHeight": 1200
   },
   {
     "cosmeticRole": "En una fórmula puede dejar un tacto más deslizante, sumar cuerpo y aumentar la viscosidad. También puede colaborar como coemulsionante y modificar la opacidad y la textura. No estabiliza por sí solo cualquier emulsión: el resultado depende del emulsionante y del conjunto de la fórmula.",

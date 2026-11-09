@@ -55,6 +55,9 @@ function validate() {
     if (!Array.isArray(item.uses) || item.uses.length < 2 || !Array.isArray(item.formulationTips) || item.formulationTips.length < 3) {
       throw new Error(`${item.id}: faltan usos o consejos prácticos.`);
     }
+    if (item.image && (!/^\/assets\/ingredients\/[a-z0-9-]+\.(?:png|jpe?g|webp)$/i.test(item.image) || !item.imageAlt)) {
+      throw new Error(`${item.id}: ruta de imagen o texto alternativo inválido.`);
+    }
     const body = allContent(item);
     const words = textWords(body);
     if (words > 500) throw new Error(`${item.id}: ${words} palabras; supera el límite editorial de 500.`);
@@ -69,6 +72,19 @@ function renderPage(item, index) {
   const canonical = `${SITE}/glosario/${item.slug}`;
   const previous = details[(index - 1 + details.length) % details.length];
   const next = details[(index + 1) % details.length];
+  const pageImage = item.image ? `${SITE}${item.image}` : OG_IMAGE;
+  const imageMarkup = item.image
+    ? `
+          <figure class="ingredient-detail__image">
+            <img src="${esc(item.image)}" alt="${esc(item.imageAlt)}"${item.imageWidth ? ` width="${esc(item.imageWidth)}"` : ''}${item.imageHeight ? ` height="${esc(item.imageHeight)}"` : ''} fetchpriority="high">
+          </figure>`
+    : `
+          <figure class="ingredient-image-placeholder" data-image-placeholder="${esc(item.slug)}" role="img" aria-label="Espacio reservado para una imagen de ${esc(item.name)}">
+            <span class="ingredient-image-placeholder__mark" aria-hidden="true">✳</span>
+            <span class="ingredient-image-placeholder__label">Imagen del ingrediente</span>
+            <strong class="ingredient-image-placeholder__name">${esc(item.name)}</strong>
+            <small class="ingredient-image-placeholder__hint">Foto a agregar</small>
+          </figure>`;
   const jsonLdTerm = {
     '@context': 'https://schema.org',
     '@type': 'DefinedTerm',
@@ -76,7 +92,8 @@ function renderPage(item, index) {
     termCode: item.inci,
     description: item.seoDescription,
     url: canonical,
-    inDefinedTermSet: `${SITE}/glosario`
+    inDefinedTermSet: `${SITE}/glosario`,
+    image: item.image ? pageImage : undefined
   };
   const breadcrumb = {
     '@context': 'https://schema.org',
@@ -89,13 +106,6 @@ function renderPage(item, index) {
   };
   const useList = item.uses.map((use) => `            <li>${esc(use)}</li>`).join('\n');
   const tips = item.formulationTips.map((tip) => `            <li>${esc(tip)}</li>`).join('\n');
-  const imagePlaceholder = `
-          <figure class="ingredient-image-placeholder" data-image-placeholder="${esc(item.slug)}" role="img" aria-label="Espacio reservado para una imagen de ${esc(item.name)}">
-            <span class="ingredient-image-placeholder__mark" aria-hidden="true">✳</span>
-            <span class="ingredient-image-placeholder__label">Imagen del ingrediente</span>
-            <strong class="ingredient-image-placeholder__name">${esc(item.name)}</strong>
-            <small class="ingredient-image-placeholder__hint">Foto a agregar</small>
-          </figure>`;
   return `<!DOCTYPE html>
 <html lang="es-AR">
 <head>
@@ -111,13 +121,12 @@ function renderPage(item, index) {
   <meta property="og:url" content="${esc(canonical)}">
   <meta property="og:site_name" content="Berry's Nature">
   <meta property="og:locale" content="es_AR">
-  <meta property="og:image" content="${esc(OG_IMAGE)}">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
+  <meta property="og:image" content="${esc(pageImage)}">
+${item.imageWidth && item.imageHeight ? `  <meta property="og:image:width" content="${esc(item.imageWidth)}">\n  <meta property="og:image:height" content="${esc(item.imageHeight)}">` : !item.image ? '  <meta property="og:image:width" content="1200">\n  <meta property="og:image:height" content="630">' : ''}
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(item.seoTitle)}">
   <meta name="twitter:description" content="${esc(item.seoDescription)}">
-  <meta name="twitter:image" content="${esc(OG_IMAGE)}">
+  <meta name="twitter:image" content="${esc(pageImage)}">
   <link rel="icon" type="image/png" href="../assets/favicon-32.png">
   <link rel="stylesheet" href="../css/fonts.css">
   <link rel="stylesheet" href="../css/styles.css">
@@ -137,7 +146,7 @@ function renderPage(item, index) {
         <span aria-current="page">${esc(item.name)}</span>
       </nav>
       <header class="ingredient-detail__hero">
-${imagePlaceholder}
+${imageMarkup}
         <div>
           <span class="ingredient-detail__eyebrow">${esc(term.categoria || 'Ingrediente')}</span>
           <h1 class="ingredient-detail__title">${esc(item.h1)}</h1>
@@ -169,7 +178,7 @@ ${useList}
         <section class="ingredient-detail__section">
           <h2>Cómo incorporarlo</h2>
           <p>${esc(item.howToUse)}</p>
-          <div class="ingredient-detail__use-level"><strong>Dosis orientativa</strong>${esc(item.useLevel)}</div>
+          <div class="ingredient-detail__use-level"><strong>${esc(item.useLevelHeading || 'Dosis orientativa')}</strong>${esc(item.useLevel)}</div>
         </section>
         <section class="ingredient-detail__section ingredient-detail__tips">
           <h2>Tips para formular</h2>

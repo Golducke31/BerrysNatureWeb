@@ -35,6 +35,22 @@
   box-shadow: 0 18px 46px rgba(61, 70, 49, .08);
 }
 
+.ingredient-detail__image {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  min-height: 250px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #f3efe6;
+}
+.ingredient-detail__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .ingredient-image-placeholder {
   aspect-ratio: 4 / 3;
   width: 100%;
@@ -203,6 +219,7 @@
 @media (max-width: 760px) {
   .ingredient-detail-page { padding: 18px 14px 50px; }
   .ingredient-detail__hero { grid-template-columns: 1fr; gap: 22px; padding: 21px; border-radius: 22px; }
+  .ingredient-detail__image,
   .ingredient-image-placeholder { min-height: 220px; }
   .ingredient-detail__body { margin-top: 34px; }
   .ingredient-detail__pager { grid-template-columns: 1fr; }

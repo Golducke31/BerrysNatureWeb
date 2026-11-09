@@ -33,6 +33,7 @@ test.describe('Fichas individuales del glosario', () => {
       const ogTitle = tagValue(html, /<meta property="og:title" content="([^"]+)"/i, `${file}: og:title`);
       const ogDescription = tagValue(html, /<meta property="og:description" content="([^"]+)"/i, `${file}: og:description`);
       const ogUrl = tagValue(html, /<meta property="og:url" content="([^"]+)"/i, `${file}: og:url`);
+      const ogImage = tagValue(html, /<meta property="og:image" content="([^"]+)"/i, `${file}: og:image`);
       const twitterTitle = tagValue(html, /<meta name="twitter:title" content="([^"]+)"/i, `${file}: twitter:title`);
       const twitterDescription = tagValue(html, /<meta name="twitter:description" content="([^"]+)"/i, `${file}: twitter:description`);
       const twitterImage = tagValue(html, /<meta name="twitter:image" content="([^"]+)"/i, `${file}: twitter:image`);
@@ -56,8 +57,16 @@ test.describe('Fichas individuales del glosario', () => {
       expect(html).not.toMatch(/<meta\s+name="keywords"/i);
       expect(h1s).toHaveLength(1);
       expect(decodeBasic(h1s[0][1]).toLocaleLowerCase('es-AR')).toContain(term.nombre.toLocaleLowerCase('es-AR'));
-      expect(html).toContain(`data-image-placeholder="${slug}"`);
-      expect(html).toContain('role="img" aria-label="Espacio reservado');
+      if (slug === 'acido-citrico') {
+        expect(html).toContain('<img src="/assets/ingredients/acido-citrico.webp"');
+        expect(html).not.toContain('data-image-placeholder="acido-citrico"');
+        expect(ogImage).toBe(`${SITE}/assets/ingredients/acido-citrico.webp`);
+        expect(fs.existsSync(path.join(ROOT, 'assets/ingredients/acido-citrico.webp'))).toBe(true);
+        expect(jsonLd.some((item) => item['@type'] === 'DefinedTerm' && item.image === ogImage)).toBe(true);
+      } else {
+        expect(html).toContain(`data-image-placeholder="${slug}"`);
+        expect(html).toContain('role="img" aria-label="Espacio reservado');
+      }
       expect(body).toContain('¿Qué es?');
       expect(body).toContain('Cómo incorporarlo');
       expect(body).toContain('Tips para formular');
