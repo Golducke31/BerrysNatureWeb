@@ -38,6 +38,7 @@ const rating = require('../lib/rating');
 const ofertaLib = require('../lib/oferta');
 const ficha = require('../lib/ficha');
 const reviews = require('./reviews');
+const { versionarUrl } = require('./images');
 
 /* Fecha del último commit, escrita por scripts/build.cjs. Puede no existir en
    desarrollo (si nadie corrió el build): en ese caso el sitemap omite
@@ -720,8 +721,8 @@ function productoUrl(id) {
 function absAsset(url) {
   const u = String(url || '');
   if (!u) return `${siteUrl()}/assets/og-image.jpg`;
-  if (/^https?:\/\//i.test(u)) return u;
-  return siteUrl() + (u.charAt(0) === '/' ? u : '/' + u);
+  if (/^https?:\/\//i.test(u)) return versionarUrl(u);
+  return versionarUrl(siteUrl() + (u.charAt(0) === '/' ? u : '/' + u));
 }
 
 /* ---------------- Reseñas de producto ---------------- */
@@ -902,9 +903,13 @@ async function renderProduct(req, res, { id }) {
 
   const precio = (row.precio === null || row.precio === undefined) ? null : Number(row.precio);
   const oferta = (row.oferta === null || row.oferta === undefined) ? null : Number(row.oferta);
-  const imagenes = (Array.isArray(row.imagenes) && row.imagenes.length)
+  const imagenes = ((Array.isArray(row.imagenes) && row.imagenes.length)
     ? row.imagenes.slice()
-    : (row.imagen ? [row.imagen] : []);
+    : (row.imagen ? [row.imagen] : []))
+    /* Cache-bust de las fotos servidas desde la BD: la galería usa estas
+       rutas tal cual (src y background-image), así que acá también hay que
+       versionarlas. versionarUrl es idempotente y absAsset() no duplica. */
+    .map(versionarUrl);
   /* Videos de uso (normalizados a embed seguro). Antes no se mostraban en
      la ficha; ahora alimentan la galería junto con las imágenes. */
   const videos = videosLib.listaVideos(row.videos);

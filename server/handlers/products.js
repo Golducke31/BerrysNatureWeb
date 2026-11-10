@@ -21,6 +21,7 @@
 const db = require('../lib/db');
 const reviews = require('./reviews');
 const videosLib = require('../lib/videos');
+const { versionarUrl } = require('./images');
 const V = require('../lib/validate');
 const audit = require('../lib/audit');
 const csrf = require('../lib/csrf');
@@ -29,8 +30,16 @@ const { json, fail, notFound, getClientIp, getQuery } = require('../lib/http');
 
 /* ---------------- Helpers ---------------- */
 
-/** Fila de la base → objeto que consume la tienda. */
-function toProduct(r) {
+/**
+ * Fila de la base → objeto que consume la tienda.
+ *
+ * `versionar=true` se usa SOLO en las respuestas públicas: agrega ?v=2 a
+ * las imágenes servidas desde la BD (cache-bust del bug del adaptador de
+ * Netlify). El panel NO lo usa, así al guardar no se persiste el parámetro.
+ */
+function toProduct(r, versionar) {
+  const img = versionar ? versionarUrl(r.imagen) : r.imagen;
+  const imgs = Array.isArray(r.imagenes) ? r.imagenes : [];
   return {
     id: r.id,
     nombre: r.nombre,
@@ -41,8 +50,8 @@ function toProduct(r) {
     activos: Array.isArray(r.activos) ? r.activos : [],
     precio: r.precio === null ? null : Number(r.precio),
     oferta: (r.oferta === null || r.oferta === undefined) ? null : Number(r.oferta),
-    imagen: r.imagen,
-    imagenes: Array.isArray(r.imagenes) ? r.imagenes : [],
+    imagen: img,
+    imagenes: versionar ? imgs.map(versionarUrl) : imgs,
     origen: r.origen,
     destacado: Boolean(r.destacado),
     disponible: Boolean(r.disponible),
@@ -199,7 +208,7 @@ async function listPublic(req, res) {
   const resenasMap = await reviews.resumenesPara(rows.map((r) => r.id)).catch(() => ({}));
   json(res, 200, {
     items: rows.map((r) => Object.assign(
-      toProduct(r),
+      toProduct(r, true),
       { resenas: resenasMap[r.id] || { total: 0, promedio: 0 } }
     ))
   });
@@ -211,7 +220,7 @@ async function getPublic(req, res, params) {
   const resenasMap = await reviews.resumenesPara([row.id]).catch(() => ({}));
   json(res, 200, {
     producto: Object.assign(
-      toProduct(row),
+      toProduct(row, true),
       { resenas: resenasMap[row.id] || { total: 0, promedio: 0 } }
     )
   });

@@ -36,6 +36,23 @@ const TIPOS = {
    payload de una Function (~6 MB). */
 const MAX_BYTES = 3 * 1024 * 1024;
 
+/**
+ * Versionado de emergencia de las URLs de imagen servidas desde la BD.
+ *
+ * Un bug del adaptador de Netlify entregó estas fotos con los bytes
+ * corruptos (Buffer -> texto UTF-8) y con `Cache-Control: immutable` de
+ * un año, así que el navegador y el CDN pueden tener guardada la copia
+ * rota. Cambiando la URL con `?v=2` se fuerza una petición nueva sin
+ * tocar la BD ni el contenido (el id sigue siendo el hash del archivo).
+ * Idempotente: si ya tiene el parámetro, no se agrega otra vez.
+ */
+const RE_IMG_BD = /\/api\/img\/[0-9a-f]{16}\.[a-z0-9]+$/i;
+
+function versionarUrl(url) {
+  const u = String(url || '');
+  return RE_IMG_BD.test(u) ? u + '?v=2' : u;
+}
+
 /** Acepta base64 puro o un data URL completo. */
 function aBuffer(dataUrl) {
   const raw = String(dataUrl || '');
@@ -149,4 +166,4 @@ async function serve(req, res, params) {
   return res.end(buf);
 }
 
-module.exports = { upload, serve, MAX_BYTES };
+module.exports = { upload, serve, versionarUrl, MAX_BYTES };

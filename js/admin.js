@@ -1039,8 +1039,12 @@
   function rutaImagen(p) {
     var v = String(p || '').trim();
     if (!v) return '';
-    if (v.charAt(0) === '/' || /^(https?:)?\/\//i.test(v)) return v;
-    return '/' + v;
+    if (v.charAt(0) !== '/' && !/^(https?:)?\/\//i.test(v)) v = '/' + v;
+    /* Cache-bust: un bug del adaptador de Netlify sirvió estas fotos con
+       bytes corruptos y cache immutable de 1 año. Cambiamos la URL para
+       que el navegador vuelva a pedirlas. Idempotente. */
+    if (/\/api\/img\/[0-9a-f]{16}\.[a-z0-9]+$/i.test(v)) v += '?v=2';
+    return v;
   }
 
   function renderProducts() {

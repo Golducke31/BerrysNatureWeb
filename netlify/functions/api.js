@@ -77,7 +77,12 @@ function buildReq(event) {
 function buildRes() {
   const headers = new Map();
   let statusCode = 200;
-  let body = '';
+  /* Se acumulan BYTES, nunca texto. El router sirve respuestas binarias
+     (server/handlers/images.js y los assets del panel en router.js) con
+     res.end(Buffer). La version anterior hacía chunk.toString('utf8'),
+     lo que reemplazaba los bytes >127 por U+FFFD: las fotos llegaban con
+     HTTP 200 pero corruptas y el navegador no las podía decodificar. */
+  const chunks = [];
   let headersSent = false;
 
   const res = {
@@ -87,20 +92,34 @@ function buildRes() {
     setHeader: function (name, value) { headers.set(String(name).toLowerCase(), value); },
     getHeader: function (name) { return headers.get(String(name).toLowerCase()); },
     end: function (chunk) {
-      if (chunk != null) body += Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
+      if (chunk != null) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk), 'utf8'));
+      }
       headersSent = true;
     }
   };
 
   // Respuesta en el formato que espera Netlify (Lambda-style).
   res.toResponse = function () {
+    const bytes = Buffer.concat(chunks);
     const single = {};
     const multi = {};
     for (const [k, v] of headers) {
       if (Array.isArray(v)) multi[k] = v.map(String);
       else single[k] = String(v);
     }
-    const out = { statusCode: statusCode, body: body };
+
+    /* Netlify solo admite `body` como string. Para no destruir binarios lo
+       mandamos en base64 con isBase64Encoded; la plataforma lo decodifica
+       y entrega los bytes exactos. Vale también para HTML/JSON: siguen
+       siendo UTF-8 válido porque se convirtieron con Buffer.from(..., utf8).
+       Fijamos Content-Length con el largo REAL (no el del base64). */
+    const out = { statusCode: statusCode, body: '' };
+    if (bytes.length) {
+      out.body = bytes.toString('base64');
+      out.isBase64Encoded = true;
+      single['content-length'] = String(bytes.length);
+    }
     if (Object.keys(single).length) out.headers = single;
     if (Object.keys(multi).length) out.multiValueHeaders = multi;
     return out;
