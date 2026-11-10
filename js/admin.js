@@ -1261,7 +1261,7 @@
         area('pVideos', 'Videos de uso (una URL por línea)',
           'https://www.youtube.com/watch?v=...',
           lineas(p && p.videos),
-          'YouTube, Vimeo o un enlace directo a .mp4 / .webm. Hasta 6.') +
+          'YouTube (incluye Shorts y Live), Vimeo o enlace directo HTTPS a .mp4 / .webm / .ogv. Hasta 6.') +
         '<div class="admin-field admin-field--full"><label>Contenido del kit (opcional)</label>' +
           '<div class="admin-help" style="margin-bottom:8px">Si es un combo, agregá cada producto con su foto y su INCI.</div>' +
           '<div class="admin-comps" id="pComponentes"></div>' +
@@ -2307,12 +2307,26 @@
 
   /* Aviso temprano: el servidor es la autoridad (server/lib/videos.js),
      pero si el dueño pega una URL que se va a descartar, mejor decirlo
-     acá y no hacerle creer que se guardó. */
-  function esVideoPermitido(u) {
-    return /^(https:\/\/|\/)/i.test(u) && (
-      /youtube\.com|youtube-nocookie\.com|youtu\.be|vimeo\.com/i.test(u) ||
-      /\.(mp4|webm|ogv)([?#]|$)/i.test(u)
-    );
+     acá y no hacerle creer que se guardó. Por eso replicamos EXACTAMENTE
+     los patrones de normalizarUrl(): un simple /youtube\.com/ aceptaba
+     canales, playlists o IDs inválidos que luego el servidor descartaba
+     en silencio. Mantener en sincronía con server/lib/videos.js. */
+  function esVideoPermitido(url) {
+    var u = String(url || '').trim();
+    if (!/^(https:\/\/|\/)/i.test(u)) return false;
+    var ID = '[A-Za-z0-9_-]{11}';
+    var FIN = '(?:[/?&#]|$)';
+    var youtube =
+      new RegExp('^(?:https?:)?//(?:www\\.|m\\.)?youtube\\.com/watch\\?(?:[^#]*&)?v=' + ID + FIN, 'i').test(u) ||
+      new RegExp('^(?:https?:)?//(?:www\\.)?youtu\\.be/' + ID + FIN, 'i').test(u) ||
+      new RegExp('^(?:https?:)?//(?:www\\.)?youtube\\.com/(?:embed|shorts|live)/' + ID + FIN, 'i').test(u) ||
+      new RegExp('^(?:https?:)?//(?:www\\.)?youtube-nocookie\\.com/embed/' + ID + FIN, 'i').test(u);
+    if (youtube) return true;
+    var vimeo =
+      new RegExp('^(?:https?:)?//(?:www\\.)?vimeo\\.com/\\d{6,12}' + FIN, 'i').test(u) ||
+      new RegExp('^(?:https?:)?//player\\.vimeo\\.com/video/\\d{6,12}' + FIN, 'i').test(u);
+    if (vimeo) return true;
+    return /^(?:https:\/\/|\/)/i.test(u) && /\.(?:mp4|webm|ogv)(?:[?#]|$)/i.test(u);
   }
 
   /* ============================================================

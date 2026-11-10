@@ -47,8 +47,12 @@ function csp(req) {
   return "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
     "object-src 'none'; script-src 'self' https://accounts.google.com https://challenges.cloudflare.com; " +
     "style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; " +
-    "media-src 'self'; connect-src 'self' https://accounts.google.com https://challenges.cloudflare.com; " +
-    "frame-src https://accounts.google.com https://challenges.cloudflare.com;" + upgrade;
+    /* Videos de uso del producto: iframes de YouTube/Vimeo (normalizados en
+       server/lib/videos.js) y archivos .mp4/.webm/.ogv por HTTPS. Sin estas
+       fuentes la CSP bloquea el reproductor en la ficha. */
+    "media-src 'self' https:; connect-src 'self' https://accounts.google.com https://challenges.cloudflare.com; " +
+    "frame-src https://accounts.google.com https://challenges.cloudflare.com " +
+    "https://www.youtube-nocookie.com https://player.vimeo.com;" + upgrade;
 }
 
 function headersSeguridad(req) {

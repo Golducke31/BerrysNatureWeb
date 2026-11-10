@@ -5,7 +5,7 @@
    Acá se validan y se normalizan a un `src` seguro para el SSR.
 
    Acepta:
-     - YouTube (watch, youtu.be, shorts, embed) → youtube-nocookie.com
+     - YouTube (watch, youtu.be, shorts, live, embed) → youtube-nocookie.com
      - Vimeo (vimeo.com/ID, player.vimeo.com/video/ID)
      - Archivos .mp4 / .webm / .ogv por HTTPS, o rutas locales
        que empiecen con / (para /api/img/... o assets/...)
@@ -40,7 +40,7 @@ function normalizarUrl(url) {
     `^(?:https?:)?//(?:www\\.|m\\.)?youtube\\.com/watch\\?(?:[^#]*&)?v=(${YT_ID})${FIN_ID}`, 'i'
   ).exec(u)
     || new RegExp(`^(?:https?:)?//(?:www\\.)?youtu\\.be/(${YT_ID})${FIN_ID}`, 'i').exec(u)
-    || new RegExp(`^(?:https?:)?//(?:www\\.)?youtube\\.com/(?:embed|shorts)/(${YT_ID})${FIN_ID}`, 'i').exec(u)
+    || new RegExp(`^(?:https?:)?//(?:www\\.)?youtube\\.com/(?:embed|shorts|live)/(${YT_ID})${FIN_ID}`, 'i').exec(u)
     || new RegExp(`^(?:https?:)?//(?:www\\.)?youtube-nocookie\\.com/embed/(${YT_ID})${FIN_ID}`, 'i').exec(u);
   if (m) return { tipo: 'iframe', embed: `https://www.youtube-nocookie.com/embed/${m[1]}` };
 
