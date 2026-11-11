@@ -21,6 +21,7 @@
    ============================================================ */
 'use strict';
 
+const fs = require('node:fs');
 const path = require('node:path');
 
 let info;
@@ -45,6 +46,26 @@ for (const [url, fecha] of Object.entries(mapa)) {
   const ms = Date.parse(fecha);
   if (Number.isNaN(ms)) errores.push(`${url}: fecha inválida (${fecha})`);
   else if (ms > ahora + 24 * 60 * 60 * 1000) errores.push(`${url}: fecha en el futuro (${fecha})`);
+}
+
+const sitemapPath = path.join(__dirname, '..', 'dist', 'sitemap.xml');
+if (fs.existsSync(sitemapPath)) {
+  const sitemap = fs.readFileSync(sitemapPath, 'utf8');
+  const urlBlocks = sitemap.match(/<url>[\s\S]*?<\/url>/g) || [];
+  const blocksByPath = new Map();
+  for (const block of urlBlocks) {
+    const loc = block.match(/<loc>([^<]+)<\/loc>/)?.[1];
+    if (!loc) continue;
+    try { blocksByPath.set(new URL(loc).pathname, block); } catch (e) { /* URL ya se valida en otra guarda */ }
+  }
+  for (const [url, fecha] of Object.entries(mapa)) {
+    if (!url.startsWith('/glosario/')) continue;
+    const block = blocksByPath.get(url);
+    if (!block) errores.push(`${url}: falta en dist/sitemap.xml`);
+    else if (!block.includes(`<lastmod>${fecha}</lastmod>`)) {
+      errores.push(`${url}: lastmod del sitemap no coincide con el cambio verificable (${fecha})`);
+    }
+  }
 }
 
 /* Con una sola página no se puede exigir variedad; con 2 o más, sí. */

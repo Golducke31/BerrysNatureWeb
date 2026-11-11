@@ -29,6 +29,7 @@
     "test:api": "playwright test -c tests/playwright.api.config.js",
     "check:live": "node scripts/check-live.cjs",
     "check:index": "node scripts/check-index.cjs",
+    "bing:indexnow": "node scripts/submit-indexnow.cjs",
     "check:lastmod": "node scripts/check-lastmod.cjs",
     "test:report": "playwright show-report",
     "test:ui": "playwright test -c tests/playwright.config.js --ui",

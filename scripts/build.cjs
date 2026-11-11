@@ -20,6 +20,7 @@ const { execSync, execFileSync } = require('node:child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
+const INDEXNOW_KEY_FILE = 'c1d0d0daa2d15b364ba39539d4b647aa.txt';
 
 const urls = require(path.join(ROOT, 'server', 'lib', 'urls.js'));
 
@@ -37,6 +38,7 @@ function buildVersion() {
 }
 
 const VERSION = buildVersion();
+let LASTMOD_BY_URL = {};
 
 /* Fecha del último commit → <lastmod> del sitemap.
    Antes el sitemap calculaba `new Date()` en CADA request, así que todas las
@@ -157,6 +159,8 @@ function escribirBuildInfo() {
      recurso; las URLs estáticas prefieren su fecha por archivo y, si no
      la hay, salen SIN <lastmod>. */
   const fecha = commitDate() || new Date().toISOString();
+  const lastmod = lastmodPorUrl();
+  LASTMOD_BY_URL = lastmod;
   const destino = path.join(ROOT, 'server', 'lib', 'build-info.js');
   const contenido =
     '/* GENERADO POR scripts/build.cjs — no editar a mano. */\n' +
@@ -164,7 +168,7 @@ function escribirBuildInfo() {
     'module.exports = {\n' +
     `  sha: ${JSON.stringify(VERSION)},\n` +
     `  date: ${JSON.stringify(fecha)},\n` +
-    `  lastmod: ${JSON.stringify(lastmodPorUrl(), null, 2)}\n` +
+    `  lastmod: ${JSON.stringify(lastmod, null, 2)}\n` +
     '};\n';
   fs.mkdirSync(path.dirname(destino), { recursive: true });
   fs.writeFileSync(destino, contenido, 'utf8');
@@ -175,7 +179,7 @@ const BUILD_DATE = escribirBuildInfo();
 
 /* Carpetas y archivos que forman parte del sitio público. */
 const DIRS = ['css', 'js', 'assets', 'academia', 'glosario'];
-const FILES = ['robots.txt', 'sitemap.xml', 'googlec9455e9c4623b814.html'];
+const FILES = ['robots.txt', 'sitemap.xml', 'googlec9455e9c4623b814.html', INDEXNOW_KEY_FILE];
 
 function rmrf(target) {
   fs.rmSync(target, { recursive: true, force: true });
@@ -369,9 +373,23 @@ function completarSitemapEstatico() {
     .filter(Boolean)
     .map((ruta) => `${origen}${ruta}`)
     .filter((loc) => !existentes.has(loc));
-  if (!nuevas.length) return;
-  const bloques = nuevas.map((loc) => `  <url>\n    <loc>${loc}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`).join('\n');
-  xml = xml.replace('</urlset>', `${bloques}\n</urlset>`);
+  if (nuevas.length) {
+    const bloques = nuevas.map((loc) => `  <url>\n    <loc>${loc}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`).join('\n');
+    xml = xml.replace('</urlset>', `${bloques}\n</urlset>`);
+  }
+
+  const siteOrigin = new URL(origen).origin;
+  xml = xml.replace(/<url>[\s\S]*?<\/url>/g, (block) => {
+    const loc = block.match(/<loc>([^<]+)<\/loc>/)?.[1];
+    if (!loc) return block;
+    let parsed;
+    try { parsed = new URL(loc); } catch (e) { return block; }
+    if (parsed.origin !== siteOrigin || !parsed.pathname.startsWith('/glosario/')) return block;
+    const lastmod = LASTMOD_BY_URL[parsed.pathname];
+    const withoutLastmod = block.replace(/\s*<lastmod>[^<]*<\/lastmod>/, '');
+    if (!lastmod || !/^\d{4}-\d{2}-\d{2}T/.test(lastmod)) return withoutLastmod;
+    return withoutLastmod.replace(/(<loc>[^<]+<\/loc>)/, `$1\n    <lastmod>${lastmod}</lastmod>`);
+  });
   fs.writeFileSync(archivo, xml, 'utf8');
 }
 

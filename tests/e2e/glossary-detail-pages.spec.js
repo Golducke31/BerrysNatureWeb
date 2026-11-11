@@ -61,6 +61,20 @@ test.describe('Fichas individuales del glosario', () => {
       expect(h1s).toHaveLength(1);
       expect(decodeBasic(h1s[0][1]).toLocaleLowerCase('es-AR')).toContain(term.nombre.toLocaleLowerCase('es-AR'));
       const detail = detailById.get(term.id);
+      const termSchema = jsonLd.find((item) => item['@type'] === 'DefinedTerm');
+      const breadcrumbSchema = jsonLd.find((item) => item['@type'] === 'BreadcrumbList');
+      expect(termSchema).toBeDefined();
+      expect(termSchema.name).toBe(detail.name);
+      expect(termSchema.termCode).toBe(detail.inci);
+      expect(termSchema.description).toBe(detail.intro);
+      expect(visibleText).toContain(detail.intro);
+      expect(termSchema.url).toBe(canonical);
+      expect(termSchema.inDefinedTermSet).toBe(`${SITE}/glosario`);
+      expect(breadcrumbSchema?.itemListElement).toEqual([
+        {'@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE}/`},
+        {'@type': 'ListItem', position: 2, name: 'Glosario', item: `${SITE}/glosario`},
+        {'@type': 'ListItem', position: 3, name: detail.name, item: canonical}
+      ]);
       if (detail.image) {
         expect(html).toContain(`<img src="${detail.image}"`);
         expect(html).not.toContain(`data-image-placeholder="${slug}"`);

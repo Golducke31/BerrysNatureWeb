@@ -90,7 +90,7 @@ function renderPage(item, index) {
     '@type': 'DefinedTerm',
     name: item.name,
     termCode: item.inci,
-    description: item.seoDescription,
+    description: item.intro,
     url: canonical,
     inDefinedTermSet: `${SITE}/glosario`,
     image: item.image ? pageImage : undefined

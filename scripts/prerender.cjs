@@ -110,7 +110,7 @@ ${tarjetas}
     '@type': 'DefinedTermSet',
     name: "Glosario de ingredientes de Berry's Nature",
     url: `${SITE}/glosario`,
-    description: 'Diccionario botánico y químico de cosmética natural: qué es cada insumo, qué problema resuelve y cómo dosificarlo.',
+    description: 'Qué resuelve cada insumo, en qué se usa y a qué dosis.',
     hasDefinedTerm: items.map((t) => ({
       '@type': 'DefinedTerm',
       name: t.nombre,
