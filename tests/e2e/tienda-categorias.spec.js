@@ -111,9 +111,12 @@ test('el rewrite de Netlify conserva /tienda/:slug hasta la respuesta SSR', asyn
   });
 
   expect(response.statusCode).toBe(200);
-  expect(response.body).toContain('Cuidado natural para el cabello');
-  expect(response.body).toContain('data-product="shampoo-cabello"');
-  expect(response.body).not.toContain('data-product="jabon-prueba"');
+  const body = response.isBase64Encoded
+    ? Buffer.from(response.body, 'base64').toString('utf8')
+    : response.body;
+  expect(body).toContain('Cuidado natural para el cabello');
+  expect(body).toContain('data-product="shampoo-cabello"');
+  expect(body).not.toContain('data-product="jabon-prueba"');
 });
 
 test('al tocar un filtro fijo navega a la landing SSR con encabezado consistente', async ({ page }) => {
