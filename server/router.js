@@ -191,6 +191,7 @@ async function handleAdmin(req, res, method, seg) {
     if (b === 'coupons' && !c && method === 'POST') return labAdmin.createCoupon(req, res, await body(req));
     if (b === 'coupons' && c && method === 'PATCH') return labAdmin.updateCoupon(req, res, { id: c }, await body(req));
     if (b === 'licenses' && !c && method === 'GET') return labAdmin.list(req, res);
+    if (b === 'licenses' && c === 'trial' && !d && method === 'POST') return labAdmin.issueTrial(req, res, await body(req));
     if (b === 'licenses' && c && !d && method === 'GET') return labAdmin.getOne(req, res, { id: c });
     if (b === 'licenses' && c && d === 'resend' && method === 'POST') return labAdmin.resend(req, res, { id: c }, await body(req));
     if (b === 'licenses' && c && d === 'regenerate' && method === 'POST') return labAdmin.regenerate(req, res, { id: c }, await body(req));

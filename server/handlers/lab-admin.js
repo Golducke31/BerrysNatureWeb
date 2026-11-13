@@ -3,6 +3,7 @@
 
    GET    /api/<slug>/lab/licenses            → listado + filtros
    GET    /api/<slug>/lab/licenses/:id        → detalle + renovaciones
+   POST   /api/<slug>/lab/licenses/trial      → emite una licencia gratuita, sin enviar email
    POST   /api/<slug>/lab/licenses/:id/resend     → reenvía la licencia
    POST   /api/<slug>/lab/licenses/:id/regenerate → nueva clave (mismo vencimiento)
    POST   /api/<slug>/lab/licenses/:id/extend     → suma días y reemite
@@ -11,6 +12,7 @@
    ============================================================ */
 'use strict';
 
+const crypto = require('node:crypto');
 const db = require('../lib/db');
 const http = require('../lib/http');
 const licencia = require('../lib/licencia');
@@ -51,6 +53,7 @@ function toLicense(r) {
     nombre: r.nombre || '',
     status: r.status,
     amount: Number(r.amount),
+    esPrueba: Boolean(r.is_trial),
     compra: r.created_at,
     vence,
     vencida: Boolean(vence && vence < hoy),
@@ -96,7 +99,11 @@ async function list(req, res) {
     vals.push('%' + search + '%');
     conds.push(`(lower(o.email) LIKE $${vals.length} OR lower(coalesce(o.nombre, '')) LIKE $${vals.length})`);
   }
-  if (['pending', 'approved', 'rejected', 'cancelled'].includes(status)) {
+  if (status === 'trial') {
+    conds.push("o.status = 'approved' AND o.is_trial = true");
+  } else if (status === 'approved') {
+    conds.push("o.status = 'approved' AND o.is_trial = false AND o.amount > 0");
+  } else if (['pending', 'rejected', 'cancelled'].includes(status)) {
     vals.push(status);
     conds.push(`o.status = $${vals.length}`);
   }
@@ -112,8 +119,9 @@ async function list(req, res) {
 
   const stats = await db.one(
     `SELECT
-       count(*) FILTER (WHERE status = 'approved')::int AS pagadas,
-       COALESCE(sum(amount) FILTER (WHERE status = 'approved'), 0)::int AS ingresos,
+       count(*) FILTER (WHERE status = 'approved' AND is_trial = false AND amount > 0)::int AS pagadas,
+       COALESCE(sum(amount) FILTER (WHERE status = 'approved' AND is_trial = false AND amount > 0), 0)::int AS ingresos,
+       count(*) FILTER (WHERE status = 'approved' AND is_trial = true)::int AS pruebas,
        count(*) FILTER (WHERE status = 'approved' AND licencia_expira >= current_date)::int AS activas,
        count(*) FILTER (WHERE status = 'approved' AND licencia_expira < current_date)::int AS vencidas,
        count(*) FILTER (WHERE status = 'approved' AND licencia_expira BETWEEN current_date AND current_date + interval '30 days')::int AS por_vencer
@@ -121,6 +129,81 @@ async function list(req, res) {
   );
 
   json(res, 200, { items: rows.map(toLicense), stats });
+}
+
+/* ---------------- POST /lab/licenses/trial ---------------- */
+async function issueTrial(req, res, body) {
+  const current = await requireAdmin(req, res);
+  if (!current) return;
+  if (!csrf.assertValid(req, res, current.session, body)) return;
+  if (!licencia.isConfigured()) {
+    return fail(res, 503, 'license_not_configured', 'Falta LAB_LICENSE_PRIVATE_KEY.');
+  }
+
+  const datos = body || {};
+  const email = V.email(datos.email);
+  const nombre = V.str(datos.nombre, { max: 120, required: false, field: 'nombre' });
+  if (datos.dias !== undefined && datos.dias !== null && datos.dias !== '' && !Number.isInteger(Number(datos.dias))) {
+    return fail(res, 400, 'invalid_duration', 'La duración debe indicarse en días enteros.');
+  }
+  const dias = V.int(datos.dias, { min: 1, max: 365, def: 60 });
+  const vence = licencia.fechaISO(licencia.sumarDias(licencia.fechaISO(new Date()), dias));
+
+  let emitida;
+  try {
+    emitida = licencia.emitir({
+      email,
+      id: `lab-trial-${crypto.randomUUID()}`,
+      hasta: vence
+    });
+  } catch (err) {
+    return fail(res, 503, 'license_not_configured',
+      'No se pudo firmar la licencia. Revisá la configuración de LAB_LICENSE_PRIVATE_KEY.');
+  }
+
+  const token = crypto.randomBytes(24).toString('hex');
+  const row = await db.one(
+    `INSERT INTO lab_orders
+       (email, nombre, status, amount, public_token, licencia_key, licencia_expira, notes, is_trial)
+     VALUES ($1, $2, 'approved', 0, $3, $4, $5, $6, true)
+     RETURNING id, created_at`,
+    [email, nombre || null, token, emitida.clave, emitida.expira, 'Cortesía: licencia gratuita de prueba']
+  );
+
+  await audit.log({
+    actor: current.user,
+    action: 'admin.lab.trial.issue',
+    entityType: 'lab_order',
+    entityId: String(row.id),
+    payload: { email, dias, expira: emitida.expira, amount: 0 },
+    ip: getClientIp(req)
+  });
+
+  let fileKey = String(process.env.LAB_FILE_KEY || '').trim();
+  try {
+    const labRow = await db.one("SELECT value FROM site_content WHERE key = 'lab'");
+    const labContent = (labRow && labRow.value) || {};
+    fileKey = String(labContent.fileKey || fileKey).trim();
+  } catch (err) {
+    // Si el contenido no se puede leer, no ocultamos la clave ya emitida;
+    // el enlace solo se ofrece si queda una clave de archivo en el entorno.
+  }
+  const descargaDisponible = r2.isStorageConfigured() && Boolean(fileKey);
+  json(res, 201, {
+    ok: true,
+    id: String(row.id),
+    email,
+    nombre: nombre || '',
+    dias,
+    expira: emitida.expira,
+    clave: emitida.clave,
+    descargaDisponible,
+    descargaUrl: descargaDisponible
+      ? `${baseUrl()}/api/lab/descarga/${row.id}?t=${encodeURIComponent(token)}`
+      : null,
+    gratuita: true,
+    emailEnviado: false
+  });
 }
 
 /* ---------------- GET /lab/licenses/:id ---------------- */
@@ -512,7 +595,7 @@ async function updateCoupon(req, res, { id }, body) {
 }
 
 module.exports = {
-  list, getOne, resend, regenerate, extend, revoke, notes, remind, health,
+  list, issueTrial, getOne, resend, regenerate, extend, revoke, notes, remind, health,
   uploadUrl, publish, rollback, version,
   listCoupons, createCoupon, updateCoupon
 };

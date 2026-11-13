@@ -1724,8 +1724,46 @@
         '<div><h1 class="admin-title">Licencias Berry\'s Lab</h1>' +
           '<p class="admin-subtitle">Ventas, vencimientos y soporte del software.</p></div>' +
         '<div class="admin-actions">' +
+          '<button class="admin-btn admin-btn--primary" type="button" id="labTrialOpen">Emitir prueba gratis</button>' +
           '<button class="admin-btn" type="button" id="labCsv">Exportar CSV</button>' +
           '<button class="admin-btn" type="button" id="labRefresh">' + icon('refresh') + ' Actualizar</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="admin-panel" id="labTrialPanel" hidden style="margin-bottom:16px;padding:16px">' +
+        '<h2 style="margin:0 0 6px">Emitir licencia de prueba sin cargo</h2>' +
+        '<p class="admin-muted">No crea un checkout ni envía correo. La clave se firma en el servidor; copiála para compartirla con quien corresponda.</p>' +
+        '<form id="labTrialForm" novalidate>' +
+          '<div class="admin-form-grid">' +
+            '<div class="admin-field"><label for="labTrialEmail">Email del laboratorio</label>' +
+              '<input type="email" id="labTrialEmail" value="auro.labs.es@gmail.com" required maxlength="254"></div>' +
+            '<div class="admin-field"><label for="labTrialName">Nombre o contacto (opcional)</label>' +
+              '<input type="text" id="labTrialName" maxlength="120" placeholder="Nombre del laboratorio"></div>' +
+            '<div class="admin-field"><label for="labTrialDays">Duración en días</label>' +
+              '<input type="number" id="labTrialDays" min="1" max="365" step="1" value="60" required></div>' +
+          '</div>' +
+          '<div class="admin-actions" style="margin-top:12px">' +
+            '<button class="admin-btn admin-btn--primary" type="submit" id="labTrialSubmit">Emitir licencia gratuita</button>' +
+            '<button class="admin-btn" type="button" id="labTrialCancel">Cancelar</button>' +
+          '</div>' +
+        '</form>' +
+        '<div class="admin-panel" id="labTrialResult" hidden style="margin-top:14px;padding:12px">' +
+          '<p id="labTrialSummary" aria-live="polite" style="margin-top:0"></p>' +
+          '<label for="labTrialKey">Clave para compartir</label>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+            '<textarea id="labTrialKey" readonly rows="3" style="flex:1;min-width:260px;overflow-wrap:anywhere"></textarea>' +
+            '<button class="admin-btn" type="button" id="labTrialCopy">Copiar clave</button>' +
+          '</div>' +
+          '<div style="margin-top:12px">' +
+            '<p id="labTrialDownloadNote" class="admin-muted" aria-live="polite"></p>' +
+            '<div id="labTrialDownloadWrap" hidden>' +
+              '<label for="labTrialDownload">Enlace seguro para descargar el programa</label>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+                '<textarea id="labTrialDownload" readonly rows="3" style="flex:1;min-width:260px;overflow-wrap:anywhere"></textarea>' +
+                '<button class="admin-btn" type="button" id="labTrialCopyDownload">Copiar enlace</button>' +
+              '</div>' +
+              '<small class="admin-muted">Compartí este enlace solo con el laboratorio destinatario.</small>' +
+            '</div>' +
+          '</div>' +
         '</div>' +
       '</div>' +
       '<div id="labStats"></div>' +
@@ -1735,6 +1773,7 @@
           '<select id="labStatus">' +
             '<option value="">Todos</option>' +
             '<option value="approved">Pagadas</option>' +
+            '<option value="trial">Pruebas gratuitas</option>' +
             '<option value="pending">Pendientes</option>' +
             '<option value="rejected">Rechazadas</option>' +
             '<option value="cancelled">Canceladas</option>' +
@@ -1765,6 +1804,7 @@
       var st = stats || {};
       var cards = [
         ['Pagadas', st.pagadas || 0],
+        ['Pruebas gratuitas', st.pruebas || 0],
         ['Ingresos', precioTxt(st.ingresos || 0)],
         ['Activas', st.activas || 0],
         ['Por vencer', st.por_vencer || 0],
@@ -1790,8 +1830,8 @@
           '<th>Cliente</th><th>Estado</th><th>Monto</th><th>Compra</th><th>Vence</th><th>Desc.</th><th></th>' +
         '</tr></thead><tbody>' +
         items.map(function (l) {
-          var pill = l.status === 'approved' ? 'ok' : l.status === 'pending' ? 'warn' : 'bad';
-          var estadoTxt = { approved: 'Pagada', pending: 'Pendiente', rejected: 'Rechazada', cancelled: 'Cancelada' }[l.status] || l.status;
+          var pill = l.esPrueba || l.status === 'approved' ? 'ok' : l.status === 'pending' ? 'warn' : 'bad';
+          var estadoTxt = l.esPrueba ? 'Prueba gratis' : ({ approved: 'Pagada', pending: 'Pendiente', rejected: 'Rechazada', cancelled: 'Cancelada' }[l.status] || l.status);
           var vence = l.vence
             ? (l.vencida ? '<span class="admin-pill admin-pill--bad">' + l.vence + '</span>' : l.vence)
             : '—';
@@ -1799,7 +1839,7 @@
             '<td class="admin-cell-title">' + escapeHtml(l.email) +
               (l.nombre ? '<br><small class="admin-muted">' + escapeHtml(l.nombre) + '</small>' : '') + '</td>' +
             '<td><span class="admin-pill admin-pill--' + pill + '">' + estadoTxt + '</span></td>' +
-            '<td>' + precioTxt(l.amount) + '</td>' +
+            '<td>' + (l.esPrueba ? 'Sin cargo' : precioTxt(l.amount)) + '</td>' +
             '<td>' + escapeHtml(fmtDate(l.compra)) + '</td>' +
             '<td>' + vence + '</td>' +
             '<td>' + l.descargas + '</td>' +
@@ -1810,8 +1850,70 @@
           '</tr>' +
           '<tr id="labDetalle-' + l.id + '" hidden><td colspan="7">' + detalleHtml(l) + '</td></tr>';
         }).join('') +
-        '</tbody></table></div>';
+      '</tbody></table></div>';
     }
+
+    $('#labTrialOpen').addEventListener('click', function () {
+      $('#labTrialPanel').hidden = false;
+      $('#labTrialEmail').focus();
+    });
+    $('#labTrialCancel').addEventListener('click', function () {
+      $('#labTrialPanel').hidden = true;
+      $('#labTrialResult').hidden = true;
+    });
+    $('#labTrialForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = $('#labTrialEmail').value.trim();
+      var nombre = $('#labTrialName').value.trim();
+      var dias = Number($('#labTrialDays').value);
+      if (!Number.isInteger(dias) || dias < 1 || dias > 365) {
+        toast('La duración debe ser de 1 a 365 días.');
+        return;
+      }
+      if (!confirm('Emitir una licencia gratuita por ' + dias + ' días para ' + email + '? No se hará ningún cobro ni se enviará un correo.')) return;
+
+      var boton = $('#labTrialSubmit');
+      boton.disabled = true;
+      req('POST', '/lab/licenses/trial', { email: email, nombre: nombre, dias: dias })
+        .then(function (r) {
+          $('#labTrialSummary').textContent = 'Licencia gratuita emitida para ' + r.email + ' por ' + r.dias + ' días. Vence el ' + r.expira + '. No se envió ningún correo.';
+          $('#labTrialKey').value = r.clave || '';
+          $('#labTrialDownloadNote').textContent = r.descargaDisponible
+            ? 'El instalador está configurado. Compartí también el enlace de descarga.'
+            : 'No está disponible la descarga automática. Revisá que el instalador esté publicado y R2 configurado antes de compartir.';
+          $('#labTrialDownload').value = r.descargaUrl || '';
+          $('#labTrialDownloadWrap').hidden = !r.descargaUrl;
+          $('#labTrialResult').hidden = false;
+          boton.disabled = false;
+          cargar();
+        })
+        .catch(function (err) {
+          boton.disabled = false;
+          toast((err && err.message) || 'No pudimos emitir la licencia gratuita.');
+        });
+    });
+    $('#labTrialCopy').addEventListener('click', function () {
+      var input = $('#labTrialKey');
+      input.select();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(input.value).then(function () { toast('Clave copiada.'); })
+          .catch(function () { document.execCommand('copy'); toast('Clave copiada.'); });
+      } else {
+        document.execCommand('copy');
+        toast('Clave copiada.');
+      }
+    });
+    $('#labTrialCopyDownload').addEventListener('click', function () {
+      var input = $('#labTrialDownload');
+      input.select();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(input.value).then(function () { toast('Enlace de descarga copiado.'); })
+          .catch(function () { document.execCommand('copy'); toast('Enlace de descarga copiado.'); });
+      } else {
+        document.execCommand('copy');
+        toast('Enlace de descarga copiado.');
+      }
+    });
 
     function detalleHtml(l) {
       return '<div style="padding:6px 0">' +
@@ -1926,7 +2028,7 @@
       var rows = [['Email', 'Nombre', 'Estado', 'Monto', 'Compra', 'Vence', 'Descargas', 'Clave', 'Notas']];
       Object.keys(actuales).forEach(function (k) {
         var l = actuales[k];
-        rows.push([l.email, l.nombre, l.status, l.amount, fmtDate(l.compra), l.vence || '', l.descargas, l.clave, l.notas]);
+        rows.push([l.email, l.nombre, l.esPrueba ? 'Prueba gratis' : l.status, l.esPrueba ? 'Sin cargo' : l.amount, fmtDate(l.compra), l.vence || '', l.descargas, l.clave, l.notas]);
       });
       var csv = rows.map(function (r) {
         return r.map(function (v) {

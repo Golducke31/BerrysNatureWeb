@@ -55,7 +55,11 @@ test.describe('Ruta secreta del admin — ofuscación', () => {
 
     const js = await request.get(`${BASE}/api/${SLUG}/_/admin.js?k=${GATE}`);
     expect(js.status()).toBe(200);
-    expect((await js.body()).length).toBeGreaterThan(1000);
+    const jsText = await js.text();
+    expect(jsText.length).toBeGreaterThan(1000);
+    expect(jsText).toContain('labTrialOpen');
+    expect(jsText).toContain("'/lab/licenses/trial'");
+    expect(jsText).toContain('labTrialDownload');
   });
 
   /* Borrar usuarios desde el panel es irreversible: la primera barrera es la
