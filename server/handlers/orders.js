@@ -78,6 +78,9 @@ function toOrder(r, items) {
     shippingAddress: r.shipping_address,
     notas: r.notas,
     subtotal: Number(r.subtotal),
+    discountCode: String(r.discount_code || ''),
+    discountPercent: Number(r.discount_percent) || 0,
+    discountAmount: Number(r.discount_amount) || 0,
     shipping: Number(r.shipping),
     total: Number(r.total),
     currency: r.currency,
@@ -137,6 +140,77 @@ function calcularPrecioFinal(precioBase, ofertaRaw) {
     ? NaN
     : Number(ofertaRaw);
   return Number.isFinite(oferta) && oferta > 0 && oferta < base ? oferta : base;
+}
+
+function configuracionEnvio(value) {
+  const v = value && typeof value === 'object' ? value : {};
+  const threshold = Number(v.freeThreshold);
+  const percent = Number(v.discountPercent);
+  const rawCode = typeof v.discountCode === 'string' ? v.discountCode.trim().toUpperCase() : 'BERRYS';
+  return {
+    freeThreshold: Number.isFinite(threshold) && threshold >= 0 ? Math.trunc(threshold) : 30000,
+    discountCode: /^[A-Z0-9_-]{2,24}$/.test(rawCode) ? rawCode : '',
+    discountPercent: Number.isInteger(percent) && percent >= 0 && percent <= 90 ? percent : 10
+  };
+}
+
+async function leerConfiguracionEnvio() {
+  try {
+    const row = await db.one("SELECT value FROM site_content WHERE key = 'shipping'");
+    return configuracionEnvio((row && row.value) || {});
+  } catch (e) {
+    return configuracionEnvio({});
+  }
+}
+
+function calcularMontoDescuento(subtotal, percent) {
+  const base = Math.max(0, Math.trunc(Number(subtotal) || 0));
+  const rate = Math.max(0, Math.min(90, Math.trunc(Number(percent) || 0)));
+  if (!base || !rate) return 0;
+  return Math.min(Math.round(base * rate / 100), base - 1);
+}
+
+/* Reparte el subtotal neto en líneas de Mercado Pago con precisión de centavos.
+   El total de las líneas queda exactamente igual al subtotal neto guardado. */
+function lineasParaPreferencia(lineas, subtotal, subtotalNeto) {
+  if (!subtotalNeto || subtotalNeto === subtotal) {
+    return lineas.map((l) => ({ id: l.product_id, title: l.nombre, quantity: l.qty, unit_price: l.precio }));
+  }
+
+  const targetCents = BigInt(Math.round(subtotalNeto * 100));
+  const denominator = BigInt(Math.round(subtotal));
+  let allocated = 0;
+  const shares = lineas.map((line, index) => {
+    const gross = BigInt(Math.round(line.precio * line.qty));
+    const numerator = targetCents * gross;
+    const cents = Number(numerator / denominator);
+    const remainder = Number(numerator % denominator);
+    allocated += cents;
+    return { line, index, cents, remainder };
+  });
+
+  let remaining = Number(targetCents) - allocated;
+  shares.slice().sort((a, b) => b.remainder - a.remainder || a.index - b.index)
+    .slice(0, remaining).forEach((share) => { share.cents += 1; });
+
+  return shares.flatMap(({ line, cents }) => {
+    const unitFloor = Math.floor(cents / line.qty);
+    const unidadesAlto = cents - unitFloor * line.qty;
+    const out = [];
+    if (line.qty - unidadesAlto > 0) {
+      out.push({
+        id: line.product_id, title: line.nombre, quantity: line.qty - unidadesAlto,
+        unit_price: unitFloor / 100
+      });
+    }
+    if (unidadesAlto > 0) {
+      out.push({
+        id: line.product_id, title: line.nombre, quantity: unidadesAlto,
+        unit_price: (unitFloor + 1) / 100
+      });
+    }
+    return out;
+  });
 }
 
 async function resolverLineas(items) {
@@ -204,16 +278,12 @@ async function listZones(req, res) {
   const rows = await db.query(
     'SELECT id, nombre, detalle, precio, orden FROM shipping_zones WHERE activo = true ORDER BY orden ASC, nombre ASC'
   );
-
-  let freeThreshold = 30000;
-  try {
-    const row = await db.one("SELECT value FROM site_content WHERE key = 'shipping'");
-    const v = (row && row.value) || {};
-    if (typeof v.freeThreshold === 'number') freeThreshold = v.freeThreshold;
-  } catch (e) { /* valor por defecto */ }
+  const config = await leerConfiguracionEnvio();
 
   json(res, 200, {
-    freeThreshold,
+    freeThreshold: config.freeThreshold,
+    discountCode: config.discountCode,
+    discountPercent: config.discountPercent,
     zones: rows.map((z) => ({
       id: z.id,
       nombre: z.nombre,
@@ -297,6 +367,18 @@ async function createCheckout(req, res, body) {
   if (subtotal <= 0) V.fail('El total del pedido no puede ser cero.', 'items');
   if (subtotal > MAX_SUBTOTAL) V.fail('El pedido supera el máximo permitido online.', 'items');
 
+  const config = await leerConfiguracionEnvio();
+  const codigoIngresado = V.clean(body && body.discountCode).toUpperCase();
+  if (codigoIngresado && (
+    !config.discountCode || config.discountPercent < 1 || codigoIngresado !== config.discountCode
+  )) {
+    V.fail('El código de descuento no es válido o ya no está vigente.', 'discountCode');
+  }
+  const discountCode = codigoIngresado ? config.discountCode : '';
+  const discountPercent = discountCode ? config.discountPercent : 0;
+  const discountAmount = discountCode ? calcularMontoDescuento(subtotal, discountPercent) : 0;
+  const subtotalNeto = subtotal - discountAmount;
+
   /* ---- Contacto ---- */
   const email = body && body.email ? V.email(body.email) : (current ? current.user.email : null);
   if (!email) V.fail('Necesitamos un email para avisarte del pedido.', 'email');
@@ -319,22 +401,14 @@ async function createCheckout(req, res, body) {
      en la tabla: la gratuidad es una regla del negocio, no un dato. */
   const delivery = zona.id === 'retiro' ? 'retiro' : 'envio';
 
-  /* Envío gratis por monto mínimo (editable desde el panel). */
-  let freeThreshold = 30000;
-  try {
-    const row = await db.one("SELECT value FROM site_content WHERE key = 'shipping'");
-    const v = (row && row.value) || {};
-    if (typeof v.freeThreshold === 'number') freeThreshold = v.freeThreshold;
-  } catch (e) { /* valor por defecto */ }
-
   let shipping = delivery === 'retiro' ? 0 : Number(zona.precio) || 0;
-  if (delivery !== 'retiro' && freeThreshold > 0 && subtotal >= freeThreshold) shipping = 0;
+  if (delivery !== 'retiro' && config.freeThreshold > 0 && subtotal >= config.freeThreshold) shipping = 0;
 
   const shippingAddress = delivery === 'envio'
     ? V.str(body.shippingAddress, { min: 6, max: 300, field: 'dirección' })
     : '';
 
-  const total = subtotal + shipping;
+  const total = subtotalNeto + shipping;
 
   /* ---- Alta del pedido (UN statement: cabecera + líneas) ----
      ON CONFLICT DO NOTHING sobre idempotency_key: si el navegador reintenta
@@ -352,9 +426,10 @@ async function createCheckout(req, res, body) {
     `WITH nueva AS (
        INSERT INTO orders (
          user_id, email, nombre, telefono, delivery, shipping_zone, shipping_address,
-         notas, subtotal, shipping, total, idempotency_key, public_token, ip_hash,
+         notas, subtotal, discount_code, discount_percent, discount_amount,
+         shipping, total, idempotency_key, public_token, ip_hash,
          reserved_until
-       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,
                  now() + interval '20 minutes')
        ON CONFLICT (idempotency_key) DO NOTHING
        RETURNING id, numero, public_token
@@ -362,7 +437,7 @@ async function createCheckout(req, res, body) {
        INSERT INTO order_items (order_id, product_id, nombre, precio, qty)
        SELECT n.id, x.product_id, x.nombre, x.precio, x.qty
          FROM nueva n
-         CROSS JOIN jsonb_to_recordset($15::jsonb)
+         CROSS JOIN jsonb_to_recordset($18::jsonb)
            AS x(product_id text, nombre text, precio integer, qty integer)
      )
      SELECT id, numero, public_token FROM nueva`,
@@ -376,6 +451,9 @@ async function createCheckout(req, res, body) {
       shippingAddress,
       notas,
       subtotal,
+      discountCode,
+      discountPercent,
+      discountAmount,
       shipping,
       total,
       key,
@@ -422,16 +500,12 @@ async function createCheckout(req, res, body) {
   try {
     pref = await mp.createOrderPreference({
       orderId: creada.id,
-      items: lineas.map((l) => ({
-        id: l.product_id,
-        title: l.nombre,
-        quantity: l.qty,
-        unit_price: l.precio
-      })),
+      items: lineasParaPreferencia(lineas, subtotal, subtotalNeto),
       shipping,
       shippingLabel: `Envío — ${zona.nombre}`,
       email,
-      appUrl
+      appUrl,
+      installmentsThresholdTotal: subtotal + shipping
     });
   } catch (err) {
     console.error('[orders] no se pudo crear la preferencia:', err && err.message);
@@ -471,7 +545,7 @@ async function createCheckout(req, res, body) {
     action: 'order.checkout_created',
     entityType: 'order',
     entityId: creada.id,
-    payload: { total, lineas: lineas.length, delivery },
+    payload: { total, lineas: lineas.length, delivery, discountCode, discountAmount },
     ip: getClientIp(req)
   });
 
@@ -487,6 +561,9 @@ async function createCheckout(req, res, body) {
     token: creada.public_token,
     total,
     subtotal,
+    discountCode,
+    discountPercent,
+    discountAmount,
     shipping
   });
 }
@@ -884,5 +961,8 @@ module.exports = {
   listAdmin, getAdmin, updateAdmin,
   listZonesAdmin, updateZone,
   calcularPrecioFinal,
+  calcularMontoDescuento,
+  lineasParaPreferencia,
+  configuracionEnvio,
   resolverLineas
 };

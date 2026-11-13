@@ -76,10 +76,11 @@ function initPointDe(pref) {
  *     porque MP devuelve metadata intacta en el objeto Payment.
  *
  * @param {{orderId:string, items:Array<{id:string,title:string,quantity:number,unit_price:number}>,
- *          shipping?:number, shippingLabel?:string, email?:string, appUrl:string}} opts
+ *          shipping?:number, shippingLabel?:string, email?:string, appUrl:string,
+ *          installmentsThresholdTotal?:number}} opts
  * @returns {Promise<object>} la preferencia (incluye `init_point`)
  */
-async function createOrderPreference({ orderId, items, shipping, shippingLabel, email, appUrl }) {
+async function createOrderPreference({ orderId, items, shipping, shippingLabel, email, appUrl, installmentsThresholdTotal }) {
   const token = accessToken();
   if (!token) throw new Error('MERCADOPAGO_ACCESS_TOKEN no está configurado.');
 
@@ -93,6 +94,9 @@ async function createOrderPreference({ orderId, items, shipping, shippingLabel, 
   }));
 
   const envio = Number(shipping) || 0;
+  const importeParaCuotas = Number.isFinite(Number(installmentsThresholdTotal))
+    ? Number(installmentsThresholdTotal)
+    : lineas.reduce((t, l) => t + Number(l.unit_price) * Number(l.quantity), 0) + envio;
   if (envio > 0) {
     lineas.push({
       id: 'envio',
@@ -113,7 +117,7 @@ async function createOrderPreference({ orderId, items, shipping, shippingLabel, 
        Debajo de ese monto se fuerza 1 (sin cuotas). MP decide las opciones
        finales según la cuenta y la tarjeta; acá solo se fija el máximo. */
     payment_methods: {
-      installments: lineas.reduce((t, l) => t + Number(l.unit_price) * Number(l.quantity), 0) >= 50000 ? 3 : 1
+      installments: importeParaCuotas >= 50000 ? 3 : 1
     },
     /* Volvemos a la URL pública canónica (sin .html): con el .html el
        comprador entraría por una 301 y daría un salto de más justo

@@ -1428,15 +1428,26 @@ async function hilosIndexables() {
     .map((f) => ({ path: `/foro/hilo/${encodeURIComponent(f.id)}`, lastmod: iso(f.updated_at) }));
 }
 
-/** Productos disponibles → sitemap con /productos/<slug> (id ya es un slug). */
+/** Productos disponibles y categorías con contenido → sitemap canónico. */
 async function productosIndexables() {
   const filas = await db.many(`
-    SELECT id, updated_at
+    SELECT id, categoria, updated_at
       FROM products
      WHERE disponible = true
      ORDER BY updated_at DESC
      LIMIT 2000`);
-  return filas.map((f) => ({ path: `/productos/${encodeURIComponent(f.id)}`, lastmod: iso(f.updated_at) }));
+  const productos = filas.map((f) => ({ path: `/productos/${encodeURIComponent(f.id)}`, lastmod: iso(f.updated_at) }));
+  const categorias = nav.CATEGORIAS
+    .filter((categoria) => filas.some((fila) => normalizarCategoria(fila.categoria) === normalizarCategoria(categoria.nombre)))
+    .map((categoria) => {
+      const fechas = filas
+        .filter((fila) => normalizarCategoria(fila.categoria) === normalizarCategoria(categoria.nombre))
+        .map((fila) => new Date(fila.updated_at).getTime())
+        .filter(Number.isFinite);
+      const lastmod = fechas.length ? new Date(Math.max(...fechas)).toISOString() : null;
+      return { path: `/tienda/${categoria.slug}`, lastmod };
+    });
+  return { productos, categorias };
 }
 
 /**
@@ -1450,6 +1461,7 @@ async function renderSitemap(req, res) {
   let hilos = [];
   let guiasDinamicas = [];
   let productos = [];
+  let categorias = [];
 
   try {
     hilos = await hilosIndexables();
@@ -1466,7 +1478,9 @@ async function renderSitemap(req, res) {
   }
 
   try {
-    productos = await productosIndexables();
+    const indexables = await productosIndexables();
+    productos = indexables.productos;
+    categorias = indexables.categorias;
   } catch (err) {
     console.error('[sitemap] no se pudieron leer los productos:', err && err.message);
   }
@@ -1509,6 +1523,12 @@ async function renderSitemap(req, res) {
       loc: `${siteUrl()}${g.path}`,
       lastmod: g.lastmod || '',
       changefreq: 'monthly',
+      priority: '0.8'
+    })),
+    ...categorias.map((c) => ({
+      loc: `${siteUrl()}${c.path}`,
+      lastmod: c.lastmod || '',
+      changefreq: 'weekly',
       priority: '0.8'
     })),
     ...hilos.map((h) => ({
@@ -1601,12 +1621,12 @@ function productoParaLd(r) {
  * ItemList JSON-LD del catálogo con precio y disponibilidad reales.
  * `resenasMap` es { [id]: { total, promedio } } (puede venir vacío).
  */
-function buildCatalogoJsonLd(productos, resenasMap) {
+function buildCatalogoJsonLd(productos, resenasMap, nombreLista) {
   const base = siteUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: "Catálogo Berry's Nature",
+    name: nombreLista || "Catálogo Berry's Nature",
     itemListElement: productos.map((p, i) => {
       const item = {
         '@type': 'Product',
@@ -1775,14 +1795,81 @@ function inyectarJsonLdCatalogo(htmlDoc, data) {
   return htmlDoc.replace(/<\/head>/i, `  ${bloque}\n</head>`);
 }
 
+function normalizarCategoria(value) {
+  return String(value || '').trim().toLocaleLowerCase('es-AR');
+}
+
+function escaparRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function reemplazarMeta(htmlDoc, atributo, nombre, value) {
+  const pattern = new RegExp(`<meta\\b(?=[^>]*\\b${atributo}=["']${escaparRegex(nombre)}["'])[^>]*>`, 'i');
+  return htmlDoc.replace(pattern, (tag) => {
+    const content = `content="${esc(value)}"`;
+    return /\bcontent=(?:"[^"]*"|'[^']*')/i.test(tag)
+      ? tag.replace(/\bcontent=(?:"[^"]*"|'[^']*')/i, content)
+      : tag.replace(/\s*\/?\s*>$/, ` ${content}>`);
+  });
+}
+
+function paginaErrorCategoria(titulo, texto) {
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(titulo)}</title></head><body><main><h1>${esc(titulo)}</h1><p>${esc(texto)}</p><a href="/tienda">Volver a la tienda</a></main></body></html>`;
+}
+
+function personalizarTiendaCategoria(htmlDoc, categoria) {
+  const canonical = `${siteUrl()}/tienda/${categoria.slug}`;
+  let out = htmlDoc
+    .replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(categoria.title)}</title>`)
+    .replace(/(<h1\b[^>]*class="store-hero__title"[^>]*>)[\s\S]*?(<\/h1>)/i, `$1${esc(categoria.h1)}$2`)
+    .replace(/(<p\b[^>]*class="store-hero__sub"[^>]*>)[\s\S]*?(<\/p>)/i, `$1${esc(categoria.intro)}$2`)
+    .replace(/(<h2\b[^>]*>)Nuestros productos(<\/h2>)/i, `$1Productos de ${esc(categoria.nombre)}$2`);
+
+  out = reemplazarMeta(out, 'name', 'description', categoria.description);
+  out = reemplazarMeta(out, 'property', 'og:title', categoria.title);
+  out = reemplazarMeta(out, 'property', 'og:description', categoria.description);
+  out = reemplazarMeta(out, 'property', 'og:url', canonical);
+  out = reemplazarMeta(out, 'name', 'twitter:title', categoria.title);
+  out = reemplazarMeta(out, 'name', 'twitter:description', categoria.description);
+  out = out.replace(/<link\b(?=[^>]*\brel=["']canonical["'])[^>]*>/i, (tag) =>
+    tag.replace(/\bhref=["'][^"']*["']/i, `href="${esc(canonical)}"`)
+  );
+
+  out = out.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi, (block, source) => {
+    try {
+      const data = JSON.parse(source);
+      if (data && data['@type'] === 'BreadcrumbList') {
+        data.itemListElement = [
+          { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` },
+          { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${siteUrl()}/tienda` },
+          { '@type': 'ListItem', position: 3, name: categoria.nombre, item: canonical }
+        ];
+        return `<script type="application/ld+json">\n${jsonLd(data)}\n</script>`;
+      }
+    } catch (err) { /* se conserva cualquier JSON-LD que no sea parseable */ }
+    return block;
+  });
+
+  // tienda.html vive en la raíz, pero esta respuesta se sirve bajo /tienda/:slug.
+  // Solo los assets relativos se vuelven absolutos; los href de fragmento siguen locales.
+  return out.replace(/(^|["'(=,\s])(?:\.{1,2}\/)*(assets|css|js)\//g, '$1/$2/');
+}
+
 /**
- * GET /tienda  (rewrite → /api/tienda)
- *
- * Sirve la tienda con el JSON-LD del catálogo generado desde la BD.
- * Si la consulta falla, devuelve el HTML estático sin tocar (degradación
- * limpia: la tienda sigue funcionando aunque la base no responda).
+ * GET /tienda[/:slug] (rewrite → /api/tienda[/:slug]).
+ * La ruta base mantiene el comportamiento anterior; los slugs de categoría
+ * reciben HTML inicial filtrado y metadatos propios.
  */
-async function renderTienda(req, res) {
+async function renderTienda(req, res, params = {}) {
+  const categoria = params.slug
+    ? nav.CATEGORIAS.find((item) => item.slug === params.slug)
+    : null;
+  if (params.slug && !categoria) {
+    return html(res, 404, paginaErrorCategoria('No encontramos esa categoría', 'La categoría que buscás no está disponible.'), {
+      'X-Robots-Tag': 'noindex, follow'
+    });
+  }
+
   const estatico = leerHtmlEstatico('tienda.html');
   if (!estatico) {
     console.error('[tienda] no se encontró tienda.html en el bundle');
@@ -1791,21 +1878,40 @@ async function renderTienda(req, res) {
 
   let markup = estatico.html;
   try {
-    const rows = await db.query(
+    const todasLasFilas = await db.query(
       'SELECT * FROM products WHERE disponible = true ORDER BY orden ASC, nombre ASC'
     );
+    const rows = categoria
+      ? todasLasFilas.filter((row) => normalizarCategoria(row.categoria) === normalizarCategoria(categoria.nombre))
+      : todasLasFilas;
+
+    if (categoria && !rows.length) {
+      return html(res, 404, paginaErrorCategoria('Todavía no hay productos en esta categoría', 'Volvé a la tienda para ver todos los productos disponibles.'), {
+        'X-Robots-Tag': 'noindex, follow'
+      });
+    }
+
     if (rows.length) {
       const productos = rows.map(productoParaLd);
       const resenasMap = await reviews.resumenesPara(productos.map((p) => p.id))
         .catch(() => ({}));
-      markup = inyectarJsonLdCatalogo(markup, buildCatalogoJsonLd(productos, resenasMap));
+      const nombreLista = categoria ? `Productos de ${categoria.nombre} — Berry's Nature` : undefined;
+      markup = inyectarJsonLdCatalogo(markup, buildCatalogoJsonLd(productos, resenasMap, nombreLista));
       // El catálogo va TAMBIÉN en el HTML: sin esto la página llegaba con
       // el grid vacío y Google no tenía ni productos ni enlaces internos.
       markup = inyectarCatalogo(markup, catalogoHtml(rows, resenasMap));
     }
   } catch (err) {
     console.error('[tienda] no se pudo generar el JSON-LD desde la BD:', err && err.message);
+    if (categoria) {
+      return html(res, 503, paginaErrorCategoria('La tienda no está disponible por el momento', 'Probá de nuevo en unos minutos.'), {
+        'Retry-After': '60',
+        'X-Robots-Tag': 'noindex, follow'
+      });
+    }
   }
+
+  if (categoria) markup = personalizarTiendaCategoria(markup, categoria);
 
   /* html() por defecto manda `no-store`: correcto para un 404 o un perfil,
      pero acá es la página hub que Google usa para descubrir las 14 fichas.

@@ -20,11 +20,41 @@
 'use strict';
 
 const CATEGORIAS = [
-  { slug: 'cabello', nombre: 'Cabello' },
-  { slug: 'facial', nombre: 'Facial' },
-  { slug: 'jabones', nombre: 'Jabones' },
-  { slug: 'corporal', nombre: 'Corporal' },
-  { slug: 'labios', nombre: 'Labios' }
+  {
+    slug: 'cabello', nombre: 'Cabello',
+    title: 'Cuidado capilar natural artesanal | Berry\'s Nature',
+    description: 'Explorá shampoo y acondicionadores sólidos artesanales de Berry\'s Nature, elaborados en pequeños lotes en Buenos Aires.',
+    h1: 'Cuidado natural para el cabello',
+    intro: 'Explorá la línea capilar de Berry\'s Nature, con shampoo y acondicionadores sólidos artesanales en lotes pequeños.'
+  },
+  {
+    slug: 'facial', nombre: 'Facial',
+    title: 'Cosmética facial natural | Berry\'s Nature',
+    description: 'Conocé los productos faciales artesanales de Berry\'s Nature y encontrá opciones para sumar a tu rutina de cuidado.',
+    h1: 'Cosmética natural para el rostro',
+    intro: 'Explorá los productos faciales disponibles y elegí una opción para sumar a tu rutina de cuidado diario.'
+  },
+  {
+    slug: 'jabones', nombre: 'Jabones',
+    title: 'Jabones artesanales | Berry\'s Nature',
+    description: 'Elegí entre los jabones artesanales de Berry\'s Nature, elaborados en pequeños lotes para acompañar tu rutina diaria.',
+    h1: 'Jabones artesanales',
+    intro: 'Encontrá los jabones disponibles, elaborados artesanalmente en pequeños lotes por Berry\'s Nature.'
+  },
+  {
+    slug: 'corporal', nombre: 'Corporal',
+    title: 'Cuidado corporal natural | Berry\'s Nature',
+    description: 'Explorá productos artesanales de Berry\'s Nature para acompañar tu rutina de cuidado corporal, elaborados en pequeños lotes.',
+    h1: 'Cuidado corporal artesanal',
+    intro: 'Conocé los productos disponibles para el cuidado corporal, elaborados artesanalmente en pequeños lotes.'
+  },
+  {
+    slug: 'labios', nombre: 'Labios',
+    title: 'Cuidado labial artesanal | Berry\'s Nature',
+    description: 'Conocé los productos artesanales para labios de Berry\'s Nature, pensados para acompañar tu rutina de cuidado personal.',
+    h1: 'Cuidado natural para los labios',
+    intro: 'Descubrí los productos de cuidado labial disponibles, elaborados artesanalmente en pequeños lotes.'
+  }
 ];
 
 const FB_URL = 'https://www.facebook.com/share/1JjL83dtQu/';
@@ -47,10 +77,10 @@ const CART_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20
 
 const FB_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="22" height="22"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.43-4.94 8.43-9.94Z"/></svg>`;
 
-/** Enlaces de categoría: apuntan a /tienda con un hash (no crea URLs nuevas). */
+/** Enlaces de categoría a landings SSR indexables con contenido propio. */
 function itemsCategorias(clase) {
   return CATEGORIAS.map((c) =>
-    `<li><a class="${clase}" href="/tienda#categoria-${c.slug}">${c.nombre}</a></li>`
+    `<li><a class="${clase}" href="/tienda/${c.slug}">${c.nombre}</a></li>`
   ).join('\n            ');
 }
 

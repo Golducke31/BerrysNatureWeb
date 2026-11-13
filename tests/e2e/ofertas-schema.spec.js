@@ -5,7 +5,11 @@ const path = require('node:path');
 const RAIZ = path.resolve(__dirname, '../..');
 const { precioValido, tienePrecioValido, ofertaJson } = require('../../server/lib/oferta');
 const db = require('../../server/lib/db');
-const { calcularPrecioFinal, resolverLineas } = require('../../server/handlers/orders');
+const {
+  calcularPrecioFinal, calcularMontoDescuento, lineasParaPreferencia,
+  configuracionEnvio, resolverLineas
+} = require('../../server/handlers/orders');
+const mercadopago = require('../../server/lib/mercadopago');
 
 const leer = (p) => fs.readFileSync(path.join(RAIZ, p), 'utf8');
 
@@ -143,11 +147,69 @@ test.describe('Offer nunca sale sin precio', () => {
       db.query = queryOriginal;
     }
   });
+
+  test('OS-10: el cupón calcula el porcentaje sobre el subtotal sin alterar el valor base', () => {
+    expect(calcularMontoDescuento(30000, 10)).toBe(3000);
+    expect(calcularMontoDescuento(10001, 10)).toBe(1000);
+    expect(calcularMontoDescuento(15000, 0)).toBe(0);
+    expect(calcularMontoDescuento(1, 90)).toBe(0);
+  });
+
+  test('OS-11: el reparto de líneas con cupón coincide exactamente con el subtotal neto', () => {
+    const lineas = [
+      { product_id: 'a', nombre: 'Producto A', precio: 10001, qty: 1 },
+      { product_id: 'b', nombre: 'Producto B', precio: 2499, qty: 3 }
+    ];
+    const subtotal = lineas.reduce((sum, line) => sum + line.precio * line.qty, 0);
+    const descuento = calcularMontoDescuento(subtotal, 10);
+    const neto = subtotal - descuento;
+    const mpItems = lineasParaPreferencia(lineas, subtotal, neto);
+    const totalMP = mpItems.reduce((sum, item) => sum + item.quantity * item.unit_price, 0);
+    expect(Math.round(totalMP * 100)).toBe(neto * 100);
+    expect(mpItems.reduce((sum, item) => sum + item.quantity, 0)).toBe(4);
+    expect(mpItems.every((item) => Math.abs(Math.round(item.unit_price * 100) - item.unit_price * 100) < 1e-8)).toBe(true);
+    expect(lineas.reduce((sum, line) => sum + line.precio * line.qty, 0)).toBe(subtotal);
+  });
+
+  test('OS-12: la configuración conserva umbral cero y normaliza el código', () => {
+    expect(configuracionEnvio({ freeThreshold: 0, discountCode: 'berrys', discountPercent: 10 }))
+      .toEqual({ freeThreshold: 0, discountCode: 'BERRYS', discountPercent: 10 });
+    expect(configuracionEnvio({ freeThreshold: 30000, discountCode: '', discountPercent: 0 }).discountCode)
+      .toBe('');
+  });
+
+  test('OS-13: la elegibilidad de cuotas puede basarse en el importe previo al descuento', async () => {
+    const fetchOriginal = global.fetch;
+    const tokenOriginal = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    let preferenceBody;
+    process.env.MERCADOPAGO_ACCESS_TOKEN = 'TEST-ONLY';
+    global.fetch = async (_url, options) => {
+      preferenceBody = JSON.parse(options.body);
+      return { ok: true, json: async () => ({ id: 'preference-test', init_point: 'https://example.test/pay' }) };
+    };
+    try {
+      await mercadopago.createOrderPreference({
+        orderId: 'order-test',
+        items: [{ id: 'serum', title: 'Sérum', quantity: 1, unit_price: 49000 }],
+        shipping: 0,
+        appUrl: 'https://berrysnature.com.ar',
+        installmentsThresholdTotal: 55000
+      });
+      expect(preferenceBody.payment_methods.installments).toBe(3);
+      expect(preferenceBody.items.reduce((sum, item) => sum + item.quantity * item.unit_price, 0)).toBe(49000);
+    } finally {
+      global.fetch = fetchOriginal;
+      if (tokenOriginal === undefined) delete process.env.MERCADOPAGO_ACCESS_TOKEN;
+      else process.env.MERCADOPAGO_ACCESS_TOKEN = tokenOriginal;
+    }
+  });
 });
 
 test.describe('SSR de /tienda con precios faltantes', () => {
   const db = require('../../server/lib/db');
   const reviews = require('../../server/handlers/reviews');
+  const queryOriginal = db.query;
+  const resumenesOriginal = reviews.resumenesPara;
 
   function productoCon(precio) {
     return [{
@@ -167,9 +229,14 @@ test.describe('SSR de /tienda con precios faltantes', () => {
       setHeader(k, v) { this.headers[String(k).toLowerCase()] = v; },
       end(b) { this.body = String(b); }
     };
-    await pages.renderTienda({}, res);
-    const m = /<script[^>]*id="catalogoJsonLd"[^>]*>([\s\S]*?)<\/script>/.exec(res.body);
-    return m ? JSON.parse(m[1]) : null;
+    try {
+      await pages.renderTienda({}, res);
+      const m = /<script[^>]*id="catalogoJsonLd"[^>]*>([\s\S]*?)<\/script>/.exec(res.body);
+      return m ? JSON.parse(m[1]) : null;
+    } finally {
+      db.query = queryOriginal;
+      reviews.resumenesPara = resumenesOriginal;
+    }
   }
 
   test('OS-08: sin precio, el producto se lista SIN Offer', async () => {

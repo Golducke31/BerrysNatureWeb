@@ -2134,6 +2134,11 @@
           '<div class="admin-panel" style="margin-top:14px">' +
             '<p style="margin:0 0 4px;display:flex;justify-content:space-between"><span>Subtotal</span><span>' +
               precioTxt(o.subtotal) + '</span></p>' +
+            (Number(o.discountAmount) > 0
+              ? '<p style="margin:0 0 4px;display:flex;justify-content:space-between;color:var(--color-accent-dark)"><span>Descuento ' +
+                  escapeHtml(o.discountCode || '') + ' (' + Number(o.discountPercent || 0) + '%)</span><span>−' +
+                  precioTxt(o.discountAmount) + '</span></p>'
+              : '') +
             '<p style="margin:0 0 4px;display:flex;justify-content:space-between"><span>Envío</span><span>' +
               precioTxt(o.shipping) + '</span></p>' +
             '<p style="margin:0;display:flex;justify-content:space-between;font-weight:700"><span>Total</span><span>' +
@@ -2156,20 +2161,36 @@
       var data = results[0];
       var config = results[1] || {};
       var freeThreshold = typeof config.freeThreshold === 'number' ? config.freeThreshold : 30000;
+      var discountCode = typeof config.discountCode === 'string' ? config.discountCode : 'BERRYS';
+      var discountPercent = Number.isInteger(config.discountPercent) ? config.discountPercent : 10;
       var zones = (data && data.zones) || [];
 
       $('#adminMain').innerHTML =
         '<div class="admin-topbar">' +
           '<div><h1 class="admin-title">Envíos</h1>' +
-            '<p class="admin-subtitle">Costo por zona y umbral de envío gratis. "Retiro en persona" es siempre gratis.</p></div>' +
+            '<p class="admin-subtitle">Costos por zona, envío gratis y código promocional. "Retiro en persona" es siempre gratis.</p></div>' +
         '</div>' +
         '<div class="admin-panel" style="margin-bottom:18px"><div class="admin-form-grid">' +
           '<div class="admin-field"><label for="shipFreeThreshold">Envío gratis desde (ARS)</label>' +
             '<input type="number" id="shipFreeThreshold" class="admin-input" min="0" step="1000" value="' + freeThreshold + '">' +
-            '<small class="admin-help">Si el total del pedido supera este monto, el envío es sin cargo. 0 = desactivado.</small>' +
+            '<small class="admin-help">Si el subtotal de productos llega a este monto, el envío es sin cargo. 0 = desactivado.</small>' +
           '</div>' +
           '<div class="admin-field" style="align-self:end"><button class="admin-btn admin-btn--primary" id="saveShipConfig">Guardar envío gratis</button></div>' +
         '</div></div>' +
+        '<div class="admin-panel" style="margin-bottom:18px">' +
+          '<h2 style="margin:0 0 14px">Código de descuento del checkout</h2>' +
+          '<div class="admin-form-grid">' +
+            '<div class="admin-field"><label for="shipDiscountCode">Código que ingresa el cliente</label>' +
+              '<input type="text" id="shipDiscountCode" class="admin-input" maxlength="24" value="' + escapeHtml(discountCode) + '" autocapitalize="characters">' +
+              '<small class="admin-help">Usá letras, números, guion o guion bajo. Se acepta sin distinguir mayúsculas.</small>' +
+            '</div>' +
+            '<div class="admin-field"><label for="shipDiscountPercent">Descuento (%)</label>' +
+              '<input type="number" id="shipDiscountPercent" class="admin-input" min="0" max="90" step="1" value="' + discountPercent + '">' +
+              '<small class="admin-help">0% o un código vacío desactiva la promoción. Máximo 90%.</small>' +
+            '</div>' +
+            '<div class="admin-field" style="align-self:end"><button class="admin-btn admin-btn--primary" id="saveDiscountConfig">Guardar código</button></div>' +
+          '</div>' +
+        '</div>' +
         '<div class="admin-panel"><div class="admin-table-wrap">' +
           (zones.length
             ? '<table class="admin-table"><thead><tr>' +
@@ -2198,6 +2219,19 @@
           'Si el pago online está activo, estos costos se suman al total del pedido.</p>';
 
       $('#adminMain').addEventListener('click', function (e) {
+        var saveDiscount = e.target.closest('#saveDiscountConfig');
+        if (saveDiscount) {
+          var codeInput = document.getElementById('shipDiscountCode');
+          var percentInput = document.getElementById('shipDiscountPercent');
+          req('PATCH', '/content/shipping', {
+            discountCode: codeInput ? codeInput.value.trim().toUpperCase() : '',
+            discountPercent: percentInput ? Number(percentInput.value) : 0
+          })
+            .then(function () { toast('Código de descuento actualizado.'); renderShipping(); })
+            .catch(guard);
+          return;
+        }
+
         var btn = e.target.closest('[data-zone-save]');
         if (!btn) return;
         var id = btn.dataset.zoneSave;

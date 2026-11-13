@@ -72,6 +72,7 @@ const { prerenderHtml } = require(path.join(ROOT, 'scripts', 'prerender.cjs'));
    páginas renderizadas en el servidor (/productos/…, /guias/…) daban 404
    en local y el comportamiento SEO no se podía verificar antes de publicar. */
 const REWRITES = [
+  [/^\/tienda\/([^/]+)$/, (m) => '/api/tienda/' + m[1]],
   [/^\/tienda$/, () => '/api/tienda'],
   [/^\/foro$/, () => '/api/foro'],
   [/^\/sitemap\.xml$/, () => '/api/sitemap'],

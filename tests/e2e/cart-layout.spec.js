@@ -184,6 +184,92 @@ const CART_FIXTURE = `
     await expect(page.locator('#cartFreeShip')).toBeHidden();
   });
 
+  test('CL-05: el cupón se aplica a productos sin alterar envío gratis ni cuotas y viaja al backend', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.setContent(`<!doctype html><html><body>
+      <div id="storeFilters"></div><div id="storeGrid"></div>
+      <button id="cartFab"><span class="cart-fab__count"></span></button>
+      <div id="cartOverlay"></div>
+      <aside id="cartDrawer" class="cart-drawer">
+        <div id="cartBody"></div>
+        <div class="cart-drawer__foot"><div id="cartFreeShip" hidden></div><span id="cartTotalValue"></span>
+          <p id="cartNote"></p><button id="cartCheckout" class="cta-button" type="button">Finalizar compra</button></div>
+      </aside>
+    </body></html>`);
+    await page.addStyleTag({ path: path.join(ROOT, 'css/styles.css') });
+    await page.addStyleTag({ path: path.join(ROOT, 'css/catalog.css') });
+
+    await page.evaluate(() => {
+      const storage = Object.create(null);
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        value: {
+          getItem: (key) => Object.prototype.hasOwnProperty.call(storage, key) ? storage[key] : null,
+          setItem: (key, value) => { storage[key] = String(value); }
+        }
+      });
+      const product = {
+        id: 'serum-premium', nombre: 'Sérum Premium', categoria: 'Facial',
+        descripcion: 'Sérum de prueba', imagen: 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=',
+        imagenes: [], precio: 55000, oferta: null, stock: 5, disponible: true,
+        destacado: false, meta: [], activos: [], componentes: [], mp: ''
+      };
+      window.catalogProducts = [product];
+      window.localStorage.setItem('berrys_cart_v1', JSON.stringify([{ id: product.id, qty: 1 }]));
+      window.fetch = async () => ({ ok: true, json: async () => ({ items: [product] }) });
+      window.BerrysAPI = {
+        available: true,
+        view: async () => ({}),
+        shippingZones: async () => ({
+          freeThreshold: 30000, discountCode: 'BERRYS', discountPercent: 10,
+          zones: [{ id: 'amba', nombre: 'AMBA', detalle: 'Entrega a domicilio', precio: 2500 }]
+        }),
+        session: async () => ({ user: null }),
+        cartCheckout: async (payload, key) => {
+          window.__checkoutCall = { payload, key };
+          throw { code: 'payment_not_configured', message: 'Pago simulado: no se inicia una transacción.' };
+        }
+      };
+    });
+
+    await page.addScriptTag({ path: path.join(ROOT, 'js/catalog.js') });
+    await page.evaluate(() => document.dispatchEvent(new Event('DOMContentLoaded')));
+    await page.evaluate(() => document.querySelector('#cartCheckout').click());
+    await expect(page.locator('#coDiscountBox')).toBeVisible();
+    const promoBounds = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      page: document.documentElement.scrollWidth,
+      modal: document.querySelector('.checkout-modal').getBoundingClientRect(),
+      apply: document.querySelector('#coApplyDiscount').getBoundingClientRect()
+    }));
+    expect(promoBounds.page - promoBounds.viewport).toBeLessThanOrEqual(1);
+    expect(promoBounds.apply.right).toBeLessThanOrEqual(promoBounds.modal.right + 1);
+    await expect(page.locator('#coResumen')).toContainText('$ 55.000');
+    await expect(page.locator('#coResumen')).toContainText('Gratis');
+    await expect(page.locator('#coResumen')).toContainText('Hasta 3');
+
+    await page.locator('#coDiscountCode').fill('incorrecto');
+    await page.locator('#coApplyDiscount').click();
+    await expect(page.locator('#coDiscountMessage')).toContainText('no está disponible');
+    await expect(page.locator('#coResumen')).not.toContainText('Descuento BERRYS');
+
+    await page.locator('#coDiscountCode').fill('BERRYS');
+    await page.locator('#coApplyDiscount').click();
+    await expect(page.locator('#coDiscountMessage')).toContainText('10% de descuento');
+    await expect(page.locator('#coResumen')).toContainText('−$ 5.500');
+    await expect(page.locator('#coResumen')).toContainText('$ 49.500');
+    await expect(page.locator('#coResumen')).toContainText('Gratis');
+    await expect(page.locator('#coResumen')).toContainText('Hasta 3');
+
+    await page.locator('#coNombre').fill('Cliente de prueba');
+    await page.locator('#coEmail').fill('cliente@example.com');
+    await page.locator('#coDir').fill('Calle Falsa 123, Buenos Aires');
+    await page.locator('#coPagar').click();
+    await expect.poll(() => page.evaluate(() => window.__checkoutCall && window.__checkoutCall.payload.discountCode))
+      .toBe('BERRYS');
+    await expect(page.locator('#coError')).toContainText('El pago online todavía no está habilitado');
+  });
+
   test('CL-06: el catálogo estático de respaldo no conserva los seis productos retirados', () => {
     const retiredIds = [
       'aceite-almendras', 'bruma-aurica', 'crema-karite',

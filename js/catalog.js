@@ -145,20 +145,26 @@
     '</div>';
   }
 
+  function imageAssetUrl(url) {
+    var value = String(url || '');
+    if (!value || /^(?:https?:|data:|blob:|\/)/i.test(value)) return value;
+    return '/' + value.replace(/^(?:\.\/)+/, '');
+  }
+
   function mediaHtml(p) {
     var imgs = (Array.isArray(p.imagenes) && p.imagenes.length) ? p.imagenes.slice() : [p.imagen];
     imgs = imgs.filter(Boolean);
     var alt = escapeHtml(p.nombre || '');
     if (imgs.length < 2) {
       return '<div class="guide-card__media">' +
-        '<img class="product-card__img" src="' + escapeHtml(imgs[0] || '') + '" alt="' + alt + '" loading="lazy" decoding="async">' +
+        '<img class="product-card__img" src="' + escapeHtml(imageAssetUrl(imgs[0] || '')) + '" alt="' + alt + '" loading="lazy" decoding="async">' +
         '<span class="guide-card__cat">' + escapeHtml(p.categoria) + '</span>' +
         stockChip(p) + precioHtml(p) +
       '</div>';
     }
     var slides = imgs.map(function (u, i) {
       return '<div class="product-carousel__slide">' +
-        '<img src="' + escapeHtml(u) + '" alt="' + alt + ' — imagen ' + (i + 1) + '" loading="lazy" decoding="async">' +
+        '<img src="' + escapeHtml(imageAssetUrl(u)) + '" alt="' + alt + ' — imagen ' + (i + 1) + '" loading="lazy" decoding="async">' +
       '</div>';
     }).join('');
     var dots = imgs.map(function (_, i) {
@@ -168,7 +174,7 @@
     return '<div class="guide-card__media product-carousel" data-carousel>' +
       '<div class="product-carousel__track">' + slides + '</div>' +
       '<div class="product-carousel__hover" aria-hidden="true">' +
-        '<img src="' + escapeHtml(imgs[1]) + '" alt="" loading="lazy" decoding="async">' +
+        '<img src="' + escapeHtml(imageAssetUrl(imgs[1])) + '" alt="" loading="lazy" decoding="async">' +
       '</div>' +
       '<button type="button" class="product-carousel__arrow product-carousel__arrow--prev" data-carousel-prev aria-label="Imagen anterior">‹</button>' +
       '<button type="button" class="product-carousel__arrow product-carousel__arrow--next" data-carousel-next aria-label="Imagen siguiente">›</button>' +
@@ -280,29 +286,65 @@
     $$('.chip-filter', wrap).forEach(function (chip) {
       chip.addEventListener('click', function () {
         filtroActivo = chip.getAttribute('data-cat');
+        if (actualizarUrlCategoria(filtroActivo)) return;
         $$('.chip-filter', wrap).forEach(function (c) { c.classList.toggle('is-active', c === chip); });
         renderProducts();
       });
     });
   }
 
-  /* El menú compartido enlaza a las categorías con un HASH (no crea URLs
-     nuevas ni parámetros indexables): /tienda#categoria-cabello, etc.
-     #carrito abre el drawer cuando se llega desde otra página. */
+  /* Las cinco categorías principales tienen landing propia. Se conserva el
+     hash anterior para que los enlaces guardados sigan filtrando el catálogo. */
   var CATEGORIAS_HASH = {
     cabello: 'Cabello', facial: 'Facial', jabones: 'Jabones',
     corporal: 'Corporal', labios: 'Labios'
   };
+  function slugCategoria(nombre) {
+    return String(nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+  function categoriaPorSlug(slug) {
+    var key = String(slug || '').toLowerCase();
+    if (CATEGORIAS_HASH[key]) return CATEGORIAS_HASH[key];
+    var match = productos.find(function (p) { return slugCategoria(p.categoria) === key; });
+    return match ? match.categoria : null;
+  }
+  function actualizarUrlCategoria(categoria) {
+    var slugFijo = Object.keys(CATEGORIAS_HASH).find(function (key) {
+      return CATEGORIAS_HASH[key] === categoria;
+    });
+    var ruta = categoria === 'Todas' ? '/tienda' :
+      (slugFijo ? '/tienda/' + slugFijo : '/tienda');
+    var query = window.location.search || '';
+    var destino = ruta + query +
+      (categoria !== 'Todas' && !slugFijo ? '#categoria-' + slugCategoria(categoria) : '');
+    var actual = (window.location.pathname || '') + (window.location.search || '') + (window.location.hash || '');
+    if (destino === actual) return false;
+    try {
+      window.location.assign(destino);
+      return true;
+    } catch (e) {
+      // En entornos sin navegación (p. ej. pruebas file://), conservar el filtro local.
+      try {
+        if (window.history && typeof window.history.pushState === 'function') {
+          window.history.pushState({}, '', destino);
+        }
+      } catch (ignored) { /* navegación no disponible */ }
+      return false;
+    }
+  }
   function aplicarHash() {
     var h = String(window.location.hash || '');
-    if (h === '#carrito') { openCart(); return; }
-    var m = /^#categoria-([a-z0-9-]+)$/i.exec(h);
-    if (!m) return;
-    var cat = CATEGORIAS_HASH[m[1].toLowerCase()];
-    if (!cat) return;
-    filtroActivo = cat;
+    var path = String(window.location.pathname || '').replace(/\/$/, '');
+    var pathMatch = /^\/tienda\/([a-z0-9-]+)$/i.exec(path);
+    var hashMatch = /^#categoria-([a-z0-9-]+)$/i.exec(h);
+    var cat = pathMatch ? categoriaPorSlug(pathMatch[1]) :
+      (hashMatch ? categoriaPorSlug(hashMatch[1]) : null);
+    if (cat) filtroActivo = cat;
+    else if (path === '/tienda' && h !== '#carrito') filtroActivo = 'Todas';
     renderFilters();
     renderProducts();
+    if (h === '#carrito') openCart();
   }
 
   /* ---------------- Acciones de producto ---------------- */
@@ -410,7 +452,7 @@
         freeEl.hidden = true;
       } else {
         var subtotalCarrito = cartTotal(items);
-        var umbral = co.freeThreshold || 30000;
+        var umbral = Number.isFinite(Number(co.freeThreshold)) ? Number(co.freeThreshold) : 30000;
         if (umbral > 0 && subtotalCarrito < umbral) {
           var falta = umbral - subtotalCarrito;
           var pct = Math.max(4, Math.min(100, Math.round((subtotalCarrito / umbral) * 100)));
@@ -556,7 +598,11 @@
      de crear dos. La clave se regenera solo si cambia el contenido del
      carrito o si el pedido anterior ya se creó con éxito. */
 
-  var co = { el: null, zones: null, key: '', firma: '', enviando: false, orden: null, freeThreshold: 0 };
+  var co = {
+    el: null, zones: null, key: '', firma: '', enviando: false, orden: null,
+    freeThreshold: 30000, discountCode: 'BERRYS', discountPercent: 10,
+    discountCodeApplied: '', discountPercentApplied: 0
+  };
 
   function uuid() {
     try {
@@ -569,6 +615,15 @@
 
   function firmaCarrito(items) {
     return items.map(function (i) { return i.id + 'x' + i.qty; }).sort().join('|');
+  }
+
+  function actualizarFirmaCheckout(items) {
+    var firma = firmaCarrito(items) + '|codigo:' + (co.discountCodeApplied || '');
+    if (firma !== co.firma) {
+      co.firma = firma;
+      co.key = uuid();
+      co.orden = null;
+    }
   }
 
   function api() { return window.BerrysAPI; }
@@ -618,6 +673,15 @@
             '<textarea id="coNotas" rows="2" maxlength="600" placeholder="Horario de entrega, referencias, etc."></textarea>' +
           '</label>' +
 
+          '<div class="checkout-discount" id="coDiscountBox" hidden>' +
+            '<div class="checkout-field">' +
+              '<span>Código de descuento</span>' +
+              '<div class="checkout-discount__entry"><input type="text" id="coDiscountCode" maxlength="24" autocomplete="off" placeholder="BERRYS" aria-label="Código de descuento" aria-describedby="coDiscountMessage">' +
+                '<button type="button" class="cta-button checkout-discount__button" id="coApplyDiscount">Aplicar</button></div>' +
+            '</div>' +
+            '<p class="checkout-discount__message" id="coDiscountMessage" aria-live="polite"></p>' +
+          '</div>' +
+
           '<div class="checkout-resumen" id="coResumen"></div>' +
 
           '<button class="cta-button checkout-submit cta-mp" id="coPagar" type="submit"><img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" width="60" height="24" loading="lazy"> Pagar con MercadoPago</button>' +
@@ -634,6 +698,11 @@
     el.querySelector('#coClose').addEventListener('click', closeCheckout);
     el.querySelector('#coForm').addEventListener('submit', enviarPedido);
     el.querySelector('#coZonas').addEventListener('change', actualizarEntrega);
+    el.querySelector('#coApplyDiscount').addEventListener('click', aplicarCodigoDescuento);
+    el.querySelector('#coDiscountCode').addEventListener('input', cambioCodigoDescuento);
+    el.querySelector('#coDiscountCode').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); aplicarCodigoDescuento(); }
+    });
 
     co.el = el;
     return el;
@@ -661,13 +730,8 @@
       });
     }
 
-    // Clave nueva solo si el carrito cambió desde el último intento.
-    var firma = firmaCarrito(items);
-    if (firma !== co.firma) {
-      co.firma = firma;
-      co.key = uuid();
-      co.orden = null;
-    }
+    // Una clave por carrito y código aplicado evita reutilizar un pedido con otro importe.
+    actualizarFirmaCheckout(items);
 
     $('#coError').hidden = true;
     actualizarResumen();
@@ -687,10 +751,16 @@
   }
 
   /** Zonas de envío: se piden una vez y se cachean en memoria. */
+  function actualizarDisponibilidadPromo() {
+    var promoBox = $('#coDiscountBox');
+    if (promoBox) promoBox.hidden = !(co.discountCode && co.discountPercent);
+  }
+
   function cargarZonas() {
     var cont = $('#coZonas');
 
     if (co.zones && co.zones.length) {
+      actualizarDisponibilidadPromo();
       if (cont) pintarZonas(co.zones);
       return Promise.resolve(co.zones);
     }
@@ -704,7 +774,18 @@
     return cliente.shippingZones()
       .then(function (data) {
         co.zones = (data && data.zones) || [];
-        co.freeThreshold = Number(data && data.freeThreshold) || 0;
+        var threshold = Number(data && data.freeThreshold);
+        co.freeThreshold = Number.isFinite(threshold) && threshold >= 0 ? threshold : 30000;
+        co.discountCode = String(data && data.discountCode || '').trim().toUpperCase();
+        var percent = Number(data && data.discountPercent);
+        co.discountPercent = Number.isInteger(percent) && percent >= 1 && percent <= 90 ? percent : 0;
+        var promoActiva = Boolean(co.discountCode && co.discountPercent);
+        actualizarDisponibilidadPromo();
+        if (!promoActiva && co.discountCodeApplied) {
+          co.discountCodeApplied = '';
+          co.discountPercentApplied = 0;
+          actualizarFirmaCheckout(loadCart());
+        }
         if (cont) pintarZonas(co.zones);
         renderCart(); // actualiza la barra de envío gratis del carrito
         return co.zones;
@@ -751,6 +832,57 @@
     actualizarResumen();
   }
 
+  function cambioCodigoDescuento() {
+    var input = $('#coDiscountCode');
+    if (!input || !co.discountCodeApplied) return;
+    if (String(input.value || '').trim().toUpperCase() !== co.discountCodeApplied) {
+      co.discountCodeApplied = '';
+      co.discountPercentApplied = 0;
+      var button = $('#coApplyDiscount');
+      var message = $('#coDiscountMessage');
+      if (button) button.textContent = 'Aplicar';
+      if (message) { message.textContent = ''; message.classList.remove('is-success'); }
+      actualizarFirmaCheckout(loadCart());
+      actualizarResumen();
+    }
+  }
+
+  function aplicarCodigoDescuento() {
+    var input = $('#coDiscountCode');
+    var message = $('#coDiscountMessage');
+    var button = $('#coApplyDiscount');
+    if (!input || !message) return;
+    var code = String(input.value || '').trim().toUpperCase();
+    if (co.discountCodeApplied) {
+      co.discountCodeApplied = '';
+      co.discountPercentApplied = 0;
+      input.value = '';
+      if (button) button.textContent = 'Aplicar';
+      message.textContent = 'Se quitó el código de descuento.';
+      message.classList.remove('is-success');
+      actualizarFirmaCheckout(loadCart());
+      actualizarResumen();
+      return;
+    }
+    if (!code) {
+      message.textContent = 'Ingresá el código que aparece en el banner.';
+      message.classList.remove('is-success');
+      return;
+    }
+    if (!co.discountCode || !co.discountPercent || code !== co.discountCode) {
+      message.textContent = 'Ese código no está disponible. Revisá cómo está escrito.';
+      message.classList.remove('is-success');
+      return;
+    }
+    co.discountCodeApplied = code;
+    co.discountPercentApplied = co.discountPercent;
+    if (button) button.textContent = 'Quitar';
+    message.textContent = '¡Listo! Se aplicó ' + co.discountPercentApplied + '% de descuento a tus productos.';
+    message.classList.add('is-success');
+    actualizarFirmaCheckout(loadCart());
+    actualizarResumen();
+  }
+
   function zonaElegida() {
     if (!co.zones) return null;
     var sel = document.querySelector('#coZonas input[name="zona"]:checked');
@@ -767,15 +899,23 @@
     var envio = z ? Number(z.precio) || 0 : 0;
     // Envío gratis por monto mínimo (el backend aplica la misma regla).
     if (z && z.id !== 'retiro' && co.freeThreshold > 0 && subtotal >= co.freeThreshold) envio = 0;
-    var total = subtotal + envio;
+    var discountAmount = co.discountCodeApplied
+      ? Math.min(Math.round(subtotal * co.discountPercentApplied / 100), Math.max(0, subtotal - 1))
+      : 0;
+    var totalBruto = subtotal + envio;
+    var total = subtotal - discountAmount + envio;
 
     cont.innerHTML = '' +
       '<div class="checkout-resumen__row"><span>Productos</span><span>' + ars(subtotal) + '</span></div>' +
+      (discountAmount > 0
+        ? '<div class="checkout-resumen__row checkout-resumen__row--discount"><span>Descuento ' +
+            escapeHtml(co.discountCodeApplied) + ' (' + co.discountPercentApplied + '%)</span><span>−' + ars(discountAmount) + '</span></div>'
+        : '') +
       '<div class="checkout-resumen__row"><span>Envío' +
         (z ? ' · ' + escapeHtml(z.nombre) : '') + '</span><span>' +
         (z && envio === 0 ? 'Gratis' : ars(envio)) + '</span></div>' +
       '<div class="checkout-resumen__row is-total"><span>Total</span><span>' + ars(total) + '</span></div>' +
-      (total >= 50000
+      (totalBruto >= 50000
         ? '<div class="checkout-resumen__row"><span>Cuotas</span><span>Hasta 3</span></div>'
         : '');
   }
@@ -836,8 +976,10 @@
     var errEl = $('#coError');
     if (errEl) errEl.hidden = true;
 
+    actualizarFirmaCheckout(items);
     cliente.cartCheckout({
       items: items.map(function (i) { return { id: i.id, qty: i.qty }; }),
+      discountCode: co.discountCodeApplied,
       nombre: nombre,
       email: email,
       telefono: tel,
@@ -950,7 +1092,7 @@
      reemplaza. Si la API falla, se queda el estático. */
   function firmaCatalogo(arr) {
     return arr.map(function (p) {
-      return p.id + ':' + p.precio + ':' + p.oferta + ':' + p.disponible + ':' + p.nombre;
+      return p.id + ':' + p.precio + ':' + p.oferta + ':' + p.disponible + ':' + p.nombre + ':' + p.categoria;
     }).join('|');
   }
 
@@ -962,8 +1104,12 @@
         if (!data || !Array.isArray(data.items) || !data.items.length) return;
         if (firmaCatalogo(data.items) === firmaCatalogo(productos)) return;
         productos = data.items;
-        renderFilters();
-        renderProducts();
+        if (/^#categoria-[a-z0-9-]+$/i.test(window.location.hash || '')) {
+          aplicarHash();
+        } else {
+          renderFilters();
+          renderProducts();
+        }
         renderCart();
         actualizarJsonLd();
       })
@@ -1073,6 +1219,7 @@
     // Categoría preseleccionada o carrito abierto desde el menú compartido.
     aplicarHash();
     window.addEventListener('hashchange', aplicarHash);
+    window.addEventListener('popstate', aplicarHash);
 
     // Si venimos de MercadoPago, mostramos el resultado del pago.
     revisarRetornoDePago();

@@ -211,12 +211,20 @@ function desglose(order) {
   const envio = Number(order.shipping) > 0
     ? esc(ars(order.shipping))
     : (order.delivery === 'retiro' ? 'Retiro en persona (sin costo)' : 'Sin costo');
+  const descuento = Number(order.discountAmount) || 0;
+  const filaDescuento = descuento > 0
+    ? `<tr>
+      <td style="font-size:14px;color:${T.accent};padding:4px 0;">Descuento ${esc(order.discountCode || '')}${Number(order.discountPercent) ? ` (${esc(order.discountPercent)}%)` : ''}</td>
+      <td style="font-size:14px;color:${T.accent};padding:4px 0;text-align:right;">−${esc(ars(descuento))}</td>
+    </tr>`
+    : '';
 
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;">
     <tr>
       <td style="font-size:14px;color:${T.muted};padding:4px 0;">Subtotal</td>
       <td style="font-size:14px;color:${T.text};padding:4px 0;text-align:right;">${esc(ars(order.subtotal))}</td>
     </tr>
+    ${filaDescuento}
     <tr>
       <td style="font-size:14px;color:${T.muted};padding:4px 0;">Envío</td>
       <td style="font-size:14px;color:${T.text};padding:4px 0;text-align:right;">${envio}</td>
@@ -242,7 +250,11 @@ function orderConfirmation({ order, items, url }) {
       `${saludo}\n\n` +
       `Recibimos tu pago. Tu pedido BN-${numero} ya está confirmado.\n\n` +
       (items || []).map((it) => `• ${it.nombre} x${it.qty} — ${ars(it.precio * it.qty)}`).join('\n') +
-      `\n\nSubtotal: ${ars(order.subtotal)}\nEnvío: ${ars(order.shipping)}\nTotal: ${ars(order.total)}\n\n` +
+      `\n\nSubtotal: ${ars(order.subtotal)}` +
+      (Number(order.discountAmount) > 0
+        ? `\nDescuento ${order.discountCode || ''} (${order.discountPercent || 0}%): -${ars(order.discountAmount)}`
+        : '') +
+      `\nEnvío: ${ars(order.shipping)}\nTotal: ${ars(order.total)}\n\n` +
       `${entrega}\n\n` +
       (order.notas ? `Tu nota: ${order.notas}\n\n` : '') +
       `Podés ver el estado en: ${url}\n\n` +
@@ -279,7 +291,11 @@ function orderAdminNotice({ order, items, url }) {
       (backorder ? '\n⚠️ ATENCIÓN: hay líneas sin stock (backorder).\n' : '') +
       `\n` +
       (items || []).map((it) => `• ${it.nombre} x${it.qty}${it.backorder ? ' [SIN STOCK]' : ''}`).join('\n') +
-      `\n\nSubtotal: ${ars(order.subtotal)}\nEnvío: ${ars(order.shipping)}\nTotal: ${ars(order.total)}\n\n` +
+      `\n\nSubtotal: ${ars(order.subtotal)}` +
+      (Number(order.discountAmount) > 0
+        ? `\nDescuento ${order.discountCode || ''} (${order.discountPercent || 0}%): -${ars(order.discountAmount)}`
+        : '') +
+      `\nEnvío: ${ars(order.shipping)}\nTotal: ${ars(order.total)}\n\n` +
       (order.notas ? `Nota del cliente: ${order.notas}\n\n` : '') +
       `Panel: ${url}\n`,
     html: layout({

@@ -316,6 +316,23 @@ img {
   gap: 8px;
   text-align: center;
 }
+.topbar-announce__viewport {
+  min-height: 1.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.topbar-announce__message {
+  display: block;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .22s ease, transform .22s ease;
+}
+.topbar-announce__message.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 .topbar-announce strong {
   color: var(--color-cta);
   font-weight: 800;
@@ -343,6 +360,11 @@ img {
     font-size: 12px;
     padding: 8px 40px 8px 12px;
   }
+  .topbar-announce__viewport { min-height: 2.8em; }
+  .topbar-announce__message { max-width: 100%; line-height: 1.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .topbar-announce__message { transition: none; transform: none; }
 }
 
 .header-container {

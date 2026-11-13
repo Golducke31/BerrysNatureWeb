@@ -13,14 +13,16 @@ const db = require('../../server/lib/db');
 
 let filasHilos = [];
 let filasGuias = [];
+let filasProductos = [];
 let explotar = false;
 let sqlsVistos = [];
 
 db.many = async (sql) => {
   sqlsVistos.push(String(sql));
   if (explotar) throw new Error('Falta la variable de entorno DATABASE_URL.');
-  // El sitemap hace dos consultas distintas: hilos y guías.
+  // El sitemap consulta por separado hilos, guías y productos disponibles.
   if (/FROM guides/i.test(sql)) return filasGuias;
+  if (/FROM products/i.test(sql)) return filasProductos;
   return filasHilos;
 };
 
@@ -49,9 +51,10 @@ function filaHilo(over = {}) {
   }, over);
 }
 
-async function sitemap(filas = [], guias = []) {
+async function sitemap(filas = [], guias = [], productos = []) {
   filasHilos = filas;
   filasGuias = guias;
+  filasProductos = productos;
   explotar = false;
   sqlsVistos = [];
   const res = resFalsa();
@@ -90,6 +93,19 @@ test.describe('Sitemap — qué incluye', () => {
       const slug = String(item.id).replace(/_/g, '-');
       expect(urls).toContain(`https://berrysnature.com.ar/glosario/${slug}`);
     }
+  });
+
+  test('S1c: incluye categorías con productos disponibles y omite las vacías', async () => {
+    const res = await sitemap([], [], [
+      { id: 'shampoo-cabello', categoria: 'Cabello', updated_at: '2026-11-10T12:00:00.000Z' },
+      { id: 'balsamo-labios', categoria: 'Labios', updated_at: '2026-11-11T12:00:00.000Z' }
+    ]);
+    const urls = locs(res.body);
+
+    expect(urls).toContain('https://berrysnature.com.ar/tienda/cabello');
+    expect(urls).toContain('https://berrysnature.com.ar/tienda/labios');
+    expect(urls).not.toContain('https://berrysnature.com.ar/tienda/facial');
+    expect(res.body).toContain('<lastmod>2026-11-10T12:00:00.000Z</lastmod>');
   });
 
   test('S2: incluye las guías con página propia, leídas de content-data.js', async () => {

@@ -78,6 +78,14 @@
   status = 200
   force = true
 
+# Landings de categoría renderizadas en el servidor: conservan la URL pública
+# /tienda/<slug> y entregan el slug como segundo segmento al router compartido.
+[[redirects]]
+  from = "/tienda/*"
+  to = "/.netlify/functions/api/tienda/:splat"
+  status = 200
+  force = true
+
 # El listado del foro también lo sirve la Function: inyecta los hilos
 # (títulos y enlaces a /foro/hilo/<id>) en el HTML inicial.
 [[redirects]]

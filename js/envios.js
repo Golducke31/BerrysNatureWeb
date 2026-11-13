@@ -15,6 +15,13 @@
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (d) {
       if (!d || typeof d.freeThreshold !== 'number') return;
+      if (d.freeThreshold <= 0) {
+        Array.prototype.forEach.call(els, function (el) {
+          var p = el.closest('p');
+          if (p) p.textContent = 'El envío gratis no está disponible actualmente. Vas a ver el costo de tu zona durante el checkout.';
+        });
+        return;
+      }
       var txt = '$ ' + Number(d.freeThreshold).toLocaleString('es-AR');
       Array.prototype.forEach.call(els, function (el) { el.textContent = txt; });
     })

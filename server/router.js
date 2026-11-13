@@ -308,12 +308,17 @@ async function handlePublic(req, res, method, seg) {
     return pages.renderProduct(req, res, { id: b });
   }
 
-  /* Catálogo de la tienda renderizado en el servidor: el ItemList JSON-LD
-     se genera desde la BD con precio y stock reales (antes salía sin `price`
-     y Google marcaba todos los productos como inválidos).
-     Rewrite: /tienda.html → /api/tienda (o /api/tienda.html). */
-  if ((a === 'tienda' || a === 'tienda.html') && !b && (method === 'GET' || method === 'HEAD')) {
-    return pages.renderTienda(req, res);
+  /* Catálogo y categorías de la tienda renderizados en el servidor.
+     Rewrites: /tienda → /api/tienda y /tienda/:slug → /api/tienda/:slug.
+     El handler conserva filtros, precios y JSON-LD desde la base. */
+  if (a === 'tienda' || a === 'tienda.html') {
+    if (!b && (method === 'GET' || method === 'HEAD')) return pages.renderTienda(req, res);
+    if (a === 'tienda' && b && !c && (method === 'GET' || method === 'HEAD')) {
+      let slug = b;
+      try { slug = decodeURIComponent(b); } catch (e) { /* el slug sin decodificar se valida igual */ }
+      return pages.renderTienda(req, res, { slug });
+    }
+    return http.notFound(res);
   }
 
   /* Listado del foro con los hilos en el HTML inicial (títulos + enlaces a

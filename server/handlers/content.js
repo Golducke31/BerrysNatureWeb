@@ -21,6 +21,18 @@ const { json, fail, notFound, getClientIp } = require('../lib/http');
    "about" = Sobre Nosotros; "shipping" = configuración de envíos. */
 const PUBLIC_KEYS = new Set(['about', 'shipping', 'lab']);
 
+function shippingSettings(value) {
+  const v = value && typeof value === 'object' ? value : {};
+  const threshold = Number(v.freeThreshold);
+  const percent = Number(v.discountPercent);
+  const rawCode = typeof v.discountCode === 'string' ? v.discountCode.trim().toUpperCase() : 'BERRYS';
+  return {
+    freeThreshold: Number.isFinite(threshold) && threshold >= 0 ? Math.trunc(threshold) : 30000,
+    discountCode: /^[A-Z0-9_-]{2,24}$/.test(rawCode) ? rawCode : '',
+    discountPercent: Number.isInteger(percent) && percent >= 0 && percent <= 90 ? percent : 10
+  };
+}
+
 async function get(req, res, params) {
   const key = V.clean(params.key).slice(0, 60);
   if (!key || !PUBLIC_KEYS.has(key)) return notFound(res);
@@ -29,7 +41,7 @@ async function get(req, res, params) {
   const v = (row && row.value) || {};
 
   if (key === 'shipping') {
-    return json(res, 200, { freeThreshold: Number(v.freeThreshold) || 30000 });
+    return json(res, 200, shippingSettings(v));
   }
 
   if (key === 'lab') {
@@ -64,17 +76,36 @@ async function update(req, res, params, body) {
   }
 
   if (key === 'shipping') {
-    const freeThreshold = V.int(body.freeThreshold, { min: 0, max: 99999999, def: 30000 });
+    const row = await db.one("SELECT value FROM site_content WHERE key = 'shipping'");
+    const currentValue = shippingSettings((row && row.value) || {});
+    const freeThreshold = body.freeThreshold === undefined
+      ? currentValue.freeThreshold
+      : V.int(body.freeThreshold, { min: 0, max: 99999999 });
+    let discountCode = currentValue.discountCode;
+    if (body.discountCode !== undefined) {
+      discountCode = V.str(body.discountCode, { max: 24, required: false, field: 'código de descuento' }).toUpperCase();
+      if (discountCode && !/^[A-Z0-9_-]{2,24}$/.test(discountCode)) {
+        V.fail('El código debe tener entre 2 y 24 caracteres: letras, números, guion o guion bajo.', 'discountCode');
+      }
+    }
+    const discountPercent = body.discountPercent === undefined
+      ? currentValue.discountPercent
+      : V.int(body.discountPercent, { min: 0, max: 90, field: 'descuento' });
+    const value = Object.assign({}, (row && row.value) || {}, {
+      freeThreshold,
+      discountCode,
+      discountPercent
+    });
     await db.query(
       `INSERT INTO site_content (key, value) VALUES ($1, $2::jsonb)
        ON CONFLICT (key) DO UPDATE SET value = $2::jsonb, updated_at = now()`,
-      [key, JSON.stringify({ freeThreshold })]
+      [key, JSON.stringify(value)]
     );
     await audit.log({
       actor: current.user, action: 'admin.content.update', entityType: 'content',
-      entityId: key, payload: { freeThreshold }, ip: getClientIp(req)
+      entityId: key, payload: { freeThreshold, discountCode, discountPercent }, ip: getClientIp(req)
     });
-    return json(res, 200, { freeThreshold });
+    return json(res, 200, { freeThreshold, discountCode, discountPercent });
   }
 
   if (key === 'lab') {
