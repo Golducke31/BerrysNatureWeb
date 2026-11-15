@@ -202,7 +202,10 @@
       if (encontrado) encontrado.qty = qty + 1;
       else items.push({ id: id, qty: 1 });
 
-      try { localStorage.setItem(CART_KEY, JSON.stringify(items)); } catch (e) { /* modo privado */ }
+      try {
+        localStorage.setItem(CART_KEY, JSON.stringify(items));
+        window.dispatchEvent(new Event('berrys:cart'));
+      } catch (e) { /* modo privado */ }
 
       var prod = productoAnalytics() || { id: id, nombre: nombre, precio: 0 };
       if (window.BerrysAnalytics) {

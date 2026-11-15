@@ -4,6 +4,7 @@ const path = require('node:path');
 
 const RAIZ = path.resolve(__dirname, '../..');
 const PRODUCTO_JS = fs.readFileSync(path.join(RAIZ, 'js/producto.js'), 'utf8');
+const APP_JS = fs.readFileSync(path.join(RAIZ, 'js/app.js'), 'utf8');
 const PAGES_JS = fs.readFileSync(path.join(RAIZ, 'server/handlers/pages.js'), 'utf8');
 
 /*
@@ -14,6 +15,9 @@ const PAGES_JS = fs.readFileSync(path.join(RAIZ, 'server/handlers/pages.js'), 'u
 */
 
 const BUY_BOX = (stock) => `<!DOCTYPE html><html lang="es"><body>
+  <header><a href="/tienda#carrito" data-cart-link aria-label="Ver el carrito">
+    <span data-cart-count hidden>0</span>
+  </a></header>
   <script>
     window.__toasts = [];
     window.toast = function (msg, icon) { window.__toasts.push({ msg: msg, icon: icon }); };
@@ -44,6 +48,11 @@ async function montar(page, { stock = '', inicial = null } = {}) {
   if (inicial) {
     await page.evaluate((v) => localStorage.setItem('berrys_cart_v1', v), inicial);
   }
+  await page.addScriptTag({ content: APP_JS });
+  await page.evaluate(() => {
+    window.__toasts = [];
+    window.toast = function (msg, icon) { window.__toasts.push({ msg: msg, icon: icon }); };
+  });
   await page.addScriptTag({ content: PRODUCTO_JS });
 }
 
@@ -72,12 +81,15 @@ test.describe('Carrito en la ficha de producto', () => {
     expect(estado.hint).toBe(true);
     expect(estado.toasts[0].msg).toContain('agregado al carrito');
     expect(estado.eventos).toContain('add_to_cart');
+    await expect(page.locator('[data-cart-count]')).toHaveText('1');
+    await expect(page.locator('[data-cart-count]')).toBeVisible();
   });
 
   test('FC-04: un segundo click suma cantidad y no duplica la fila', async ({ page }) => {
     await montar(page);
     await page.click('#productAddToCart');
     await page.click('#productAddToCart');
+    await expect(page.locator('[data-cart-count]')).toHaveText('2');
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('berrys_cart_v1'))))
       .toEqual([{ id: 'crema-amae', qty: 2 }]);
   });
