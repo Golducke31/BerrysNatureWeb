@@ -49,6 +49,8 @@
   box-shadow: 0 10px 30px rgba(74, 63, 53, 0.14);
   z-index: 1200;
   text-align: left;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 .nav-menu-desktop.main-menu > li:hover > .nav-submenu,
 .nav-menu-desktop.main-menu > li:focus-within > .nav-submenu { display: block; }
@@ -68,6 +70,17 @@
   background: rgba(234, 184, 163, 0.22);
   color: var(--color-terracota-deep);
 }
+.nav-submenu__section,
+.mobile-nav-sub__section {
+  padding: 10px 12px 5px;
+  color: var(--color-muted-warm);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.nav-submenu__section { border-top: 1px solid var(--color-line-warm); }
 
 /* ---------- Carrito siempre visible ---------- */
 .nav-cart-btn {
@@ -117,7 +130,12 @@
 
 /* Los submenús colapsados no deben recibir foco por teclado. */
 .mobile-nav-group:not(.is-open) .mobile-nav-sub { visibility: hidden; }
-.mobile-nav-group.is-open .mobile-nav-sub { visibility: visible; max-height: 320px; }
+.mobile-nav-group.is-open .mobile-nav-sub {
+  visibility: visible;
+  max-height: 70vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 /* styles.css rota 90° pensando en el icono arrowRight del menú viejo.
    El componente nuevo usa chevronDown: al abrir debe apuntar ARRIBA. */
 .mobile-nav-group.is-open .mobile-nav-caret { transform: rotate(180deg); }

@@ -202,6 +202,7 @@ ${tips}
       </div>
     </article>
   </main>
+  <script src="../js/icons.js"></script>
 </body>
 </html>
 `;

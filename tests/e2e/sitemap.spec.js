@@ -79,10 +79,19 @@ test.describe('Sitemap — qué incluye', () => {
     expect(urls).toContain('https://berrysnature.com.ar/academia');
     expect(urls).toContain('https://berrysnature.com.ar/foro');
     expect(urls).toContain('https://berrysnature.com.ar/glosario');
+    expect(urls).toContain('https://berrysnature.com.ar/como-usar');
     expect(urls).toContain('https://berrysnature.com.ar/tienda');
     expect(urls).toContain('https://berrysnature.com.ar/berrys-lab');
     // Ninguna URL del sitemap puede llevar .html: todas redirigen 301.
     expect(urls.filter((u) => /\.html(?:$|\?)/i.test(u))).toEqual([]);
+  });
+
+  test('S1d: incluye las guías de uso para compradores', async () => {
+    const res = await sitemap();
+    const urls = locs(res.body);
+    for (const guia of require('../../server/lib/urls.js').GUIAS_USO) {
+      expect(urls).toContain(`https://berrysnature.com.ar${guia.path}`);
+    }
   });
 
   test('S1b: incluye una URL limpia para cada ficha de ingrediente', async () => {

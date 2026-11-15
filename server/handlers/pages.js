@@ -1304,6 +1304,7 @@ const PAGINAS_FIJAS = [
   { path: '/berrys-lab', changefreq: 'weekly', priority: '0.9' },
   { path: '/foro', changefreq: 'daily', priority: '0.8' },
   { path: '/glosario', changefreq: 'monthly', priority: '0.7' },
+  { path: '/como-usar', changefreq: 'monthly', priority: '0.7' },
   { path: '/normas', changefreq: 'monthly', priority: '0.4' },
   { path: '/devoluciones', changefreq: 'yearly', priority: '0.3' },
   { path: '/envios', changefreq: 'yearly', priority: '0.3' }
@@ -1504,6 +1505,12 @@ async function renderSitemap(req, res) {
       changefreq: p.changefreq,
       priority: p.priority
     })),
+    ...urls.GUIAS_USO.map((guia) => ({
+      loc: `${siteUrl()}${guia.path}`,
+      lastmod: LASTMOD_ESTATICAS[guia.path] || '',
+      changefreq: 'monthly',
+      priority: '0.7'
+    })),
     // Solo si están publicadas: mientras sean borradores (noindex) quedan
     // afuera para no contradecir al meta.
     ...(legalesPublicadas ? PAGINAS_LEGALES.map((p) => ({
@@ -1623,49 +1630,26 @@ function productoParaLd(r) {
 }
 
 /**
- * ItemList JSON-LD del catálogo con precio y disponibilidad reales.
- * `resenasMap` es { [id]: { total, promedio } } (puede venir vacío).
+ * ItemList de páginas de producto del catálogo. Product/Offer/AggregateRating
+ * se reservan para las fichas individuales, donde esos datos son el foco.
  */
-function buildCatalogoJsonLd(productos, resenasMap, nombreLista) {
+function buildCatalogoJsonLd(productos, nombreLista, pageUrl) {
   const base = siteUrl();
+  const canonical = pageUrl || `${base}/tienda`;
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
+    '@id': `${canonical}#catalogo`,
     name: nombreLista || "Catálogo Berry's Nature",
+    numberOfItems: productos.length,
     itemListElement: productos.map((p, i) => {
-      const item = {
-        '@type': 'Product',
+      const url = `${base}/productos/${encodeURIComponent(p.id)}`;
+      return {
+        '@type': 'ListItem',
+        position: i + 1,
         name: p.nombre,
-        image: [absAsset(p.imagen)],
-        description: p.descripcion || `${p.nombre} — cosmética natural artesanal de Berry's Nature.`,
-        sku: p.id,
-        brand: { '@type': 'Brand', name: "Berry's Nature" }
+        item: { '@type': 'WebPage', '@id': url, url, name: p.nombre }
       };
-      if (p.categoria) item.category = p.categoria;
-
-      // stock null = sin control de stock → disponible.
-      const enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
-      const ofertaItem = ofertaLib.ofertaJson({
-        precio: p.precio,
-        url: `${base}/productos/${encodeURIComponent(p.id)}`,
-        enStock,
-        base,
-        politicas: merchantPolicies()
-      });
-      if (ofertaItem) item.offers = ofertaItem;
-
-      const r = resenasMap && resenasMap[p.id];
-      if (r && Number(r.total) > 0 && Number(r.promedio) > 0) {
-        item.aggregateRating = {
-          '@type': 'AggregateRating',
-          ratingValue: Number(r.promedio),
-          reviewCount: Number(r.total),
-          bestRating: 5,
-          worstRating: 1
-        };
-      }
-
-      return { '@type': 'ListItem', position: i + 1, item };
     })
   };
 }
@@ -1840,10 +1824,29 @@ function personalizarTiendaCategoria(htmlDoc, categoria) {
     tag.replace(/\bhref=["'][^"']*["']/i, `href="${esc(canonical)}"`)
   );
 
+  out = out.replace(/<nav\b(?=[^>]*\bclass=["'][^"']*\bstore-page-breadcrumb\b)[^>]*>[\s\S]*?<\/nav>/i,
+    `<nav class="product-detail__breadcrumb store-page-breadcrumb" aria-label="Migas de pan"><a href="/">Inicio</a><span class="sep" aria-hidden="true">/</span><a href="/tienda">Tienda</a><span class="sep" aria-hidden="true">/</span><span aria-current="page">${esc(categoria.nombre)}</span></nav>`
+  );
+
+  out = out.replace(/<script type="application\/ld\+json" id="tiendaPageJsonLd">([\s\S]*?)<\/script>/i, (block, source) => {
+    try {
+      const data = JSON.parse(source);
+      data['@id'] = `${canonical}#webpage`;
+      data.url = canonical;
+      data.name = categoria.h1;
+      data.description = categoria.description;
+      data.inLanguage = 'es-AR';
+      data.breadcrumb = { '@id': `${canonical}#breadcrumb` };
+      data.mainEntity = { '@id': `${canonical}#catalogo` };
+      return `<script type="application/ld+json" id="tiendaPageJsonLd">\n${jsonLd(data)}\n</script>`;
+    } catch (err) { return block; }
+  });
+
   out = out.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi, (block, source) => {
     try {
       const data = JSON.parse(source);
       if (data && data['@type'] === 'BreadcrumbList') {
+        data['@id'] = `${canonical}#breadcrumb`;
         data.itemListElement = [
           { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` },
           { '@type': 'ListItem', position: 2, name: 'Tienda', item: `${siteUrl()}/tienda` },
@@ -1900,8 +1903,9 @@ async function renderTienda(req, res, params = {}) {
       const productos = rows.map(productoParaLd);
       const resenasMap = await reviews.resumenesPara(productos.map((p) => p.id))
         .catch(() => ({}));
-      const nombreLista = categoria ? `Productos de ${categoria.nombre} — Berry's Nature` : undefined;
-      markup = inyectarJsonLdCatalogo(markup, buildCatalogoJsonLd(productos, resenasMap, nombreLista));
+        const nombreLista = categoria ? `Productos de ${categoria.nombre} — Berry's Nature` : undefined;
+        const catalogUrl = categoria ? `${siteUrl()}/tienda/${categoria.slug}` : `${siteUrl()}/tienda`;
+        markup = inyectarJsonLdCatalogo(markup, buildCatalogoJsonLd(productos, nombreLista, catalogUrl));
       // El catálogo va TAMBIÉN en el HTML: sin esto la página llegaba con
       // el grid vacío y Google no tenía ni productos ni enlaces internos.
       markup = inyectarCatalogo(markup, catalogoHtml(rows, resenasMap));

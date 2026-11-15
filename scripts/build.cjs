@@ -139,7 +139,7 @@ function lastmodPorUrl() {
     const fecha = fechaCambioSignificativo(p.archivo);
     if (fecha) mapa[p.url] = fecha;
   }
-  for (const carpetaNombre of ['academia', 'glosario']) {
+  for (const carpetaNombre of ['academia', 'glosario', 'como-usar']) {
     const carpeta = path.join(ROOT, carpetaNombre);
     if (!fs.existsSync(carpeta)) continue;
     for (const nombre of fs.readdirSync(carpeta)) {
@@ -178,7 +178,7 @@ function escribirBuildInfo() {
 const BUILD_DATE = escribirBuildInfo();
 
 /* Carpetas y archivos que forman parte del sitio público. */
-const DIRS = ['css', 'js', 'assets', 'academia', 'glosario'];
+const DIRS = ['css', 'js', 'assets', 'academia', 'glosario', 'como-usar'];
 const FILES = ['robots.txt', 'sitemap.xml', 'googlec9455e9c4623b814.html', INDEXNOW_KEY_FILE];
 
 function rmrf(target) {
@@ -291,15 +291,18 @@ function escribirRedirects() {
     lineas.push(`${p.url}    /${p.archivo}    200`);
   }
 
-  for (const carpeta of ['academia', 'glosario']) {
+  for (const carpeta of ['academia', 'glosario', 'como-usar']) {
     const paginas = fs.existsSync(path.join(DIST, carpeta))
       ? fs.readdirSync(path.join(DIST, carpeta)).filter((f) => f.endsWith('.html'))
       : [];
     if (!paginas.length) continue;
     lineas.push('');
-    lineas.push(carpeta === 'academia'
-      ? '# Guías de la Academia (una regla por archivo publicado).'
-      : '# Fichas individuales del glosario (una regla por ingrediente).');
+    const etiquetas = {
+      academia: '# Guías de la Academia (una regla por archivo publicado).',
+      glosario: '# Fichas individuales del glosario (una regla por ingrediente).',
+      'como-usar': '# Guías de uso para compradores (una regla por página).'
+    };
+    lineas.push(etiquetas[carpeta]);
     for (const archivo of paginas) {
       const relativo = `${carpeta}/${archivo}`;
       const limpia = urls.urlDeArchivo(relativo);
@@ -375,6 +378,15 @@ function completarSitemapEstatico() {
     .filter((loc) => !existentes.has(loc));
   if (nuevas.length) {
     const bloques = nuevas.map((loc) => `  <url>\n    <loc>${loc}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`).join('\n');
+    xml = xml.replace('</urlset>', `${bloques}\n</urlset>`);
+  }
+
+  const guiasUso = urls.GUIAS_USO
+    .filter((guia) => fs.existsSync(path.join(DIST, guia.archivo)))
+    .map((guia) => `${origen}${guia.path}`)
+    .filter((loc) => !existentes.has(loc));
+  if (guiasUso.length) {
+    const bloques = guiasUso.map((loc) => `  <url>\n    <loc>${loc}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`).join('\n');
     xml = xml.replace('</urlset>', `${bloques}\n</urlset>`);
   }
 

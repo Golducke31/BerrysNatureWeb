@@ -57,6 +57,36 @@ test.describe('URLs — canonical y og:url', () => {
       expect(html, archivo).toContain(`<link rel="canonical" href="${SITE}${limpia}">`);
     }
   });
+
+  test('U: las guías de uso tienen canonical, metadatos y una sola H1', () => {
+    const indice = leer('como-usar.html');
+    expect(indice).toContain(`<link rel="canonical" href="${SITE}/como-usar">`);
+    expect(indice).toContain('/como-usar/shampoo-y-acondicionador');
+    const schemaIndice = [...indice.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((match) => JSON.parse(match[1]));
+    const collection = schemaIndice.find((data) => data['@type'] === 'CollectionPage');
+    expect(collection['@id']).toBe(`${SITE}/como-usar#webpage`);
+    expect(collection.breadcrumb['@id']).toBe(`${SITE}/como-usar#breadcrumb`);
+    expect(collection.mainEntity.numberOfItems).toBe(5);
+    expect(collection.mainEntity.itemListElement.every((item) => item.item['@type'] === 'WebPage')).toBe(true);
+    for (const guia of urls.GUIAS_USO) {
+      const html = leer(guia.archivo);
+      expect(html, guia.archivo).toContain(`<link rel="canonical" href="${SITE}${guia.path}">`);
+      expect(html, guia.archivo).toContain('<meta name="description"');
+      expect(html, guia.archivo).toContain('<meta property="og:url"');
+      expect(html, guia.archivo).toContain('<meta name="twitter:title"');
+      const schema = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+        .map((match) => JSON.parse(match[1]));
+      const page = schema.find((data) => data['@type'] === 'WebPage');
+      const breadcrumb = schema.find((data) => data['@type'] === 'BreadcrumbList');
+      expect(page, guia.archivo).toBeTruthy();
+      expect(page.url, guia.archivo).toBe(`${SITE}${guia.path}`);
+      expect(page.breadcrumb['@id'], guia.archivo).toBe(`${SITE}${guia.path}#breadcrumb`);
+      expect(breadcrumb['@id'], guia.archivo).toBe(page.breadcrumb['@id']);
+      expect((html.match(/<h1\b/g) || []).length, guia.archivo).toBe(1);
+    }
+    expect(leer('glosario/dimeticona.html')).toContain('<script src="../js/icons.js"></script>');
+  });
 });
 
 /* ---------------- Enlaces internos ---------------- */
@@ -67,7 +97,10 @@ test.describe('URLs — enlaces internos', () => {
       ...fs.readdirSync(ROOT).filter((f) => f.endsWith('.html')),
       ...fs.readdirSync(path.join(ROOT, 'academia'))
         .filter((f) => f.endsWith('.html'))
-        .map((f) => `academia/${f}`)
+        .map((f) => `academia/${f}`),
+      ...fs.readdirSync(path.join(ROOT, 'como-usar'))
+        .filter((f) => f.endsWith('.html'))
+        .map((f) => `como-usar/${f}`)
     ];
 
     const culpables = [];
@@ -81,6 +114,14 @@ test.describe('URLs — enlaces internos', () => {
 
     expect(culpables).toEqual([]);
   });
+
+  test('U: las tarjetas de la home enlazan a las landings propias de categoría', () => {
+    const home = leer('index.html');
+    for (const slug of ['cabello', 'facial', 'jabones', 'corporal', 'labios']) {
+      expect(home).toContain(`class="home-cat" href="/tienda/${slug}"`);
+    }
+    expect(home).not.toMatch(/href="\/tienda#categoria-/);
+  });
 });
 
 /* ---------------- Barra final ---------------- */
@@ -89,9 +130,11 @@ test.describe('URLs — barra final', () => {
   test('U: la variante con barra final resuelve a la URL canónica', () => {
     const casos = {
       '/glosario/': '/glosario',
+      '/como-usar/': '/como-usar',
       '/academia/': '/academia',
       '/tienda/': '/tienda',
       '/academia/costo-real-crema-margen/': '/academia/costo-real-crema-margen',
+      '/como-usar/shampoo-y-acondicionador/': '/como-usar/shampoo-y-acondicionador',
       '/productos/jabon-calendula/': '/productos/jabon-calendula',
       '/guias/mi-guia/': '/guias/mi-guia',
       '/foro/hilo/hilo-precio-100gr/': '/foro/hilo/hilo-precio-100gr',
@@ -149,6 +192,9 @@ test.describe('URLs — sitemap', () => {
     // Las páginas fijas indexables tienen que estar todas.
     for (const pagina of urls.PAGINAS) {
       expect(locs).toContain(SITE + pagina.url);
+    }
+    for (const guia of urls.GUIAS_USO) {
+      expect(locs).toContain(SITE + guia.path);
     }
   });
 });
@@ -253,8 +299,13 @@ test.describe('HTML inicial — catálogo de la tienda', () => {
     expect(res.body).toContain('Jabón Sólido de Caléndula');
     expect(res.body).toContain('$ 4.000');
     expect(res.body).toContain('5 disponibles');
-    // Y el JSON-LD con precio real sigue ahí.
-    expect(res.body).toContain('"price":4000');
+    // El listado relaciona fichas WebPage; Product/Offer vive en la ficha individual.
+    const catalogo = res.body.match(/<script type="application\/ld\+json" id="catalogoJsonLd">([\s\S]*?)<\/script>/);
+    expect(catalogo).not.toBeNull();
+    const lista = JSON.parse(catalogo[1]);
+    expect(lista['@type']).toBe('ItemList');
+    expect(lista.itemListElement[0].item['@type']).toBe('WebPage');
+    expect(lista.itemListElement[0].item.url).toBe('https://berrysnature.com.ar/productos/jabon-calendula');
   });
 
   test('U: las ocho fichas con nombres largos usan títulos SEO breves sin cambiar sus H1', async () => {
@@ -279,6 +330,11 @@ test.describe('HTML inicial — catálogo de la tienda', () => {
       });
       const res = resFalsa();
       await pages.renderProduct({}, res, { id });
+      const datosLd = [...res.body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+        .map((match) => JSON.parse(match[1]));
+      const productoLd = datosLd.find((data) => data['@type'] === 'Product');
+      expect(productoLd, id).toBeTruthy();
+      expect(productoLd.offers.price, id).toBe(4000);
 
       const title = /<title>([^<]+)<\/title>/i.exec(res.body)?.[1];
       const ogTitle = /<meta\s+property="og:title"\s+content="([^"]+)"/i.exec(res.body)?.[1];

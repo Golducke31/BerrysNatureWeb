@@ -44,6 +44,7 @@
   {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": "https://berrysnature.com.ar/#organization",
     "name": "Berry's Nature",
     "url": "https://berrysnature.com.ar/",
     "logo": "https://berrysnature.com.ar/assets/logo-512.jpg",
@@ -57,13 +58,16 @@
   }
   </script>
 
-  <!-- JSON-LD: WebSite (habilita sitelinks search box si algún día hay buscador propio) -->
+  <!-- JSON-LD: entidad WebSite del dominio; no declara SearchAction porque no hay buscador propio en la home. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": "https://berrysnature.com.ar/#website",
     "name": "Berry's Nature",
-    "url": "https://berrysnature.com.ar/"
+    "url": "https://berrysnature.com.ar/",
+    "inLanguage": "es-AR",
+    "publisher": {"@id":"https://berrysnature.com.ar/#organization"}
   }
   </script>
 
@@ -249,34 +253,34 @@
     </section>
 
     <!-- ============================================================
-         CATEGORÍAS — enlazan a /tienda con hash, sin crear URLs nuevas
+         CATEGORÍAS — cada tarjeta enlaza a su landing indexable
     ============================================================= -->
     <section id="categorias" class="home-section" aria-labelledby="categorias-title">
       <div class="home-wrap">
         <span class="section-label-tag">Tienda</span>
         <h2 id="categorias-title" class="home-h2">Encontrá lo que buscás</h2>
         <div class="home-cat-grid">
-          <a class="home-cat" href="/tienda#categoria-cabello">
+          <a class="home-cat" href="/tienda/cabello">
             <i data-icon="droplet" aria-hidden="true"></i>
             <strong>Cabello</strong>
             <span>Shampoo, acondicionadores y crema de enjuague sólidos y en crema.</span>
           </a>
-          <a class="home-cat" href="/tienda#categoria-facial">
+          <a class="home-cat" href="/tienda/facial">
             <i data-icon="flask" aria-hidden="true"></i>
             <strong>Facial</strong>
             <span>Sérums, cremas y agua micelar para la rutina diaria.</span>
           </a>
-          <a class="home-cat" href="/tienda#categoria-jabones">
+          <a class="home-cat" href="/tienda/jabones">
             <i data-icon="soap" aria-hidden="true"></i>
             <strong>Jabones</strong>
             <span>Jabones artesanales elaborados por lotes.</span>
           </a>
-          <a class="home-cat" href="/tienda#categoria-corporal">
+          <a class="home-cat" href="/tienda/corporal">
             <i data-icon="gem" aria-hidden="true"></i>
             <strong>Corporal</strong>
             <span>Exfoliantes, aceites, cremas y sales de baño.</span>
           </a>
-          <a class="home-cat" href="/tienda#categoria-labios">
+          <a class="home-cat" href="/tienda/labios">
             <i data-icon="heart" aria-hidden="true"></i>
             <strong>Labios</strong>
             <span>Bálsamo labial de la línea artesanal.</span>

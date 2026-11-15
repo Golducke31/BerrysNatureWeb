@@ -40,6 +40,7 @@ const PAGINAS = [
   { archivo: 'berrys-lab.html', url: '/berrys-lab', indexable: true },
   { archivo: 'foro.html', url: '/foro', indexable: true },
   { archivo: 'glosario.html', url: '/glosario', indexable: true },
+  { archivo: 'como-usar.html', url: '/como-usar', indexable: true },
   { archivo: 'normas.html', url: '/normas', indexable: true },
   { archivo: 'envios.html', url: '/envios', indexable: true },
   { archivo: 'devoluciones.html', url: '/devoluciones', indexable: true },
@@ -47,8 +48,22 @@ const PAGINAS = [
   { archivo: 'terminos.html', url: '/terminos', indexable: true }
 ];
 
+/* Guías estáticas para compradores: rutas usadas por navegación, build y sitemap. */
+const GUIAS_USO = [
+  ['shampoo-y-acondicionador', 'Shampoo y acondicionador'],
+  ['rutina-facial', 'Rutina facial'],
+  ['jabones-artesanales', 'Jabones artesanales'],
+  ['exfoliante-corporal', 'Exfoliante corporal'],
+  ['balsamo-labial', 'Bálsamo labial']
+].map(([slug, label]) => ({
+  slug,
+  label,
+  path: `/como-usar/${slug}`,
+  archivo: `como-usar/${slug}.html`
+}));
+
 /* Carpetas estáticas que también se sirven sin extensión. */
-const CARPETAS_LIMPIAS = ['academia', 'glosario'];
+const CARPETAS_LIMPIAS = ['academia', 'glosario', 'como-usar'];
 
 /* Rutas que sirve una Function (no hay archivo detrás). Necesitan el
    mismo 301 de la variante con barra final que las páginas estáticas,
@@ -208,6 +223,7 @@ function urlDeEnlace(href) {
 
 module.exports = {
   PAGINAS,
+  GUIAS_USO,
   CARPETAS_LIMPIAS,
   PREFIJOS_SSR,
   PAGINAS_SSR,

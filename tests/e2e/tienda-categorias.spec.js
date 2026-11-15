@@ -83,11 +83,23 @@ test('las landings muestran contenido filtrado, metadatos propios, canonical y b
 
   const catalogo = res.body.match(/<script type="application\/ld\+json" id="catalogoJsonLd">([\s\S]*?)<\/script>/);
   expect(catalogo).not.toBeNull();
-  expect(JSON.parse(catalogo[1]).name).toBe("Productos de Cabello — Berry's Nature");
+  const lista = JSON.parse(catalogo[1]);
+  expect(lista.name).toBe("Productos de Cabello — Berry's Nature");
+  expect(lista['@id']).toBe(pages.siteUrl() + '/tienda/cabello#catalogo');
+  expect(lista.itemListElement.every((item) => item.item['@type'] === 'WebPage')).toBe(true);
+
+  const collectionScript = res.body.match(/<script type="application\/ld\+json" id="tiendaPageJsonLd">([\s\S]*?)<\/script>/);
+  expect(collectionScript).not.toBeNull();
+  const collection = JSON.parse(collectionScript[1]);
+  expect(collection['@type']).toBe('CollectionPage');
+  expect(collection.url).toBe(pages.siteUrl() + '/tienda/cabello');
+  expect(collection.mainEntity['@id']).toBe(lista['@id']);
+  expect(res.body).toContain('<span aria-current="page">Cabello</span>');
 
   const breadcrumbs = [...res.body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
     .map((match) => JSON.parse(match[1]))
     .find((data) => data['@type'] === 'BreadcrumbList');
+  expect(collection.breadcrumb['@id']).toBe(breadcrumbs['@id']);
   expect(breadcrumbs.itemListElement.map((item) => item.name)).toEqual(['Inicio', 'Tienda', 'Cabello']);
   expect(breadcrumbs.itemListElement[2].item).toBe(pages.siteUrl() + '/tienda/cabello');
 });
@@ -130,7 +142,7 @@ test('al tocar un filtro fijo navega a la landing SSR con encabezado consistente
     const h1 = pathname === '/tienda/facial' ? 'Cosmética natural para el rostro' : 'Tienda';
     return route.fulfill({
       contentType: 'text/html; charset=utf-8',
-      body: `<!doctype html><html lang="es"><body><h1>${h1}</h1><div id="storeFilters"></div><div id="storeGrid"></div><script>window.catalogProducts=${JSON.stringify(productos)};</script><script src="/js/catalog.js"></script></body></html>`
+      body: `<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body><h1>${h1}</h1><div id="storeFilters"></div><div id="storeGrid"></div><script>window.catalogProducts=${JSON.stringify(productos)};</script><script src="/js/catalog.js"></script></body></html>`
     });
   });
   await page.route('**/js/catalog.js', (route) => route.fulfill({
