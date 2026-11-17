@@ -11,6 +11,7 @@
 'use strict';
 
 const { route } = require('../../server/router');
+const { baselineHeaders } = require('../../server/lib/response-headers');
 
 /* La URL que pidió el navegador puede llegar por event.rawUrl, por event.path,
    o el rewrite puede haber apuntado la petición a
@@ -124,6 +125,13 @@ function buildRes() {
     if (Object.keys(multi).length) out.multiValueHeaders = multi;
     return out;
   };
+  // Netlify no aplica los [[headers]] de netlify.toml a respuestas de
+  // Functions. Las ponemos acá, antes de route(), para que los handlers
+  // puedan sobrescribirlas con su propio res.setHeader().
+  for (const [name, value] of Object.entries(baselineHeaders())) {
+    res.setHeader(name, value);
+  }
+
   return res;
 }
 

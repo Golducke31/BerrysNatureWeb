@@ -160,6 +160,9 @@
   status = 404
 
 # ---- Cabeceras de seguridad (configuradas en este archivo) ----
+# Estas reglas cubren archivos servidos por Netlify. Las respuestas de
+# Functions y páginas SSR las devuelve el código en
+# server/lib/response-headers.js; mantener ambas definiciones sincronizadas.
 [[headers]]
   for = "/*"
   [headers.values]

@@ -66,13 +66,17 @@ test.describe('Componente compartido de navegación', () => {
     }
   });
 
+  /* En Windows, core.autocrlf=true convierte los archivos a CRLF en el
+     working tree, pero las plantillas del generador usan LF. Comparamos
+     contenido, no el carácter de fin de línea. */
+  const sinEol = (s) => String(s).replace(/\r\n/g, '\n');
   test('NV-02: el generador es idempotente y el bloque canónico coincide', async () => {
     for (const p of paginas()) {
       const base = p.rel.startsWith('academia/') ? '../' : '';
       const una = nav.aplicarNav(p.html, { base });
       const dos = nav.aplicarNav(una, { base });
-      expect(una, `${p.rel} está desincronizado del generador`).toBe(p.html);
-      expect(dos, `idempotencia en ${p.rel}`).toBe(una);
+      expect(sinEol(una), `${p.rel} está desincronizado del generador`).toBe(sinEol(p.html));
+      expect(sinEol(dos), `idempotencia en ${p.rel}`).toBe(sinEol(una));
     }
   });
 

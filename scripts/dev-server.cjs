@@ -62,6 +62,7 @@ loadEnv();
 
 const { route } = require(path.join(ROOT, 'server', 'router.js'));
 const urls = require(path.join(ROOT, 'server', 'lib', 'urls.js'));
+const { baselineHeaders } = require(path.join(ROOT, 'server', 'lib', 'response-headers.js'));
 const { prerenderHtml } = require(path.join(ROOT, 'scripts', 'prerender.cjs'));
 
 /* ---------------- Rewrites a la Function (igual que el deploy) ----------------
@@ -191,6 +192,15 @@ function serveStatic(req, res, pathname) {
   });
 }
 
+/* Las respuestas que pasan por route() deben traer las mismas cabeceras
+   base que la Function de Netlify; las páginas estáticas siguen con las
+   suyas (server/static.cjs) y no deben heredarse el noindex. */
+function applyBaseline(res) {
+  for (const [name, value] of Object.entries(baselineHeaders())) {
+    res.setHeader(name, value);
+  }
+}
+
 /* ---------------- Servidor ---------------- */
 const server = http.createServer(async (req, res) => {
   const url = req.url || '/';
@@ -220,6 +230,7 @@ const server = http.createServer(async (req, res) => {
   const interno = destinoRewrite(pathname);
   if (interno) {
     req.url = interno + query;
+    applyBaseline(res);
     return route(req, res);
   }
 
@@ -240,6 +251,7 @@ const server = http.createServer(async (req, res) => {
     } catch (e) {
       req.body = {};
     }
+    applyBaseline(res);
     return route(req, res);
   }
 

@@ -47,6 +47,14 @@ function filaProducto(over = {}) {
 }
 
 test.beforeEach(() => {
+  /* Otros specs también parchean db.query al cargarse. Reinstalamos el
+     mock acá, antes de cada prueba, para no depender del orden en que
+     Playwright reparte los archivos entre workers. */
+  db.query = async () => {
+    if (fallaConsulta) throw new Error('Fallo de prueba controlado.');
+    return filasProductos;
+  };
+  reviews.resumenesPara = async () => ({});
   fallaConsulta = false;
   filasProductos = [
     filaProducto(),
@@ -57,6 +65,10 @@ test.beforeEach(() => {
       imagen: 'assets/productos/jabon-prueba.webp'
     })
   ];
+});
+
+test.afterEach(() => {
+  fallaConsulta = false;
 });
 
 test.afterAll(() => {
