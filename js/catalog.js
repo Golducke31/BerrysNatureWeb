@@ -1117,26 +1117,14 @@
   }
 
   /* ---------------- JSON-LD del catálogo (SEO) ----------------
-     El servidor ya entrega el <script id="catalogoJsonLd"> con precios
-     reales (SSR desde la BD). Acá lo mantenemos al día cuando el panel
-     cambia precios/stock y la API devuelve datos distintos, con la misma
-     forma rica (sku, offer con url, AggregateRating si hay reseñas). */
-  function abs(url) {
-    var u = String(url || '');
-    if (!u) return u;
-    if (/^https?:\/\//i.test(u)) return u;
-    var origin = window.location.origin || 'https://berrysnature.com.ar';
-    return origin + (u.charAt(0) === '/' ? u : '/' + u);
-  }
-
+     Los listados describen una colección de enlaces a fichas WebPage.
+     Product/Offer/ratings se reservan para cada ficha individual, donde
+     el producto es el contenido principal y sus datos son verificables. */
   function actualizarJsonLd(soloSiVacio) {
     var el = document.getElementById('catalogoJsonLd');
     if (!el || !productos.length) return;
-    /* El SSR ya entregó el ItemList con precios reales de la BD. Si el
-       cliente lo pisara con el catálogo semilla (20 productos, algunos sin
-       precio y con valores viejos) en el primer paint, Google podría leer
-       datos desactualizados. Solo rellenamos cuando el bloque viene vacío
-       (caída de la BD o file://); tras /api/products sí se reescribe. */
+    /* El SSR ya entrega el ItemList real. Solo se rellena en el primer paint
+       si el bloque está vacío; luego /api/products puede actualizar los links. */
     if (soloSiVacio) {
       try {
         var actual = JSON.parse(el.textContent);
@@ -1144,45 +1132,30 @@
       } catch (e) { /* ilegible: lo regeneramos */ }
     }
     var origin = window.location.origin || 'https://berrysnature.com.ar';
+    var pagePath = String(window.location.pathname || '/tienda').replace(/\/+$/, '') || '/tienda';
+    var pathMatch = /^\/tienda\/([a-z0-9-]+)$/i.exec(pagePath);
+    var categoria = pathMatch ? categoriaPorSlug(pathMatch[1]) : null;
+    var lista = categoria
+      ? productos.filter(function (p) {
+        return String(p.categoria || '').toLocaleLowerCase('es-AR') === String(categoria).toLocaleLowerCase('es-AR');
+      })
+      : productos;
+    if (!lista.length) return;
+    var canonical = origin + pagePath;
     var data = {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
-      name: 'Catálogo Berry\'s Nature',
-      itemListElement: productos.map(function (p, i) {
-        var item = {
-          '@type': 'Product',
+      '@id': canonical + '#catalogo',
+      name: categoria ? 'Productos de ' + categoria + ' — Berry\'s Nature' : 'Catálogo Berry\'s Nature',
+      numberOfItems: lista.length,
+      itemListElement: lista.map(function (p, i) {
+        var url = origin + '/productos/' + encodeURIComponent(p.id);
+        return {
+          '@type': 'ListItem',
+          position: i + 1,
           name: p.nombre,
-          image: [abs(p.imagen)],
-          description: p.descripcion,
-          sku: p.id,
-          brand: { '@type': 'Brand', name: "Berry's Nature" },
-          category: p.categoria
+          item: { '@type': 'WebPage', '@id': url, url: url, name: p.nombre }
         };
-        var enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
-        /* Nunca publicar un Offer sin price numérico > 0: Google lo marca
-           como error CRÍTICO en fichas de comerciante y de producto. */
-        if (typeof p.precio === 'number' && isFinite(p.precio) && p.precio > 0) {
-          item.offers = {
-            '@type': 'Offer',
-            price: p.precio,
-            priceCurrency: 'ARS',
-            availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-            url: origin + '/productos/' + encodeURIComponent(p.id),
-            itemCondition: 'https://schema.org/NewCondition',
-            seller: { '@type': 'Organization', name: "Berry's Nature", url: origin }
-          };
-        }
-        var r = p.resenas;
-        if (r && r.total > 0 && r.promedio > 0) {
-          item.aggregateRating = {
-            '@type': 'AggregateRating',
-            ratingValue: Number(r.promedio),
-            reviewCount: Number(r.total),
-            bestRating: 5,
-            worstRating: 1
-          };
-        }
-        return { '@type': 'ListItem', position: i + 1, item: item };
       })
     };
     try { el.textContent = JSON.stringify(data); } catch (e) { /* noop */ }

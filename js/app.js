@@ -43,8 +43,8 @@
 
    El carrito vive en localStorage bajo `berrys_cart_v1` (misma clave que
    js/catalog.js). Este módulo SÓLO LEE: no modifica ítems ni toca el
-   checkout de MercadoPago. catalog.js avisa con el evento `berrys:cart`
-   cuando cambia; `storage` cubre otras pestañas y `focus` al volver.
+   checkout de MercadoPago. catalog.js y producto.js avisan con el evento
+   `berrys:cart` cuando cambia; `storage` cubre otras pestañas y `focus` al volver.
    ------------------------------------------------------------------ */
 (function () {
   var KEY = 'berrys_cart_v1';

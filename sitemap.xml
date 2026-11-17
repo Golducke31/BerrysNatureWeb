@@ -46,6 +46,36 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://berrysnature.com.ar/como-usar</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://berrysnature.com.ar/como-usar/shampoo-y-acondicionador</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://berrysnature.com.ar/como-usar/rutina-facial</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://berrysnature.com.ar/como-usar/jabones-artesanales</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://berrysnature.com.ar/como-usar/exfoliante-corporal</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://berrysnature.com.ar/como-usar/balsamo-labial</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://berrysnature.com.ar/normas</loc>
     <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>

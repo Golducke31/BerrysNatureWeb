@@ -61,6 +61,7 @@ const FB_URL = 'https://www.facebook.com/share/1JjL83dtQu/';
 const IG_URL = 'https://www.instagram.com/berrys.nature/';
 const WA_URL = 'https://wa.me/5491156090265';
 const EMAIL = 'berrysnatureok@gmail.com';
+const GUIAS_USO = require('./urls.js').GUIAS_USO;
 
 function asset(base, ruta) { return base + ruta; }
 
@@ -111,6 +112,9 @@ function headerHtml(base) {
             <ul class="nav-submenu" aria-label="Aprendé">
               <li><a href="/academia">Academia</a></li>
               <li><a href="/glosario">Glosario de ingredientes</a></li>
+              <li class="nav-submenu__section" aria-hidden="true">Cómo usar</li>
+              <li><a href="/como-usar">Todas las guías</a></li>
+              ${GUIAS_USO.map((guia) => `<li><a href="${guia.path}">${guia.label}</a></li>`).join('\n              ')}
             </ul>
           </li>
           <li class="nav-item"><a href="/foro" class="nav-link">Comunidad</a></li>
@@ -155,6 +159,9 @@ function mobileNavHtml() {
         <ul class="mobile-nav-sub" id="mobileAprende">
           <li><a class="mobile-nav-link" href="/academia">Academia</a></li>
           <li><a class="mobile-nav-link" href="/glosario">Glosario de ingredientes</a></li>
+          <li class="mobile-nav-sub__section" aria-hidden="true">Cómo usar</li>
+          <li><a class="mobile-nav-link" href="/como-usar">Todas las guías</a></li>
+          ${GUIAS_USO.map((guia) => `<li><a class="mobile-nav-link" href="${guia.path}">${guia.label}</a></li>`).join('\n          ')}
         </ul>
       </li>
       <li><a href="/foro" class="mobile-nav-link">Comunidad</a></li>
@@ -192,6 +199,7 @@ function footerHtml(base) {
           <ul>
             <li><a href="/academia">Academia</a></li>
             <li><a href="/glosario">Glosario de ingredientes</a></li>
+            <li><a href="/como-usar">Cómo usar tus productos</a></li>
           </ul>
         </div>
         <div class="footer-col">

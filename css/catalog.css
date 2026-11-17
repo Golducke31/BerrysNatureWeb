@@ -223,6 +223,11 @@
 }
 .store-hero__cta .icon { width: 1.1em; height: 1.1em; }
 
+.store-page-breadcrumb {
+  width: min(var(--max-width), calc(100% - 44px));
+  margin: 18px auto 0;
+}
+
 /* ---- Precio sobre la imagen (espejo del chip de categoría) ---- */
 .product-card__price {
   position: absolute;

@@ -1394,7 +1394,7 @@ a.nav-ghost-btn {
     padding-left: 14px;
     margin-top: 0;
   }
-  .mobile-nav-group.is-open .mobile-nav-sub { max-height: 220px; margin-top: 10px; }
+  .mobile-nav-group.is-open .mobile-nav-sub { max-height: 70vh; margin-top: 10px; overflow-y: auto; overscroll-behavior: contain; }
   .mobile-nav-sub .mobile-nav-link { font-size: 16px; box-shadow: none; background: transparent; }
   .mobile-nav-sub .mobile-nav-link:active,
   .mobile-nav-sub .mobile-nav-link.active { box-shadow: none; color: var(--color-accent-terracota); }
