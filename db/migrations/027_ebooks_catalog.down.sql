@@ -1,0 +1,2 @@
+ALTER TABLE ebook_orders DROP COLUMN IF EXISTS ebook_id;
+DROP TABLE IF EXISTS ebooks;

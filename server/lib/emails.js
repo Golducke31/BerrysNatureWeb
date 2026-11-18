@@ -425,7 +425,29 @@ function labAdminNotice({ nombre, email, amount, paymentId, clave, expira, renov
   };
 }
 
+/** Entrega del Ebook Berry's Nature luego de un pago aprobado. */
+function ebookEntrega({ nombre, driveUrl, pedido }) {
+  const saludo = nombre ? `¡Gracias, ${nombre}!` : '¡Gracias por tu compra!';
+  return {
+    subject: "Tu Ebook Berry's Nature ya está listo",
+    text:
+      `${saludo}\n\n` +
+      "Tu pago del Ebook Berry's Nature First Edition fue aprobado.\n\n" +
+      `Abrí tu ebook desde este enlace:\n${driveUrl}\n\n` +
+      'Podés leerlo desde el celular, la tablet o la computadora. Guardá este email para volver a encontrarlo.\n\n' +
+      `Número de pedido: EBOOK-${pedido}\n\n` +
+      '— El equipo de Berry\'s Nature',
+    html: layout({
+      titulo: 'Tu ebook ya está listo',
+      intro: `${esc(saludo)} Tu pago fue aprobado. Ya podés abrir el Ebook Berry's Nature First Edition y leerlo desde cualquier dispositivo.`,
+      cta: 'Abrir mi ebook',
+      url: driveUrl,
+      cierre: `Guardá este email para volver a encontrarlo. Número de pedido: EBOOK-${esc(pedido)}.`
+    })
+  };
+}
+
 module.exports = {
   verifyEmail, resetPassword, confirmEmailChange, emailChangedNotice,
-  orderConfirmation, orderAdminNotice, labEntrega, labAdminNotice
+  orderConfirmation, orderAdminNotice, labEntrega, labAdminNotice, ebookEntrega
 };

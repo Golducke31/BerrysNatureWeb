@@ -112,6 +112,7 @@ function headerHtml(base) {
             <ul class="nav-submenu" aria-label="Aprendé">
               <li><a href="/academia">Academia</a></li>
               <li><a href="/glosario">Glosario de ingredientes</a></li>
+              <li><a href="/ebooks">Ebooks</a></li>
               <li class="nav-submenu__section" aria-hidden="true">Cómo usar</li>
               <li><a href="/como-usar">Todas las guías</a></li>
               ${GUIAS_USO.map((guia) => `<li><a href="${guia.path}">${guia.label}</a></li>`).join('\n              ')}
@@ -159,6 +160,7 @@ function mobileNavHtml() {
         <ul class="mobile-nav-sub" id="mobileAprende">
           <li><a class="mobile-nav-link" href="/academia">Academia</a></li>
           <li><a class="mobile-nav-link" href="/glosario">Glosario de ingredientes</a></li>
+          <li><a class="mobile-nav-link" href="/ebooks">Ebooks</a></li>
           <li class="mobile-nav-sub__section" aria-hidden="true">Cómo usar</li>
           <li><a class="mobile-nav-link" href="/como-usar">Todas las guías</a></li>
           ${GUIAS_USO.map((guia) => `<li><a class="mobile-nav-link" href="${guia.path}">${guia.label}</a></li>`).join('\n          ')}
@@ -199,6 +201,7 @@ function footerHtml(base) {
           <ul>
             <li><a href="/academia">Academia</a></li>
             <li><a href="/glosario">Glosario de ingredientes</a></li>
+            <li><a href="/ebooks">Ebooks</a></li>
             <li><a href="/como-usar">Cómo usar tus productos</a></li>
           </ul>
         </div>

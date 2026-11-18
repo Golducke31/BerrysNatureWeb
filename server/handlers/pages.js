@@ -1468,6 +1468,7 @@ async function renderSitemap(req, res) {
   let guiasDinamicas = [];
   let productos = [];
   let categorias = [];
+  let ebooks = [];
 
   try {
     hilos = await hilosIndexables();
@@ -1490,6 +1491,9 @@ async function renderSitemap(req, res) {
   } catch (err) {
     console.error('[sitemap] no se pudieron leer los productos:', err && err.message);
   }
+
+  try { ebooks = await db.query("SELECT slug, updated_at FROM ebooks WHERE active = true ORDER BY updated_at DESC"); }
+  catch (err) { console.error('[sitemap] no se pudieron leer los ebooks:', err && err.message); }
 
   const guiasEstaticas = guiasConPagina();
   const fichasGlosario = fichasGlosarioConPagina();
@@ -1554,7 +1558,9 @@ async function renderSitemap(req, res) {
       lastmod: p.lastmod || '',
       changefreq: 'weekly',
       priority: '0.7'
-    }))
+    })),
+    { loc: `${siteUrl()}/ebooks`, changefreq: 'weekly', priority: '0.9' },
+    ...ebooks.map((e) => ({ loc: `${siteUrl()}/ebooks/${encodeURIComponent(e.slug)}`, lastmod: e.updated_at || '', changefreq: 'monthly', priority: '0.8' }))
   ];
 
   const cuerpo = `<?xml version="1.0" encoding="UTF-8"?>
@@ -1863,6 +1869,55 @@ function personalizarTiendaCategoria(htmlDoc, categoria) {
   return out.replace(/(^|["'(=,\s])(?:\.{1,2}\/)*(assets|css|js)\//g, '$1/$2/');
 }
 
+function ebookAsset(value) {
+  const raw = String(value || '').trim();
+  return /^https?:\/\//i.test(raw) ? raw : `${siteUrl()}${raw.startsWith('/') ? raw : `/${raw}`}`;
+}
+
+function ebookCard(e) {
+  const image = ebookAsset(e.cover_image || '/assets/ebook-cover.jpg');
+  return `<article class="ebook-catalog-card"><a href="/ebooks/${encodeURIComponent(e.slug)}"><img src="${esc(image)}" alt="Portada de ${esc(e.title)}" loading="lazy"><div><span class="section-label-tag">Ebook digital</span><h2>${esc(e.title)}</h2><p>${esc(e.excerpt || e.description || 'Una guía digital de Berry\'s Nature para aprender y crear.')}</p><strong>${esc(Number(e.price).toLocaleString('es-AR'))} ARS</strong></div></a></article>`;
+}
+
+function ebookList(items, className) {
+  const values = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (!values.length) return '';
+  return `<ul class="ebook-detail-list ${className || ''}">${values.map((item) => `<li>${esc(typeof item === 'string' ? item : item.text || item.q || '')}</li>`).join('')}</ul>`;
+}
+
+function ebookFaqHtml(items) {
+  const values = Array.isArray(items) ? items.filter((item) => item && item.q && item.a) : [];
+  if (!values.length) return '';
+  return `<section class="ebook-content-section ebook-faq"><h2>Preguntas frecuentes</h2>${values.map((item) => `<details><summary>${esc(item.q)}</summary><p>${esc(item.a)}</p></details>`).join('')}</section>`;
+}
+
+async function renderEbooks(req, res, params = {}) {
+  let rows;
+  try { rows = await db.query('SELECT * FROM ebooks WHERE active = true ORDER BY created_at DESC'); }
+  catch (err) { return html(res, 503, '<h1>Ebooks no disponibles</h1><p>Probá de nuevo en unos minutos.</p>', { 'X-Robots-Tag': 'noindex' }); }
+
+  if (!params.slug) {
+    const canonical = `${siteUrl()}/ebooks`;
+    const body = `<main class="page-ebook ebook-index"><section class="ebook-hero ebook-hero--compact"><div class="ebook-hero__copy"><span class="section-label-tag">Biblioteca digital Berry's Nature</span><h1>Ebooks para aprender, formular y crear</h1><p class="ebook-hero__intro">Guías prácticas de cosmética natural y jabonería artesanal, creadas para acompañarte en cada etapa.</p></div></section><section class="ebook-section ebook-section--light"><div class="ebook-section__heading"><span class="section-label-tag">Elegí tu próxima lectura</span><h2>Conocimiento que podés volver a consultar</h2><p>Accedé a materiales digitales pensados para aprender a tu ritmo.</p></div><div class="ebook-catalog-grid">${rows.length ? rows.map(ebookCard).join('') : '<p class="ebook-empty">Próximamente vas a encontrar nuevos ebooks.</p>'}</div></section></main>`;
+    return html(res, 200, layout({ title: "Ebooks de cosmética natural | Berry's Nature", description: 'Ebooks de Berry\'s Nature sobre cosmética natural, formulación y jabonería artesanal.', canonical, ogImage: `${siteUrl()}/assets/ebook-cover.jpg`, jsonLdBlocks: [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: "Ebooks de Berry's Nature", url: canonical, mainEntity: rows.map((e) => ({ '@type': 'Book', name: e.title, url: `${siteUrl()}/ebooks/${e.slug}`, image: ebookAsset(e.cover_image) })) }], body, css: ['styles', 'ebook', 'nav-shared'] }));
+  }
+
+  const e = rows.find((item) => item.slug === params.slug);
+  if (!e) return html(res, 404, '<h1>No encontramos ese ebook</h1><p>Volvé a la biblioteca para ver los títulos disponibles.</p>', { 'X-Robots-Tag': 'noindex, follow' });
+  const canonical = `${siteUrl()}/ebooks/${e.slug}`;
+  const image = ebookAsset(e.cover_image || '/assets/ebook-cover.jpg');
+  const benefits = Array.isArray(e.benefits) ? e.benefits : [];
+  const topics = Array.isArray(e.topics) ? e.topics : [];
+  const title = e.seo_title || `${e.title} | Berry's Nature`;
+  const description = e.seo_description || e.description || `Comprá ${e.title} de Berry's Nature.`;
+  const breadcrumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` }, { '@type': 'ListItem', position: 2, name: 'Ebooks', item: `${siteUrl()}/ebooks` }, { '@type': 'ListItem', position: 3, name: e.title, item: canonical }] };
+  const book = { '@context': 'https://schema.org', '@type': ['Book', 'Product'], name: e.title, description, image, url: canonical, author: { '@type': 'Organization', name: e.author || "Berry's Nature" }, publisher: { '@type': 'Organization', name: e.publisher || "Berry's Nature" }, inLanguage: e.language || 'es-AR', numberOfPages: e.page_count || undefined, brand: { '@type': 'Brand', name: "Berry's Nature" }, offers: { '@type': 'Offer', priceCurrency: 'ARS', price: String(e.price), availability: 'https://schema.org/InStock', url: canonical } };
+  const body = `<main class="page-ebook"><nav class="ebook-breadcrumbs" aria-label="Migas de pan"><a href="/">Inicio</a><span>›</span><a href="/ebooks">Ebooks</a><span>›</span><span>${esc(e.title)}</span></nav><section class="ebook-hero"><div class="ebook-hero__copy"><span class="section-label-tag">Ebook digital · Berry's Nature</span><h1>${esc(e.title)}</h1><p class="ebook-hero__intro">${esc(e.excerpt || e.description || 'Una guía práctica para aprender y crear con una mirada natural y artesanal.')}</p><div class="ebook-hero__actions"><a class="cta-button" href="#comprar">Quiero mi ebook</a><a class="ebook-text-link" href="/ebooks">Ver todos los ebooks</a></div><div class="ebook-trust"><span>PDF digital</span><span>Acceso desde cualquier dispositivo</span><span>Entrega por email</span></div></div><div class="ebook-hero__visual"><figure class="ebook-cover"><img src="${esc(image)}" alt="Portada de ${esc(e.title)}" width="1190" height="1684"><figcaption>${esc(e.title)}</figcaption></figure></div></section><section class="ebook-content-grid"><article class="ebook-content-section"><h2>Sobre este ebook</h2><p>${esc(e.long_description || e.description || 'Una guía práctica de Berry\'s Nature.')}</p>${e.audience ? `<h3>¿Para quién es?</h3><p>${esc(e.audience)}</p>` : ''}${e.level ? `<p><strong>Nivel:</strong> ${esc(e.level)}</p>` : ''}${e.page_count ? `<p><strong>Extensión:</strong> ${esc(e.page_count)} páginas</p>` : ''}</article><aside class="ebook-content-section"><h2>Qué vas a encontrar</h2>${ebookList(benefits, 'ebook-benefits')}${topics.length ? `<h3>Temas incluidos</h3>${ebookList(topics, 'ebook-topics')}` : ''}</aside></section>${ebookFaqHtml(e.faq)}<section id="comprar" class="ebook-buy-section"><div class="ebook-buy-card"><div><span class="section-label-tag">Edición digital</span><h2>Empezá hoy</h2><p>Después del pago aprobado recibís automáticamente el acceso en tu email.</p></div><div class="ebook-price"><span>Precio</span><strong>$ ${esc(Number(e.price).toLocaleString('es-AR'))} <small>ARS</small></strong><form data-ebook-checkout novalidate><input type="hidden" name="slug" value="${esc(e.slug)}"><label for="ebookNombre">Nombre</label><input id="ebookNombre" name="nombre" autocomplete="name" required placeholder="Tu nombre"><label for="ebookEmail">Email de entrega</label><input id="ebookEmail" name="email" type="email" autocomplete="email" required placeholder="tu@email.com"><button class="cta-button ebook-buy-card__cta" type="submit">Ir a pagar</button><p class="ebook-feedback" data-ebook-feedback role="status" aria-live="polite"></p></form><small class="ebook-price__note">Pago seguro con Mercado Pago. Entrega digital.</small></div></div></section></main>`;
+  const jsonLdBlocks = [breadcrumb, book];
+  if (Array.isArray(e.faq) && e.faq.length) jsonLdBlocks.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: e.faq.filter((item) => item && item.q && item.a).map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) });
+  return html(res, 200, layout({ title, description, canonical, ogImage: image, jsonLdBlocks, body, css: ['styles', 'ebook', 'nav-shared'], scripts: '<script src="/js/icons.js"></script><script src="/js/api-client.js"></script><script src="/js/ebook.js"></script>' }));
+}
+
 /**
  * GET /tienda[/:slug] (rewrite → /api/tienda[/:slug]).
  * La ruta base mantiene el comportamiento anterior; los slugs de categoría
@@ -2138,4 +2193,4 @@ ${items}
   });
 }
 
-module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderTienda, renderForo, renderFeed, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };
+module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderEbooks, renderTienda, renderForo, renderFeed, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };

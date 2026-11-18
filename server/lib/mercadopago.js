@@ -212,6 +212,34 @@ async function createLabPreference({ orderId, token, email, amount, title, appUr
   return data;
 }
 
+/** Preferencia para la venta del ebook, sin envío y como invitado. */
+async function createEbookPreference({ orderId, token, email, amount, title, appUrl }) {
+  const accessTokenValue = accessToken();
+  if (!accessTokenValue) throw new Error('MERCADOPAGO_ACCESS_TOKEN no está configurado.');
+  const base = String(appUrl || '').replace(/\/+$/, '');
+  const pedido = encodeURIComponent(String(orderId));
+  const t = encodeURIComponent(String(token));
+  const body = {
+    items: [{ id: 'ebook-berrys-nature-first-edition', title: String(title || "Ebook Berry's Nature First Edition").slice(0, 250), quantity: 1, unit_price: Number(amount), currency_id: 'ARS' }],
+    external_reference: `ebook:${orderId}`,
+    metadata: { kind: 'ebook', ebook_order_id: String(orderId) },
+    notification_url: `${base}/api/webhooks/mercadopago`,
+    statement_descriptor: 'BERRYSNATURE',
+    payment_methods: { installments: 1 },
+    back_urls: {
+      success: `${base}/ebook-berrys-nature?pago=ok&pedido=${pedido}&t=${t}`,
+      failure: `${base}/ebook-berrys-nature?pago=error&pedido=${pedido}&t=${t}`,
+      pending: `${base}/ebook-berrys-nature?pago=pendiente&pedido=${pedido}&t=${t}`
+    },
+    auto_return: 'approved'
+  };
+  if (email) body.payer = { email: String(email).slice(0, 254) };
+  const res = await fetch(`${API}/checkout/preferences`, { method: 'POST', headers: { Authorization: `Bearer ${accessTokenValue}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data && (data.message || data.error)) || `MercadoPago respondió ${res.status}`);
+  return data;
+}
+
 /** Trae un pago por id. Es la fuente de verdad del estado. */
 async function getPayment(paymentId) {
   const token = accessToken();
@@ -269,6 +297,6 @@ function verifySignature({ xSignature, xRequestId, dataId, secret } = {}) {
 
 module.exports = {
   isConfigured, isSandbox, webhookSecret,
-  createOrderPreference, createLabPreference, getPayment, initPointDe,
+  createOrderPreference, createLabPreference, createEbookPreference, getPayment, initPointDe,
   parseSignatureHeader, verifySignature
 };

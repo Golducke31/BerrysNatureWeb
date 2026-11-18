@@ -54,6 +54,12 @@
   included_files = ["css/admin.css", "js/admin.js", "tienda.html", "foro.html"]
 
 # ---- La tienda cambió de URL ----
+[[redirects]]
+  from = "/ebook-berrys-nature"
+  to = "/ebooks/ebook-berrys-nature"
+  status = 301
+  force = true
+
 # /marca.html → /tienda. 301 permanente (no 302) para que Google
 # transfiera la autoridad de la URL vieja y los links ya compartidos sigan
 # funcionando. force = true porque el archivo viejo ya no existe: si no,
@@ -102,6 +108,18 @@
   force = true
 
 # ---- URLs lindas renderizadas por el servidor (rutas limpias configuradas en esta tabla) ----
+[[redirects]]
+  from = "/ebooks"
+  to = "/.netlify/functions/api/ebooks"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ebooks/*"
+  to = "/.netlify/functions/api/ebooks/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/guias/*"
   to = "/.netlify/functions/api/guias/:splat"

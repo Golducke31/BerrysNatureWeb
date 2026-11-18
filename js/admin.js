@@ -170,6 +170,7 @@
     { id: 'metrics', label: 'Métricas', icon: 'eye' },
     { id: 'revenue', label: 'Ingresos', icon: 'bank' },
     { id: 'products', label: 'Productos', icon: 'box' },
+    { id: 'ebooks', label: 'Ebooks', icon: 'book' },
     { id: 'orders', label: 'Pedidos', icon: 'cart' },
     { id: 'shipping', label: 'Envíos', icon: 'pin' },
     { id: 'about', label: 'Sobre Nosotros', icon: 'leaf' },
@@ -235,6 +236,7 @@
       metrics: renderMetrics,
       revenue: renderRevenue,
       products: renderProducts,
+      ebooks: renderEbooks,
       orders: renderOrders,
       shipping: renderShipping,
       about: renderAbout,
@@ -1045,6 +1047,30 @@
        que el navegador vuelva a pedirlas. Idempotente. */
     if (/\/api\/img\/[0-9a-f]{16}\.[a-z0-9]+$/i.test(v)) v += '?v=2';
     return v;
+  }
+
+  function renderEbooks() {
+    $('#adminMain').innerHTML = '<div class="admin-loading"><div class="admin-spinner"></div><p>Cargando ebooks…</p></div>';
+    Promise.all([req('GET', '/ebooks-metrics'), req('GET', '/ebooks')]).then(function (all) {
+      var m = all[0], items = all[1].items || [], t = m.totals || {};
+      var form = '<form id="ebookCreateForm" class="admin-form admin-form--ebook"><input type="hidden" name="id" value="">' +
+        '<div class="admin-form__section"><h3>Producto y entrega</h3><div class="admin-form__grid">' +
+        '<label class="admin-field">Título<input name="title" required placeholder="Manual de cosmética natural"></label><label class="admin-field">Slug<input name="slug" placeholder="se-genera-automaticamente"></label>' +
+        '<label class="admin-field">Precio ARS<input name="price" type="number" min="0" required value="14999"></label><label class="admin-field">Páginas<input name="page_count" type="number" min="1" placeholder="32"></label>' +
+        '<label class="admin-field">Enlace privado de Drive<input name="drive_url" type="url" placeholder="https://drive.google.com/..."></label><label class="admin-field">Portada pública<input name="cover_image" placeholder="/assets/ebook-cover.jpg"></label></div></div>' +
+        '<div class="admin-form__section"><h3>SEO</h3><div class="admin-form__grid"><label class="admin-field">Título SEO<input name="seo_title" maxlength="60"></label><label class="admin-field">Idioma<input name="language" value="es-AR"></label><label class="admin-field admin-field--full">Meta description<textarea name="seo_description" rows="2" maxlength="160"></textarea></label><label class="admin-field admin-field--full">Extracto comercial<textarea name="excerpt" rows="2"></textarea></label></div></div>' +
+        '<div class="admin-form__section"><h3>Contenido editorial y GEO</h3><div class="admin-form__grid"><label class="admin-field">Nivel<input name="level" placeholder="Inicial, intermedio..."></label><label class="admin-field">Público objetivo<input name="audience" placeholder="Para quién es"></label><label class="admin-field">Autor<input name="author" value="Berry\'s Nature"></label><label class="admin-field">Editorial<input name="publisher" value="Berry\'s Nature"></label><label class="admin-field admin-field--full">Descripción breve<textarea name="description" rows="2"></textarea></label><label class="admin-field admin-field--full">Descripción larga<textarea name="long_description" rows="5"></textarea></label><label class="admin-field admin-field--full">Beneficios (uno por línea)<textarea name="benefits" rows="4" placeholder="17 fórmulas probadas\nGlosario botánico"></textarea></label><label class="admin-field admin-field--full">Temas incluidos (uno por línea)<textarea name="topics" rows="4" placeholder="Cosmética sólida\nJabonería artesanal"></textarea></label><label class="admin-field admin-field--full">FAQ (una pregunta y respuesta por bloque, formato Pregunta | Respuesta)<textarea name="faq" rows="5"></textarea></label></div></div>' +
+        '<label class="admin-check"><input name="active" type="checkbox" checked> Publicado e indexable</label><div><button class="admin-btn admin-btn--primary" type="submit" id="ebookSaveBtn">Agregar ebook</button> <button class="admin-btn" type="button" id="ebookCancel" hidden>Cancelar edición</button></div></form>';
+      var cards = '<div class="admin-cards">' + [['Ventas aprobadas',t.approved||0,'pedidos'],['Facturación',fmtMoney(t.revenue||0),'ARS'],['Pendientes',t.pending||0,'por confirmar'],['Sin entregar',t.undelivered||0,'revisar email']].map(function(c){return '<div class="admin-card"><div class="admin-card__value">'+c[1]+'</div><div class="admin-card__label">'+c[0]+'</div><p class="admin-help">'+c[2]+'</p></div>';}).join('') + '</div>';
+      var rows = items.map(function(e){ var stats=(m.byEbook||[]).find(function(x){return String(x.id)===String(e.id);})||{}; return '<tr><td class="admin-cell-title">'+escapeHtml(e.title)+'<small>/ebooks/'+escapeHtml(e.slug)+'</small></td><td>'+fmtMoney(e.price)+'</td><td>'+ (e.active?'Activo':'Pausado') +'</td><td><small>'+Number(stats.views||0)+' vistas · '+Number(stats.checkouts||0)+' checkouts</small><br>'+Number(stats.approved||0)+' ventas · '+fmtMoney(stats.revenue||0)+'</td><td><button class="admin-btn admin-btn--small" type="button" data-edit-ebook="'+e.id+'">Editar</button></td></tr>'; }).join('');
+      $('#adminMain').innerHTML = '<div class="admin-topbar"><div><h1 class="admin-title">Ebooks</h1><p class="admin-subtitle">Catálogo, SEO, contenido, ventas y entrega desde un solo lugar.</p></div><button class="admin-btn" type="button" id="ebooksReload">Actualizar</button></div>' + cards + '<div class="admin-panel"><div class="admin-panel__head"><h2>Editor editorial</h2></div>' + form + '</div><div class="admin-panel"><div class="admin-panel__head"><h2>Catálogo y ventas por título</h2></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Título</th><th>Precio</th><th>Estado</th><th>Ventas · facturación</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></div><div class="admin-panel"><div class="admin-panel__head"><h2>Últimos pedidos</h2></div><div class="admin-table-wrap"><table class="admin-table"><tbody>' + (m.recent||[]).map(function(o){return '<tr><td>'+escapeHtml(o.email)+'</td><td>'+escapeHtml(o.title||'Ebook')+'</td><td>'+fmtMoney(o.amount)+'</td><td>'+escapeHtml(o.status)+'</td></tr>';}).join('') + '</tbody></table></div></div>';
+      var f = $('#ebookCreateForm');
+      function fill(e) { Object.keys(e).forEach(function(k){ if (!f[k]) return; if (k === 'active') f[k].checked=!!e[k]; else if (['benefits','topics'].indexOf(k)>=0) f[k].value=(e[k]||[]).join('\n'); else if (k === 'faq') f[k].value=(e[k]||[]).map(function(x){return x.q+' | '+x.a;}).join('\n\n'); else f[k].value=e[k] == null ? '' : e[k]; }); f.id.value=e.id; $('#ebookSaveBtn').textContent='Guardar cambios'; $('#ebookCancel').hidden=false; f.scrollIntoView({behavior:'smooth',block:'start'}); }
+      function payload() { var o={}; Array.prototype.forEach.call(f.elements,function(el){if(!el.name)return;if(el.name==='active')o.active=el.checked;else if(['benefits','topics'].indexOf(el.name)>=0)o[el.name]=el.value.split(/\n+/).map(function(x){return x.trim();}).filter(Boolean);else if(el.name==='faq')o.faq=el.value.split(/\n\s*\n/).map(function(x){var p=x.split('|');return {q:(p.shift()||'').trim(),a:p.join('|').trim()};}).filter(function(x){return x.q&&x.a;});else if(el.name!=='id')o[el.name]=el.value;}); return o; }
+      $('#ebooksReload').addEventListener('click', renderEbooks); $('#ebookCancel').addEventListener('click', function(){renderEbooks();});
+      f.addEventListener('submit', function(ev){ev.preventDefault();var id=f.id.value, method=id?'PATCH':'POST', path=id?'/ebooks/'+encodeURIComponent(id):'/ebooks';req(method,path,payload()).then(function(){toast(id?'Ebook actualizado.':'Ebook agregado.');renderEbooks();}).catch(guard);});
+      $$('#adminMain [data-edit-ebook]').forEach(function(btn){btn.addEventListener('click',function(){var e=items.find(function(x){return String(x.id)===String(btn.dataset.editEbook);});if(e)fill(e);});});
+    }).catch(guard);
   }
 
   function renderProducts() {

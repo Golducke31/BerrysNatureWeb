@@ -25,7 +25,10 @@ const NOMBRES = {
   respuesta_creada: 'Respuesta publicada',
   guia_abierta: 'Apertura de una guía',
   checkout_iniciado: 'Checkout de la tienda iniciado',
-  compra_confirmada: 'Compra confirmada (pago aprobado)'
+  compra_confirmada: 'Compra confirmada (pago aprobado)',
+  ebook_visto: 'Landing de ebook vista',
+  ebook_checkout_iniciado: 'Checkout de ebook iniciado',
+  ebook_compra_confirmada: 'Compra de ebook confirmada'
 };
 
 function esValido(name) {

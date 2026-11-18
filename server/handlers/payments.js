@@ -15,6 +15,7 @@ const mp = require('../lib/mercadopago');
 const audit = require('../lib/audit');
 const orders = require('./orders');
 const lab = require('./lab');
+const ebook = require('./ebook');
 const { json, fail, getClientIp, getQuery } = require('../lib/http');
 
 /** POST /api/webhooks/mercadopago — notificación de MercadoPago. */
@@ -76,6 +77,12 @@ async function webhook(req, res, body) {
   if (meta.kind === 'lab' || String(payment.external_reference || '').startsWith('lab:')) {
     const resultado = await lab.confirmPayment(payment);
     return json(res, 200, Object.assign({ ok: true, kind: 'lab' }, resultado));
+  }
+
+  /* --- Venta del Ebook --- */
+  if (meta.kind === 'ebook' || String(payment.external_reference || '').startsWith('ebook:')) {
+    const resultado = await ebook.confirmPayment(payment);
+    return json(res, 200, Object.assign({ ok: true, kind: 'ebook' }, resultado));
   }
 
   // Otro tipo de pago: no hay nada que hacer.

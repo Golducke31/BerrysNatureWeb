@@ -24,6 +24,8 @@ const reports = require('./handlers/reports');
 const payments = require('./handlers/payments');
 const orders = require('./handlers/orders');
 const lab = require('./handlers/lab');
+const ebook = require('./handlers/ebook');
+const ebookAdmin = require('./handlers/ebook-admin');
 const products = require('./handlers/products');
 const reviews = require('./handlers/reviews');
 const images = require('./handlers/images');
@@ -110,6 +112,7 @@ async function handleAdmin(req, res, method, seg) {
   if (a === 'logout' && method === 'POST') return admin.logout(req, res);
   if (a === 'session' && method === 'GET') return admin.session(req, res);
   if (a === 'metrics' && method === 'GET') return admin.metrics(req, res);
+  if (a === 'ebooks-metrics' && method === 'GET') return ebookAdmin.metrics(req, res);
   if (a === 'stats' && method === 'GET') return admin.stats(req, res);
   if (a === 'revenue' && method === 'GET') return admin.revenue(req, res);
   if (a === 'audit' && method === 'GET') return admin.listAudit(req, res);
@@ -143,6 +146,14 @@ async function handleAdmin(req, res, method, seg) {
     if (!b && method === 'POST') return products.createProduct(req, res, await body(req));
     if (b && method === 'PATCH') return products.updateProduct(req, res, { id: b }, await body(req));
     if (b && method === 'DELETE') return products.deleteProduct(req, res, { id: b }, await body(req));
+    return http.notFound(res);
+  }
+
+  /* Catálogo editorial de ebooks: alta y edición sin borrar pedidos históricos. */
+  if (a === 'ebooks') {
+    if (!b && method === 'GET') return ebookAdmin.list(req, res);
+    if (!b && method === 'POST') return ebookAdmin.create(req, res, await body(req));
+    if (b && method === 'PATCH') return ebookAdmin.update(req, res, { id: b }, await body(req));
     return http.notFound(res);
   }
 
@@ -383,6 +394,19 @@ async function handlePublic(req, res, method, seg) {
     if (b === 'order' && c && method === 'GET') return lab.estadoPedido(req, res, { id: c });
     if (b === 'descarga' && c && method === 'GET') return lab.descargar(req, res, { id: c });
     return http.notFound(res);
+  }
+
+  /* --- Ebook Berry's Nature: producto digital --- */
+  if (a === 'ebook') {
+    if ((!b || b === 'info') && method === 'GET') return ebook.info(req, res);
+    if (b === 'checkout' && !c && method === 'POST') return ebook.createCheckout(req, res, await body(req));
+    if (b === 'order' && c && method === 'GET') return ebook.estadoPedido(req, res, { id: c });
+    return http.notFound(res);
+  }
+
+  /* Biblioteca editorial y landings SEO de ebooks. */
+  if (a === 'ebooks' && (method === 'GET' || method === 'HEAD')) {
+    return pages.renderEbooks(req, res, { slug: b || null });
   }
 
   /* --- Tienda: checkout del carrito y consulta del pedido ---
