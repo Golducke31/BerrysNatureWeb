@@ -233,6 +233,33 @@
     X-Robots-Tag = "noindex, nofollow, noarchive"
     Cache-Control = "no-store, max-age=0"
 
+# Shells funcionales: ya llevan meta robots noindex y además lo reforzamos
+# mediante cabecera HTTP, que no depende de que el crawler interprete HTML.
+[[headers]]
+  for = "/cuenta.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+
+[[headers]]
+  for = "/recuperar.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+
+[[headers]]
+  for = "/verificar.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+
+[[headers]]
+  for = "/perfil.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+
+[[headers]]
+  for = "/hilo.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+
 # El HTML de las páginas (incluidas las renderizadas en el servidor) ya va
 # con no-store, pero los assets de cliente (js/css) podían quedar cacheados
 # por el navegador y servir una versión vieja del sitio después de un deploy.

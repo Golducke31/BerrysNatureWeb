@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
 
+# APIs, autenticacion y shells funcionales: no son contenido de busqueda.
+Disallow: /api/
+Disallow: /cuenta.html
+Disallow: /recuperar.html
+Disallow: /verificar.html
+Disallow: /perfil.html
+Disallow: /hilo.html
+
 Sitemap: https://berrysnature.com.ar/sitemap.xml
