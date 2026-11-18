@@ -200,6 +200,7 @@ ${robots ? `  <meta name="robots" content="${esc(robots)}">\n` : ''}  <link rel=
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${esc(canonical)}">
   <meta property="og:image" content="${esc(ogImage)}">
+  <meta property="og:image:alt" content="${esc(title)}">
   <meta property="og:locale" content="es_AR">
   <meta property="og:site_name" content="Berry's Nature">
 
@@ -207,6 +208,7 @@ ${robots ? `  <meta name="robots" content="${esc(robots)}">\n` : ''}  <link rel=
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(description)}">
   <meta name="twitter:image" content="${esc(ogImage)}">
+  <meta name="twitter:image:alt" content="${esc(title)}">
 
   <title>${esc(title)}</title>
 

@@ -221,11 +221,58 @@ const { asegurarFooter } = require('../server/lib/html-extras');
 const nav = require('../server/lib/nav.js');
 const schema = require('../server/lib/schema.js');
 
-/** Asegura la navegación compartida, el footer y versiona los assets. */
+function escapeAttr(value) {
+  return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function metaValue(html, selector) {
+  const match = html.match(selector);
+  return match ? match[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&') : '';
+}
+
+function addMeta(html, attrs, content) {
+  if (!content || new RegExp(`<meta\\b[^>]*\\b${attrs.kind}=["']${attrs.name}["']`, 'i').test(html)) return html;
+  return html.replace(/<\/head>/i, `  <meta ${attrs.kind}="${attrs.name}" content="${escapeAttr(content)}">\n</head>`);
+}
+
+/** Completa previews sociales sin reemplazar títulos, imágenes o tipos ya definidos. */
+function normalizeSocialMeta(html) {
+  const origin = String(process.env.APP_URL || 'https://berrysnature.com.ar').replace(/\/+$/, '');
+  const title = metaValue(html, /<title[^>]*>([^<]+)<\/title>/i) || "Berry's Nature";
+  const description = metaValue(html, /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)/i);
+  const canonical = metaValue(html, /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)/i);
+  const image = metaValue(html, /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)/i)
+    || `${origin}/assets/og-comercial.jpg`;
+  const absoluteImage = /^https?:\/\//i.test(image) ? image : `${origin}/${image.replace(/^\/+/, '')}`;
+  let out = html;
+  if (description) {
+    out = addMeta(out, { kind: 'property', name: 'og:type' }, 'website');
+    out = addMeta(out, { kind: 'property', name: 'og:title' }, title);
+    out = addMeta(out, { kind: 'property', name: 'og:description' }, description);
+    if (canonical) out = addMeta(out, { kind: 'property', name: 'og:url' }, canonical);
+    out = addMeta(out, { kind: 'property', name: 'og:image' }, absoluteImage);
+    if (/og-comercial|og-berrys-lab/i.test(absoluteImage)) {
+      out = addMeta(out, { kind: 'property', name: 'og:image:width' }, '1200');
+      out = addMeta(out, { kind: 'property', name: 'og:image:height' }, '630');
+    }
+    out = addMeta(out, { kind: 'property', name: 'og:image:alt' }, title);
+    out = addMeta(out, { kind: 'property', name: 'og:site_name' }, "Berry's Nature");
+    out = addMeta(out, { kind: 'property', name: 'og:locale' }, 'es_AR');
+    out = addMeta(out, { kind: 'name', name: 'twitter:card' }, 'summary_large_image');
+    out = addMeta(out, { kind: 'name', name: 'twitter:title' }, title);
+    out = addMeta(out, { kind: 'name', name: 'twitter:description' }, description);
+    out = addMeta(out, { kind: 'name', name: 'twitter:image' }, absoluteImage);
+    out = addMeta(out, { kind: 'name', name: 'twitter:image:alt' }, title);
+  }
+  return out;
+}
+
+/** Asegura navegación, metadatos sociales, footer y versiona los assets. */
 function processHtml(html, base) {
   const conNav = nav.aplicarNav(html, { base });
   const out = asegurarFooter(conNav);
-  return schema.injectGlobal(versionAssetsInHtml(out));
+  return schema.injectGlobal(normalizeSocialMeta(versionAssetsInHtml(out)));
 }
 
 /* ============================================================
