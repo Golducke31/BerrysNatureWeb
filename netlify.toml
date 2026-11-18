@@ -53,9 +53,22 @@
   # contenido que viene de la base (catálogo / hilos) antes de servir.
   included_files = ["css/admin.css", "js/admin.js", "tienda.html", "foro.html"]
 
-# ---- La tienda cambió de URL ----
+# ---- La landing del ebook cambió de URL ----
+# Todas las variantes antiguas terminan en la landing SSR canónica.
 [[redirects]]
   from = "/ebook-berrys-nature"
+  to = "/ebooks/ebook-berrys-nature"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/ebook-berrys-nature/"
+  to = "/ebooks/ebook-berrys-nature"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/ebook-berrys-nature.html"
   to = "/ebooks/ebook-berrys-nature"
   status = 301
   force = true

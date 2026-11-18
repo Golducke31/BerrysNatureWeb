@@ -69,7 +69,7 @@ async function createCheckout(req, res, body) {
     const amount = Number(item.price) || priceArs();
     const title = item.title || TITULO;
     const fila = await db.one(`INSERT INTO ebook_orders (ebook_id, email, nombre, amount, public_token, ip_hash) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, public_token`, [item.id, email, nombre, amount, token, ip]);
-    const preferencia = await mp.createEbookPreference({ orderId: fila.id, token: fila.public_token, email, amount, title, appUrl: baseUrl() });
+    const preferencia = await mp.createEbookPreference({ orderId: fila.id, token: fila.public_token, email, amount, title, slug: item.slug, appUrl: baseUrl() });
     await db.query('UPDATE ebook_orders SET preference_id = $1, updated_at = now() WHERE id = $2', [preferencia.id || null, fila.id]);
     await events.log('ebook_checkout_iniciado', { ip: getClientIp(req), metadata: { slug: item.slug, order_id: fila.id } });
     return json(res, 200, { init_point: mp.initPointDe(preferencia), pedido: String(fila.id), token: fila.public_token, monto: amount, estadoUrl: urlEstado(fila.id, fila.public_token) });

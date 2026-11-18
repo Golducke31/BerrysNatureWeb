@@ -213,12 +213,13 @@ async function createLabPreference({ orderId, token, email, amount, title, appUr
 }
 
 /** Preferencia para la venta del ebook, sin envío y como invitado. */
-async function createEbookPreference({ orderId, token, email, amount, title, appUrl }) {
+async function createEbookPreference({ orderId, token, email, amount, title, slug, appUrl }) {
   const accessTokenValue = accessToken();
   if (!accessTokenValue) throw new Error('MERCADOPAGO_ACCESS_TOKEN no está configurado.');
   const base = String(appUrl || '').replace(/\/+$/, '');
   const pedido = encodeURIComponent(String(orderId));
   const t = encodeURIComponent(String(token));
+  const landing = `${base}/ebooks/${encodeURIComponent(String(slug || 'ebook-berrys-nature'))}`;
   const body = {
     items: [{ id: 'ebook-berrys-nature-first-edition', title: String(title || "Ebook Berry's Nature First Edition").slice(0, 250), quantity: 1, unit_price: Number(amount), currency_id: 'ARS' }],
     external_reference: `ebook:${orderId}`,
@@ -227,9 +228,9 @@ async function createEbookPreference({ orderId, token, email, amount, title, app
     statement_descriptor: 'BERRYSNATURE',
     payment_methods: { installments: 1 },
     back_urls: {
-      success: `${base}/ebook-berrys-nature?pago=ok&pedido=${pedido}&t=${t}`,
-      failure: `${base}/ebook-berrys-nature?pago=error&pedido=${pedido}&t=${t}`,
-      pending: `${base}/ebook-berrys-nature?pago=pendiente&pedido=${pedido}&t=${t}`
+      success: `${landing}?pago=ok&pedido=${pedido}&t=${t}`,
+      failure: `${landing}?pago=error&pedido=${pedido}&t=${t}`,
+      pending: `${landing}?pago=pendiente&pedido=${pedido}&t=${t}`
     },
     auto_return: 'approved'
   };
