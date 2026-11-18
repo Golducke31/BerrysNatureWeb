@@ -219,12 +219,13 @@ const { asegurarFooter } = require('../server/lib/html-extras');
    Se aplica acá sobre el artefacto publicado y también en la Function
    (server/handlers/pages.js) para /tienda, /foro y las páginas SSR. */
 const nav = require('../server/lib/nav.js');
+const schema = require('../server/lib/schema.js');
 
 /** Asegura la navegación compartida, el footer y versiona los assets. */
 function processHtml(html, base) {
   const conNav = nav.aplicarNav(html, { base });
   const out = asegurarFooter(conNav);
-  return versionAssetsInHtml(out);
+  return schema.injectGlobal(versionAssetsInHtml(out));
 }
 
 /* ============================================================
