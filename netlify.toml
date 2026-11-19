@@ -21,6 +21,8 @@
 #   GOOGLE_CLIENT_ID / TURNSTILE_SITE_KEY → claves PÚBLICAS que van escritas
 #     a propósito en js/config.js (las lee el navegador). Si se marcan como
 #     secretas, el escaneo las encuentra en ese archivo y rompe el build.
+#   GA_MEASUREMENT_ID → Measurement ID de GA4 (G-...): también es público,
+#     viaja al navegador y está en server/lib/html-extras.js + .env.example.
 #
 # MAIL_API_KEY, DATABASE_URL, ADMIN_SLUG, ADMIN_GATE_KEY, SESSION_SECRET,
 # TURNSTILE_SECRET_KEY y MERCADOPAGO_* SIGUEN escaneándose: son secretos
@@ -36,7 +38,7 @@
   # SIGUEN escaneándose los secretos reales: DATABASE_URL, ADMIN_SLUG,
   # ADMIN_GATE_KEY, SESSION_SECRET, MERCADOPAGO_*, las claves de R2
   # (ACCOUNT/ACCESS/SECRET) y LAB_LICENSE_PRIVATE_KEY.
-  SECRETS_SCAN_OMIT_KEYS = "APP_URL,MAIL_TRANSPORT,MAIL_FROM,GOOGLE_CLIENT_ID,TURNSTILE_SITE_KEY,LAB_FILE_KEY,R2_BUCKET,LAB_FILE_BYTES,LAB_PRICE_ARS,LAB_RENEWAL_PRICE_ARS,LAB_DOWNLOAD_TTL_HOURS"
+  SECRETS_SCAN_OMIT_KEYS = "APP_URL,MAIL_TRANSPORT,MAIL_FROM,GOOGLE_CLIENT_ID,TURNSTILE_SITE_KEY,GA_MEASUREMENT_ID,LAB_FILE_KEY,R2_BUCKET,LAB_FILE_BYTES,LAB_PRICE_ARS,LAB_RENEWAL_PRICE_ARS,LAB_DOWNLOAD_TTL_HOURS"
   # Los fixtures de tests usan secretos FALSOS (ej. 'testsessionsecret_...')
   # y no se despliegan: no tiene sentido que bloqueen un deploy.
   #

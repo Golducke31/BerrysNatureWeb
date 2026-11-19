@@ -214,7 +214,7 @@ function versionAssetsInHtml(html) {
    misma inyección sobre tienda.html / foro.html, que lee del fuente y no
    de dist/. Antes esto estaba solo acá y por eso /tienda no tenía
    Facebook. Ver el comentario de ese módulo. */
-const { asegurarFooter } = require('../server/lib/html-extras');
+const { asegurarFooter, asegurarGoogleTag } = require('../server/lib/html-extras');
 /* Header / menú móvil / footer: UNA sola fuente (server/lib/nav.js).
    Se aplica acá sobre el artefacto publicado y también en la Function
    (server/handlers/pages.js) para /tienda, /foro y las páginas SSR. */
@@ -272,7 +272,7 @@ function normalizeSocialMeta(html) {
 function processHtml(html, base) {
   const conNav = nav.aplicarNav(html, { base });
   const out = asegurarFooter(conNav);
-  return schema.injectGlobal(normalizeSocialMeta(versionAssetsInHtml(out)));
+  return asegurarGoogleTag(schema.injectGlobal(normalizeSocialMeta(versionAssetsInHtml(out))));
 }
 
 /* ============================================================

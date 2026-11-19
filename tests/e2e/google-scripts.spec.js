@@ -5,7 +5,7 @@ const path = require('node:path');
 const RAIZ = path.resolve(__dirname, '../..');
 const leer = (p) => fs.readFileSync(path.join(RAIZ, p), 'utf8');
 const GOOGLE_JS = leer('js/google-reviews.js');
-const { MERCHANT_ID, BADGE_SCRIPT, asegurarFooter } = require('../../server/lib/html-extras');
+const { MERCHANT_ID, BADGE_SCRIPT, asegurarFooter, GA_MEASUREMENT_ID, asegurarGoogleTag } = require('../../server/lib/html-extras');
 
 const PEDIDO = {
   id: '11111111-1111-1111-1111-111111111111',
@@ -52,6 +52,22 @@ test.describe('Scripts de Google', () => {
     expect(leer('server/handlers/pages.js')).toContain('BADGE_SCRIPT');
     expect(leer('server/handlers/pages.js')).toContain('asegurarFooter(fs.readFileSync');
     expect(leer('tienda.html')).toContain('js/google-reviews.js');
+  });
+
+  test('GA-01: el Google tag es idempotente y va justo después de <head>', () => {
+    expect(GA_MEASUREMENT_ID).toBe('G-4CMT7PCJDC');
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body></body></html>';
+    const una = asegurarGoogleTag(html);
+    expect(asegurarGoogleTag(una)).toBe(una);
+    expect(una.match(/gtag\/js\?id=/g)).toHaveLength(1);
+    expect(una.indexOf('gtag/js?id=')).toBeLessThan(una.indexOf('</head>'));
+    expect(una).toContain(`gtag('config', '${GA_MEASUREMENT_ID}')`);
+  });
+
+  test('GA-02: el tag llega al build estático y a las respuestas de la Function', () => {
+    expect(leer('scripts/build.cjs')).toContain('asegurarGoogleTag(');
+    expect(leer('netlify/functions/api.js')).toContain('asegurarGoogleTag(bytesCrudos');
+    expect(leer('netlify/functions/api.js')).toContain('/text\\/html/i');
   });
 
   test('GS-03: el opt-in se registra con los datos reales del pedido pagado', async ({ page }) => {

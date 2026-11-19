@@ -19,6 +19,30 @@
 const MERCHANT_ID = 5896319322;
 const FB_URL = 'https://www.facebook.com/share/1JjL83dtQu/';
 
+/* GA4 · Measurement ID público (viaja al navegador: NO es secreto).
+   Se usa el snippet clásico de gtag.js que entrega la UI de GA4 en
+   "Install manually": es retrocompatible y dispara page_view sin depender
+   de un container de Tag Manager. Docs: support.google.com/analytics/9539598
+   y developers.google.com/tag-platform/gtagjs/reference (config deprecado
+   pero compatible). */
+const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || 'G-4CMT7PCJDC';
+const GOOGLE_TAG = `  <!-- Google tag (gtag.js) · GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${GA_MEASUREMENT_ID}');
+  </script>`;
+
+/** Inserta el Google tag justo después de <head>, una sola vez. */
+function asegurarGoogleTag(html) {
+  const texto = String(html);
+  if (!/<head[^>]*>/i.test(texto)) return texto;
+  if (texto.includes(`gtag/js?id=${GA_MEASUREMENT_ID}`)) return texto;
+  return texto.replace(/<head([^>]*)>/i, (m, attrs) => `${m}\n${GOOGLE_TAG}`);
+}
+
 /* Enlaces internos a las páginas hub. Google descubre las 34 fichas
    (12 guías + 8 hilos + 14 productos) a través de estos listados; si el
    único camino era el sitemap.xml, las páginas nuevas de un sitio con
@@ -114,6 +138,8 @@ function asegurarFooter(html) {
 
 module.exports = {
   MERCHANT_ID,
+  GA_MEASUREMENT_ID,
+  GOOGLE_TAG,
   FB_URL,
   FB_ANCHOR,
   BADGE_SCRIPT,
@@ -121,5 +147,6 @@ module.exports = {
   asegurarFacebook,
   asegurarNavFooter,
   asegurarInsigniaGoogle,
+  asegurarGoogleTag,
   asegurarFooter
 };

@@ -12,6 +12,7 @@
 
 const { route } = require('../../server/router');
 const { baselineHeaders } = require('../../server/lib/response-headers');
+const { asegurarGoogleTag } = require('../../server/lib/html-extras');
 
 /* La URL que pidió el navegador puede llegar por event.rawUrl, por event.path,
    o el rewrite puede haber apuntado la petición a
@@ -102,13 +103,21 @@ function buildRes() {
 
   // Respuesta en el formato que espera Netlify (Lambda-style).
   res.toResponse = function () {
-    const bytes = Buffer.concat(chunks);
     const single = {};
     const multi = {};
     for (const [k, v] of headers) {
       if (Array.isArray(v)) multi[k] = v.map(String);
       else single[k] = String(v);
     }
+
+    const bytesCrudos = Buffer.concat(chunks);
+    /* GA4: las páginas dinámicas (tienda/foro/perfil/SSR) no pasan por
+       processHtml del build. Inyectamos el tag en TODA respuesta HTML aquí.
+       El helper es idempotente: si el HTML ya lo trae, no lo duplica. */
+    const tipo = String(single['content-type'] || '');
+    const bytes = /text\/html/i.test(tipo) && bytesCrudos.length
+      ? Buffer.from(asegurarGoogleTag(bytesCrudos.toString('utf8')), 'utf8')
+      : bytesCrudos;
 
     /* Netlify solo admite `body` como string. Para no destruir binarios lo
        mandamos en base64 con isBase64Encoded; la plataforma lo decodifica
