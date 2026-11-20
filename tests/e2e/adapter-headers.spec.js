@@ -62,8 +62,7 @@ test('las imágenes siguen indexables y conservan su caché inmutable', () => {
   expect(response.headers['content-security-policy']).toBe(CSP);
 });
 
-test('el panel admin conserva su ruta, sus assets y el noindex', () => {
-  const shell = invocar(`https://berrysnature.com.ar/api/${env.ADMIN_SLUG}?k=${env.ADMIN_GATE_KEY}`);
+test('el panel admin conserva su ruta, sus assets y el noindex', () => {  const shell = invocar(`https://berrysnature.com.ar/api/${env.ADMIN_SLUG}?k=${env.ADMIN_GATE_KEY}`);
 
   expect(shell.statusCode).toBe(200);
   expect(shell.body).toContain('adminRoot');
@@ -75,4 +74,35 @@ test('el panel admin conserva su ruta, sus assets y el noindex', () => {
 
   const denegado = invocar(`https://berrysnature.com.ar/api/${env.ADMIN_SLUG}?k=incorrecta`);
   expect(denegado.statusCode).toBe(404);
+});
+
+test('la CSP permite blobs en img-src para que el admin pueda redimensionar fotos', async ({ page }) => {
+  /* CSP-01: desde f0d5c3a todas las respuestas Function llevan la CSP base.
+     El panel usa URL.createObjectURL() + <img> para achicar las fotos
+     antes de subirlas; sin blob: en img-src, onerror y no subía nada. */
+  expect(CSP).toContain("img-src 'self' blob: data: https:");
+  expect(require('node:fs').readFileSync(require('node:path').join(__dirname, '../..', 'netlify.toml'), 'utf8'))
+    .toContain("img-src 'self' blob: data: https:");
+
+  // Prueba real: misma CSP, cargo una imagen desde un blob: URL.
+  await page.route('**/csp-img.html', (r) => r.fulfill({
+    contentType: 'text/html; charset=utf-8',
+    headers: { 'content-security-policy': CSP },
+    body: '<!DOCTYPE html><html><head></head><body></body></html>'
+  }));
+  await page.goto('http://berrys.test/csp-img.html');
+  const evento = await page.evaluate(() => new Promise((res) => {
+    // 1x1 PNG válido: si la CSP bloquea blob:, dispara onerror.
+    const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    const bin = atob(png);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([bytes], { type: 'image/png' }));
+    const img = new Image();
+    img.onload = () => res('load');
+    img.onerror = () => res('error');
+    img.src = url;
+    setTimeout(() => res('timeout'), 1500);
+  }));
+  expect(evento).toBe('load');
 });

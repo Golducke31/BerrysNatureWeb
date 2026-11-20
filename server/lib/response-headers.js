@@ -11,12 +11,16 @@
    (Google, Turnstile, GTM, Facebook, YouTube y Vimeo) que ya están
    permitidos en esa política.
 
+   `blob:` en img-src NO es opcional: el panel admin redimensiona las
+   fotos con URL.createObjectURL() antes de subirlas (js/admin.js). Sin
+   eso, img.onerror dispara y la subida falla sin mensaje útil.
+
    No incluir Cache-Control ni Content-Type: cada handler decide los
    suyos y deben poder sobrescribir estos valores.
    ============================================================ */
 'use strict';
 
-const CSP = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' https://accounts.google.com https://challenges.cloudflare.com https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://accounts.google.com; font-src 'self'; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https://accounts.google.com https://challenges.cloudflare.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.facebook.com https://connect.facebook.net; frame-src https://accounts.google.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com; upgrade-insecure-requests";
+const CSP = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' https://accounts.google.com https://challenges.cloudflare.com https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://accounts.google.com; font-src 'self'; img-src 'self' blob: data: https:; media-src 'self' https:; connect-src 'self' https://accounts.google.com https://challenges.cloudflare.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.facebook.com https://connect.facebook.net; frame-src https://accounts.google.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com; upgrade-insecure-requests";
 
 function baselineHeaders() {
   return {
