@@ -32,12 +32,40 @@ const ANALYTICS_LOADER = `  <!-- Analítica: GA4 + Meta Pixel (un solo loader) -
   <script src="/js/analytics-config.js"></script>
   <script src="/js/analytics.js"></script>`;
 
+const CONSENT_SCRIPT = '  <script src="/js/consent.js"></script>';
+const CONSENT_BANNER = `  <aside id="mz-consent" class="mz-consent" hidden role="dialog" aria-label="Preferencias de privacidad">
+    <div class="mz-consent__box">
+      <div>
+        <strong>Uso de cookies de medición</strong>
+        <p>Usamos cookies propias necesarias para que la tienda funcione. Con tu permiso,
+        sumamos GA4 y Meta Pixel para medir visitas y campañas. Podés cambiar tu elección
+        cuando quieras desde <a href="/privacidad">la política de privacidad</a>.</p>
+      </div>
+      <div class="mz-consent__actions">
+        <button type="button" class="btn btn-ghost btn-sm" id="mz-consent-reject">Rechazar</button>
+        <button type="button" class="btn btn-primary btn-sm" id="mz-consent-accept">Aceptar</button>
+      </div>
+    </div>
+  </aside>`;
+
 /** Inserta el loader de analítica justo después de <head>, una sola vez. */
 function asegurarAnalytics(html) {
-  const texto = String(html);
+  let texto = String(html);
   if (!/<head[^>]*>/i.test(texto)) return texto;
-  if (texto.includes('js/analytics.js')) return texto;
-  return texto.replace(/<head([^>]*)>/i, (m) => `${m}\n${ANALYTICS_LOADER}`);
+
+  /* consent.js SIEMPRE antes de analytics: sin él, analytics.js no sabe si
+     hay opt-in. En tienda/SSR el par config+loader ya viene en el body. */
+  const faltan = [];
+  if (!texto.includes('js/consent.js')) faltan.push(CONSENT_SCRIPT);
+  if (!texto.includes('js/analytics.js')) faltan.push(ANALYTICS_LOADER);
+  if (faltan.length) {
+    texto = texto.replace(/<head([^>]*)>/i, (m) => `${m}\n${faltan.join('\n')}`);
+  }
+
+  if (!texto.includes('id="mz-consent"') && /<\/body\s*>/i.test(texto)) {
+    texto = texto.replace(/<\/body\s*>/i, (m) => `${CONSENT_BANNER}\n  ${m}`);
+  }
+  return texto;
 }
 
 /* Enlaces internos a las páginas hub. Google descubre las 34 fichas
@@ -136,6 +164,8 @@ function asegurarFooter(html) {
 module.exports = {
   MERCHANT_ID,
   ANALYTICS_LOADER,
+  CONSENT_SCRIPT,
+  CONSENT_BANNER,
   FB_URL,
   FB_ANCHOR,
   BADGE_SCRIPT,

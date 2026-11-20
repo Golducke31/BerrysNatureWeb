@@ -16,17 +16,34 @@
   var ga4 = String(cfg.ga4 || '').trim();
   var pixel = String(cfg.metaPixel || '').trim();
 
-  if (ga4) {
-    if (!window.gtag) {
-      var gs = document.createElement('script');
-      gs.async = true;
-      gs.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga4);
-      document.head.appendChild(gs);
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function () { window.dataLayer.push(arguments); };
-      window.gtag('js', new Date());
-      window.gtag('config', ga4, { send_page_view: true });
-    }
+  function itemParams(p, qty) {
+    var price = Number(p && p.precio) || 0;
+    return {
+      item_id: p && p.id,
+      item_name: p && p.nombre,
+      price: price,
+      quantity: qty || 1
+    };
+  }
+
+  function noop() {}
+  var consent = window.BERRYS_CONSENT || { accepted: false, decided: false };
+
+  /* Sin opt-in, NO se carga ningún tag de terceros. La API pública
+     queda como no-op para que catálogo/producto no rompan. */
+  if (!consent.accepted) {
+    window.BerrysAnalytics = { track: noop, itemParams: itemParams };
+    return;
+  }
+
+  if (ga4 && !window.__mzGtagLoaded) {
+    window.__mzGtagLoaded = true;
+    var gs = document.createElement('script');
+    gs.async = true;
+    gs.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga4);
+    document.head.appendChild(gs);
+    window.gtag('js', new Date());
+    window.gtag('config', ga4, { send_page_view: true });
   }
 
   if (pixel && !window.fbq) {
@@ -72,16 +89,6 @@
       if (name === 'purchase') p.order_id = params.transaction_id;
       window.fbq('track', META[name], p);
     }
-  }
-
-  function itemParams(p, qty) {
-    var price = Number(p && p.precio) || 0;
-    return {
-      item_id: p && p.id,
-      item_name: p && p.nombre,
-      price: price,
-      quantity: qty || 1
-    };
   }
 
   window.BerrysAnalytics = { track: track, itemParams: itemParams };
