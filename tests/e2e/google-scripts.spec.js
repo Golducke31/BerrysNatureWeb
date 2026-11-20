@@ -173,6 +173,7 @@ test.describe('SEO: enlazado interno y canoncales', () => {
   test('SEO-02: título corto de la checklist ANMAT', () => {
     const titulo = /<title>([^<]+)<\/title>/.exec(
       leer('academia/checklist-legal-anmat-cosmetica-argentina.html'))[1];
-    expect(titulo).toBe("Checklist ANMAT para vender cosmética | Berry's Academy");
+    expect(titulo).toBe('Checklist ANMAT para vender cosmética en Argentina');
+    expect(titulo.length).toBeLessThanOrEqual(55);
   });
 });
