@@ -36,10 +36,8 @@ const CONSENT_SCRIPT = '  <script src="/js/consent.js"></script>';
 const CONSENT_BANNER = `  <aside id="mz-consent" class="mz-consent" hidden role="dialog" aria-label="Preferencias de privacidad">
     <div class="mz-consent__box">
       <div>
-        <strong>Uso de cookies de medición</strong>
-        <p>Usamos cookies propias necesarias para que la tienda funcione. Con tu permiso,
-        sumamos GA4 y Meta Pixel para medir visitas y campañas. Podés cambiar tu elección
-        cuando quieras desde <a href="/privacidad">la política de privacidad</a>.</p>
+        <strong>Utilizamos cookies</strong>
+        <p>Para mejorar el rendimiento de la página.</p>
       </div>
       <div class="mz-consent__actions">
         <button type="button" class="mz-consent__btn mz-consent__btn--ghost" id="mz-consent-reject">Rechazar</button>

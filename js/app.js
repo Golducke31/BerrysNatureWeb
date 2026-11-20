@@ -226,6 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Close mobile menu when resizing up to desktop (hamburger hidden >= 768px)
   window.addEventListener('resize', () => {
+    var barra = document.querySelector('.topbar-announce');
+    document.documentElement.style.setProperty(
+      '--topbar-h', barra ? Math.round(barra.getBoundingClientRect().height) + 'px' : '0px'
+    );
     if (window.innerWidth >= 768 && navMenuMobile.classList.contains('open')) {
       closeMobileMenu();
     }
@@ -496,13 +500,22 @@ document.addEventListener('DOMContentLoaded', () => {
     '</div>';
   header.parentNode.insertBefore(bar, header);
 
-  bar.querySelector('.topbar-announce__close').addEventListener('click', function () {
+    bar.querySelector('.topbar-announce__close').addEventListener('click', function () {
     if (rotacion) window.clearInterval(rotacion);
     bar.remove();
+    syncTopbarHeight();
     try {
       localStorage.setItem(claveOcultamiento, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
     } catch (e) { /* modo privado */ }
   });
+
+  function syncTopbarHeight() {
+    var existente = document.querySelector('.topbar-announce');
+    document.documentElement.style.setProperty(
+      '--topbar-h', existente ? Math.round(existente.getBoundingClientRect().height) + 'px' : '0px'
+    );
+  }
+  syncTopbarHeight();
 
   function mostrarMensaje() {
     var el = document.getElementById('topbarMessage');
@@ -511,6 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(function () {
       el.innerHTML = mensajes[indiceMensaje];
       el.classList.add('is-visible');
+      syncTopbarHeight();
     }, 180);
   }
 
