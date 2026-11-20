@@ -111,13 +111,22 @@ test.describe('Offer nunca sale sin precio', () => {
     const m = /<script[^>]*id="catalogoJsonLd"[^>]*>([\s\S]*?)<\/script>/.exec(html);
     expect(m).toBeTruthy();
     expect(JSON.parse(m[1]).itemListElement).toEqual([]);
-    expect(html).toContain('Nunca publicar un `Offer`');
+    /* Desde 3873e8f el catálogo es ItemList de WebPages: el Offer vive en la
+       ficha de producto. El respaldo estático se deja vacío a propósito y el
+       comentario de seguridad pasó a pages.js (buildCatalogoJsonLd). */
+    expect(leer('server/handlers/pages.js')).toContain(
+      'ItemList de páginas de producto del catálogo');
   });
 
   test('OS-07: SSR y cliente usan el guardia; el build lo verifica', () => {
     const pages = leer('server/handlers/pages.js');
-    expect(pages.match(/ofertaLib\.ofertaJson\(/g)).toHaveLength(2);
-    expect(leer('js/catalog.js')).toContain("typeof p.precio === 'number' && isFinite(p.precio) && p.precio > 0");
+    /* Una sola llamada: la ficha de producto. El catálogo no emite Offer
+       desde 3873e8f (ver OS-06). */
+    expect(pages.match(/ofertaLib\.ofertaJson\(/g)).toHaveLength(1);
+    /* Guardia de precio en el cliente: precioBase() rechaza null/vacío/0 y
+       valores no finitos antes de publicar cualquier Offer. */
+    expect(leer('js/catalog.js')).toContain('function precioBase(p)');
+    expect(leer('js/catalog.js')).toContain('return isFinite(base) && base > 0 ? base : null;');
     expect(leer('scripts/check-urls.cjs')).toContain('tienePrecioValido');
     // El primer paint no debe sobrescribir el ItemList del SSR con la semilla.
     expect(leer('js/catalog.js')).toContain('actualizarJsonLd(true)');
@@ -252,11 +261,22 @@ test.describe('SSR de /tienda con precios faltantes', () => {
     expect(d.itemListElement[0].item.offers).toBeUndefined();
   });
 
-  test('OS-10: con precio válido el Offer trae price numérico', async () => {
+  test('OS-10: con precio válido el Offer de la ficha trae price numérico', async () => {
+    /* El Offer se emite en la ficha (ofertaJson), no en el ItemList del
+       catálogo: ver OS-06. Acá verificamos el guardia donde sí aplica. */
+    const oferta = ofertaJson({
+      precio: 4000, url: 'https://berrysnature.com.ar/productos/p-1',
+      enStock: true, base: 'https://berrysnature.com.ar', politicas: {}
+    });
+    expect(oferta.price).toBe(4000);
+    expect(oferta.priceCurrency).toBe('ARS');
+    expect(tienePrecioValido(oferta)).toBe(true);
+
+    /* Y el catálogo SSR sigue siendo ItemList de WebPages, sin Offer,
+       aunque el producto tenga precio real. */
     const d = await renderCon(4000);
-    const o = d.itemListElement[0].item.offers;
-    expect(o.price).toBe(4000);
-    expect(o.priceCurrency).toBe('ARS');
-    expect(tienePrecioValido(o)).toBe(true);
+    const item = d.itemListElement[0].item;
+    expect(item['@type']).toBe('WebPage');
+    expect(item.offers).toBeUndefined();
   });
 });

@@ -46,9 +46,10 @@ function bloque(html, re) {
 }
 
 test.describe('Componente compartido de navegación', () => {
-  test('NV-01: los 29 HTML tienen exactamente el mismo header, drawer y footer', async () => {
+  test('NV-01: los 31 HTML tienen exactamente el mismo header, drawer y footer', async () => {
     const lista = paginas();
-    expect(lista.length).toBe(29);
+    /* 31 = las 29 originales + como-usar.html y ebook.html (páginas nuevas). */
+    expect(lista.length).toBe(31);
 
     const referencia = {
       header: normalizar(bloque(lista[0].html, RE_HEADER)),

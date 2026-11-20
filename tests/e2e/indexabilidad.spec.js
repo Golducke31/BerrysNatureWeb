@@ -30,9 +30,10 @@ function htmlsFuente() {
 }
 
 test.describe('Señales de indexación', () => {
-  test('IX-01: las 29 páginas enlazan los 5 hubs, sin .html', () => {
+  test('IX-01: las 31 páginas enlazan los 5 hubs, sin .html', () => {
     const paginas = htmlsFuente();
-    expect(paginas.length).toBe(29);
+    /* 31 = 29 originales + como-usar.html y ebook.html. */
+    expect(paginas.length).toBe(31);
     for (const rel of paginas) {
       const html = leer(rel);
       expect(html, rel).toContain('data-footer-nav');

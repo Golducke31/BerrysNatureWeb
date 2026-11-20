@@ -43,9 +43,10 @@ test.describe('Eventos — lista blanca', () => {
     for (const nombre of Object.keys(events.NOMBRES)) {
       expect(events.esValido(nombre)).toBe(true);
     }
-    /* El número es a propósito: si alguien agrega un evento sin pensarlo, este
-       test lo obliga a actualizar la lista y a revisar si de verdad va. */
-    expect(Object.keys(events.NOMBRES).length).toBe(6);
+    /* Número a propósito: obliga a revisar la lista si se agrega un evento.
+       9 = los 6 originales + los 3 del funnel de ebooks (visto, checkout,
+       compra confirmada). */
+    expect(Object.keys(events.NOMBRES).length).toBe(9);
   });
 
   test('E2: rechaza cualquier nombre no declarado', () => {

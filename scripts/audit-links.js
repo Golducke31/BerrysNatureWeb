@@ -53,8 +53,8 @@ for (const rel of ARCHIVOS) {
 }
 
 /* Rutas que no tienen archivo: las sirve la Function desde la BD. */
-const PREFIJOS_SSR = ['/productos/', '/guias/', '/foro/hilo/', '/perfil/', '/api/'];
-const RUTAS_SSR = new Set(['/sitemap.xml', '/feed.xml']);
+const PREFIJOS_SSR = ['/productos/', '/guias/', '/foro/hilo/', '/perfil/', '/api/', '/tienda/', '/ebooks/'];
+const RUTAS_SSR = new Set(['/sitemap.xml', '/feed.xml', '/ebooks']);
 /* Hashes que no son un id del DOM: los maneja JavaScript. */
 const HASH_DINAMICO = /^(?:carrito|categoria-[a-z0-9-]+)$/i;
 /* Shells privadas: no se auditan como páginas huérfanas. */
