@@ -1336,6 +1336,8 @@
   text-overflow: ellipsis;
 }
 .cart-cross__price { font-size: 12px; color: var(--color-text-muted); }
+.cart-cross__old { opacity: .65; margin-right: 2px; }
+.cart-cross__sale { color: var(--color-cta-text, #8B4A3F); font-weight: 700; }
 .cart-cross__add {
   margin-left: auto;
   width: 30px;

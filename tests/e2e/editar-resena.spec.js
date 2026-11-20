@@ -149,4 +149,47 @@ test.describe('Editar la reseña propia', () => {
     expect(await page.textContent('#reviewSubmit')).toBe('Guardar cambios');
     expect((await page.evaluate(() => window.__toasts)).some((t) => t.icon === 'warning')).toBe(true);
   });
+
+  test('RE-05: la sesión que llega tarde revela el formulario sin volver a pedir login', async ({ page }) => {
+    /* Bug: community.js resuelve api().session() por red; producto.js miraba
+       isLogged() una sola vez al cargar y se quedaba con el botón de login
+       aunque el visitante ya estuviera logueado (screenshot del usuario). */
+    await page.route('**/review-test.html', (route) => route.fulfill({
+      contentType: 'text/html; charset=utf-8', body: pagina()
+    }));
+    await page.goto('http://berrys.test/review-test.html');
+    await page.evaluate(() => {
+      window.__abreLogin = 0;
+      window.BerrysAPI = { available: true, myProductReview: () => Promise.resolve({ resena: null }) };
+      // Sin sesión al inicio, igual que antes de que responda el servidor.
+      window.BerrysAuth = {
+        isLogged: () => !!window.__logueado,
+        open: () => { window.__abreLogin++; }
+      };
+    });
+    await page.addScriptTag({ content: PRODUCTO_JS });
+    expect(await page.locator('#reviewLoginBtn').isVisible()).toBe(true);
+
+    // community.js applySession(): actualiza currentUser y dispara el hook.
+    await page.evaluate(() => {
+      window.__logueado = true;
+      window.__syncComposer();
+    });
+    expect(await page.locator('#reviewForm').isVisible()).toBe(true);
+    expect(await page.locator('#reviewLoginBtn').isVisible()).toBe(false);
+
+    // Un click tardío sobre el botón oculto (p. ej. evento encolado) no debe
+    // abrir el modal: el visitante YA está logueado.
+    await page.evaluate(() => document.getElementById('reviewLoginBtn').click());
+    expect(await page.evaluate(() => window.__abreLogin)).toBe(0);
+  });
+
+  test('RE-06: el modal de login desde una reseña usa copia de reseña', () => {
+    const community = leer('js/community.js');
+    expect(community).toContain("contexto === 'review'");
+    expect(community).toContain('Ingresá para opinar');
+    const producto = leer('js/producto.js');
+    expect(producto).toContain("BerrysAuth.open('login', 'review')");
+    expect(producto).toContain('window.__syncComposer = actualizarLogin');
+  });
 });

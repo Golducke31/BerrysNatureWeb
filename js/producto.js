@@ -254,6 +254,13 @@
       if (btn && !btn.disabled) btn.textContent = textoBoton();
     }
 
+    /* community.js resuelve la sesión por red DESPUÉS de que este script
+       corre: al primer paint isLogged() es false aunque el visitante ya
+       esté logueado, y quedaba el botón "Ingresá para opinar" + hint.
+       Nos enganchamos al mismo hook que hilo.js/foro.js para repintar en
+       cuanto applySession() termina. */
+    window.__syncComposer = actualizarLogin;
+
     function modoEdicion(r) {
       editandoId = r && r.id ? r.id : null;
       if (editandoId && form) {
@@ -285,7 +292,14 @@
 
     if (loginBtn) {
       loginBtn.addEventListener('click', function () {
-        if (window.BerrysAuth) window.BerrysAuth.open('login');
+        /* Doble guardia: la sesión puede resolverse tarde (ver hook de
+           arriba) y un click encolado no debe abrir el modal si ya estamos
+           logueados. Este era el bug: estando logueado volvía a salir login. */
+        if (window.BerrysAuth && window.BerrysAuth.isLogged()) {
+          actualizarLogin();
+          return;
+        }
+        if (window.BerrysAuth) window.BerrysAuth.open('login', 'review');
       });
     }
 
@@ -294,7 +308,7 @@
         e.preventDefault();
 
         if (!(window.BerrysAuth && window.BerrysAuth.isLogged())) {
-          if (window.BerrysAuth) window.BerrysAuth.open('login');
+          if (window.BerrysAuth) window.BerrysAuth.open('login', 'review');
           if (window.toast) window.toast('Ingresá para dejar tu reseña.');
           return;
         }

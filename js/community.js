@@ -140,12 +140,30 @@
   /* ============================================================
      MODAL
      ============================================================ */
-  function openAuthModal(tab) {
+  function openAuthModal(tab, contexto) {
     var modal = $('#authModal');
     if (!modal) {
       // Sin modal en esta página (p. ej. glosario): llevamos al foro
       window.location.href = '/foro#comunidad';
       return;
+    }
+    /* Copy por contexto: desde una ficha de producto el visitante viene a
+       opinar, no a guardar fórmulas ni a participar del foro. Se restaura
+       el texto original cuando el modal se abre desde cualquier otro lado. */
+    var titulo = $('#authModalTitle');
+    var sub = modal.querySelector('.auth-sub');
+    if (titulo && sub) {
+      if (!modal.__authCopiaOriginal) {
+        modal.__authCopiaOriginal = { titulo: titulo.textContent, sub: sub.textContent };
+      }
+      var original = modal.__authCopiaOriginal;
+      if (contexto === 'review') {
+        titulo.textContent = 'Ingresá para opinar';
+        sub.textContent = 'Dejá tu reseña y contá tu experiencia con el producto.';
+      } else {
+        titulo.textContent = original.titulo;
+        sub.textContent = original.sub;
+      }
     }
     modal.classList.add('open');
     modal.removeAttribute('aria-hidden');

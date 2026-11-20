@@ -491,7 +491,18 @@
               return '<div class="cart-cross__item">' +
                 '<img class="cart-cross__img" src="' + escapeHtml(p.imagen) + '" alt="' + escapeHtml(p.nombre) + '" loading="lazy" decoding="async">' +
                 '<div class="cart-cross__info"><span class="cart-cross__name">' + escapeHtml(p.nombre) + '</span>' +
-                  '<span class="cart-cross__price">' + (typeof p.precio === 'number' ? ars(p.precio) : 'Consultar') + '</span></div>' +
+                  (function () {
+                    var base = precioBase(p);
+                    var oferta = precioOferta(p);
+                    if (base === null) return '<span class="cart-cross__price">Consultar</span>';
+                    if (oferta === null) return '<span class="cart-cross__price">' + ars(base) + '</span>';
+                    /* Igual que las tarjetas y las líneas del carrito: si hay
+                       oferta, se ve el precio original tachado y el vigente. */
+                    return '<span class="cart-cross__price">' +
+                      '<del class="cart-cross__old">' + ars(base) + '</del> ' +
+                      '<span class="cart-cross__sale">' + ars(oferta) + '</span>' +
+                    '</span>';
+                  }()) + '</div>' +
                 '<button type="button" class="cart-cross__add" data-cross-add="' + escapeHtml(p.id) + '" aria-label="Agregar ' + escapeHtml(p.nombre) + '">+</button>' +
               '</div>';
             }).join('');
