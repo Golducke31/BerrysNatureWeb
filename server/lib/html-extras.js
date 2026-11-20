@@ -16,6 +16,10 @@
    ============================================================ */
 'use strict';
 
+/* URLs canónicas de las redes: viven en schema.js para que Organization
+   (SSR) y los JSON-LD inline del build usen EXACTAMENTE las mismas. */
+const { SAME_AS_URLS } = require('./schema');
+
 const MERCHANT_ID = 5896319322;
 const FB_URL = 'https://www.facebook.com/share/1JjL83dtQu/';
 
@@ -159,6 +163,51 @@ function asegurarFooter(html) {
   return asegurarInsigniaGoogle(asegurarNavFooter(asegurarFacebook(html)));
 }
 
+/* Agrega sameAs a los bloques Organization del JSON-LD inline. Idempotente:
+   si el bloque ya trae las URLs no lo reescribe (y si trae algunas, completa).
+   Los bloques inválidos se dejan intactos: un JSON roto no se arregla acá,
+   para no convertir un hallazgo pequeño en una página con schema inválido. */
+function visitarOrganizaciones(nodo, cb) {
+  if (Array.isArray(nodo)) {
+    nodo.forEach((n) => visitarOrganizaciones(n, cb));
+    return;
+  }
+  if (!nodo || typeof nodo !== 'object') return;
+  const tipos = Array.isArray(nodo['@type']) ? nodo['@type'] : [nodo['@type']];
+  if (tipos.some((t) => typeof t === 'string' && t.toLowerCase() === 'organization')) {
+    cb(nodo);
+  }
+  if (Array.isArray(nodo['@graph'])) {
+    nodo['@graph'].forEach((g) => visitarOrganizaciones(g, cb));
+  }
+}
+
+function asegurarSameAs(html) {
+  const texto = String(html);
+  return texto.replace(
+    /(<script\b[^>]*type=["']application\/ld\+json["'][^>]*>)([\s\S]*?)(<\/script>)/gi,
+    (todo, apertura, cuerpo, cierre) => {
+      let data;
+      try {
+        data = JSON.parse(cuerpo);
+      } catch (e) {
+        return todo;
+      }
+      let cambio = false;
+      visitarOrganizaciones(data, (org) => {
+        const actual = Array.isArray(org.sameAs) ? org.sameAs : [];
+        const faltan = SAME_AS_URLS.filter((u) => !actual.includes(u));
+        if (faltan.length) {
+          org.sameAs = actual.concat(faltan);
+          cambio = true;
+        }
+      });
+      if (!cambio) return todo;
+      return `${apertura}\n  ${JSON.stringify(data, null, 2)}\n  ${cierre}`;
+    }
+  );
+}
+
 module.exports = {
   MERCHANT_ID,
   ANALYTICS_LOADER,
@@ -172,5 +221,6 @@ module.exports = {
   asegurarNavFooter,
   asegurarInsigniaGoogle,
   asegurarAnalytics,
+  asegurarSameAs,
   asegurarFooter
 };

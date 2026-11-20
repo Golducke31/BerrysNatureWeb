@@ -176,4 +176,45 @@ test.describe('SEO: enlazado interno y canoncales', () => {
     expect(titulo).toBe('Checklist ANMAT para vender cosmética en Argentina');
     expect(titulo.length).toBeLessThanOrEqual(55);
   });
+
+  test('GEO-01: Organization liga la marca con Instagram y Facebook (sameAs)', () => {
+    const { SAME_AS_URLS } = require('../../server/lib/schema');
+    expect(SAME_AS_URLS).toContain('https://www.instagram.com/berrys.nature/');
+    expect(SAME_AS_URLS).toContain('https://www.facebook.com/share/1JjL83dtQu/');
+
+    // El bloque global del SSR (pages.js → schema.globalBlocks) ya trae sameAs.
+    const schema = require('../../server/lib/schema');
+    expect(schema.organization('https://berrysnature.com.ar').sameAs).toEqual(SAME_AS_URLS);
+
+    // El helper inyecta sobre JSON-LD inline y es idempotente.
+    const { asegurarSameAs } = require('../../server/lib/html-extras');
+    const base = '<html><head><script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Berry\'s Nature"}</script></head></html>';
+    const una = asegurarSameAs(base);
+    expect(una).toContain('https://www.instagram.com/berrys.nature/');
+    expect(una).toContain('https://www.facebook.com/share/1JjL83dtQu/');
+    expect(asegurarSameAs(una)).toBe(una);
+
+    // No reescribe JSON inválido ni agrega sameAs donde no hay Organization.
+    const roto = '<script type="application/ld+json">{mal</script>';
+    expect(asegurarSameAs(roto)).toBe(roto);
+    const otro = '<script type="application/ld+json">{"@type":"WebPage"}</script>';
+    expect(asegurarSameAs(otro)).toBe(otro);
+
+    // Cableado: build, SSR de tienda/foro y la Function.
+    expect(leer('scripts/build.cjs')).toContain('asegurarSameAs(');
+    expect(leer('server/handlers/pages.js')).toContain('asegurarSameAs(');
+    expect(leer('netlify/functions/api.js')).toContain('asegurarSameAs(');
+  });
+
+  test('GEO-02: el build publica Organization con sameAs en dist/', () => {
+    const dist = path.join(RAIZ, 'dist', 'index.html');
+    test.skip(!fs.existsSync(dist), 'Requiere haber corrido npm run build');
+    const bloques = [...leer('dist/index.html').matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)]
+      .map((m) => { try { return JSON.parse(m[1]); } catch (e) { return null; } })
+      .filter(Boolean);
+    const org = bloques.find((b) => (Array.isArray(b['@type']) ? b['@type'] : [b['@type']]).includes('Organization'));
+    expect(org).toBeTruthy();
+    expect(org.sameAs).toContain('https://www.instagram.com/berrys.nature/');
+    expect(org.sameAs).toContain('https://www.facebook.com/share/1JjL83dtQu/');
+  });
 });

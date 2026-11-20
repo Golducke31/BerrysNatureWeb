@@ -32,7 +32,7 @@ const features = require('../lib/features');
 const reputation = require('../lib/reputation');
 const { html, xml, redirect } = require('../lib/http');
 const { esc } = require('../admin-ui');
-const { BADGE_SCRIPT, asegurarFooter } = require('../lib/html-extras');
+const { BADGE_SCRIPT, asegurarFooter, asegurarSameAs } = require('../lib/html-extras');
 const nav = require('../lib/nav');
 const rating = require('../lib/rating');
 const ofertaLib = require('../lib/oferta');
@@ -1626,7 +1626,7 @@ function leerHtmlEstatico(nombre) {
          dist/. El build inyecta Facebook y la insignia de Google en dist/,
          así que acá hay que aplicar la misma transformación o /tienda y
          /foro se quedan sin ambos. */
-      return { html: nav.aplicarNav(asegurarFooter(fs.readFileSync(full, 'utf8')), { base: '/' }), ruta: full };
+      return { html: asegurarSameAs(nav.aplicarNav(asegurarFooter(fs.readFileSync(full, 'utf8')), { base: '/' })), ruta: full };
     } catch (e) { /* se prueba la siguiente */ }
   }
   return null;

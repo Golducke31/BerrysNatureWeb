@@ -2,6 +2,16 @@
 
 const DEFAULT_SITE = 'https://berrysnature.com.ar';
 
+/* Redes sociales oficiales: las MISMAS URLs que el footer (server/lib/nav.js
+   y server/lib/html-extras.js). Se declaran acá para el bloque Organization
+   del JSON-LD: los motores de respuesta las usan para ligar la marca con su
+   presencia real y no la confundir con otra entidad. */
+const SOCIAL = {
+  instagram: 'https://www.instagram.com/berrys.nature/',
+  facebook: 'https://www.facebook.com/share/1JjL83dtQu/'
+};
+const SAME_AS_URLS = [SOCIAL.instagram, SOCIAL.facebook];
+
 function siteUrl() {
   const value = String(process.env.APP_URL || '').trim().replace(/\/+$/, '');
   return /^https:\/\//i.test(value) && !/localhost|127\.0\.0\.1/i.test(value) ? value : DEFAULT_SITE;
@@ -15,6 +25,7 @@ function organization(url) {
     name: "Berry's Nature",
     url: `${url}/`,
     logo: { '@type': 'ImageObject', url: `${url}/assets/logo-512.webp`, width: 512, height: 512 },
+    sameAs: [SOCIAL.instagram, SOCIAL.facebook],
     areaServed: { '@type': 'Country', name: 'Argentina' },
     knowsAbout: ['cosmética natural', 'jabonería artesanal', 'formulación cosmética', 'ingredientes botánicos']
   };
@@ -83,4 +94,4 @@ function injectGlobal(html) {
   return html.replace(/<\/head>/i, `${blocks.join('\n')}\n</head>`);
 }
 
-module.exports = { siteUrl, organization, website, webpage, globalBlocks, injectGlobal };
+module.exports = { siteUrl, organization, website, webpage, globalBlocks, injectGlobal, SOCIAL, SAME_AS_URLS };
