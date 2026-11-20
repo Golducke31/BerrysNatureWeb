@@ -158,3 +158,21 @@ test.describe('Scripts de Google', () => {
     );
   });
 });
+
+test.describe('SEO: enlazado interno y canoncales', () => {
+  test('SEO-01: la guía de emulsión se enlaza desde home, academia y el hilo del foro', () => {
+    const guia = 'primera-emulsion-estable-aceite-en-agua';
+    expect(leer('index.html')).toContain(guia);
+    expect(leer('academia.html')).toContain(guia);
+    const pages = leer('server/handlers/pages.js');
+    expect(pages).toContain(`hilo.id === 'hilo-emulsion-cortada'`);
+    expect(pages).toContain(guia);
+    expect(pages).toContain('${guiaEmulsion}');
+  });
+
+  test('SEO-02: título corto de la checklist ANMAT', () => {
+    const titulo = /<title>([^<]+)<\/title>/.exec(
+      leer('academia/checklist-legal-anmat-cosmetica-argentina.html'))[1];
+    expect(titulo).toBe("Checklist ANMAT para vender cosmética | Berry's Academy");
+  });
+});

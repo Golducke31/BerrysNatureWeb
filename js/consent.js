@@ -61,14 +61,17 @@
 
     if (window.BERRYS_CONSENT.decided) {
       banner.setAttribute('hidden', '');
+      document.body.classList.remove('consent-visible');
       return;
     }
 
     banner.removeAttribute('hidden');
+    document.body.classList.add('consent-visible');
 
     function close(value) {
-      write(value);
-      banner.setAttribute('hidden', '');
+    write(value);
+    banner.setAttribute('hidden', '');
+    document.body.classList.remove('consent-visible');
       /* Recargamos para que analytics.js evalué el consentimiento desde cero.
          Así no hay tags "ya inicializados" antes de la decisión. */
       window.location.reload();

@@ -237,6 +237,12 @@ function threadCardHtml(hilo) {
   if (hilo.destacado) badges.push('<span class="thread-badge thread-badge--pin"><i data-icon="pin"></i> Destacado</span>');
   if (hilo.resuelto) badges.push('<span class="thread-badge thread-badge--solved"><i data-icon="check"></i> Resuelto</span>');
 
+  const guiaEmulsion = hilo.id === 'hilo-emulsion-cortada'
+    ? `<p class="hilo-relacionado">Si tu emulsión se separa, revisá
+         <a href="/academia/primera-emulsion-estable-aceite-en-agua">cómo armar una emulsión estable</a>
+         antes de descartar el emulsionante.</p>`
+    : '';
+
   return `
         <article class="hilo-card">
           <div class="thread-top">
@@ -251,6 +257,7 @@ function threadCardHtml(hilo) {
             <span class="thread-time">· ${esc(fechaCorta(hilo.createdAt))}</span>
           </div>
           <div class="hilo-cuerpo">${esc(hilo.cuerpo).replace(/\n/g, '<br>')}</div>
+          ${guiaEmulsion}
           <footer class="thread-footer">
             <div class="thread-actions">
               <button class="thread-action" type="button" data-like-thread="${esc(hilo.id)}" aria-pressed="false">

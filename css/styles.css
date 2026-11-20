@@ -1824,3 +1824,8 @@ a.hero-card-showcase:focus-visible {
     z-index: 1300;
   }
 }
+
+/* WhatsApp vs banner de cookies: mientras el aviso está activo, el widget
+   se oculta. Al moverlo arriba terminaba tapando el CTA principal; ocultarlo
+   deja los botones libres y evita cargar un widget externo antes del opt-in. */
+body.consent-visible .wa-float { display: none; }
