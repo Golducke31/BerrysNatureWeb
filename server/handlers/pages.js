@@ -1571,7 +1571,11 @@ async function renderSitemap(req, res) {
       priority: '0.7'
     })),
     { loc: `${siteUrl()}/ebooks`, changefreq: 'weekly', priority: '0.9' },
-    ...ebooks.map((e) => ({ loc: `${siteUrl()}/ebooks/${encodeURIComponent(e.slug)}`, lastmod: e.updated_at || '', changefreq: 'monthly', priority: '0.8' }))
+    /* El panel guardó un ebook con updated_at en formato Date.toString()
+       ("Wed Nov 18 2026 ..."). Pasarlo por iso() lo convierte a ISO 8601;
+       si no es parseable devuelve null y el <lastmod> se omite, que es
+       lo correcto (Google marca la fecha inválida como error del sitemap). */
+    ...ebooks.map((e) => ({ loc: `${siteUrl()}/ebooks/${encodeURIComponent(e.slug)}`, lastmod: iso(e.updated_at) || '', changefreq: 'monthly', priority: '0.8' }))
   ];
 
   const cuerpo = `<?xml version="1.0" encoding="UTF-8"?>

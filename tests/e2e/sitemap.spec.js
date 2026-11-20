@@ -14,15 +14,21 @@ const db = require('../../server/lib/db');
 let filasHilos = [];
 let filasGuias = [];
 let filasProductos = [];
+let filasEbooks = [];
 let explotar = false;
 let sqlsVistos = [];
+
+/* El sitemap lee los ebooks con db.query (no db.many): lo parcheamos
+   también para poder inyectar fechas inválidas sin base de datos. */
+db.query = async (sql) => (/FROM ebooks/i.test(String(sql)) ? filasEbooks : []);
 
 db.many = async (sql) => {
   sqlsVistos.push(String(sql));
   if (explotar) throw new Error('Falta la variable de entorno DATABASE_URL.');
-  // El sitemap consulta por separado hilos, guías y productos disponibles.
+  // El sitemap consulta por separado hilos, guías, productos y ebooks.
   if (/FROM guides/i.test(sql)) return filasGuias;
   if (/FROM products/i.test(sql)) return filasProductos;
+  if (/FROM ebooks/i.test(sql)) return filasEbooks;
   return filasHilos;
 };
 
@@ -51,10 +57,11 @@ function filaHilo(over = {}) {
   }, over);
 }
 
-async function sitemap(filas = [], guias = [], productos = []) {
+async function sitemap(filas = [], guias = [], productos = [], ebooks = []) {
   filasHilos = filas;
   filasGuias = guias;
   filasProductos = productos;
+  filasEbooks = ebooks;
   explotar = false;
   sqlsVistos = [];
   const res = resFalsa();
@@ -267,8 +274,25 @@ test.describe('Sitemap — formato', () => {
     expect(error).toBeNull();
   });
 
-  test('S9: declara el namespace y el encoding correctos', async () => {
-    const res = await sitemap();
+  test('S20: el lastmod de los ebooks es ISO 8601 (o se omite si es inválido)', async () => {
+    /* Google marcó "Fecha no válida" en línea 544: el panel guardó un
+       updated_at con formato Date.toString(). Toda fecha del sitemap
+       tiene que pasar por iso() antes de escribirse en el XML. */
+    const res = await sitemap([], [], [], [
+      { slug: 'manual-valido', updated_at: '2026-11-18T15:53:24.000Z' },
+      { slug: 'manual-fecha-rota', updated_at: 'Wed Nov 18 2026 15:53:24 GMT+0000 (Coordinated Universal Time)' }
+    ]);
+    expect(locs(res.body)).toContain('https://berrysnature.com.ar/ebooks/manual-valido');
+    expect(res.body).toContain('<lastmod>2026-11-18T15:53:24.000Z</lastmod>');
+    // La fecha inválida NO aparece cruda: se omite el tag en esa entrada.
+    expect(res.body).not.toContain('Wed Nov 18 2026');
+    // Todo <lastmod> del XML debe ser ISO 8601 (fecha + T + hora).
+    for (const m of res.body.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) {
+      expect(m[1], `lastmod inválido: ${m[1]}`).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    }
+  });
+
+  test('S9: declara el namespace y el encoding correctos', async () => {    const res = await sitemap();
     expect(res.body.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);
     expect(res.body).toContain('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
     expect(res.body.trimEnd().endsWith('</urlset>')).toBe(true);
