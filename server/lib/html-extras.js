@@ -19,28 +19,25 @@
 const MERCHANT_ID = 5896319322;
 const FB_URL = 'https://www.facebook.com/share/1JjL83dtQu/';
 
-/* GA4 · Measurement ID público (viaja al navegador: NO es secreto).
-   Se usa el snippet clásico de gtag.js que entrega la UI de GA4 en
-   "Install manually": es retrocompatible y dispara page_view sin depender
-   de un container de Tag Manager. Docs: support.google.com/analytics/9539598
-   y developers.google.com/tag-platform/gtagjs/reference (config deprecado
-   pero compatible). */
-const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || 'G-4CMT7PCJDC';
-const GOOGLE_TAG = `  <!-- Google tag (gtag.js) · GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '${GA_MEASUREMENT_ID}');
-  </script>`;
+/* Analítica · un SOLO loader para GA4 + Meta Pixel.
+   IDs públicos (viajan al navegador: NO son secretos) en js/analytics-config.js.
 
-/** Inserta el Google tag justo después de <head>, una sola vez. */
-function asegurarGoogleTag(html) {
+   Antes el GA4 se inyectaba como snippet directo en <head> y encima
+   analytics.js lo volvía a cargar en /tienda y fichas → doble page_view.
+   Ahora el helper inyecta el par config+loader, y analytics.js decide qué
+   proveedor inicializar según los IDs. Docs: developers.google.com/analytics
+   /devguides/collection/ga4/troubleshoot (tag arriba, en cada página) y
+   facebook.com/business/help/952192354843755 (base code exacto). */
+const ANALYTICS_LOADER = `  <!-- Analítica: GA4 + Meta Pixel (un solo loader) -->
+  <script src="/js/analytics-config.js"></script>
+  <script src="/js/analytics.js"></script>`;
+
+/** Inserta el loader de analítica justo después de <head>, una sola vez. */
+function asegurarAnalytics(html) {
   const texto = String(html);
   if (!/<head[^>]*>/i.test(texto)) return texto;
-  if (texto.includes(`gtag/js?id=${GA_MEASUREMENT_ID}`)) return texto;
-  return texto.replace(/<head([^>]*)>/i, (m, attrs) => `${m}\n${GOOGLE_TAG}`);
+  if (texto.includes('js/analytics.js')) return texto;
+  return texto.replace(/<head([^>]*)>/i, (m) => `${m}\n${ANALYTICS_LOADER}`);
 }
 
 /* Enlaces internos a las páginas hub. Google descubre las 34 fichas
@@ -138,8 +135,7 @@ function asegurarFooter(html) {
 
 module.exports = {
   MERCHANT_ID,
-  GA_MEASUREMENT_ID,
-  GOOGLE_TAG,
+  ANALYTICS_LOADER,
   FB_URL,
   FB_ANCHOR,
   BADGE_SCRIPT,
@@ -147,6 +143,6 @@ module.exports = {
   asegurarFacebook,
   asegurarNavFooter,
   asegurarInsigniaGoogle,
-  asegurarGoogleTag,
+  asegurarAnalytics,
   asegurarFooter
 };

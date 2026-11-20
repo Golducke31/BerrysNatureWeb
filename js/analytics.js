@@ -17,17 +17,19 @@
   var pixel = String(cfg.metaPixel || '').trim();
 
   if (ga4) {
-    var gs = document.createElement('script');
-    gs.async = true;
-    gs.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga4);
-    document.head.appendChild(gs);
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function () { window.dataLayer.push(arguments); };
-    window.gtag('js', new Date());
-    window.gtag('config', ga4, { send_page_view: true });
+    if (!window.gtag) {
+      var gs = document.createElement('script');
+      gs.async = true;
+      gs.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga4);
+      document.head.appendChild(gs);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', ga4, { send_page_view: true });
+    }
   }
 
-  if (pixel) {
+  if (pixel && !window.fbq) {
     /* Snippet oficial de Meta Pixel. */
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return;

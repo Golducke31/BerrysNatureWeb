@@ -5,7 +5,7 @@ const path = require('node:path');
 const RAIZ = path.resolve(__dirname, '../..');
 const leer = (p) => fs.readFileSync(path.join(RAIZ, p), 'utf8');
 const GOOGLE_JS = leer('js/google-reviews.js');
-const { MERCHANT_ID, BADGE_SCRIPT, asegurarFooter, GA_MEASUREMENT_ID, asegurarGoogleTag } = require('../../server/lib/html-extras');
+const { MERCHANT_ID, BADGE_SCRIPT, asegurarFooter, ANALYTICS_LOADER, asegurarAnalytics } = require('../../server/lib/html-extras');
 
 const PEDIDO = {
   id: '11111111-1111-1111-1111-111111111111',
@@ -54,20 +54,28 @@ test.describe('Scripts de Google', () => {
     expect(leer('tienda.html')).toContain('js/google-reviews.js');
   });
 
-  test('GA-01: el Google tag es idempotente y va justo después de <head>', () => {
-    expect(GA_MEASUREMENT_ID).toBe('G-4CMT7PCJDC');
+  test('GA-01: el loader de analítica es único y va justo después de <head>', () => {
+    expect(ANALYTICS_LOADER).toContain('js/analytics-config.js');
+    expect(ANALYTICS_LOADER).toContain('js/analytics.js');
     const html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body></body></html>';
-    const una = asegurarGoogleTag(html);
-    expect(asegurarGoogleTag(una)).toBe(una);
-    expect(una.match(/gtag\/js\?id=/g)).toHaveLength(1);
-    expect(una.indexOf('gtag/js?id=')).toBeLessThan(una.indexOf('</head>'));
-    expect(una).toContain(`gtag('config', '${GA_MEASUREMENT_ID}')`);
+    const una = asegurarAnalytics(html);
+    expect(asegurarAnalytics(una)).toBe(una);
+    expect(una.match(/js\/analytics\.js/g)).toHaveLength(1);
+    expect(una.indexOf('js/analytics.js')).toBeLessThan(una.indexOf('</head>'));
+    // Una página que ya trae el loader (tienda/SSR) no se duplica.
+    expect(asegurarAnalytics(una.replace(ANALYTICS_LOADER, ''))).toContain('js/analytics.js');
+    expect(asegurarAnalytics(una)).toBe(una);
   });
 
-  test('GA-02: el tag llega al build estático y a las respuestas de la Function', () => {
-    expect(leer('scripts/build.cjs')).toContain('asegurarGoogleTag(');
-    expect(leer('netlify/functions/api.js')).toContain('asegurarGoogleTag(bytesCrudos');
+  test('GA-02: IDs públicos y carga condicional en build, Function y módulo', () => {
+    expect(leer('js/analytics-config.js')).toContain("ga4: 'G-4CMT7PCJDC'");
+    expect(leer('js/analytics-config.js')).toContain("metaPixel: '1990866739014758'");
+    expect(leer('scripts/build.cjs')).toContain('asegurarAnalytics(');
+    expect(leer('netlify/functions/api.js')).toContain('asegurarAnalytics(bytesCrudos');
     expect(leer('netlify/functions/api.js')).toContain('/text\\/html/i');
+    // El módulo no reinicializa un proveedor que ya fue cargado por snippet nativo.
+    expect(leer('js/analytics.js')).toContain('if (!window.gtag)');
+    expect(leer('js/analytics.js')).toContain("if (pixel && !window.fbq)");
   });
 
   test('GS-03: el opt-in se registra con los datos reales del pedido pagado', async ({ page }) => {

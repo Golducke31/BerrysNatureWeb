@@ -9,5 +9,5 @@
    ============================================================ */
 window.BERRYS_ANALYTICS = {
   ga4: 'G-4CMT7PCJDC',
-  metaPixel: ''
+  metaPixel: '1990866739014758'
 };
