@@ -42,8 +42,8 @@ const CONSENT_BANNER = `  <aside id="mz-consent" class="mz-consent" hidden role=
         cuando quieras desde <a href="/privacidad">la política de privacidad</a>.</p>
       </div>
       <div class="mz-consent__actions">
-        <button type="button" class="btn btn-ghost btn-sm" id="mz-consent-reject">Rechazar</button>
-        <button type="button" class="btn btn-primary btn-sm" id="mz-consent-accept">Aceptar</button>
+        <button type="button" class="mz-consent__btn mz-consent__btn--ghost" id="mz-consent-reject">Rechazar</button>
+        <button type="button" class="mz-consent__btn mz-consent__btn--primary" id="mz-consent-accept">Aceptar</button>
       </div>
     </div>
   </aside>`;
