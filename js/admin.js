@@ -1157,9 +1157,12 @@
   }
 
   /* ---------------- Subida de imágenes ---------------- */
-  /* Achica la foto en el navegador antes de mandarla: una foto de
-     celular de 4 MB queda en ~200 KB, que es lo que la tienda necesita
-     (la grilla muestra 357 px de ancho). */
+  /* Achica la foto en el navegador antes de mandarla. El techo es 2000 px
+     en el lado mas largo para cubrir la recomendacion de Google Merchant
+     Center (1500x1500 o mas): una vertical 3:4 queda 1500x2000 y una
+     cuadrada 2000x2000. Es un TECHO, no agranda fotos mas chicas (ver
+     Math.min mas abajo). WebP al 85% queda ~150-500 KB, lejos del tope
+     de 3 MB del servidor. */
   function redimensionarImagen(file, maxLado, cb) {
     var url = URL.createObjectURL(file);
     var img = new Image();
@@ -1200,10 +1203,10 @@
   }
 
   function subirImagen(file, cb) {
-    redimensionarImagen(file, 1000, function (out) {
+    redimensionarImagen(file, 2000, function (out) {
       if (!out) return cb(new Error('no pudimos leer el archivo'));
-      /* ~4.2 MB de base64 ≈ 3 MB de binario: cortamos antes de que el
-         servidor lo rechace, con un mensaje entendible. */
+      /* ~4.2 MB de base64 ≈ 3 MB de binario (MAX_BYTES en images.js):
+         cortamos antes de que el servidor lo rechace, con mensaje claro. */
       if (out.data.length > 4200000) {
         return cb(new Error('la imagen es demasiado pesada'));
       }
@@ -1252,7 +1255,7 @@
             '<input type="file" id="pImagenesFile" accept="image/png,image/jpeg,image/webp" multiple>' +
             '<input type="text" id="pImagenUrl" placeholder="assets/productos/… o pegá una URL">' +
             '<button class="admin-btn" type="button" id="pImagenAdd">Agregar URL</button>' +
-            '<small class="admin-help" id="pImagenHelp">Hasta 8 imágenes. Se achican a 1000 px y pasan a WebP.</small>' +
+            '<small class="admin-help" id="pImagenHelp">Hasta 8 imágenes. Se achican a 2000 px y pasan a WebP (recomendado por Google).</small>' +
           '</div>' +
         '</div>' +
         field('pOrden', 'Orden en la grilla', 'number', '100', p ? String(p.orden) : '100') +

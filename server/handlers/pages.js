@@ -847,7 +847,15 @@ function merchantPolicies() {
     hasMerchantReturnPolicy: {
       '@type': 'MerchantReturnPolicy',
       applicableCountry: 'AR',
-      returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted'
+      /* Ventana finite de 10 días: el plazo mínimo obligatorio del derecho
+         de arrepentimiento (Ley 24.240 art. 34) para ventas a distancia.
+         Antes era MerchantReturnNotPermitted, que Merchant Center marcaba
+         como "plazo 0 días / incompleta". Coincide con /devoluciones y
+         /terminos, que declaran exactamente el mismo plazo. */
+      returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+      merchantReturnDays: 10,
+      returnMethod: 'https://schema.org/ReturnByMail',
+      returnFees: 'https://schema.org/FreeReturn'
     },
     availableDeliveryMethod: [
       'https://schema.org/OnSitePickup',

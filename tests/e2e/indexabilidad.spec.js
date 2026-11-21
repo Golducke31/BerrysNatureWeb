@@ -127,6 +127,24 @@ test.describe('Cabeceras de los hubs SSR', () => {
     }
   });
 
+  test('IX-09: robots.txt permite las imágenes de producto a Googlebot y Googlebot-Image', () => {
+    /* Merchant Center avisó "No se pueden hacer comprobaciones de calidad":
+       las fotos del panel se sirven en /api/img/... y el Disallow: /api/
+       del grupo "*" también las bloqueaba. Google prioriza el grupo de
+       user-agent MÁS ESPECÍFICO, así que tiene que existir uno para cada
+       bot con Allow explícito de /api/img/. */
+    const robots = leer('robots.txt');
+    expect(robots).toMatch(/User-agent:\s*Googlebot\s*\n(?:.*\n)*?Allow:\s*\/api\/img\//i);
+    expect(robots).toMatch(/User-agent:\s*Googlebot-Image\s*\n(?:.*\n)*?Allow:\s*\/api\/img\//i);
+    expect(robots).toContain('Sitemap: https://berrysnature.com.ar/sitemap.xml');
+
+    // El bloqueo general de /api/ debe seguir ahí (admin, sesiones, etc.).
+    expect(robots).toContain('Disallow: /api/');
+
+    // Las imágenes subidas desde el panel siguen esa ruta (test de regresión).
+    expect(leer('server/handlers/images.js')).toContain('`/api/img/${id}.${TIPOS[mime]}`');
+  });
+
   test('IX-08: el default de html() sigue siendo no-store para el resto', () => {
     const http = require('../../server/lib/http');
     const res = resFalsa();

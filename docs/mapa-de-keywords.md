@@ -14,7 +14,7 @@
 | `/glosario` | Glosario de Ingredientes \| Berry's Nature | Glosario de Ingredientes de Berry's Nature — Diccionario botánico y químico de cosmética natural: SCI, BTMS-50, Rosa Mosqueta, Karité, Ácido Hialurónico y más. |
 | `/normas` | Normas de convivencia \| Berry's Nature | Normas de convivencia de la comunidad de Berry's Nature: cómo participar en el foro, qué contenido no va y cómo se modera. |
 | `/envios` | Envíos y entregas \| Berry's Nature | Envíos de Berry's Nature: envío estándar a todo el país, retiro en domicilio sin cargo y envío gratis en compras superiores al mínimo. |
-| `/devoluciones` | Política de devoluciones \| Berry's Nature | Política de devoluciones de Berry's Nature: no aceptamos cambios ni devoluciones. Todas las ventas son finales. |
+| `/devoluciones` | Política de devoluciones \| Berry's Nature | Política de devoluciones de Berry's Nature: tenés 10 días desde la recepción para ejercer el derecho de arrepentimiento (Ley 24.240). Sin costo de devolución. |
 | `/privacidad` | Política de privacidad \| Berry's Nature | Política de privacidad de Berry's Nature: qué datos tratamos, para qué, con quién los compartimos y cómo ejercer tus derechos. |
 | `/terminos` | Términos de uso \| Berry's Nature | Términos de uso de Berry's Nature: qué podés hacer en el sitio, las normas de la comunidad y el alcance de las fórmulas publicadas. |
 
