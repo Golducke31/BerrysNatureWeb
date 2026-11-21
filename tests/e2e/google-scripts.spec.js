@@ -87,6 +87,34 @@ test.describe('Scripts de Google', () => {
     expect(leer('privacidad.html')).toContain('sólo se cargan si aceptás');
   });
 
+  test('GA-03: itemParams reporta el precio con oferta cuando es válida', async ({ page }) => {
+    /* GA-02 cubre el wiring; acá verificamos el VALOR que llega a GA4/Meta.
+       El catálogo tiene ofertas (p. ej. pack-jabones-x4: 15000 → 12900) y
+       itemParams reportaba p.precio, inflando AddToCart/InitiateCheckout. */
+    await page.route('**/analytics-test.html', (route) => route.fulfill({
+      contentType: 'text/html; charset=utf-8',
+      body: '<!DOCTYPE html><html><head></head><body></body></html>'
+    }));
+    await page.goto('http://berrys.test/analytics-test.html');
+    await page.evaluate(() => {
+      window.BERRYS_CONSENT = { accepted: true, decided: true };
+      window.gtag = () => {};
+    });
+    await page.addScriptTag({ content: leer('js/analytics.js') });
+
+    const precios = await page.evaluate(() => ({
+      oferta: window.BerrysAnalytics.itemParams({ id: 'p1', nombre: 'Pack', precio: 15000, oferta: 12900 }, 2),
+      sinOferta: window.BerrysAnalytics.itemParams({ id: 'p2', nombre: 'Jabón', precio: 4000 }, 1),
+      ofertaInvalida: window.BerrysAnalytics.itemParams({ id: 'p3', nombre: 'Mal', precio: 4000, oferta: 9000 }, 1),
+      sinPrecio: window.BerrysAnalytics.itemParams({ id: 'p4', nombre: 'Consultar' }, 1)
+    }));
+    expect(precios.oferta.price).toBe(12900);
+    expect(precios.oferta.quantity).toBe(2);
+    expect(precios.sinOferta.price).toBe(4000);
+    expect(precios.ofertaInvalida.price).toBe(4000);
+    expect(precios.sinPrecio.price).toBe(0);
+  });
+
   test('GS-03: el opt-in se registra con los datos reales del pedido pagado', async ({ page }) => {
     await montar(page);
     const estado = await page.evaluate((pedido) => {

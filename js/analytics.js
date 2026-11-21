@@ -16,12 +16,22 @@
   var ga4 = String(cfg.ga4 || '').trim();
   var pixel = String(cfg.metaPixel || '').trim();
 
+  /* Precio real de venta: la oferta SOLO si es un número válido y menor al
+     precio de lista (misma regla que precioOferta() en catalog.js y que el
+     SSR de pages.js). Si no, se reporta el precio normal. Así Meta/GA4 no
+     reciben el precio viejo en ViewContent/AddToCart/InitiateCheckout. */
+  function precioItem(p) {
+    var base = Number(p && p.precio);
+    if (!Number.isFinite(base) || base <= 0) return 0;
+    var oferta = Number(p && p.oferta);
+    return Number.isFinite(oferta) && oferta > 0 && oferta < base ? oferta : base;
+  }
+
   function itemParams(p, qty) {
-    var price = Number(p && p.precio) || 0;
     return {
       item_id: p && p.id,
       item_name: p && p.nombre,
-      price: price,
+      price: precioItem(p),
       quantity: qty || 1
     };
   }
