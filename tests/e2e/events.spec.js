@@ -44,9 +44,11 @@ test.describe('Eventos — lista blanca', () => {
       expect(events.esValido(nombre)).toBe(true);
     }
     /* Número a propósito: obliga a revisar la lista si se agrega un evento.
-       9 = los 6 originales + los 3 del funnel de ebooks (visto, checkout,
-       compra confirmada). */
-    expect(Object.keys(events.NOMBRES).length).toBe(9);
+       10 = los 6 originales + los 3 del funnel de ebooks (visto, checkout,
+       compra confirmada) + checkout_orden_creada. Este último separa la
+       ENTRADA al checkout (checkout_iniciado, ahora desde el drawer) de la
+       orden efectivamente creada, para no contar dos veces la misma compra. */
+    expect(Object.keys(events.NOMBRES).length).toBe(10);
   });
 
   test('E2: rechaza cualquier nombre no declarado', () => {

@@ -549,10 +549,19 @@ async function createCheckout(req, res, body) {
     ip: getClientIp(req)
   });
 
-  events.log('checkout_iniciado', {
+  /* El drawer ya registró la ENTRADA con `checkout_iniciado`. Acá se
+     registra un evento DISTINTO: que se llegó a crear la orden y la
+     preferencia de pago. Si usáramos el mismo nombre, cada compra contaría
+     dos veces en "Checkouts iniciados". events.log nunca lanza, pero
+     logueamos el fallo en vez de tragarlo en silencio. */
+  events.log('checkout_orden_creada', {
     userId: current ? current.user.id : null,
     metadata: { orderId: creada.id, total, delivery, invitado: !current }
-  }).catch(() => {});
+  }).then(function (ok) {
+    if (!ok) console.error('[orders] no se pudo registrar checkout_orden_creada', creada.id);
+  }).catch(function (err) {
+    console.error('[orders] error registrando checkout_orden_creada', creada.id, err && err.message);
+  });
 
   json(res, 201, {
     initPoint: urlFinal,

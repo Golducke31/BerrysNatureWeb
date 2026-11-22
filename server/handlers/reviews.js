@@ -354,9 +354,12 @@ async function updateAdmin(req, res, params, body) {
   json(res, 200, { resena: toReview(fila) });
 }
 
-async function deleteAdmin(req, res, params) {
+async function deleteAdmin(req, res, params, body) {
   const current = await guards.requireRole(req, res, 'admin', 'admin');
   if (!current) return;
+  /* Borrar una reseña es irreversible: exige el mismo token CSRF que
+     updateAdmin. El cliente ya envía X-CSRF-Token en todo método no-GET. */
+  if (!csrf.assertValid(req, res, current.session, body)) return;
 
   const fila = await db.one(
     'DELETE FROM product_reviews WHERE id = $1 RETURNING product_id',

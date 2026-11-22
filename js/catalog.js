@@ -741,6 +741,31 @@
       });
     }
 
+    /* Persistimos la ENTRADA al checkout en la BD (no solo en GA4/Meta).
+       Antes el panel contaba únicamente los `checkout_iniciado` que el
+       servidor emitía después de crear la orden y la preferencia de MP,
+       así que abandonar el formulario era invisible para las métricas.
+       Dedup por sesión: un mismo carrito dentro de 10 minutos cuenta una
+       sola vez, para que reabrir el drawer no infle el contador. */
+    try {
+      var firma = items.map(function (i) { return i.id + ':' + i.qty; }).sort().join('|');
+      var dedupKey = 'berrys_checkout_ev_v1';
+      var ahora = Date.now();
+      var previo = null;
+      try { previo = JSON.parse(sessionStorage.getItem(dedupKey) || 'null'); } catch (e) { previo = null; }
+      if (!previo || previo.firma !== firma || ahora - previo.ts > 10 * 60 * 1000) {
+        try { sessionStorage.setItem(dedupKey, JSON.stringify({ firma: firma, ts: ahora })); } catch (e) {}
+        if (api() && typeof api().event === 'function') {
+          api().event('checkout_iniciado', {
+            origen: 'drawer',
+            items: items.length,
+            total: cartTotal(items),
+            firma: firma.slice(0, 200)
+          });
+        }
+      }
+    } catch (e) { /* la telemetría nunca rompe el flujo de compra */ }
+
     // Una clave por carrito y código aplicado evita reutilizar un pedido con otro importe.
     actualizarFirmaCheckout(items);
 

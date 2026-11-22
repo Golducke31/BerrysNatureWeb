@@ -225,6 +225,18 @@
     });
   }
 
+  /* #adminMain persiste entre vistas: si cada render ata su listener de
+     click, volver a una vista apila handlers y duplica PATCH/DELETE.
+     Este helper registra uno solo por vista (misma idea que los guards
+     dataset.*Bound de Reportes y Reseñas). Cada handler filtra por sus
+     propios [data-act], así que conviven sin pisarse. */
+  function onMainClick(key, handler) {
+    var main = $('#adminMain');
+    if (!main || main.dataset[key]) return;
+    main.dataset[key] = '1';
+    main.addEventListener('click', handler);
+  }
+
   function setView(view) {
     state.view = view;
     markNav(view);
@@ -330,22 +342,27 @@
 
         var ventas = s.ventas || { porDia: [], pedidos: 0, monto: 0 };
         var checkouts = porNombre.checkout_iniciado || 0;
+        var ordenes = porNombre.checkout_orden_creada || 0;
         var compras = porNombre.compra_confirmada || 0;
         var conv = checkouts ? Math.round((compras / checkouts) * 100) : 0;
 
         var cards = [
           ['Vistas (' + s.diasTotales + ' días)', s.vistas.total, 'Lecturas de guías e hilos'],
           ['Pedidos pagados', ventas.pedidos, fmtMoney(ventas.monto) + ' facturado'],
-          ['Checkouts iniciados', checkouts, compras + ' llegaron al pago'],
+          ['Checkouts iniciados', checkouts, 'Aperturas del formulario de compra'],
+          ['Órdenes creadas', ordenes, 'Llegaron a generar preferencia de pago'],
           ['Conversión', conv + '%', compras + ' de ' + checkouts + ' checkouts']
         ];
 
         $('#adminMain').innerHTML =
           '<div class="admin-topbar">' +
             '<div><h1 class="admin-title">Métricas</h1>' +
-            '<p class="admin-subtitle">Últimos ' + s.dias + ' días, desde la base propia. Sin cookies ni terceros.</p></div>' +
+            '<p class="admin-subtitle">Gráficos de ' + s.dias + ' días y totales de ' + s.diasTotales + ' días, desde la base propia. Sin cookies ni terceros.</p></div>' +
             '<button class="admin-btn" type="button" id="metricsReload">Actualizar</button>' +
           '</div>' +
+          (s.metricasDegradadas
+            ? '<div class="admin-panel"><p class="admin-help">No pudimos leer los eventos de la base. Los contadores de eventos se muestran vacíos, no son ceros reales. Reintentá en unos minutos.</p></div>'
+            : '') +
 
           '<div class="admin-cards">' +
             cards.map(function (c) {
@@ -559,7 +576,7 @@
 
         $('#newThread').addEventListener('click', openThreadEditor);
 
-        $('#adminMain').addEventListener('click', function (e) {
+        onMainClick('threadsBound', function (e) {
           var btn = e.target.closest('[data-act]');
           if (!btn) return;
           var id = btn.dataset.id;
@@ -660,7 +677,7 @@
 
         $('#newGuide').addEventListener('click', function () { openGuideEditor(null); });
 
-        $('#adminMain').addEventListener('click', function (e) {
+        onMainClick('guidesBound', function (e) {
           var edit = e.target.closest('[data-edit-guide]');
           if (edit) {
             var g = items.filter(function (x) { return x.id === edit.dataset.editGuide; })[0];
@@ -786,7 +803,7 @@
 
         $('#usersReload').addEventListener('click', renderUsers);
 
-        $('#adminMain').addEventListener('click', function (e) {
+        onMainClick('usersBound', function (e) {
           var role = e.target.closest('[data-role]');
           if (role) {
             return req('PATCH', '/users/' + encodeURIComponent(role.dataset.role), { rol: role.dataset.to })
@@ -885,13 +902,7 @@
 
         $('#reportsReload').addEventListener('click', renderReports);
 
-        // El listener se ata una sola vez por shell: #adminMain persiste
-        // entre vistas y sin este guard se acumularían handlers.
-        var main = $('#adminMain');
-        if (!main.dataset.reportsBound) {
-          main.addEventListener('click', onReportsClick);
-          main.dataset.reportsBound = '1';
-        }
+        onMainClick('reportsBound', onReportsClick);
       })
       .catch(guard);
   }
@@ -968,11 +979,7 @@
 
         $('#reviewsReload').addEventListener('click', renderReviews);
 
-        var main = $('#adminMain');
-        if (!main.dataset.reviewsBound) {
-          main.addEventListener('click', onReviewsClick);
-          main.dataset.reviewsBound = '1';
-        }
+        onMainClick('reviewsBound', onReviewsClick);
       })
       .catch(guard);
   }
@@ -1128,7 +1135,7 @@
 
         $('#newProduct').addEventListener('click', function () { openProductEditor(null); });
 
-        $('#adminMain').addEventListener('click', function (e) {
+        onMainClick('productsBound', function (e) {
           var edit = e.target.closest('[data-edit-product]');
           if (edit) {
             var p = items.filter(function (x) { return x.id === edit.dataset.editProduct; })[0];
@@ -2205,7 +2212,7 @@
 
         $('#refreshOrders').addEventListener('click', renderOrders);
 
-        $('#adminMain').addEventListener('click', function (e) {
+        onMainClick('ordersBound', function (e) {
           var f = e.target.closest('[data-order-filter]');
           if (f) { filtroPedidos = f.dataset.orderFilter; return renderOrders(); }
 
@@ -2353,7 +2360,7 @@
         '<p class="admin-help" style="margin-top:12px">' +
           'Si el pago online está activo, estos costos se suman al total del pedido.</p>';
 
-      $('#adminMain').addEventListener('click', function (e) {
+      onMainClick('shippingBound', function (e) {
         var saveDiscount = e.target.closest('#saveDiscountConfig');
         if (saveDiscount) {
           var codeInput = document.getElementById('shipDiscountCode');

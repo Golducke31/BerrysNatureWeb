@@ -74,6 +74,10 @@ async function listReports(req, res) {
 async function resolveReport(req, res, params, body) {
   const current = await guards.requireRole(req, res, 'moderator', 'admin');
   if (!current) return;
+  /* Mutación de moderación: mismo CSRF que createReport y updateAdmin.
+     La cola vive detrás del slug secreto, pero eso no reemplaza al token:
+     un enlace o extensión con la sesión del admin podría resolver reportes. */
+  if (!csrf.assertValid(req, res, current.session, body)) return;
 
   const status = V.oneOf(body && body.status, ['reviewing', 'resolved', 'dismissed'], 'estado');
   const row = await reports.resolve({ id: params.id, status, resolvedBy: current.user.id });

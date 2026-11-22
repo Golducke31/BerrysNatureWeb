@@ -9,12 +9,27 @@ const { json, fail, notFound, getClientIp } = require('../lib/http');
 const ARRAY_FIELDS = ['topics', 'benefits', 'faq'];
 const TEXT_FIELDS = ['title', 'description', 'seo_title', 'seo_description', 'excerpt', 'long_description', 'audience', 'level', 'author', 'publisher', 'language', 'drive_url', 'cover_image'];
 
+/* Antes CUALQUIER error (incluida una caída de la BD) se respondía como
+   400 invalid_input, lo que hacía imposible distinguir un dato mal cargado
+   de un incidente real. Ahora: ValidationError → 400; el resto → 500 con
+   stack en el log y sin filtrar detalles de la base al cliente. */
+function responderError(res, accion, err) {
+  const validacion = err instanceof V.ValidationError;
+  if (!validacion) console.error('[ebook-admin] ' + accion, err && err.stack);
+  return fail(
+    res,
+    validacion ? 400 : 500,
+    validacion ? 'invalid_input' : 'db_error',
+    validacion ? (err.message || 'Revisá los datos del ebook.') : 'No se pudo guardar el ebook. Probá de nuevo.'
+  );
+}
+
 function arrayVal(value, field) {
   if (value === undefined || value === null || value === '') return [];
   let parsed = value;
-  if (typeof value === 'string') { try { parsed = JSON.parse(value); } catch (e) { throw new Error(`${field} debe ser JSON válido`); } }
-  if (!Array.isArray(parsed)) throw new Error(`${field} debe ser una lista`);
-  if (parsed.length > 30) throw new Error(`${field} tiene demasiados elementos`);
+  if (typeof value === 'string') { try { parsed = JSON.parse(value); } catch (e) { throw new V.ValidationError(`${field} debe ser JSON válido`); } }
+  if (!Array.isArray(parsed)) throw new V.ValidationError(`${field} debe ser una lista`);
+  if (parsed.length > 30) throw new V.ValidationError(`${field} tiene demasiados elementos`);
   return parsed.map((item) => {
     if (typeof item === 'string') return item.trim().slice(0, 300);
     if (item && typeof item === 'object') return { q: String(item.q || '').trim().slice(0, 300), a: String(item.a || '').trim().slice(0, 1200) };
@@ -59,6 +74,6 @@ function buildPayload(body, isUpdate, old) {
   if (body.published_at !== undefined || !isUpdate) p.published_at = body.published_at ? new Date(body.published_at) : null;
   return p;
 }
-async function create(req,res,body) { const current=await guards.requireRole(req,res,'admin','admin'); if(!current)return; if(!csrf.assertValid(req,res,current.session,body))return; try { const p=buildPayload(body,false,{}); const keys=Object.keys(p), vals=keys.map(k=>p[k]); const r=await db.one(`INSERT INTO ebooks (${keys.join(',')}) VALUES (${keys.map((_,i)=>`$${i+1}`).join(',')}) RETURNING *`,vals); await audit.log({actor:current.user,action:'admin.ebook.create',entityType:'ebook',entityId:r.id,payload:{title:p.title,slug:p.slug},ip:getClientIp(req)}); json(res,201,{ebook:row(r)}); } catch(e) { console.error('[ebook-admin] create',e.message); return fail(res,400,'invalid_input',e.message || 'No se pudo crear el ebook.'); } }
-async function update(req,res,{id},body) { const current=await guards.requireRole(req,res,'admin','admin'); if(!current)return; if(!csrf.assertValid(req,res,current.session,body))return; const old=await db.one('SELECT * FROM ebooks WHERE id=$1',[id]); if(!old)return notFound(res); try { const p=buildPayload(body,true,old), keys=Object.keys(p); if(!keys.length)return fail(res,400,'invalid_input','No enviaste cambios.'); const vals=keys.map(k=>p[k]); vals.push(id); const r=await db.one(`UPDATE ebooks SET ${keys.map((k,i)=>`${k}=$${i+1}`).join(',')}, updated_at=now() WHERE id=$${vals.length} RETURNING *`,vals); await audit.log({actor:current.user,action:'admin.ebook.update',entityType:'ebook',entityId:id,payload:p,ip:getClientIp(req)}); json(res,200,{ebook:row(r)}); } catch(e) { console.error('[ebook-admin] update',e.message); return fail(res,400,'invalid_input',e.message || 'No se pudo guardar el ebook.'); } }
+async function create(req,res,body) { const current=await guards.requireRole(req,res,'admin','admin'); if(!current)return; if(!csrf.assertValid(req,res,current.session,body))return; try { const p=buildPayload(body,false,{}); const keys=Object.keys(p), vals=keys.map(k=>p[k]); const r=await db.one(`INSERT INTO ebooks (${keys.join(',')}) VALUES (${keys.map((_,i)=>`$${i+1}`).join(',')}) RETURNING *`,vals); await audit.log({actor:current.user,action:'admin.ebook.create',entityType:'ebook',entityId:r.id,payload:{title:p.title,slug:p.slug},ip:getClientIp(req)}); json(res,201,{ebook:row(r)}); } catch(e) { return responderError(res, 'create', e); } }
+async function update(req,res,{id},body) { const current=await guards.requireRole(req,res,'admin','admin'); if(!current)return; if(!csrf.assertValid(req,res,current.session,body))return; const old=await db.one('SELECT * FROM ebooks WHERE id=$1',[id]); if(!old)return notFound(res); try { const p=buildPayload(body,true,old), keys=Object.keys(p); if(!keys.length)return fail(res,400,'invalid_input','No enviaste cambios.'); const vals=keys.map(k=>p[k]); vals.push(id); const r=await db.one(`UPDATE ebooks SET ${keys.map((k,i)=>`${k}=$${i+1}`).join(',')}, updated_at=now() WHERE id=$${vals.length} RETURNING *`,vals); await audit.log({actor:current.user,action:'admin.ebook.update',entityType:'ebook',entityId:id,payload:p,ip:getClientIp(req)}); json(res,200,{ebook:row(r)}); } catch(e) { return responderError(res, 'update', e); } }
 module.exports={metrics,list,create,update};

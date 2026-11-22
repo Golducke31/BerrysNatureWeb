@@ -224,7 +224,7 @@ async function handleAdmin(req, res, method, seg) {
   if (a === 'reviews') {
     if (!b && method === 'GET') return reviews.listAdmin(req, res);
     if (b && method === 'PATCH') return reviews.updateAdmin(req, res, { id: b }, await body(req));
-    if (b && method === 'DELETE') return reviews.deleteAdmin(req, res, { id: b });
+    if (b && method === 'DELETE') return reviews.deleteAdmin(req, res, { id: b }, await body(req));
     return http.notFound(res);
   }
 

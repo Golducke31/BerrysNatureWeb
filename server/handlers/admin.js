@@ -256,11 +256,17 @@ const DIAS_TOTALES = 30;
  * panel tiene que seguir mostrando las vistas en vez de romperse entero:
  * devolvemos un resultado vacío y se ve "sin eventos".
  */
-async function consultarTolerante(fn, vacio) {
+/* Si la tabla `events` no existe o la consulta falla, el panel tiene que
+   seguir mostrando las vistas. Pero NO puede mostrar un 0 como si fuera
+   dato real: `onError` permite que stats() marque la respuesta como
+   degradada sin usar estado global (en serverless se compartiría entre
+   requests y daría falsos positivos). */
+async function consultarTolerante(fn, vacio, onError) {
   try {
     return await fn();
   } catch (err) {
     console.error('[admin] métrica no disponible:', err && err.message);
+    if (typeof onError === 'function') onError(err);
     return vacio;
   }
 }
@@ -268,6 +274,9 @@ async function consultarTolerante(fn, vacio) {
 async function stats(req, res) {
   const current = await guards.requireRole(req, res, 'admin', 'admin');
   if (!current) return;
+
+  let metricasDegradadas = false;
+  const marcarDegradado = () => { metricasDegradadas = true; };
 
   const [vistasPorDia, vistasTotal, eventosPorNombre, eventosPorDia, ventasPorDia, ventasTotal, vistasPorTipo] = await Promise.all([
     // Serie diaria de lecturas. generate_series garantiza que los días sin
@@ -301,7 +310,7 @@ async function stats(req, res) {
         GROUP BY 1
         ORDER BY n DESC`,
       [String(DIAS_TOTALES)]
-    ), []),
+    ), [], marcarDegradado),
     consultarTolerante(() => db.query(
       `SELECT to_char(created_at::date, 'YYYY-MM-DD') AS dia,
               event_name,
@@ -311,7 +320,7 @@ async function stats(req, res) {
         GROUP BY 1, 2
         ORDER BY 1`,
       [String(DIAS_TOTALES)]
-    ), []),
+    ), [], marcarDegradado),
     /* Ventas por día (por fecha de PAGO, no de creación: un pedido creado el
        lunes y pagado el martes es ingreso del martes). */
     consultarTolerante(() => db.query(
@@ -376,6 +385,7 @@ async function stats(req, res) {
   json(res, 200, {
     dias: DIAS_SERIE,
     diasTotales: DIAS_TOTALES,
+    metricasDegradadas,
     vistas: {
       porDia: vistasPorDia.map((r) => ({ dia: r.dia, n: r.n })),
       total: (vistasTotal && vistasTotal.n) || 0
