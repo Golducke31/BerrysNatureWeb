@@ -127,9 +127,14 @@
           </li>
           <li class="nav-item"><a href="/foro" class="nav-link">Comunidad</a></li>
           <li class="nav-item"><a href="/berrys-lab" class="nav-link">Berry's Lab</a></li>
-          <li class="nav-item"><a href="/emprende-con-nosotras" class="nav-link nav-link--emprende">Emprendé con nosotras</a></li>
           <li class="nav-item"><a href="/#sobre-nosotros" class="nav-link">Sobre nosotros</a></li>
-          <li class="nav-item"><a href="/#contacto" class="nav-link">Contacto</a></li>
+          <li class="nav-item">
+            <a href="/#contacto" class="nav-link">Contacto</a>
+            <ul class="nav-submenu" aria-label="Contacto">
+              <li><a href="/#contacto">Consultas generales</a></li>
+              <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+            </ul>
+          </li>
         </ul>
       </nav>
 
@@ -189,9 +194,16 @@
       </li>
       <li><a href="/foro" class="mobile-nav-link">Comunidad</a></li>
       <li><a href="/berrys-lab" class="mobile-nav-link">Berry's Lab</a></li>
-      <li><a href="/emprende-con-nosotras" class="mobile-nav-link">Emprendé con nosotras</a></li>
       <li><a href="/#sobre-nosotros" class="mobile-nav-link">Sobre nosotros</a></li>
-      <li><a href="/#contacto" class="mobile-nav-link">Contacto</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileContacto">
+          Contacto <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileContacto">
+          <li><a class="mobile-nav-link" href="/#contacto">Consultas generales</a></li>
+          <li><a class="mobile-nav-link" href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+        </ul>
+      </li>
     </ul>
   </nav>
 
@@ -340,7 +352,7 @@
         <div class="footer-col">
           <h2>Información</h2>
           <ul>
-            <li><a href="/emprende-con-nosotras">Emprendé con nosotras</a></li>
+            <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
             <li><a href="/envios">Envíos</a></li>
             <li><a href="/devoluciones">Devoluciones</a></li>
             <li><a href="/privacidad">Privacidad</a></li>

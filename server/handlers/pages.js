@@ -1328,7 +1328,7 @@ const PAGINAS_FIJAS = [
   { path: '/academia', changefreq: 'weekly', priority: '0.9' },
   { path: '/tienda', changefreq: 'weekly', priority: '0.9' },
   { path: '/berrys-lab', changefreq: 'weekly', priority: '0.9' },
-  { path: '/emprende-con-nosotras', changefreq: 'monthly', priority: '0.7' },
+  { path: '/emprende-con-nosotros', changefreq: 'monthly', priority: '0.7' },
   { path: '/foro', changefreq: 'daily', priority: '0.8' },
   { path: '/glosario', changefreq: 'monthly', priority: '0.7' },
   { path: '/como-usar', changefreq: 'monthly', priority: '0.7' },

@@ -1,5 +1,5 @@
 /* ============================================================
-   css/emprende.css — Landing "Emprendé con nosotras"
+   css/emprende.css — Landing "Emprendé con nosotros"
 
    Hero full bleed sobre imagen generada + logo, secciones de una
    sola página y CTA de WhatsApp. Reutiliza .cta-button y
@@ -47,14 +47,14 @@
   max-width: 660px;
 }
 .emprende-hero__logo {
-  width: 72px;
-  height: 72px;
-  border-radius: 18px;
-  object-fit: contain;
-  background: rgba(255, 252, 249, .82);
-  padding: 8px;
+  width: 80px;
+  height: 80px;
+  /* El logo real es un sello circular (sol y estrellas): recorte
+     perfectamente redondo, sin fondo cuadrado alrededor. */
+  border-radius: 50%;
+  object-fit: cover;
   margin-bottom: 22px;
-  box-shadow: 0 6px 22px rgba(74, 63, 53, .12);
+  box-shadow: 0 6px 22px rgba(74, 63, 53, .18);
 }
 .emprende-hero h1 {
   font-family: var(--font-title, Georgia, serif);
@@ -272,7 +272,7 @@
   background: radial-gradient(circle at 50% 0%, #fffaf3 0%, #f3e6da 100%);
   border-top: 1px solid var(--color-line-warm, #e6d8cd);
 }
-.emprende-cta__logo { margin: 0 auto 18px; display: block; border-radius: 16px; }
+.emprende-cta__logo { margin: 0 auto 18px; display: block; border-radius: 50%; object-fit: cover; }
 .emprende-cta h2 {
   font-family: var(--font-title, Georgia, serif);
   font-size: clamp(1.8rem, 3.4vw, 2.8rem);

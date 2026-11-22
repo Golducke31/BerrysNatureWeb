@@ -32,7 +32,7 @@ function htmlsFuente() {
 test.describe('Señales de indexación', () => {
   test('IX-01: las 32 páginas enlazan los 5 hubs, sin .html', () => {
     const paginas = htmlsFuente();
-    /* 32 = 29 originales + como-usar.html, ebook.html y emprende-con-nosotras.html. */
+    /* 32 = 29 originales + como-usar.html, ebook.html y emprende-con-nosotros.html. */
     expect(paginas.length).toBe(32);
     for (const rel of paginas) {
       const html = leer(rel);

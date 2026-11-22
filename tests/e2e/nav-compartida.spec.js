@@ -48,7 +48,7 @@ function bloque(html, re) {
 test.describe('Componente compartido de navegación', () => {
   test('NV-01: los 32 HTML tienen exactamente el mismo header, drawer y footer', async () => {
     const lista = paginas();
-    /* 32 = las 29 originales + como-usar.html, ebook.html y emprende-con-nosotras.html. */
+    /* 32 = las 29 originales + como-usar.html, ebook.html y emprende-con-nosotros.html. */
     expect(lista.length).toBe(32);
 
     const referencia = {
@@ -110,7 +110,7 @@ test.describe('Componente compartido de navegación', () => {
     for (const titulo of ['Tienda', 'Aprendé', 'Comunidad', 'Información', 'Contacto']) {
       expect(html).toContain(`<h2>${titulo}</h2>`);
     }
-    for (const hub of ['/tienda', '/academia', '/foro', '/glosario', '/berrys-lab', '/emprende-con-nosotras', '/envios', '/devoluciones', '/privacidad', '/terminos']) {
+    for (const hub of ['/tienda', '/academia', '/foro', '/glosario', '/berrys-lab', '/emprende-con-nosotros', '/envios', '/devoluciones', '/privacidad', '/terminos']) {
       expect(html, `falta ${hub} en el footer`).toContain(`href="${hub}"`);
     }
   });

@@ -4,11 +4,11 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '../..');
 const leer = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const HTML = leer('emprende-con-nosotras.html');
+const HTML = leer('emprende-con-nosotros.html');
 const APP = leer('js/app.js');
 const MSG = '¡Hola! Me interesa saber cómo emprender revendiendo cosmética natural con mi marca propia.';
 
-test.describe('Landing Emprendé con nosotras', () => {
+test.describe('Landing Emprendé con nosotros', () => {
   test('EM-01: es una landing simple, sin catálogo, formulario ni cupones', () => {
     expect(HTML).not.toMatch(/<form\b/i);
     expect(HTML).not.toMatch(/<table\b/i);
@@ -31,16 +31,16 @@ test.describe('Landing Emprendé con nosotras', () => {
   test('EM-02: SEO on-page completo y un solo H1', () => {
     expect(HTML).toContain('<html lang="es">');
     expect((HTML.match(/<h1\b/gi) || []).length).toBe(1);
-    expect(HTML).toContain('<title>Emprendé con nosotras | Cosmética natural | Berry\'s Nature</title>');
-    expect(HTML).toContain('<link rel="canonical" href="https://berrysnature.com.ar/emprende-con-nosotras">');
+    expect(HTML).toContain('<title>Emprendé con nosotros | Cosmética natural | Berry\'s Nature</title>');
+    expect(HTML).toContain('<link rel="canonical" href="https://berrysnature.com.ar/emprende-con-nosotros">');
     expect(HTML).toContain('<meta name="robots" content="index, follow, max-image-preview:large">');
-    expect(HTML).toContain('property="og:url" content="https://berrysnature.com.ar/emprende-con-nosotras"');
+    expect(HTML).toContain('property="og:url" content="https://berrysnature.com.ar/emprende-con-nosotros"');
     expect(HTML).toContain('name="twitter:card" content="summary_large_image"');
     expect(HTML).toContain('Buenos Aires, Argentina');
     // La URL está registrada en la política de URLs y en ambos sitemaps.
-    expect(leer('server/lib/urls.js')).toContain("{ archivo: 'emprende-con-nosotras.html', url: '/emprende-con-nosotras', indexable: true }");
-    expect(leer('server/handlers/pages.js')).toContain("{ path: '/emprende-con-nosotras', changefreq: 'monthly', priority: '0.7' }");
-    expect(leer('sitemap.xml')).toContain('<loc>https://berrysnature.com.ar/emprende-con-nosotras</loc>');
+    expect(leer('server/lib/urls.js')).toContain("{ archivo: 'emprende-con-nosotros.html', url: '/emprende-con-nosotros', indexable: true }");
+    expect(leer('server/handlers/pages.js')).toContain("{ path: '/emprende-con-nosotros', changefreq: 'monthly', priority: '0.7' }");
+    expect(leer('sitemap.xml')).toContain('<loc>https://berrysnature.com.ar/emprende-con-nosotros</loc>');
   });
 
   test('EM-03: AEO — FAQ visible coincide con FAQPage JSON-LD', () => {
@@ -75,15 +75,15 @@ test.describe('Landing Emprendé con nosotras', () => {
 
     // El widget flotante lo genera js/app.js con el mismo mensaje.
     expect(APP).toContain(MSG);
-    expect(APP).toContain("var esEmprende = /\\/emprende-con-nosotras(?:\\.html)?\\/?$/.test(window.location.pathname)");
+    expect(APP).toContain("var esEmprende = /\\/emprende-con-nosotros(?:\\.html)?\\/?$/.test(window.location.pathname)");
     expect(APP).toContain('var WA_MSG_BASE =');
 
     // Comportamiento real: premensaje en la landing, mensaje base en otra página.
-    await page.route('**/emprende-con-nosotras.html', (route) => route.fulfill({
+    await page.route('**/emprende-con-nosotros.html', (route) => route.fulfill({
       contentType: 'text/html; charset=utf-8',
       body: '<!DOCTYPE html><html><head></head><body></body></html>'
     }));
-    await page.goto('http://berrys.test/emprende-con-nosotras.html');
+    await page.goto('http://berrys.test/emprende-con-nosotros.html');
     await page.addScriptTag({ content: APP });
     const hrefEmprende = await page.locator('#waFloat').getAttribute('href');
     expect(decodeURIComponent(hrefEmprende)).toContain(MSG);
@@ -100,8 +100,15 @@ test.describe('Landing Emprendé con nosotras', () => {
   });
 
   test('EM-05: enlaces internos y jerarquía de contenidos', () => {
+    /* El enlace vive dentro del submenú de Contacto (desktop) y del
+       grupo móvil, no como ítem suelto en el menú principal. */
+    const nav = leer('server/lib/nav.js');
+    expect(nav).toContain('<ul class="nav-submenu" aria-label="Contacto">');
+    expect(nav).toContain('<a href="/emprende-con-nosotros">Emprendé con nosotros</a>');
+    expect(nav).toContain('aria-controls="mobileContacto"');
+    expect(nav).toContain('id="mobileContacto"');
     expect(HTML).toContain('aria-label="Ruta de navegación"');
-    expect(HTML).toContain('/emprende-con-nosotras');
+    expect(HTML).toContain('/emprende-con-nosotros');
     for (const destino of ['href="/"', 'href="/academia"', 'href="/privacidad"', 'href="/terminos"']) {
       expect(HTML, destino).toContain(destino);
     }

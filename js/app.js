@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
      premensaje propio. El regex cubre la URL limpia y la fuente .html
      (file:// en tests), sin afectar a ninguna otra página. */
   var WA_MSG_EMPRENDE = '¡Hola! Me interesa saber cómo emprender revendiendo cosmética natural con mi marca propia.';
-  var esEmprende = /\/emprende-con-nosotras(?:\.html)?\/?$/.test(window.location.pathname);
+  var esEmprende = /\/emprende-con-nosotros(?:\.html)?\/?$/.test(window.location.pathname);
   var WA_MESSAGE = esEmprende ? WA_MSG_EMPRENDE : WA_MSG_BASE;
   var href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(WA_MESSAGE);
 
