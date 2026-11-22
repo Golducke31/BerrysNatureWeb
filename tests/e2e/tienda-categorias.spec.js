@@ -81,7 +81,8 @@ test('las landings muestran contenido filtrado, metadatos propios, canonical y b
   await pages.renderTienda({}, res, { slug: 'cabello' });
 
   expect(res.statusCode).toBe(200);
-  expect(res.headers['x-robots-tag']).toBe('index, follow');
+  expect(res.headers['x-robots-tag']).toContain('index, follow');
+  expect(res.headers['x-robots-tag']).toContain('max-image-preview:large');
   expect(res.body).toContain('<title>Cuidado capilar natural artesanal | Berry&#39;s Nature</title>');
   expect(res.body).toContain('name="description" content="Explorá shampoo y acondicionadores sólidos artesanales de Berry&#39;s Nature, elaborados en pequeños lotes en Buenos Aires."');
   expect(res.body).toContain('property="og:url" content="' + pages.siteUrl() + '/tienda/cabello"');

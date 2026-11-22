@@ -123,7 +123,8 @@ test.describe('Cabeceras de los hubs SSR', () => {
       expect(res.headers['cache-control']).toMatch(/s-maxage=300/);
       expect(res.headers['cache-control']).toMatch(/stale-while-revalidate/);
       expect(res.headers['cache-control']).not.toMatch(/no-store/);
-      expect(res.headers['x-robots-tag']).toBe('index, follow');
+      expect(res.headers['x-robots-tag']).toContain('index, follow');
+      expect(res.headers['x-robots-tag']).toContain('max-image-preview:large');
     }
   });
 

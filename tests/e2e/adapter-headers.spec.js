@@ -46,7 +46,8 @@ test('la tienda SSR conserva index, follow y recibe la CSP base', () => {
   const response = invocar('https://berrysnature.com.ar/tienda');
 
   expect(response.statusCode).toBe(200);
-  expect(response.headers['x-robots-tag']).toBe('index, follow');
+  expect(response.headers['x-robots-tag']).toContain('index, follow');
+  expect(response.headers['x-robots-tag']).toContain('max-image-preview:large');
   expect(response.headers['content-security-policy']).toBe(CSP);
   expect(response.headers['strict-transport-security']).toBe('max-age=63072000; includeSubDomains; preload');
   expect(response.headers['cache-control']).toBe('public, s-maxage=300, stale-while-revalidate=3600');

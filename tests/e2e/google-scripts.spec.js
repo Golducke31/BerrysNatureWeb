@@ -58,6 +58,12 @@ test.describe('Scripts de Google', () => {
     expect(CONSENT_SCRIPT).toContain('js/consent.js');
     expect(CONSENT_BANNER).toContain('mz-consent-accept');
     expect(CONSENT_BANNER).toContain('mz-consent-reject');
+    /* Auditoría "Navegación agente" de Search Console: el banner es un
+       diálogo, así que el elemento debe ser neutro (<div>), no <aside>
+       (que es complementary y contradice role="dialog"). */
+    expect(CONSENT_BANNER).toContain('<div id="mz-consent"');
+    expect(CONSENT_BANNER).toContain('role="dialog" aria-modal="true"');
+    expect(CONSENT_BANNER).not.toContain('<aside');
     const html = '<!DOCTYPE html><html><head></head><body></body></html>';
     const una = asegurarAnalytics(html);
     expect(asegurarAnalytics(una)).toBe(una);

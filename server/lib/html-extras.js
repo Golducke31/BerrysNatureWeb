@@ -37,7 +37,11 @@ const ANALYTICS_LOADER = `  <!-- Analítica: GA4 + Meta Pixel (un solo loader) -
   <script src="/js/analytics.js"></script>`;
 
 const CONSENT_SCRIPT = '  <script src="/js/consent.js"></script>';
-const CONSENT_BANNER = `  <aside id="mz-consent" class="mz-consent" hidden role="dialog" aria-label="Preferencias de privacidad">
+/* Un <aside> tiene semántica "complementary": ponerle role="dialog" lo
+   contradice y la auditoría "Navegación agente" de Search Console lo marca
+   como "ARIA role should be appropriate for the element". Un <div> es
+   neutro y admite role="dialog" + aria-modal correctamente. */
+const CONSENT_BANNER = `  <div id="mz-consent" class="mz-consent" hidden role="dialog" aria-modal="true" aria-label="Preferencias de privacidad">
     <div class="mz-consent__box">
       <div>
         <strong>Utilizamos cookies</strong>
@@ -48,7 +52,7 @@ const CONSENT_BANNER = `  <aside id="mz-consent" class="mz-consent" hidden role=
         <button type="button" class="mz-consent__btn mz-consent__btn--primary" id="mz-consent-accept">Aceptar</button>
       </div>
     </div>
-  </aside>`;
+  </div>`;
 
 /** Inserta el loader de analítica justo después de <head>, una sola vez. */
 function asegurarAnalytics(html) {

@@ -41,6 +41,12 @@ const reviews = require('./reviews');
 const { versionarUrl } = require('./images');
 const schema = require('../lib/schema');
 
+/* Directiva de robots para páginas indexables. Google la acepta tanto en el
+   header X-Robots-Tag (SSR) como en el meta robots (HTML estático, donde se
+   escribió literalmente). `large` permite previews de imagen más grandes en
+   Search/Imágenes/Discover; no afecta rankings. */
+const ROBOTS_INDEXABLE = 'index, follow, max-image-preview:large';
+
 /* Fecha del último commit, escrita por scripts/build.cjs. Puede no existir en
    desarrollo (si nadie corrió el build): en ese caso el sitemap omite
    <lastmod> en vez de inventar la fecha actual. */
@@ -193,7 +199,8 @@ function layout({ title, description, canonical, robots, ogImage, jsonLdBlocks =
   <!-- Todo lo relativo se resuelve contra la raíz: estas páginas viven en subdirectorios. -->
   <base href="/">
   <meta name="description" content="${esc(description)}">
-${robots ? `  <meta name="robots" content="${esc(robots)}">\n` : ''}  <link rel="canonical" href="${esc(canonical)}">
+${robots ? `  <meta name="robots" content="${esc(robots)}">\n`
+    : `  <meta name="robots" content="${esc(ROBOTS_INDEXABLE)}">\n`}  <link rel="canonical" href="${esc(canonical)}">
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="${esc(title)}">
@@ -489,7 +496,7 @@ async function renderThread(req, res, { id }) {
   const headers = {
     // Redundancia deliberada con el meta: el header HTTP es más confiable
     // para algunos rastreadores y no depende del <head>.
-    'X-Robots-Tag': indexable ? 'index, follow' : 'noindex, follow',
+    'X-Robots-Tag': indexable ? ROBOTS_INDEXABLE : 'noindex, follow',
     // El contenido cambia cuando llegan respuestas: cache corto y revalidación.
     'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=600'
   };
@@ -705,7 +712,7 @@ async function renderGuide(req, res, { id }) {
   });
 
   const headers = {
-    'X-Robots-Tag': 'index, follow',
+    'X-Robots-Tag': ROBOTS_INDEXABLE,
     'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600'
   };
 
@@ -1144,7 +1151,7 @@ async function renderProduct(req, res, { id }) {
   });
 
   return html(res, 200, markup, {
-    'X-Robots-Tag': 'index, follow',
+    'X-Robots-Tag': ROBOTS_INDEXABLE,
     'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600'
   });
 }
@@ -1304,7 +1311,7 @@ async function renderProfile(req, res, { usuario }) {
   });
 
   return html(res, 200, markup, {
-    'X-Robots-Tag': 'index, follow',
+    'X-Robots-Tag': ROBOTS_INDEXABLE,
     'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600'
   });
 }
@@ -1652,6 +1659,7 @@ function productoParaLd(r) {
     categoria: r.categoria,
     descripcion: r.descripcion,
     imagen: r.imagen,
+    imagenes: Array.isArray(r.imagenes) ? r.imagenes : [],
     precio: (r.precio === null || r.precio === undefined) ? null : Number(r.precio),
     oferta: (r.oferta === null || r.oferta === undefined) ? null : Number(r.oferta),
     stock: (r.stock === null || r.stock === undefined) ? null : Number(r.stock)
@@ -2019,7 +2027,7 @@ async function renderTienda(req, res, params = {}) {
      X-Robots-Tag explícito, igual que en las fichas y los hilos. */
   return html(res, 200, versionar(markup), {
     'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
-    'X-Robots-Tag': 'index, follow'
+    'X-Robots-Tag': ROBOTS_INDEXABLE
   });
 }
 
@@ -2159,7 +2167,7 @@ async function renderForo(req, res) {
   /* Mismo criterio que /tienda: es el hub de descubrimiento de los hilos. */
   return html(res, 200, versionar(markup), {
     'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
-    'X-Robots-Tag': 'index, follow'
+    'X-Robots-Tag': ROBOTS_INDEXABLE
   });
 }
 
@@ -2198,13 +2206,23 @@ async function renderFeed(req, res) {
     const desc = String(
       p.descripcion || `${p.nombre} — cosmética natural artesanal de Berry's Nature.`
     ).slice(0, 5000);
+    /* additional_image_link: Google admite hasta 10. Se excluye la portada
+       (ya va en image_link) y se versionan las rutas /api/img/ de la BD. */
+    const portada = absAsset(p.imagen);
+    const adicionales = [...new Set((p.imagenes || [])
+      .map(versionarUrl)
+      .map((u) => absAsset(u))
+      .filter((u) => u && u !== portada))].slice(0, 10);
+    const adicionalesXml = adicionales
+      .map((u) => `      <g:additional_image_link>${escXml(u)}</g:additional_image_link>`)
+      .join('\n');
     return `    <item>
       <g:id>${escXml(p.id)}</g:id>
       <g:title>${escXml(String(p.nombre).slice(0, 150))}</g:title>
       <g:description>${escXml(desc)}</g:description>
       <g:link>${escXml(link)}</g:link>
-      <g:image_link>${escXml(absAsset(p.imagen))}</g:image_link>
-      <g:price>${Number(precioFinal).toFixed(2)} ARS</g:price>
+      <g:image_link>${escXml(portada)}</g:image_link>
+${adicionalesXml ? adicionalesXml + '\n' : ''}      <g:price>${Number(precioFinal).toFixed(2)} ARS</g:price>
       <g:availability>${enStock ? 'in stock' : 'out of stock'}</g:availability>
       <g:condition>new</g:condition>
       <g:brand>Berry's Nature</g:brand>
