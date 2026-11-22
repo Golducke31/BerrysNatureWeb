@@ -612,7 +612,8 @@
   var co = {
     el: null, zones: null, key: '', firma: '', enviando: false, orden: null,
     freeThreshold: 30000, discountCode: 'BERRYS', discountPercent: 10,
-    discountCodeApplied: '', discountPercentApplied: 0
+    discountCodeApplied: '', discountPercentApplied: 0,
+    shippingTracked: false, paymentTracked: false
   };
 
   function uuid() {
@@ -722,6 +723,10 @@
   function openCheckout() {
     var items = loadCart();
     if (!items.length) { notify('Tu carrito está vacío', 'cart'); return; }
+
+    /* Cada apertura reinicia el dedup del embudo de GA4. */
+    co.shippingTracked = false;
+    co.paymentTracked = false;
 
     buildCheckoutModal();
     closeCart(); // el carrito no queda detrás: atrás vuelve a la tienda
@@ -866,6 +871,24 @@
     var wrap = $('#coDirWrap');
     if (wrap) wrap.hidden = esRetiro;
     actualizarResumen();
+
+    /* GA4: el embudo de "Iniciar transacción → Añadir envío → Añadir
+       método de pago → Comprar" necesita este evento en el paso 2. Se
+       emite una sola vez por apertura de checkout (co.shippingTracked)
+       para no inflar el embudo cada vez que se cambia de zona. */
+    if (sel && window.BerrysAnalytics && !co.shippingTracked) {
+      co.shippingTracked = true;
+      var itemsEnvio = loadCart();
+      window.BerrysAnalytics.track('add_shipping_info', {
+        currency: 'ARS',
+        value: cartTotal(itemsEnvio),
+        shipping_tier: esRetiro ? 'retiro' : (sel.dataset.label || sel.value || 'envio'),
+        items: itemsEnvio.map(function (i) {
+          var p = producto(i.id);
+          return p ? window.BerrysAnalytics.itemParams(p, i.qty) : null;
+        }).filter(Boolean)
+      });
+    }
   }
 
   function cambioCodigoDescuento() {
@@ -1012,6 +1035,22 @@
     var errEl = $('#coError');
     if (errEl) errEl.hidden = true;
 
+    /* GA4 paso 3: se eligió MercadoPago como método de pago. Se emite
+       justo antes de redirigir, y con dedup por intento de checkout para
+       no duplicarlo si el usuario reintenta tras un error. */
+    if (window.BerrysAnalytics && !co.paymentTracked) {
+      co.paymentTracked = true;
+      window.BerrysAnalytics.track('add_payment_info', {
+        currency: 'ARS',
+        value: cartTotal(items),
+        payment_type: 'mercadopago',
+        items: items.map(function (i) {
+          var p = producto(i.id);
+          return p ? window.BerrysAnalytics.itemParams(p, i.qty) : null;
+        }).filter(Boolean)
+      });
+    }
+
     actualizarFirmaCheckout(items);
     cliente.cartCheckout({
       items: items.map(function (i) { return { id: i.id, qty: i.qty }; }),
@@ -1085,7 +1124,12 @@
           var o = data && data.order;
           if (!o) return;
           if (o.status === 'paid' || o.status === 'shipped') {
-            if (window.BerrysAnalytics && o.status === 'paid') {
+            /* `shipped` también implica pago confirmado (o que el usuario
+               lo marcó como enviado desde el panel). Antes solo se reportaba
+               `paid`, así que el purchase se perdía cuando la orden avanzaba
+               de estado antes de que esta página consultara. El localStorage
+               evita duplicarlo en reintentos. */
+            if (window.BerrysAnalytics && (o.status === 'paid' || o.status === 'shipped')) {
               var pkey = 'berrys_purchase_' + o.id;
               var fired = false;
               try { fired = localStorage.getItem(pkey) === '1'; } catch (e) {}

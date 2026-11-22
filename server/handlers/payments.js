@@ -34,8 +34,21 @@ async function webhook(req, res, body) {
   }
 
   const q = getQuery(req);
-  const dataId = q.get('data.id') || (body && body.data && body.data.id) || '';
-  const type = String(q.get('type') || (body && body.type) || '');
+  /* MercadoPago usa DOS formatos de notificación:
+       nuevo:  ?data.id=123&type=payment
+       viejo:  ?id=123&topic=payment         (lo que sigue enviando este canal)
+     Si solo leemos el nuevo, `dataId`/`type` quedan vacíos, el manifest de
+     la firma no coincide y TODAS las notificaciones se rechazan con 401.
+     Se aceptan ambos; el cuerpo también puede traer data.id/type. */
+  const dataId = String(
+    q.get('data.id') || q.get('id') ||
+    (body && body.data && body.data.id) ||
+    (body && body.id) || ''
+  );
+  const type = String(
+    q.get('type') || q.get('topic') ||
+    (body && body.type) || (body && body.topic) || ''
+  );
 
   const firmaOk = mp.verifySignature({
     xSignature: req.headers['x-signature'],
@@ -52,7 +65,9 @@ async function webhook(req, res, body) {
     return fail(res, 401, 'invalid_signature', 'Firma inválida.');
   }
 
-  // Solo nos interesan las notificaciones de pago.
+  /* Solo nos interesan las notificaciones de pago. `merchant_order` es una
+     notificación complementaria y ya se ignora con 200 (antes llegaba con
+     firma inválida y generaba reintentos y ruido en audit_log). */
   if (type && type !== 'payment') return json(res, 200, { ok: true, ignorado: type });
   if (!dataId) return json(res, 200, { ok: true, ignorado: 'sin_data_id' });
 
