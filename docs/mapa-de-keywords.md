@@ -10,6 +10,7 @@
 | `/academia` | Berry's Academy \| Aprendé a formular cosmética natural | Berry's Academy — Hub de aprendizaje de cosmética natural: guías por nivel, fórmulas descargables y una comunidad de formuladores. |
 | `/tienda` | Tienda · Berry's Nature — Cosmética natural artesanal argentina | Tienda de Berry's Nature — cosmética natural artesanal argentina: jabones, champú y acondicionador sólidos, sérum hialurónico, Crema Eluné y más. Hecho en Buenos Aires, Argentina. |
 | `/berrys-lab` | Berry's Lab · Software de formulación cosmética artesanal \| Berry's Nature | Berry's Lab: software de formulación cosmética para Windows. Fórmulas, INCI automático, stock, producción por lote y precio de venta sugerido. Descarga inmediata. |
+| `/emprende-con-nosotras` | Emprendé con nosotras \| Cosmética natural \| Berry's Nature | ¿Querés emprender en cosmética natural? Revendé o creá tu marca propia con Berry's Nature. Charlamos por WhatsApp. Buenos Aires, Argentina. |
 | `/foro` | Foro de formuladores \| Berry's Nature | Foro de formuladores de Berry's Nature: compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo cosmética natural. |
 | `/glosario` | Glosario de Ingredientes \| Berry's Nature | Glosario de Ingredientes de Berry's Nature — Diccionario botánico y químico de cosmética natural: SCI, BTMS-50, Rosa Mosqueta, Karité, Ácido Hialurónico y más. |
 | `/normas` | Normas de convivencia \| Berry's Nature | Normas de convivencia de la comunidad de Berry's Nature: cómo participar en el foro, qué contenido no va y cómo se modera. |
@@ -33,6 +34,7 @@ Además hay 12 guías en `/academia/<slug>` con título y descripción propios; 
 | Academia | cómo formular cosmética natural | costos y precio de cosmética artesanal |
 | Glosario | qué es [ingrediente] | INCI de [ingrediente] |
 | Berry's Lab | software de formulación cosmética | programa para formular cosméticos y generar INCI |
+| /emprende-con-nosotras | emprender en cosmética natural | revender cosmética natural argentina; vender cosmética con mi marca; white label cosmética Argentina; distribuidor cosmética natural Buenos Aires |
 
 **Nota de alcance:** las páginas de categoría (`/tienda/cabello`, etc.), `/rutinas` y las páginas por término del Glosario **no se publicaron**. Crearlas ahora sumaría URLs delgadas justo cuando Search Console todavía está re-rastreando las 44 enviadas. Las keywords de esas filas quedan como reserva, no como trabajo pendiente de código.
 

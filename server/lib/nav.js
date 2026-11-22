@@ -120,6 +120,7 @@ function headerHtml(base) {
           </li>
           <li class="nav-item"><a href="/foro" class="nav-link">Comunidad</a></li>
           <li class="nav-item"><a href="/berrys-lab" class="nav-link">Berry's Lab</a></li>
+          <li class="nav-item"><a href="/emprende-con-nosotras" class="nav-link nav-link--emprende">Emprendé con nosotras</a></li>
           <li class="nav-item"><a href="/#sobre-nosotros" class="nav-link">Sobre nosotros</a></li>
           <li class="nav-item"><a href="/#contacto" class="nav-link">Contacto</a></li>
         </ul>
@@ -168,6 +169,7 @@ function mobileNavHtml() {
       </li>
       <li><a href="/foro" class="mobile-nav-link">Comunidad</a></li>
       <li><a href="/berrys-lab" class="mobile-nav-link">Berry's Lab</a></li>
+      <li><a href="/emprende-con-nosotras" class="mobile-nav-link">Emprendé con nosotras</a></li>
       <li><a href="/#sobre-nosotros" class="mobile-nav-link">Sobre nosotros</a></li>
       <li><a href="/#contacto" class="mobile-nav-link">Contacto</a></li>
     </ul>
@@ -215,6 +217,7 @@ function footerHtml(base) {
         <div class="footer-col">
           <h2>Información</h2>
           <ul>
+            <li><a href="/emprende-con-nosotras">Emprendé con nosotras</a></li>
             <li><a href="/envios">Envíos</a></li>
             <li><a href="/devoluciones">Devoluciones</a></li>
             <li><a href="/privacidad">Privacidad</a></li>

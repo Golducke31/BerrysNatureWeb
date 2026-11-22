@@ -29,8 +29,8 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
   });
 
   // T1-F1-03: menú canónico (server/lib/nav.js), con Tienda primero
-  test('T1-F1-03: La navegación tiene los 6 enlaces del menú compartido', async ({ page }) => {
-    const expected = ['Tienda', 'Aprendé', 'Comunidad', "Berry's Lab", 'Sobre nosotros', 'Contacto'];
+  test('T1-F1-03: La navegación tiene los 7 enlaces del menú compartido', async ({ page }) => {
+    const expected = ['Tienda', 'Aprendé', 'Comunidad', "Berry's Lab", 'Emprendé con nosotras', 'Sobre nosotros', 'Contacto'];
     const links = page.locator('.nav-menu-desktop.main-menu > li > .nav-link');
     await expect(links).toHaveCount(expected.length);
     for (let i = 0; i < expected.length; i++) {
@@ -76,8 +76,8 @@ test.describe('Landing & Navegación — Berry\'s Nature', () => {
     expect(urls.destinoLimpio(href), href).toBeNull();
     expect(urls.destinoSinBarra(href), href).toBeNull();
 
-    // Academia, Comunidad y Glosario quedan como enlaces secundarios.
-    await expect(page.locator('.hero-secondary-links a')).toHaveCount(3);
+    // Academia, Comunidad, Glosario y Emprendé quedan como enlaces secundarios.
+    await expect(page.locator('.hero-secondary-links a')).toHaveCount(4);
   });
 
   // T1-F2-04: Tipografía del hero (Playfair Display)

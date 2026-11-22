@@ -38,6 +38,7 @@ const PAGINAS = [
   { archivo: 'academia.html', url: '/academia', indexable: true },
   { archivo: 'tienda.html', url: '/tienda', indexable: true },
   { archivo: 'berrys-lab.html', url: '/berrys-lab', indexable: true },
+  { archivo: 'emprende-con-nosotras.html', url: '/emprende-con-nosotras', indexable: true },
   { archivo: 'foro.html', url: '/foro', indexable: true },
   { archivo: 'glosario.html', url: '/glosario', indexable: true },
   { archivo: 'como-usar.html', url: '/como-usar', indexable: true },

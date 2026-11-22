@@ -389,7 +389,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('waFloat')) return;
 
   var WA_NUMBER = '5491156090265';
-  var WA_MESSAGE = 'Hola! Quiero hacer una consulta sobre Berry’s Nature.';
+  var WA_MSG_BASE = 'Hola! Quiero hacer una consulta sobre Berry’s Nature.';
+  /* En la landing de emprendimiento el visitante viene con otra intención:
+     premensaje propio. El regex cubre la URL limpia y la fuente .html
+     (file:// en tests), sin afectar a ninguna otra página. */
+  var WA_MSG_EMPRENDE = '¡Hola! Me interesa saber cómo emprender revendiendo cosmética natural con mi marca propia.';
+  var esEmprende = /\/emprende-con-nosotras(?:\.html)?\/?$/.test(window.location.pathname);
+  var WA_MESSAGE = esEmprende ? WA_MSG_EMPRENDE : WA_MSG_BASE;
   var href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(WA_MESSAGE);
 
   var wa = document.createElement('a');
