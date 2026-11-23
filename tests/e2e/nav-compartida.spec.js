@@ -145,7 +145,9 @@ test.describe('Navegación en el navegador', () => {
     await item.hover();
     await expect(submenu).toBeVisible();
     await expect(submenu.locator('a[href="/tienda"]')).toBeVisible();
-    await expect(submenu.locator('a[href="/tienda/labios"]')).toBeVisible();
+    /* 'Labios' se quitó del menú: no hay productos disponibles en esa
+       categoría y la ruta daba 404. */
+    await expect(submenu.locator('a[href="/tienda/cabello"]')).toBeVisible();
   });
 
   test('NV-08: el carrito está visible en escritorio y en móvil', async ({ page }) => {

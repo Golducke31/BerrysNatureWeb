@@ -1812,6 +1812,25 @@ function inyectarCatalogo(htmlDoc, tarjetas) {
   return htmlDoc; // HTML inesperado: se deja como está (el JS lo arma)
 }
 
+/** Marcador del JSON de datos del catálogo (fuente única para el cliente). */
+const RE_DATOS_CATALOGO = /<script type="application\/json" id="catalogoData">[\s\S]*?<\/script>/;
+
+/**
+ * Inyecta los productos reales de la BD como JSON para el cliente.
+ * Antes el JS partía de `js/catalog-data.js` (14 productos hardcodeados):
+ * los productos ocultos y los precios viejos aparecían en el código fuente
+ * y en la respuesta de red hasta que llegaba la API. Acá el SSR manda solo
+ * lo que `disponible=true`, con precio y oferta vigentes.
+ */
+function inyectarDatosCatalogo(htmlDoc, items) {
+  const bloque = `<script type="application/json" id="catalogoData">${jsonLd(items)}</script>`;
+  if (RE_DATOS_CATALOGO.test(htmlDoc)) return htmlDoc.replace(RE_DATOS_CATALOGO, bloque);
+  if (RE_CATALOGO.test(htmlDoc)) {
+    return htmlDoc.replace(RE_CATALOGO, `${bloque}\n<!-- PRERENDER:CATALOGO -->`);
+  }
+  return htmlDoc.replace(/<\/head>/i, `  ${bloque}\n</head>`);
+}
+
 /** Reemplaza el bloque JSON-LD del catálogo dentro del HTML. */
 function inyectarJsonLdCatalogo(htmlDoc, data) {
   const bloque = `<script type="application/ld+json" id="catalogoJsonLd">\n${jsonLd(data)}\n  </script>`;
@@ -2009,6 +2028,9 @@ async function renderTienda(req, res, params = {}) {
       // El catálogo va TAMBIÉN en el HTML: sin esto la página llegaba con
       // el grid vacío y Google no tenía ni productos ni enlaces internos.
       markup = inyectarCatalogo(markup, catalogoHtml(rows, resenasMap));
+      // Y los datos como JSON para el cliente, para que no arranque desde
+      // el catálogo hardcodeado con precios viejos y productos ocultos.
+      markup = inyectarDatosCatalogo(markup, productos);
     }
   } catch (err) {
     console.error('[tienda] no se pudo generar el JSON-LD desde la BD:', err && err.message);

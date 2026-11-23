@@ -1249,7 +1249,20 @@
       window.BerrysAPI.view('store', 'tienda').catch(function () {});
     }
 
-    productos = window.catalogProducts || [];
+    /* Prioridad: 1) datos inyectados por el SSR desde la BD (únicos con
+       disponible/precio reales), 2) API, 3) catálogo hardcodeado como
+       último recurso SOLO si no hay servidor (file:// en tests). Si el SSR
+       mandó datos, NUNCA mezclamos catalog-data.js: ahí figurarían
+       productos ocultos y precios desactualizados en la primera pintura. */
+    var inyectados = null;
+    try {
+      var nodoDatos = document.getElementById('catalogoData');
+      if (nodoDatos) inyectados = JSON.parse(nodoDatos.textContent || '[]');
+    } catch (e) { inyectados = null; }
+    productos = Array.isArray(inyectados) && inyectados.length
+      ? inyectados
+      : (window.catalogProducts || []);
+
     renderFilters();
     renderProducts();
     renderCart();

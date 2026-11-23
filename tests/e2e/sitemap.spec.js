@@ -114,12 +114,12 @@ test.describe('Sitemap — qué incluye', () => {
   test('S1c: incluye categorías con productos disponibles y omite las vacías', async () => {
     const res = await sitemap([], [], [
       { id: 'shampoo-cabello', categoria: 'Cabello', updated_at: '2026-11-10T12:00:00.000Z' },
-      { id: 'balsamo-labios', categoria: 'Labios', updated_at: '2026-11-11T12:00:00.000Z' }
+      { id: 'jabon-calendula', categoria: 'Jabones', updated_at: '2026-11-11T12:00:00.000Z' }
     ]);
     const urls = locs(res.body);
 
     expect(urls).toContain('https://berrysnature.com.ar/tienda/cabello');
-    expect(urls).toContain('https://berrysnature.com.ar/tienda/labios');
+    expect(urls).toContain('https://berrysnature.com.ar/tienda/jabones');
     expect(urls).not.toContain('https://berrysnature.com.ar/tienda/facial');
     expect(res.body).toContain('<lastmod>2026-11-10T12:00:00.000Z</lastmod>');
   });

@@ -28,6 +28,27 @@ Disallow: /verificar.html
 Disallow: /perfil.html
 Disallow: /hilo.html
 
+# Bing comparte el mismo contenido publico que Google. El grupo explicito
+# evita depender del comodin 'User-agent: *' y documenta que las imagenes
+# del panel (/api/img/) deben seguir siendo rastreables para Bing Images.
+User-agent: bingbot
+Allow: /api/img/
+Disallow: /api/
+Disallow: /cuenta.html
+Disallow: /recuperar.html
+Disallow: /verificar.html
+Disallow: /perfil.html
+Disallow: /hilo.html
+
+User-agent: msnbot
+Allow: /api/img/
+Disallow: /api/
+Disallow: /cuenta.html
+Disallow: /recuperar.html
+Disallow: /verificar.html
+Disallow: /perfil.html
+Disallow: /hilo.html
+
 User-agent: *
 Allow: /api/img/
 Allow: /

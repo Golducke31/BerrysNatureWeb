@@ -117,8 +117,10 @@ test('las landings muestran contenido filtrado, metadatos propios, canonical y b
   expect(breadcrumbs.itemListElement[2].item).toBe(pages.siteUrl() + '/tienda/cabello');
 });
 
-test('los títulos y descripciones de las cinco categorías respetan los límites pedidos', () => {
-  expect(nav.CATEGORIAS).toHaveLength(5);
+test('los títulos y descripciones de las cuatro categorías respetan los límites pedidos', () => {
+  /* Eran 5; se quitó 'labios' porque no tiene productos disponibles
+     y su ruta devolvía 404. */
+  expect(nav.CATEGORIAS).toHaveLength(4);
   for (const categoria of nav.CATEGORIAS) {
     expect(categoria.title.length, categoria.slug).toBeLessThanOrEqual(60);
     expect(categoria.description.length, categoria.slug).toBeGreaterThanOrEqual(50);

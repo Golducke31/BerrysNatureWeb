@@ -581,10 +581,10 @@
           if (!btn) return;
           var id = btn.dataset.id;
           if (btn.dataset.act === 'pin') {
-            var item = items.filter(function (x) { return x.id === id; })[0];
+            var item = (state.cache.threads || []).filter(function (x) { return x.id === id; })[0];
             patchThread(id, { destacado: !item.destacado });
           } else if (btn.dataset.act === 'resolve') {
-            var it2 = items.filter(function (x) { return x.id === id; })[0];
+            var it2 = (state.cache.threads || []).filter(function (x) { return x.id === id; })[0];
             patchThread(id, { resuelto: !it2.resuelto });
           } else if (btn.dataset.act === 'del-thread') {
             if (!confirm('¿Eliminar este hilo y todas sus respuestas? Esta acción no se puede deshacer.')) return;
@@ -680,12 +680,12 @@
         onMainClick('guidesBound', function (e) {
           var edit = e.target.closest('[data-edit-guide]');
           if (edit) {
-            var g = items.filter(function (x) { return x.id === edit.dataset.editGuide; })[0];
+            var g = (state.cache.guides || []).filter(function (x) { return x.id === edit.dataset.editGuide; })[0];
             return openGuideEditor(g);
           }
           var toggle = e.target.closest('[data-toggle-guide]');
           if (toggle) {
-            var g2 = items.filter(function (x) { return x.id === toggle.dataset.toggleGuide; })[0];
+            var g2 = (state.cache.guides || []).filter(function (x) { return x.id === toggle.dataset.toggleGuide; })[0];
             return req('PATCH', '/guides/' + encodeURIComponent(g2.id), { publicada: !g2.publicada })
               .then(function () { toast('Guía actualizada.'); renderGuides(); })
               .catch(guard);
@@ -1138,15 +1138,25 @@
         onMainClick('productsBound', function (e) {
           var edit = e.target.closest('[data-edit-product]');
           if (edit) {
-            var p = items.filter(function (x) { return x.id === edit.dataset.editProduct; })[0];
+            var p = (state.cache.products || []).filter(function (x) { return x.id === edit.dataset.editProduct; })[0];
             return openProductEditor(p);
           }
           var toggle = e.target.closest('[data-toggle-product]');
           if (toggle) {
-            var p2 = items.filter(function (x) { return x.id === toggle.dataset.toggleProduct; })[0];
-            return req('PATCH', '/products/' + encodeURIComponent(p2.id), { disponible: !p2.disponible })
-              .then(function () {
-                toast(p2.disponible ? 'Producto oculto de la tienda.' : 'Producto publicado.');
+            var p2 = (state.cache.products || []).filter(function (x) { return x.id === toggle.dataset.toggleProduct; })[0];
+            var nuevoEstado = !p2.disponible;
+            return req('PATCH', '/products/' + encodeURIComponent(p2.id), { disponible: nuevoEstado })
+              .then(function (data) {
+                /* El mensaje sale del estado devuelto por el servidor, no del
+                   objeto previo: así no miente si otro cambio ganó la carrera. */
+                var guardado = data && data.producto ? data.producto.disponible : nuevoEstado;
+                toast(guardado ? 'Producto publicado.' : 'Producto oculto de la tienda.');
+                /* Actualizamos el cache ANTES de repintar para que el
+                   siguiente click lea el estado recién guardado. */
+                var lista = state.cache.products || [];
+                for (var i = 0; i < lista.length; i++) {
+                  if (lista[i].id === p2.id) lista[i].disponible = guardado;
+                }
                 renderProducts();
               })
               .catch(guard);

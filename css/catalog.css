@@ -1175,7 +1175,12 @@
   overflow-x: auto;
   margin-top: 10px;
   padding-bottom: 4px;
+  /* Desplazamiento con el dedo por la tira de miniaturas: cada una
+     encaja completa, sin dejar medias imágenes al soltar. */
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
+.product-gallery__thumb { scroll-snap-align: start; }
 .product-gallery__thumb {
   flex: 0 0 62px;
   width: 62px;

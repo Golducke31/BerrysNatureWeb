@@ -47,13 +47,6 @@ const CATEGORIAS = [
     description: 'Explorá productos artesanales de Berry\'s Nature para acompañar tu rutina de cuidado corporal, elaborados en pequeños lotes.',
     h1: 'Cuidado corporal artesanal',
     intro: 'Conocé los productos disponibles para el cuidado corporal, elaborados artesanalmente en pequeños lotes.'
-  },
-  {
-    slug: 'labios', nombre: 'Labios',
-    title: 'Cuidado labial artesanal | Berry\'s Nature',
-    description: 'Conocé los productos artesanales para labios de Berry\'s Nature, pensados para acompañar tu rutina de cuidado personal.',
-    h1: 'Cuidado natural para los labios',
-    intro: 'Descubrí los productos de cuidado labial disponibles, elaborados artesanalmente en pequeños lotes.'
   }
 ];
 

@@ -148,16 +148,51 @@
       main.appendChild(el);
     }
 
+    function seleccionar(btn) {
+      if (!btn) return;
+      var url = btn.getAttribute('data-gallery-thumb');
+      var tipo = btn.getAttribute('data-gallery-type');
+      Array.prototype.forEach.call(thumbs, function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      if (tipo === 'video') mostrarVideo(url);
+      else mostrarImagen(url);
+    }
+
     Array.prototype.forEach.call(thumbs, function (btn) {
-      btn.addEventListener('click', function () {
-        var url = btn.getAttribute('data-gallery-thumb');
-        var tipo = btn.getAttribute('data-gallery-type');
-        Array.prototype.forEach.call(thumbs, function (b) { b.classList.remove('is-active'); });
-        btn.classList.add('is-active');
-        if (tipo === 'video') mostrarVideo(url);
-        else mostrarImagen(url);
-      });
+      btn.addEventListener('click', function () { seleccionar(btn); });
     });
+
+    /* Swipe táctil sobre la imagen principal, como alternativa a las
+       miniaturas. Se usa el MISMO seleccionar(), así ambos métodos
+       conviven y el estado (miniatura activa) queda sincronizado.
+       No se usa preventDefault: el usuario puede seguir scrolleando la
+       página con el dedo normalmente. */
+    var inicioX = null;
+    var inicioY = null;
+    main.addEventListener('touchstart', function (e) {
+      if (!e.changedTouches || !e.changedTouches[0]) return;
+      inicioX = e.changedTouches[0].clientX;
+      inicioY = e.changedTouches[0].clientY;
+    }, { passive: true });
+
+    main.addEventListener('touchend', function (e) {
+      if (inicioX === null || !e.changedTouches || !e.changedTouches[0]) return;
+      var dx = e.changedTouches[0].clientX - inicioX;
+      var dy = e.changedTouches[0].clientY - inicioY;
+      inicioX = null;
+      inicioY = null;
+      /* Si el movimiento fue mayormente vertical, era un scroll de página. */
+      if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy)) return;
+      var actual = -1;
+      for (var i = 0; i < thumbs.length; i++) {
+        if (thumbs[i].classList.contains('is-active')) { actual = i; break; }
+      }
+      if (actual === -1) actual = 0;
+      var siguiente = dx < 0 ? actual + 1 : actual - 1;
+      if (siguiente < 0) siguiente = thumbs.length - 1;
+      if (siguiente >= thumbs.length) siguiente = 0;
+      seleccionar(thumbs[siguiente]);
+    }, { passive: true });
   }
 
   /* ---------------- Carrito en la ficha ----------------
