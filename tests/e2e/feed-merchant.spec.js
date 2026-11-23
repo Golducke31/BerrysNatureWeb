@@ -72,10 +72,17 @@ test.describe('Feed de Google Merchant Center', () => {
     expect(valores.every((v) => ['in_stock', 'out_of_stock', 'backorder', 'preorder'].includes(v))).toBe(true);
   });
 
-  test('MF-02: no se inventa MPN; se declara identifier_exists=no', async () => {
+  test('MF-02: se conserva el MPN actual para no tocar la identificación aprobada', async () => {
     const res = await render();
-    expect(res.body).not.toContain('<g:mpn>');
-    expect((res.body.match(/<g:identifier_exists>no<\/g:identifier_exists>/g) || []).length).toBe(3);
+    /* Decisión del usuario: los productos ya están aprobados en Merchant
+       con g:mpn = id. Se mantiene tal cual para evitar regresiones; el
+       cambio a identifier_exists=no queda documentado como mejora futura. */
+    const lista = items(res.body);
+    for (const item of lista) {
+      const id = (item.match(/<g:id>([^<]+)<\/g:id>/) || [])[1];
+      expect(item).toContain(`<g:mpn>${id}</g:mpn>`);
+    }
+    expect(res.body).not.toContain('identifier_exists');
     expect(res.body).toContain('<g:brand>Berry\'s Nature</g:brand>');
   });
 

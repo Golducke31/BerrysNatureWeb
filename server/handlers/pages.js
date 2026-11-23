@@ -2252,9 +2252,11 @@ async function renderFeed(req, res) {
     const adicionalesXml = adicionales
       .map((u) => `      <g:additional_image_link>${escXml(u)}</g:additional_image_link>`)
       .join('\n');
-    /* identifier_exists=no: son productos de marca propia, sin GTIN ni
-       MPN de fabricante. Declararlo evita que Google trate el slug como
-       identificador inválido (antes se emitía como g:mpn). */
+    /* Se conserva g:mpn con el id interno: los 21 productos están hoy
+       aprobados en Merchant Center con ese valor, y cambiar la
+       identificación en bloque podría generar advertencias temporales.
+       Si en el futuro se cargan GTIN reales, ahí sí se evaluará el cambio
+       a identifier_exists=no por producto. */
     return `    <item>
       <g:id>${escXml(p.id)}</g:id>
       <g:title>${escXml(String(p.nombre).slice(0, 150))}</g:title>
@@ -2265,7 +2267,7 @@ ${adicionalesXml ? adicionalesXml + '\n' : ''}      <g:price>${precioOriginal} A
 ${salePriceXml}      <g:availability>${estado.feed}</g:availability>
 ${availabilityXml}      <g:condition>new</g:condition>
       <g:brand>Berry's Nature</g:brand>
-      <g:identifier_exists>no</g:identifier_exists>
+      <g:mpn>${escXml(p.id)}</g:mpn>
       <g:product_type>${escXml(p.categoria || 'Cosmética natural')}</g:product_type>
     </item>`;
   }).join('\n');
