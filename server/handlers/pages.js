@@ -941,7 +941,8 @@ async function renderProduct(req, res, { id }) {
   const videos = videosLib.listaVideos(row.videos);
   const componentes = Array.isArray(row.componentes) ? row.componentes : [];
   // Stock null = sin control de stock → se considera disponible.
-  const enStock = (row.stock === null || row.stock === undefined) ? true : Number(row.stock) > 0;
+  const estadoInv = ofertaLib.estadoStock(row);
+  const enStock = estadoInv.enStock;
   const canonical = productoUrl(row.id);
   const ogImage = absAsset(row.imagen);
   const precioTxt = typeof precio === 'number'
@@ -1003,7 +1004,7 @@ async function renderProduct(req, res, { id }) {
     productLd.isRelatedTo = componentes.map((c) => ({ '@type': 'Product', name: c.nombre }));
   }
   const ofertaProducto = ofertaLib.ofertaJson({
-    precio: precioReal, url: canonical, enStock, base: siteUrl(), politicas: merchantPolicies()
+    precio: precioReal, url: canonical, enStock, backorder: estadoInv.backorder, base: siteUrl(), politicas: merchantPolicies()
   });
   // Sin precio real NO se publica Offer: hacerlo es un error crítico en GSC.
   if (ofertaProducto) productLd.offers = ofertaProducto;
@@ -1090,7 +1091,9 @@ async function renderProduct(req, res, { id }) {
                </p>`
             : `<p class="product-card__price${typeof precio === 'number' ? '' : ' is-consult'}">${esc(precioTxt)}</p>`}
           ${ratingCerca}
-          ${!enStock ? '<p class="product-detail__stockout">Sin stock — escribinos por disponibilidad.</p>' : (typeof row.stock === 'number' && row.stock > 0 ? '<p class="product-detail__stock">' + row.stock + ' disponibles</p>' : '')}
+          ${estadoInv.backorder
+            ? '<p class="product-detail__stock">Por pedido — escribinos para consultar la disponibilidad.</p>'
+            : (!enStock ? '<p class="product-detail__stockout">Sin stock — escribinos por disponibilidad.</p>' : (typeof row.stock === 'number' && row.stock > 0 ? '<p class="product-detail__stock">' + row.stock + ' disponibles</p>' : ''))}
           <div class="product-accordion">
             ${row.descripcion ? `<details class="product-accordion__item" open>
               <summary>Descripción</summary>
@@ -2219,12 +2222,22 @@ async function renderFeed(req, res) {
   const productos = rows.map(productoParaLd).filter((p) => typeof p.precio === 'number');
 
   const items = productos.map((p) => {
-    const enStock = (p.stock === null || p.stock === undefined) ? true : p.stock > 0;
-    /* Precio real de venta: oferta si es válida (menor al precio pleno),
-       sino el precio pleno. Así el feed coincide con lo que ve el usuario. */
-    const precioFinal = (typeof p.oferta === 'number' && p.oferta > 0 && p.oferta < p.precio)
-      ? p.oferta
-      : p.precio;
+    const estado = ofertaLib.estadoStock(p);
+    /* Google exige availability con GUION BAJO (in_stock / backorder).
+       `backorder` necesita fecha estimada; se calcula una por item. */
+    const availabilityXml = estado.backorder
+      ? `      <g:availability_date>${ofertaLib.fechaDisponibilidad(7)}</g:availability_date>\n`
+      : '';
+    /* g:price = precio original; g:sale_price = oferta vigente. Google
+       entiende sale_price como el importe final cobrado, que es lo que
+       muestra la ficha (precio tachado + oferta). Evita desaprobación
+       preventiva por diferencia de precio entre feed y landing. */
+    const conOferta = typeof p.oferta === 'number' && p.oferta > 0 && p.oferta < p.precio;
+    const precioOriginal = Number(p.precio).toFixed(2);
+    const precioFinal = conOferta ? Number(p.oferta).toFixed(2) : precioOriginal;
+    const salePriceXml = conOferta
+      ? `      <g:sale_price>${precioFinal} ARS</g:sale_price>\n`
+      : '';
     const link = `${base}/productos/${encodeURIComponent(p.id)}`;
     const desc = String(
       p.descripcion || `${p.nombre} — cosmética natural artesanal de Berry's Nature.`
@@ -2239,17 +2252,20 @@ async function renderFeed(req, res) {
     const adicionalesXml = adicionales
       .map((u) => `      <g:additional_image_link>${escXml(u)}</g:additional_image_link>`)
       .join('\n');
+    /* identifier_exists=no: son productos de marca propia, sin GTIN ni
+       MPN de fabricante. Declararlo evita que Google trate el slug como
+       identificador inválido (antes se emitía como g:mpn). */
     return `    <item>
       <g:id>${escXml(p.id)}</g:id>
       <g:title>${escXml(String(p.nombre).slice(0, 150))}</g:title>
       <g:description>${escXml(desc)}</g:description>
       <g:link>${escXml(link)}</g:link>
       <g:image_link>${escXml(portada)}</g:image_link>
-${adicionalesXml ? adicionalesXml + '\n' : ''}      <g:price>${Number(precioFinal).toFixed(2)} ARS</g:price>
-      <g:availability>${enStock ? 'in stock' : 'out of stock'}</g:availability>
-      <g:condition>new</g:condition>
+${adicionalesXml ? adicionalesXml + '\n' : ''}      <g:price>${precioOriginal} ARS</g:price>
+${salePriceXml}      <g:availability>${estado.feed}</g:availability>
+${availabilityXml}      <g:condition>new</g:condition>
       <g:brand>Berry's Nature</g:brand>
-      <g:mpn>${escXml(p.id)}</g:mpn>
+      <g:identifier_exists>no</g:identifier_exists>
       <g:product_type>${escXml(p.categoria || 'Cosmética natural')}</g:product_type>
     </item>`;
   }).join('\n');

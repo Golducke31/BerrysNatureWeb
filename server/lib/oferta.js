@@ -40,13 +40,18 @@ function tienePrecioValido(offer) {
  * @param {{precio:*, url:string, enStock:boolean, base:string, politicas?:object}} datos
  * @returns {object|null}
  */
-function ofertaJson({ precio, url, enStock, base, politicas = {} }) {
+function ofertaJson({ precio, url, enStock, backorder = false, base, politicas = {} }) {
   if (!precioValido(precio)) return null;
+  /* schema.org tiene BackOrder: usarlo evita decir "OutOfStock" en un
+     producto que SÍ se puede comprar (la tienda acepta stock negativo). */
+  const availability = backorder
+    ? 'https://schema.org/BackOrder'
+    : (enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock');
   return {
     '@type': 'Offer',
     price: Number(precio),
     priceCurrency: 'ARS',
-    availability: enStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    availability,
     url,
     itemCondition: 'https://schema.org/NewCondition',
     seller: { '@type': 'Organization', name: "Berry's Nature", url: base },
@@ -54,4 +59,27 @@ function ofertaJson({ precio, url, enStock, base, politicas = {} }) {
   };
 }
 
-module.exports = { precioValido, tienePrecioValido, ofertaJson };
+/**
+ * Estado de inventario compartido entre la ficha y el feed.
+ * La tienda acepta pedidos con stock negativo (backorder), así que
+ * `disponible=true` con stock<=0 NO es "agotado": se puede vender.
+ * @returns {{enStock:boolean, backorder:boolean, feed:string}}
+ */
+function estadoStock(fila) {
+  const sinStock = fila && fila.stock !== null && fila.stock !== undefined && Number(fila.stock) <= 0;
+  return {
+    enStock: !sinStock,
+    backorder: Boolean(sinStock),
+    /* Valores EXACTOS que exige Google Merchant (guion bajo, no espacio). */
+    feed: sinStock ? 'backorder' : 'in_stock'
+  };
+}
+
+/** Fecha estimada para g:availability_date (RFC 3339, hoy + días). */
+function fechaDisponibilidad(dias = 7) {
+  const d = new Date();
+  d.setDate(d.getDate() + dias);
+  return d.toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
+module.exports = { precioValido, tienePrecioValido, ofertaJson, estadoStock, fechaDisponibilidad };
