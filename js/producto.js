@@ -170,9 +170,12 @@
     var inicioX = null;
     var inicioY = null;
     main.addEventListener('touchstart', function (e) {
-      if (!e.changedTouches || !e.changedTouches[0]) return;
-      inicioX = e.changedTouches[0].clientX;
-      inicioY = e.changedTouches[0].clientY;
+      /* En touchstart el dedo está en e.touches; e.changedTouches solo
+         se puebla en touchend/touchmove. Antes se leía changedTouches
+         acá, así que inicioX quedaba null y el swipe nunca disparaba. */
+      if (!e.touches || !e.touches[0]) return;
+      inicioX = e.touches[0].clientX;
+      inicioY = e.touches[0].clientY;
     }, { passive: true });
 
     main.addEventListener('touchend', function (e) {

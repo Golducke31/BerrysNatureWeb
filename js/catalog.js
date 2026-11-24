@@ -233,38 +233,47 @@
       });
       car.addEventListener('mouseleave', function () { car.classList.remove('is-manual'); });
 
-      /* Swipe táctil. OJO: la tarjeta tiene un link estirado
-         (.product-card__hit) que se activa al soltar el dedo. Si no lo
-         frenamos, el navegador dispara un click después del touchend y
-         te lleva a la ficha antes de que se vea el cambio de imagen.
-         Las flechas/dots ya usan stopPropagation; acá hacemos lo mismo
-         de forma diferida, solo cuando el gesto fue horizontal. */
+      /* Swipe táctil. La tarjeta tiene un link estirado (.product-card__hit,
+         z-index 2) cubriendo la foto, así que el dedo NO toca el carrusel:
+         los eventos hay que escucharlos en la TARJETA (que sí los recibe)
+         y recién acted si el gesto empezó sobre el area de la imagen.
+         Si el dedo se levanta sin moverse, el click del link navega como
+         siempre; si hubo swipe horizontal, frenamos ese click. */
+      var tarjeta = car.closest('.product-card') || car;
       var x0 = null;
       var y0 = null;
-      car.addEventListener('touchstart', function (e) {
+      var sobreFoto = false;
+
+      tarjeta.addEventListener('touchstart', function (e) {
         if (!e.touches || !e.touches[0]) return;
-        x0 = e.touches[0].clientX;
-        y0 = e.touches[0].clientY;
+        var t = e.touches[0];
+        var caja = car.getBoundingClientRect();
+        sobreFoto = t.clientX >= caja.left && t.clientX <= caja.right &&
+          t.clientY >= caja.top && t.clientY <= caja.bottom;
+        if (!sobreFoto) return;
+        x0 = t.clientX;
+        y0 = t.clientY;
       }, { passive: true });
-      car.addEventListener('touchend', function (e) {
-        if (x0 === null || !e.changedTouches || !e.changedTouches[0]) return;
+
+      tarjeta.addEventListener('touchend', function (e) {
+        if (x0 === null || !sobreFoto || !e.changedTouches || !e.changedTouches[0]) return;
         var dx = e.changedTouches[0].clientX - x0;
         var dy = e.changedTouches[0].clientY - y0;
         x0 = null;
         y0 = null;
-        /* Movimiento mayormente vertical = scroll de página: no hacemos nada. */
+        sobreFoto = false;
         if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
         go(idx + (dx < 0 ? 1 : -1));
         car.classList.add('is-manual');
-        /* Capturamos el click sintético que viene después del touchend.
-           Una sola vez, en fase de captura, para no romper los controles. */
+        /* El <a> estirado dispara click tras el touchend; lo frenamos
+           una sola vez en captura para no caer en la ficha al deslizar. */
         var bloquear = function (ev) {
           ev.preventDefault();
           ev.stopPropagation();
-          car.removeEventListener('click', bloquear, true);
+          tarjeta.removeEventListener('click', bloquear, true);
         };
-        car.addEventListener('click', bloquear, true);
-        setTimeout(function () { car.removeEventListener('click', bloquear, true); }, 500);
+        tarjeta.addEventListener('click', bloquear, true);
+        setTimeout(function () { tarjeta.removeEventListener('click', bloquear, true); }, 500);
       }, { passive: true });
     });
   }

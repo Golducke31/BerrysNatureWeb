@@ -1163,12 +1163,31 @@
 .product-card:hover .product-carousel__hover { opacity: 1; }
 .product-carousel.is-manual .product-carousel__hover { opacity: 0 !important; }
 
-@media (max-width: 520px) {
-  .product-carousel__arrow { width: 26px; height: 26px; font-size: 17px; }
+@media (max-width: 767px) {
+  /* En móvil el usuario desliza con el dedo: las flechas solo estorban
+     y encima tapaban parte de la foto. Se ocultan, el swipe manda. */
+  .product-carousel__arrow { display: none; }
 }
 
 /* ---- Galería de la ficha de producto ---- */
-.product-gallery { min-width: 0; }
+.product-gallery { min-width: 0; position: relative; }
+/* Las flechas ‹ › son un refuerzo para escritorio: en móvil el usuario
+   desliza con el dedo. Si existen, se superponen a los bordes de la foto
+   (position:absolute) en vez de ocupar alto adentro del contenedor. */
+@media (max-width: 767px) {
+  .product-gallery__arrow,
+  .product-gallery [data-gallery-prev],
+  .product-gallery [data-gallery-next] {
+    position: absolute !important;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+  }
+  .product-gallery__arrow--prev,
+  .product-gallery [data-gallery-prev] { left: 6px; }
+  .product-gallery__arrow--next,
+  .product-gallery [data-gallery-next] { right: 6px; }
+}
 .product-gallery__thumbs {
   display: flex;
   gap: 8px;
