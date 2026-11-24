@@ -8,7 +8,7 @@
 |---|---|---|
 | `/` | Cosmética natural artesanal en Argentina \| Berry's Nature | Cosmética natural artesanal: jabones, shampoo y acondicionador sólidos, sérums y cremas, hechos en lotes únicos en Buenos Aires. Envíos a todo el país. |
 | `/academia` | Berry's Academy \| Aprendé a formular cosmética natural | Berry's Academy — Hub de aprendizaje de cosmética natural: guías por nivel, fórmulas descargables y una comunidad de formuladores. |
-| `/tienda` | Tienda · Berry's Nature — Cosmética natural artesanal argentina | Tienda de Berry's Nature — cosmética natural artesanal argentina: jabones, champú y acondicionador sólidos, sérum hialurónico, Crema Eluné y más. Hecho en Buenos Aires, Argentina. |
+| `/tienda` | Tienda · Berry's Nature — Cosmética natural artesanal argentina | Tienda de Berry's Nature — cosmética natural artesanal argentina: jabones, shampoo y acondicionador sólidos, sérum hialurónico, Crema Eluné y más. Hecho en Buenos Aires, Argentina. |
 | `/berrys-lab` | Berry's Lab · Software de formulación cosmética artesanal \| Berry's Nature | Berry's Lab: software de formulación cosmética para Windows. Fórmulas, INCI automático, stock, producción por lote y precio de venta sugerido. Descarga inmediata. |
 | `/emprende-con-nosotros` | Emprendé con nosotros \| Cosmética natural \| Berry's Nature | ¿Querés emprender en cosmética natural? Revendé o creá tu marca propia con Berry's Nature. Charlamos por WhatsApp. Buenos Aires, Argentina. |
 | `/foro` | Foro de formuladores \| Berry's Nature | Foro de formuladores de Berry's Nature: compartí fórmulas, resolvé dudas y aprendé de quienes ya están produciendo cosmética natural. |
@@ -27,7 +27,7 @@ Además hay 12 guías en `/academia/<slug>` con título y descripción propios; 
 |---|---|---|
 | Home | cosmética natural argentina | cosmética artesanal Buenos Aires |
 | /tienda | comprar cosmética natural online Argentina | — |
-| Cabello | shampoo sólido | acondicionador sólido; champú sólido argentina |
+| Cabello | shampoo sólido | acondicionador sólido; shampoo sólido argentina |
 | Facial | sérum facial natural | sérum de ácido hialurónico; sérum de niacinamida; crema facial natural; agua micelar |
 | Jabones | jabón artesanal | jabón de caléndula; jabón de carbón activado; jabón de avena |
 | Corporal / Labios | exfoliante corporal de café | bálsamo labial natural |

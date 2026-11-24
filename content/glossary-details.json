@@ -259,7 +259,7 @@
     "uses": [
       "Cremas y lociones faciales o corporales con fase acuosa, para aportar humectación.",
       "Sérums, tónicos y geles acuosos; evaluá la sensación final y su combinación con otros humectantes.",
-      "Champús, acondicionadores y otros productos de enjuague, como parte de una fórmula equilibrada.",
+      "Shampoos, acondicionadores y otros productos de enjuague, como parte de una fórmula equilibrada.",
       "Para prehumectar y dispersar gomas en una pequeña porción antes de incorporarlas al agua, si el proceso y la goma lo permiten."
     ],
     "whatItIs": "La glicerina, también llamada glicerol, es un líquido transparente, viscoso y soluble en agua. La versión comercial de origen vegetal se obtiene de aceites y grasas vegetales; el origen concreto depende del proveedor y del grado elegido. Su INCI es Glycerin.",
@@ -357,7 +357,7 @@
     "useLevel": "No hay un porcentaje único para todos los grados y usos. La documentación de uso cosmético menciona concentraciones de hasta alrededor del 5%; es un dato orientativo, no una recomendación universal. Guiate por la ficha del proveedor del grado adquirido y por tus ensayos, sin exceder su indicación.",
     "uses": [
       "Cremas, lociones y geles faciales o corporales de fase acuosa.",
-      "Champús y acondicionadores, como apoyo de acondicionamiento capilar.",
+      "Shampoos y acondicionadores, como apoyo de acondicionamiento capilar.",
       "Productos para el cabello sin enjuague, si el grado y la fórmula final dan una sensación agradable.",
       "Cremas de manos y productos para uñas, para contribuir a una sensación de flexibilidad e hidratación."
     ],
@@ -389,7 +389,7 @@
     "subtitle": "Acidulante soluble en agua para ajustar el pH de fórmulas acuosas.",
     "useLevel": "No hay un porcentaje único: la cantidad depende del pH inicial, la capacidad reguladora, la fórmula y la presentación o grado del material. Seguí la documentación del proveedor del grado comprado y definí la cantidad mediante pruebas y medición.",
     "uses": [
-      "Bajar el pH de champús, limpiadores, geles, lociones y cremas con fase acuosa.",
+      "Bajar el pH de shampoos, limpiadores, geles, lociones y cremas con fase acuosa.",
       "Ajustar productos capilares acuosos según el rango requerido por la fórmula y sus materias primas.",
       "Preparar bombas efervescentes de baño junto con bicarbonato.",
       "Formar, junto con citratos, sistemas reguladores de pH diseñados y probados para una fórmula concreta."
@@ -463,7 +463,7 @@
       "Cremas y lociones, para ajustar cuerpo y textura.",
       "Acondicionadores y mascarillas capilares, como apoyo a una sensación de deslizamiento y peinado más fácil.",
       "Cremas de manos o bálsamos emulsionados, para aportar una textura más rica.",
-      "Champús, en fórmulas diseñadas para incorporar ingredientes grasos y modificar la consistencia o el aspecto."
+      "Shampoos, en fórmulas diseñadas para incorporar ingredientes grasos y modificar la consistencia o el aspecto."
     ],
     "whatItIs": "Es un alcohol graso de cadena larga, distinto de los alcoholes volátiles como el etanol. Suele presentarse en escamas o perlas blancas y no se disuelve en agua. Puede obtenerse a partir de grasas y aceites vegetales, aunque el origen concreto depende del proveedor y del proceso.",
     "image": "/assets/ingredients/alcohol-cetilico.webp",
@@ -528,7 +528,7 @@
     "uses": [
       "Lociones y cremas, como apoyo humectante en la fase acuosa.",
       "Sérums y tónicos acuosos, para facilitar la incorporación de ingredientes compatibles.",
-      "Champús y geles de limpieza, como solvente o humectante auxiliar.",
+      "Shampoos y geles de limpieza, como solvente o humectante auxiliar.",
       "Soluciones cosméticas que necesiten disolver componentes solubles en agua o compatibles con este solvente."
     ],
     "whatItIs": "Es un líquido claro, miscible con agua, de la familia de los alcoholes llamados dioles. El grado USP identifica una calidad comercial; revisá la documentación del lote y la información del proveedor para confirmar que sea adecuado para tu aplicación cosmética.",
@@ -647,7 +647,7 @@
     "howToUse": "Revisá la ficha técnica del grado que compraste, en especial la materia activa, el pH y las recomendaciones de uso. Pesalo según el nivel de materia activa que buscás e incorporalo lentamente a la fase acuosa o a la mezcla de tensioactivos, con agitación suave. Sumá los demás componentes de a poco y controlá el pH y la viscosidad al final. Hacé una prueba piloto y evaluá estabilidad, aspecto, desempeño y compatibilidad antes de escalar.",
     "id": "oxido_lauramina",
     "inci": "Lauramine Oxide",
-    "intro": "En champús, jabones líquidos o detergentes para vajilla, el óxido de lauramina puede ayudar a lograr una espuma más abundante y estable. El resultado depende de los otros tensioactivos, del grado comercial y del diseño completo de la fórmula.",
+    "intro": "En shampoos, jabones líquidos o detergentes para vajilla, el óxido de lauramina puede ayudar a lograr una espuma más abundante y estable. El resultado depende de los otros tensioactivos, del grado comercial y del diseño completo de la fórmula.",
     "keepInMind": "Es un ingrediente para productos de enjuague, no para dejar sobre la piel. El concentrado puede irritar: evitá el contacto con ojos y piel sin diluir, y seguí las precauciones del proveedor. No confundas una solución comercial con óxido de amina puro ni extrapoles resultados de un grado a otro.",
     "name": "Óxido de Lauramina",
     "naturalCosmetics": "Algunos grados pueden elaborarse con materias primas de origen vegetal, pero el INCI no confirma el origen del lote ni una certificación de naturalidad. Pedile al proveedor trazabilidad y documentación del producto específico antes de comunicar un origen determinado.",
@@ -658,7 +658,7 @@
     "subtitle": "Un co tensioactivo que puede reforzar la espuma y acompañar la limpieza en productos de enjuague.",
     "useLevel": "No hay un porcentaje universal para todos los grados y productos. Guiate por el rango de uso y la concentración activa indicados por el proveedor; distinguí el porcentaje de solución comercial del de materia activa. Empezá en el extremo bajo del rango recomendado para ese grado y ajustá con pruebas comparativas. En cosmética, priorizá productos de enjuague y verificá los límites aplicables a la fórmula final.",
     "uses": [
-      "Champús y limpiadores capilares de enjuague, como apoyo de espuma y viscosidad.",
+      "Shampoos y limpiadores capilares de enjuague, como apoyo de espuma y viscosidad.",
       "Jabones líquidos para manos y baños de espuma.",
       "Detergentes líquidos para vajilla, donde puede colaborar con la espuma y la remoción de grasa.",
       "Limpiadores de superficies duras, según el grado y las indicaciones del proveedor."
@@ -723,11 +723,11 @@
     "seoTitle": "Goma Xantana: usos y formulación cosmética",
     "slug": "goma-xantana",
     "subtitle": "Una goma de origen fermentativo para ajustar textura y ayudar a mantener fases y partículas distribuidas.",
-    "useLevel": "No hay un porcentaje universal: depende del grado, la textura buscada, el resto de la fórmula y el proceso. Como punto de partida, consultá la ficha del proveedor para el grado específico y ensayá pequeñas variaciones; en la guía consultada se indican niveles de 0,1–0,3 % para lociones y champús, y 0,3–0,8 % para geles acuosos. Confirmá siempre con la documentación de tu materia prima.",
+    "useLevel": "No hay un porcentaje universal: depende del grado, la textura buscada, el resto de la fórmula y el proceso. Como punto de partida, consultá la ficha del proveedor para el grado específico y ensayá pequeñas variaciones; en la guía consultada se indican niveles de 0,1–0,3 % para lociones y shampoos, y 0,3–0,8 % para geles acuosos. Confirmá siempre con la documentación de tu materia prima.",
     "uses": [
       "Geles acuosos y geles-crema para aportar estructura.",
       "Cremas y lociones, como apoyo a la estabilidad y la consistencia de la emulsión.",
-      "Limpiadores y champús, para ajustar la textura o ayudar a suspender partículas.",
+      "Limpiadores y shampoos, para ajustar la textura o ayudar a suspender partículas.",
       "Geles de peinado y productos de enjuague, cuando se busca cuerpo y mejor distribución durante la aplicación."
     ],
     "whatItIs": "Es un polisacárido producido por fermentación microbiana y comercializado como polvo. Al hidratarse en agua aumenta la viscosidad y forma soluciones con comportamiento fluido al agitarse, que recuperan cuerpo al dejarse en reposo.",
@@ -827,7 +827,7 @@
       "Tónicos y brumas acuosas de pH ácido.",
       "Geles y sérums con fase acuosa, si son compatibles.",
       "Cremas y lociones emulsificadas dentro del rango de pH indicado para el producto.",
-      "Champús y otros productos de enjuague con agua, tras comprobar compatibilidad y eficacia en la fórmula final."
+      "Shampoos y otros productos de enjuague con agua, tras comprobar compatibilidad y eficacia en la fórmula final."
     ],
     "whatItIs": "Son sales de los ácidos benzoico y sórbico. En medios ácidos, una parte se transforma en los ácidos activos que contribuyen al control de microorganismos. Se venden por separado o como premezclas; identificá cuál tenés, porque cambian los vehículos y las recomendaciones.",
     "image": "/assets/ingredients/benzoato-sodio-sorbato-potasio.webp",
@@ -858,7 +858,7 @@
     "useLevel": "No hay un porcentaje universal. Usá el nivel y la proporción indicados por el proveedor para ese grado y respetá los límites aplicables al mercado de venta. Confirmá la eficacia en el producto terminado; no la deduzcas solo de la presencia de ambos ingredientes.",
     "uses": [
       "Cremas y lociones faciales o corporales con agua.",
-      "Champús y acondicionadores acuosos, si son compatibles con el pH y el sistema conservante.",
+      "Shampoos y acondicionadores acuosos, si son compatibles con el pH y el sistema conservante.",
       "Maquillaje líquido y emulsiones.",
       "Geles y otros productos acuosos de enjuague o permanencia, con eficacia verificada para el uso previsto."
     ],
@@ -991,7 +991,7 @@
     "uses": [
       "Limpiadores faciales o corporales de enjuague, según la compatibilidad del grado.",
       "Tónicos y geles acuosos para el cuidado de la piel.",
-      "Champús y productos de enjuague para el cuero cabelludo.",
+      "Shampoos y productos de enjuague para el cuero cabelludo.",
       "Mascarillas o tratamientos capilares, si el proveedor confirma la compatibilidad."
     ],
     "whatItIs": "Se obtiene de la corteza del sauce blanco (Salix alba). Puede venir como polvo soluble en agua o como líquido en agua y glicerina. Puede contener salicina y otros compuestos vegetales, pero su cantidad depende del proceso y de la estandarización del proveedor. No es ácido salicílico puro ni se puede asumir que actúe igual.",
