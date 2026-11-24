@@ -232,13 +232,39 @@
         d.addEventListener('click', function (e) { e.stopPropagation(); car.classList.add('is-manual'); go(Number(d.getAttribute('data-dot'))); });
       });
       car.addEventListener('mouseleave', function () { car.classList.remove('is-manual'); });
+
+      /* Swipe táctil. OJO: la tarjeta tiene un link estirado
+         (.product-card__hit) que se activa al soltar el dedo. Si no lo
+         frenamos, el navegador dispara un click después del touchend y
+         te lleva a la ficha antes de que se vea el cambio de imagen.
+         Las flechas/dots ya usan stopPropagation; acá hacemos lo mismo
+         de forma diferida, solo cuando el gesto fue horizontal. */
       var x0 = null;
-      car.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+      var y0 = null;
+      car.addEventListener('touchstart', function (e) {
+        if (!e.touches || !e.touches[0]) return;
+        x0 = e.touches[0].clientX;
+        y0 = e.touches[0].clientY;
+      }, { passive: true });
       car.addEventListener('touchend', function (e) {
-        if (x0 === null) return;
+        if (x0 === null || !e.changedTouches || !e.changedTouches[0]) return;
         var dx = e.changedTouches[0].clientX - x0;
-        if (Math.abs(dx) > 40) go(idx + (dx < 0 ? 1 : -1));
+        var dy = e.changedTouches[0].clientY - y0;
         x0 = null;
+        y0 = null;
+        /* Movimiento mayormente vertical = scroll de página: no hacemos nada. */
+        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+        go(idx + (dx < 0 ? 1 : -1));
+        car.classList.add('is-manual');
+        /* Capturamos el click sintético que viene después del touchend.
+           Una sola vez, en fase de captura, para no romper los controles. */
+        var bloquear = function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          car.removeEventListener('click', bloquear, true);
+        };
+        car.addEventListener('click', bloquear, true);
+        setTimeout(function () { car.removeEventListener('click', bloquear, true); }, 500);
       }, { passive: true });
     });
   }

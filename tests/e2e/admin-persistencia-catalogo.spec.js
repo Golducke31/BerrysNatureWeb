@@ -96,3 +96,17 @@ test.describe('Enlaces de la academia', () => {
     }
   });
 });
+
+test.describe('Carrusel del catálogo en móvil', () => {
+  test('CA-04: el swipe ignored el click del link estirado de la tarjeta', () => {
+    const catalog = leer('js/catalog.js');
+    expect(catalog).toContain("car.addEventListener('touchstart'");
+    expect(catalog).toContain("car.addEventListener('touchend'");
+    /* Sin este bloqueo, el touchend dispara el click del .product-card__hit
+       y el usuario cae en la ficha en vez de ver la siguiente imagen. */
+    expect(catalog).toContain("car.addEventListener('click', bloquear, true)");
+    expect(catalog).toContain('ev.preventDefault()');
+    expect(catalog).toContain('Math.abs(dx) < Math.abs(dy)');
+  });
+});
+
