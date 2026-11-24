@@ -131,3 +131,35 @@ test.describe('Webhook de MercadoPago — formatos', () => {
     expect(eventosAuditoria.some((e) => e.action === 'payment.webhook_invalid_signature')).toBe(true);
   });
 });
+
+test.describe('Webhook — notificaciones sin datos (heartbeats)', () => {
+  test('WH-05: sin firma y sin data.id se ignora con 200, no cuenta como firma inválida', async () => {
+    const mp = require('../../server/lib/mercadopago');
+    const payments = require('../../server/handlers/payments');
+    const audit = require('../../server/lib/audit');
+    const originales = {
+      configured: mp.isConfigured, secret: mp.webhookSecret, log: audit.log
+    };
+    const eventos = [];
+    mp.isConfigured = () => true;
+    mp.webhookSecret = () => 'test-secret';
+    audit.log = async (e) => { eventos.push(e); };
+
+    const res = {
+      statusCode: 200, headers: {}, body: '',
+      setHeader() {}, end(t) { this.body = t || ''; }
+    };
+    try {
+      await payments.webhook({ url: '/api/webhooks/mercadopago', headers: {} }, res, {});
+    } finally {
+      mp.isConfigured = originales.configured;
+      mp.webhookSecret = originales.secret;
+      audit.log = originales.log;
+    }
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body).ignorado).toBe('notificacion_sin_datos');
+    expect(eventos.some((e) => e.action === 'payment.webhook_sin_datos')).toBe(true);
+    expect(eventos.some((e) => e.action === 'payment.webhook_invalid_signature')).toBe(false);
+  });
+});
+

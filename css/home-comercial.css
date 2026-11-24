@@ -189,6 +189,10 @@
 }
 .home-carousel__arrow--prev { left: 6px; }
 .home-carousel__arrow--next { right: 6px; }
+/* En móvil se desliza con el dedo: las flechas estorban y tapan foto. */
+@media (max-width: 767px) {
+  .home-carousel__arrow { display: none; }
+}
 .home-carousel__dots {
   position: absolute;
   left: 0;

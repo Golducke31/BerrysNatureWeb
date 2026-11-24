@@ -43,3 +43,8 @@ test.describe('Destacados de la home', () => {
     expect(tienda).not.toContain('Los precios y la disponibilidad se confirman al coordinar el pedido');
   });
 });
+
+  test('HD-05: flechas del carrusel de destacados ocultas en móvil', () => {
+    const css = leer('css/home-comercial.css');
+    expect(css).toContain('.home-carousel__arrow { display: none; }');
+  });

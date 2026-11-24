@@ -58,6 +58,18 @@ async function webhook(req, res, body) {
   });
 
   if (!firmaOk) {
+    /* Los heartbeats de MercadoPago llegan sin firma y sin data.id (se
+       ven como entity_id="" desde IPs de AWS). No son un intento de
+       fraude ni un pago: responder 401 los hace reintentar y ensucia el
+       panel con "firma inválida". Se aceptan con 200 y se registran aparte
+       solo si se quiere diagnóstico, sin disparar alarmas. */
+    if (!dataId && !req.headers['x-signature']) {
+      await audit.log({
+        actor: null, action: 'payment.webhook_sin_datos', entityType: 'payment',
+        entityId: '', payload: { motivo: 'sin_firma_y_sin_data_id' }, ip: getClientIp(req)
+      });
+      return json(res, 200, { ok: true, ignorado: 'notificacion_sin_datos' });
+    }
     await audit.log({
       actor: null, action: 'payment.webhook_invalid_signature', entityType: 'payment',
       entityId: String(dataId || ''), payload: { type }, ip: getClientIp(req)
