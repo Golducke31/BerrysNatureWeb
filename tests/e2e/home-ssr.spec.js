@@ -34,10 +34,13 @@ test.describe('Home SSR y datos para rastreadores', () => {
     expect(toml).toContain('"index.html"');
   });
 
-  test('HS-05: llms.txt referencia el JSON público', () => {
+  test('HS-05: llms.txt referencia el JSON público y se publica en dist', () => {
     const txt = leer('llms.txt');
     expect(txt).toContain('https://berrysnature.com.ar/productos.json');
     expect(txt).toContain('Feed de Google Merchant Center');
+    /* Si se cae de FILES, el build no lo copia y los LLM no lo encuentran. */
+    const build = leer('scripts/build.cjs');
+    expect(build).toContain("'llms.txt'");
   });
 
   test('HS-06: /productos.json expone precio, stock e imágenes', () => {

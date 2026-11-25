@@ -179,7 +179,7 @@ const BUILD_DATE = escribirBuildInfo();
 
 /* Carpetas y archivos que forman parte del sitio público. */
 const DIRS = ['css', 'js', 'assets', 'academia', 'glosario', 'como-usar'];
-const FILES = ['robots.txt', 'sitemap.xml', 'googlec9455e9c4623b814.html', INDEXNOW_KEY_FILE];
+const FILES = ['robots.txt', 'llms.txt', 'sitemap.xml', 'googlec9455e9c4623b814.html', INDEXNOW_KEY_FILE];
 
 function rmrf(target) {
   fs.rmSync(target, { recursive: true, force: true });
