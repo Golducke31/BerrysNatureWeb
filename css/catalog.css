@@ -368,69 +368,9 @@
    CARRITO
    ============================================================ */
 
-/* Botón flotante */
-.cart-fab {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  z-index: 900;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.6px;
-  color: #4A3F35;
-  background: var(--color-cta);
-  border-radius: 999px;
-  padding: 15px 22px;
-  box-shadow: 5px 5px 14px #c89682, -5px -5px 14px #ffdacf;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
-.cart-fab:hover { transform: translateY(-3px); background: var(--color-cta-hover); }
-.cart-fab .icon { width: 1.25em; height: 1.25em; }
-.cart-fab__count {
-  min-width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: var(--color-text);
-  color: var(--bg-card);
-  font-size: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 6px;
-}
-.cart-fab.is-empty .cart-fab__count { display: none; }
-
-/* El botón global de WhatsApp (css/styles.css) también vive abajo a la
-   derecha, así que en la tienda se superponía con "Mi carrito". Acá lo
-   subimos por encima del carrito y lo dejamos por debajo del overlay y
-   del drawer (z-index 950/960) para que no flote sobre el panel abierto.
-   Se acota a .page-store (el body de tienda.html) porque este CSS también
-   se carga en 404.html y berrys-lab.html, que no tienen carrito. */
-.page-store .wa-float {
-  right: 22px;
-  bottom: 96px;
-  z-index: 940;
-}
-
-@media (max-width: 760px) {
-  .page-store .wa-float {
-    right: 16px;
-    bottom: 88px;
-  }
-}
-
-@media (max-width: 520px) {
-  .page-store .wa-float {
-    right: 16px;
-    bottom: 82px;
-  }
-}
+/* El carrito se abre desde el ícono del header (ver js/app.js y
+   server/lib/nav.js): tiene badge contador y funciona en todas las
+   paginas. No hay boton flotante que compita con el WhatsApp. */
 
 /* Overlay + panel */
 .cart-overlay {
@@ -638,7 +578,6 @@
   .store-hero__logo { width: 78px; height: 78px; margin-bottom: 14px; }
   .store-hero__content { padding: 44px 18px 34px; }
   .store-hero { min-height: 340px; }
-  .cart-fab { right: 16px; bottom: 16px; padding: 13px 18px; }
   .cart-drawer { width: 100vw; }
   .cart-drawer__body { padding: 16px; }
   .cart-trust { flex-direction: column; align-items: flex-start; gap: 4px; }

@@ -1739,12 +1739,12 @@ a.hero-card-showcase:focus-visible {
 
 @media (max-width: 520px) {
   .wa-float {
-    right: 14px;
-    bottom: 14px;
-    width: 52px;
-    height: 52px;
+    right: 16px;
+    bottom: 20px;
+    width: 48px;
+    height: 48px;
   }
-  .wa-float svg { width: 27px; height: 27px; }
+  .wa-float svg { width: 25px; height: 25px; }
   .wa-float__label { display: none; }
 }
 

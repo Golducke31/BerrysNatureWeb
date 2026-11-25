@@ -414,13 +414,9 @@
     var items = loadCart();
     var count = cartCount(items);
 
-    // Botón flotante
-    var fab = $('#cartFab');
-    if (fab) {
-      fab.classList.toggle('is-empty', count === 0);
-      var badge = $('.cart-fab__count', fab);
-      if (badge) badge.textContent = String(count);
-    }
+    /* El contador del header se actualiza desde js/app.js ([data-cart-count]).
+       No hay botón flotante: el ícono del header abre el drawer por
+       /tienda#carrito y funciona en todas las páginas. */
 
     // Lista
     var body = $('#cartBody');
@@ -1305,8 +1301,6 @@
     actualizarJsonLd(true); // no pisa el ItemList del SSR
     cargarDesdeApi();
 
-    var fab = $('#cartFab');
-    if (fab) fab.addEventListener('click', openCart);
     var close = $('#cartClose');
     if (close) close.addEventListener('click', closeCart);
     var overlay = $('#cartOverlay');
