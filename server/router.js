@@ -429,6 +429,10 @@ async function handlePublic(req, res, method, seg) {
   if (a === 'cart' && b === 'checkout' && !c && method === 'POST') {
     return orders.createCheckout(req, res, await body(req));
   }
+  /* Resuelve los IDs del carrito a datos reales de BD (drawer compartido). */
+  if (a === 'cart' && b === 'items' && !c && method === 'POST') {
+    return products.cartItems(req, res, await body(req));
+  }
   if (a === 'shipping' && b === 'zones' && !c && method === 'GET') {
     return orders.listZones(req, res);
   }

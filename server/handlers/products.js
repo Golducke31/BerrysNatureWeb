@@ -214,6 +214,48 @@ async function listPublic(req, res) {
   });
 }
 
+/* Resuelve IDs del carrito a productos reales (nombre, precio, imagen,
+   stock) leyendo la BD. Lo usa el drawer compartido desde páginas que
+   no tienen el catálogo local cargado (fichas, academia, etc.). */
+async function cartItems(req, res, body) {
+  const ids = Array.isArray(body && body.ids)
+    ? body.ids.map((x) => String(x).slice(0, 120)).filter(Boolean).slice(0, 40)
+    : [];
+  const sugerencias = Boolean(body && body.sugerencias);
+  if (!ids.length && !sugerencias) return json(res, 200, { items: [] });
+  const rows = sugerencias
+    ? await db.query(
+        `SELECT * FROM products WHERE disponible = true AND stock > 0
+          ORDER BY destacado DESC NULLS LAST, orden ASC, nombre ASC LIMIT 8`
+      )
+    : await db.query(
+        `SELECT * FROM products
+          WHERE disponible = true AND id = ANY($1::text[])`,
+        [ids]
+      );
+  const mapa = {};
+  rows.forEach((r) => { mapa[r.id] = r; });
+  const aDatos = (r) => {
+    const p = toProduct(r, true);
+    return {
+      id: p.id,
+      nombre: p.nombre,
+      precio: p.precio,
+      oferta: p.oferta,
+      imagen: p.imagen,
+      imagenes: p.imagenes,
+      stock: p.stock,
+      disponible: true
+    };
+  };
+  const items = sugerencias
+    ? rows.map(aDatos)
+    : ids.map((id) => (mapa[id] ? aDatos(mapa[id]) : { id, disponible: false }));
+  /* Cache corto: el panel puede cambiar precios en cualquier momento. */
+  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=3600');
+  return json(res, 200, { items });
+}
+
 async function getPublic(req, res, params) {
   const row = await db.one('SELECT * FROM products WHERE id = $1', [params.id]);
   if (!row || !row.disponible) return notFound(res);
@@ -408,6 +450,6 @@ async function deleteProduct(req, res, params, body) {
 }
 
 module.exports = {
-  listPublic, getPublic,
+  listPublic, getPublic, cartItems,
   listAdmin, createProduct, updateProduct, deleteProduct
 };

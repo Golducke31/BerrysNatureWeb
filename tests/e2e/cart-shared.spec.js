@@ -58,3 +58,49 @@ test.describe('Carrito compartido y menú de cuenta', () => {
     expect(catalog).not.toContain('.cart-drawer {');
   });
 });
+
+test.describe('Datos reales del carrito compartido', () => {
+  test('CS-08: /api/cart/items resuelve IDs desde la BD con precio, imagen y stock', () => {
+    const products = leer('server/handlers/products.js');
+    const router = leer('server/router.js');
+    expect(products).toContain('async function cartItems');
+    expect(products).toContain('WHERE disponible = true AND id = ANY($1::text[])');
+    expect(products).toContain('nombre: p.nombre');
+    expect(products).toContain('precio: p.precio');
+    expect(products).toContain('imagen: p.imagen');
+    expect(products).toContain('stock: p.stock');
+    expect(router).toContain("a === 'cart' && b === 'items'");
+    expect(router).toContain('products.cartItems(req, res, await body(req))');
+  });
+
+  test('CS-09: el drawer shared consulta la API y respeta el stock', () => {
+    const js = leer('js/cart-drawer.js');
+    expect(js).toContain("fetch('/api/cart/items'");
+    expect(js).toContain('function topeStock(');
+    expect(js).toContain('data-cart-inc');
+    expect(js).toContain('class="cart-item"');
+    expect(js).toContain('cart-item__price-sale');
+    expect(js).toContain('cart-qty');
+    expect(js).toContain('disabled');
+    expect(js).toContain('productosBD[id]');
+  });
+});
+
+test.describe('Cross-sell y navegación compartida', () => {
+  test('CS-10: el drawer shared pinta "Sumá algo más" desde la API', () => {
+    const js = leer('js/cart-drawer.js');
+    const api = leer('server/handlers/products.js');
+    expect(js).toContain('sugerencias: true');
+    expect(js).toContain('Sumá algo más');
+    expect(js).toContain('data-cross-add');
+    expect(api).toContain('body && body.sugerencias');
+    expect(api).toContain('LIMIT 8');
+  });
+
+  test('CS-11: en Academia solo se oculta Aprendé, no los otros grupos', () => {
+    const css = leer('css/academia.css');
+    expect(css).toContain(':has(#mobileAprende)');
+    expect(css).not.toContain('.page-academy .mobile-nav-group { display: none');
+  });
+});
+

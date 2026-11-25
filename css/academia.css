@@ -795,9 +795,11 @@
   .academy-hero__title { font-size: 60px; }
 }
 
-/* Ocultar "Academia" del nav cuando ya estás en la Academia */
+/* Ocultar solo "Aprendé" del nav cuando ya estás en la Academia.
+   Antes se ocultaban TODOS los .mobile-nav-group, y eso tachaba también
+   Categorías y Contacto: el hamburguesa quedaba incompleto. */
 .page-academy .nav-menu-desktop li a[href="academia.html"],
-.page-academy .mobile-nav-group { display: none !important; }
+.page-academy .mobile-nav-group:has(#mobileAprende) { display: none !important; }
 
 /* ------------------------------------------------------------
    8. REVEAL ON SCROLL + TOAST
