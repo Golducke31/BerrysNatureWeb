@@ -104,7 +104,7 @@ function fechaCorta(value) {
 /* ---------------- Fragmentos compartidos ---------------- */
 
 function headerHtml() {
-  return nav.headerHtml('/') + '\n' + nav.mobileNavHtml();
+  return nav.headerHtml('/') + '\n' + nav.mobileNavHtml() + '\n' + nav.cartDrawerHtml();
 }
 
 function authModalHtml() {
@@ -232,6 +232,7 @@ ${body}
 ${authModalHtml()}
 ${footerHtml()}
 ${scripts || scriptsHtml()}
+  <script src="/js/cart-drawer.js"></script>
 ${BADGE_SCRIPT}
 </body>
 </html>`;

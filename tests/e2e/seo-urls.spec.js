@@ -405,7 +405,10 @@ test.describe('SEO visible — metadatos y jerarquía', () => {
       .toBe('Cosmética natural artesanal, hecha a mano');
     expect((html.match(/<h3\b/g) || []).length).toBe(4);
 
-    const niveles = [...html.matchAll(/<h([1-6])\b/gi)].map((m) => Number(m[1]));
+    /* El drawer compartido aporta un h2 ("Tu carrito") antes del <main>:
+       no forma parte de la jerarquía de encabezados del contenido. */
+    const contenido = html.slice(html.indexOf('<main'));
+    const niveles = [...contenido.matchAll(/<h([1-6])\b/gi)].map((m) => Number(m[1]));
     expect(niveles[0]).toBe(1);
     for (let i = 1; i < niveles.length; i += 1) {
       expect(niveles[i]).toBeLessThanOrEqual(niveles[i - 1] + 1);

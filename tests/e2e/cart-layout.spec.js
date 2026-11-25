@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '../..');
-const CATALOG_CSS = fs.readFileSync(path.join(ROOT, 'css/catalog.css'), 'utf8');
+const CATALOG_CSS = fs.readFileSync(path.join(ROOT, 'css/nav-shared.css'), 'utf8');
 const CATALOG_DATA = fs.readFileSync(path.join(ROOT, 'js/catalog-data.js'), 'utf8');
 const CART_FIXTURE = `
   <style>

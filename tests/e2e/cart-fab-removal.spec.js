@@ -23,7 +23,7 @@ test.describe('Carrito flotante eliminado', () => {
 
   test('CF-03: el hash #carrito abre el drawer', () => {
     const catalog = leer('js/catalog.js');
-    expect(catalog).toContain("if (h === '#carrito') openCart()");
+    expect(catalog).toContain("if (h === '#carrito') {");
     expect(catalog).toContain("addEventListener('hashchange', aplicarHash)");
   });
 

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script src="/js/consent.js"></script>
+  <!-- Analítica: GA4 + Meta Pixel (un solo loader) -->
+  <script src="/js/analytics-config.js"></script>
+  <script src="/js/analytics.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, follow">
+  <meta name="description" content="La página que buscás no existe. Volvé al inicio o explorá la tienda y la Academia de Berry's Nature.">
+  <title>Página no encontrada · Berry's Nature</title>
+
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <link rel="preload" href="assets/fonts/nunito-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/playfair-display-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css?v=5215dab">
+
+  <link rel="stylesheet" href="css/styles.css?v=5215dab">
+  <link rel="stylesheet" href="css/sections.css?v=5215dab">
+  <link rel="stylesheet" href="css/catalog.css?v=5215dab">
+
+  <style>
+    .notfound {
+      min-height: 78vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 90px 22px;
+      text-align: center;
+    }
+    .notfound__inner { max-width: 620px; margin: 0 auto; }
+    .notfound__logo {
+      width: 96px; height: 96px; border-radius: 50%;
+      object-fit: cover; margin: 0 auto 22px; display: block;
+      box-shadow: 0 10px 26px rgba(74, 63, 53, 0.18);
+    }
+    .notfound__code {
+      font-family: var(--font-title);
+      font-size: clamp(72px, 14vw, 118px);
+      line-height: 1;
+      color: var(--color-cta);
+      margin-bottom: 8px;
+    }
+    .notfound h1 {
+      font-family: var(--font-title);
+      font-size: clamp(24px, 4vw, 34px);
+      color: var(--color-text);
+      margin-bottom: 14px;
+    }
+    .notfound p {
+      font-size: 15.5px;
+      line-height: 1.7;
+      color: var(--color-text-muted);
+      margin-bottom: 28px;
+    }
+    .notfound__actions {
+      display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+    }
+  </style>
+  <link rel="stylesheet" href="css/nav-shared.css?v=5215dab">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Página no encontrada · Berry's Nature">
+  <meta property="og:description" content="La página que buscás no existe. Volvé al inicio o explorá la tienda y la Academia de Berry">
+  <meta property="og:image" content="https://berrysnature.com.ar/assets/og-comercial.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Página no encontrada · Berry's Nature">
+  <meta property="og:site_name" content="Berry's Nature">
+  <meta property="og:locale" content="es_AR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Página no encontrada · Berry's Nature">
+  <meta name="twitter:description" content="La página que buscás no existe. Volvé al inicio o explorá la tienda y la Academia de Berry">
+  <meta name="twitter:image" content="https://berrysnature.com.ar/assets/og-comercial.jpg">
+  <meta name="twitter:image:alt" content="Página no encontrada · Berry's Nature">
+  <script type="application/ld+json" data-schema-global="organization">
+  {"@context":"https://schema.org","@type":"Organization","@id":"https://berrysnature.com.ar/#organization","name":"Berry's Nature","url":"https://berrysnature.com.ar/","logo":{"@type":"ImageObject","url":"https://berrysnature.com.ar/assets/logo-512.webp","width":512,"height":512},"sameAs":["https://www.instagram.com/berrys.nature/","https://www.facebook.com/share/1JjL83dtQu/"],"areaServed":{"@type":"Country","name":"Argentina"},"knowsAbout":["cosmética natural","jabonería artesanal","formulación cosmética","ingredientes botánicos"]}
+  </script>
+  <script type="application/ld+json" data-schema-global="website">
+  {"@context":"https://schema.org","@type":"WebSite","@id":"https://berrysnature.com.ar/#website","name":"Berry's Nature","url":"https://berrysnature.com.ar/","inLanguage":"es-AR","publisher":{"@id":"https://berrysnature.com.ar/#organization"}}
+  </script>
+  <script type="application/ld+json" data-schema-global="webpage">
+  {"@context":"https://schema.org","@type":"WebPage","@id":"https://berrysnature.com.ar#webpage","url":"https://berrysnature.com.ar","name":"Página no encontrada · Berry's Nature","description":"La página que buscás no existe. Volvé al inicio o explorá la tienda y la Academia de Berry","isPartOf":{"@id":"https://berrysnature.com.ar/#website"},"about":{"@id":"https://berrysnature.com.ar/#organization"},"inLanguage":"es-AR","primaryImageOfPage":{"@type":"ImageObject","url":"https://berrysnature.com.ar/assets/og-comercial.jpg"}}
+  </script>
+</head>
+<body>
+
+  <header class="sticky-header">
+    <div class="header-container">
+      <a href="/" class="logo-area" aria-label="Berry's Nature — Inicio">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" decoding="async" fetchpriority="high">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <ul class="nav-menu-desktop main-menu">
+          <li class="nav-item nav-item--store">
+            <a href="/tienda" class="nav-link nav-link--store">Tienda <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Categorías de la tienda">
+              <li><a href="/tienda">Todos los productos</a></li>
+              <li><a class="nav-submenu__link" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/facial">Facial</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/corporal">Corporal</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="/academia" class="nav-link">Aprendé <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Aprendé">
+              <li><a href="/academia">Academia</a></li>
+              <li><a href="/glosario">Glosario de ingredientes</a></li>
+              <li><a href="/ebooks">Ebooks</a></li>
+              <li class="nav-submenu__section" aria-hidden="true">Cómo usar</li>
+              <li><a href="/como-usar">Todas las guías</a></li>
+              <li><a href="/como-usar/shampoo-y-acondicionador">Shampoo y acondicionador</a></li>
+              <li><a href="/como-usar/rutina-facial">Rutina facial</a></li>
+              <li><a href="/como-usar/jabones-artesanales">Jabones artesanales</a></li>
+              <li><a href="/como-usar/exfoliante-corporal">Exfoliante corporal</a></li>
+              <li><a href="/como-usar/balsamo-labial">Bálsamo labial</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a href="/foro" class="nav-link">Comunidad</a></li>
+          <li class="nav-item"><a href="/berrys-lab" class="nav-link">Berry's Lab</a></li>
+          <li class="nav-item"><a href="/#sobre-nosotros" class="nav-link">Sobre nosotros</a></li>
+          <li class="nav-item">
+            <a href="/#contacto" class="nav-link">Contacto <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Contacto">
+              <li><a href="/#contacto">Consultas generales</a></li>
+              <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+      </button>
+
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
+      <div class="header-actions">
+        <a href="/tienda#carrito" class="nav-cart-btn" data-cart-link aria-label="Ver el carrito">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <circle cx="9" cy="20" r="1.4"></circle><circle cx="18" cy="20" r="1.4"></circle>
+          <path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.2"></path>
+        </svg>
+          <span class="nav-cart-count" data-cart-count hidden>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrito de compras">
+    <div class="cart-drawer__head">
+      <h2>Tu carrito</h2>
+      <button class="cart-drawer__close" id="cartClose" type="button" aria-label="Cerrar carrito">
+        <i data-icon="close"></i>
+      </button>
+    </div>
+    <div class="cart-drawer__body">
+      <div class="cart-drawer__items" id="cartBody"></div>
+      <div class="cart-cross" id="cartCrossSell" hidden></div>
+    </div>
+    <div class="cart-drawer__foot">
+      <div class="cart-freeship" id="cartFreeShip" hidden></div>
+      <div class="cart-total">
+        <span class="cart-total__label">Total</span>
+        <span class="cart-total__value" id="cartTotalValue">$ 0</span>
+      </div>
+      <p class="cart-note" id="cartNote"></p>
+      <button class="cta-button cta-mp" id="cartCheckout" type="button">
+        <img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" width="60" height="24" loading="lazy">
+        Finalizar compra
+      </button>
+      <div class="cart-trust">
+        <span><i data-icon="lock"></i> Pago seguro con MercadoPago</span>
+        <span><i data-icon="leaf"></i> Hecho a mano</span>
+        <span><i data-icon="box"></i> Envío a todo el país</span>
+      </div>
+    </div>
+  </aside>
+
+  <nav id="navMenuMobileContainer" class="mobile-nav" aria-label="Menú móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="/tienda" class="mobile-nav-link mobile-nav-link--store">Tienda</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileCategorias">
+          Categorías <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileCategorias">
+          <li><a class="mobile-nav-link" href="/tienda">Todos los productos</a></li>
+          <li><a class="mobile-nav-link" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/facial">Facial</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/corporal">Corporal</a></li>
+        </ul>
+      </li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileAprende">
+          Aprendé <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileAprende">
+          <li><a class="mobile-nav-link" href="/academia">Academia</a></li>
+          <li><a class="mobile-nav-link" href="/glosario">Glosario de ingredientes</a></li>
+          <li><a class="mobile-nav-link" href="/ebooks">Ebooks</a></li>
+          <li class="mobile-nav-sub__section" aria-hidden="true">Cómo usar</li>
+          <li><a class="mobile-nav-link" href="/como-usar">Todas las guías</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/shampoo-y-acondicionador">Shampoo y acondicionador</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/rutina-facial">Rutina facial</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/jabones-artesanales">Jabones artesanales</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/exfoliante-corporal">Exfoliante corporal</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/balsamo-labial">Bálsamo labial</a></li>
+        </ul>
+      </li>
+      <li><a href="/foro" class="mobile-nav-link">Comunidad</a></li>
+      <li><a href="/berrys-lab" class="mobile-nav-link">Berry's Lab</a></li>
+      <li><a href="/#sobre-nosotros" class="mobile-nav-link">Sobre nosotros</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileContacto">
+          Contacto <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileContacto">
+          <li><a class="mobile-nav-link" href="/#contacto">Consultas generales</a></li>
+          <li><a class="mobile-nav-link" href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+        </ul>
+      </li>
+      <!-- Cuenta dentro del menú en móvil/tablet. En escritorio se oculta
+           este bloque y se muestra el slot del header (ver CSS). -->
+      <li class="mobile-nav-account" id="authNavSlotMobile"></li>
+    </ul>
+  </nav>
+
+  <main class="notfound">
+    <div class="notfound__inner">
+      <img class="notfound__logo" src="assets/logo_berrys_nature-320.jpg" srcset="assets/logo_berrys_nature-224.webp 1x, assets/logo_berrys_nature-320.webp 2x" width="320" height="320" alt="Berry's Nature" decoding="async">
+      <div class="notfound__code">404</div>
+      <h1>Esta página se nos escapó del frasco</h1>
+      <p>
+        El enlace que seguiste no existe o cambió de lugar.
+        Probá desde el inicio, mirá la tienda o seguí aprendiendo en la Academia.
+      </p>
+      <div class="notfound__actions">
+        <a href="/tienda" class="cta-button"><i data-icon="cart"></i> Tienda Berry's Nature</a>
+        <a href="/" class="cta-button cta-outline">Volver al inicio</a>
+        <a href="/academia" class="cta-button cta-outline">Ir a la Academia</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy" decoding="async">
+        <p class="footer-text">
+          &copy; 2026 Berry's Nature&reg;. Todos los derechos reservados. <br>
+          Hecho con amor y rigor artesanal en Buenos Aires, Argentina.
+        </p>
+      </div>
+
+      <div class="footer-cols" data-footer-nav>
+        <div class="footer-col">
+          <h2>Tienda</h2>
+          <ul>
+            <li><a href="/tienda">Todos los productos</a></li>
+            <li><a class="" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="" href="/tienda/facial">Facial</a></li>
+            <li><a class="" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="" href="/tienda/corporal">Corporal</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Aprendé</h2>
+          <ul>
+            <li><a href="/academia">Academia</a></li>
+            <li><a href="/glosario">Glosario de ingredientes</a></li>
+            <li><a href="/ebooks">Ebooks</a></li>
+            <li><a href="/como-usar">Cómo usar tus productos</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Comunidad</h2>
+          <ul>
+            <li><a href="/foro">Foro</a></li>
+            <li><a href="/normas">Normas de la comunidad</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Información</h2>
+          <ul>
+            <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+            <li><a href="/envios">Envíos</a></li>
+            <li><a href="/devoluciones">Devoluciones</a></li>
+            <li><a href="/privacidad">Privacidad</a></li>
+            <li><a href="/terminos">Términos de uso</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Contacto</h2>
+          <ul>
+            <li><a href="/#contacto">Escribinos</a></li>
+            <li><a href="mailto:berrysnatureok@gmail.com">berrysnatureok@gmail.com</a></li>
+            <li><a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-social">
+        <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://www.facebook.com/share/1JjL83dtQu/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="22" height="22"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.43-4.94 8.43-9.94Z"/></svg>
+        </a>
+        <a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/icons.js?v=5215dab"></script>
+  <script src="js/cart-drawer.js?v=5215dab"></script>
+
+  <!-- Insignia de Google Merchant Center (carga no bloqueante) -->
+  <script>
+    (function () {
+      function cargar() {
+        var tag = document.createElement('script');
+        tag.id = 'merchantWidgetScript';
+        tag.src = 'https://www.gstatic.com/shopping/merchant/merchantwidget.js';
+        tag.async = true;
+        tag.addEventListener('load', function () {
+          try {
+            if (!window.merchantwidget || !window.merchantwidget.start) return;
+            window.merchantwidget.start({
+              merchant_id: 5896319322,
+              position: 'BOTTOM_RIGHT',
+              region: 'AR'
+            });
+          } catch (e) {
+            /* Un tercero que cambia su API no puede romper la página. */
+            if (window.console) console.warn('[google] insignia no disponible:', e && e.message);
+          }
+        });
+        document.head.appendChild(tag);
+      }
+      if (document.readyState === 'complete') cargar();
+      else window.addEventListener('load', cargar, { once: true });
+    })();
+  </script>
+    <div id="mz-consent" class="mz-consent" hidden role="dialog" aria-modal="true" aria-label="Preferencias de privacidad">
+    <div class="mz-consent__box">
+      <div>
+        <strong>Utilizamos cookies</strong>
+        <p>Para mejorar el rendimiento de la página.</p>
+      </div>
+      <div class="mz-consent__actions">
+        <button type="button" class="mz-consent__btn mz-consent__btn--ghost" id="mz-consent-reject">Rechazar</button>
+        <button type="button" class="mz-consent__btn mz-consent__btn--primary" id="mz-consent-accept">Aceptar</button>
+      </div>
+    </div>
+  </div>
+  </body>
+</html>

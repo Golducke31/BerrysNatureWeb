@@ -379,7 +379,16 @@
     else if (path === '/tienda' && h !== '#carrito') filtroActivo = 'Todas';
     renderFilters();
     renderProducts();
-    if (h === '#carrito') openCart();
+    /* Solo abrir si no está abierto ya: closeCart() limpia el hash con
+       replaceState, que no dispara hashchange, pero el popstate del
+       historial sí puede llegar mientras el drawer ya se cerró. */
+    var d = $('#cartDrawer');
+    if (h === '#carrito') {
+      if (!d || !d.classList.contains('is-open')) openCart();
+    } else if (d && d.classList.contains('is-open')) {
+      /* El checkout tiene su propio hash (#checkout): no lo cerramos. */
+      if (!co.el || !co.el.classList.contains('is-open')) closeCart(true);
+    }
   }
 
   /* ---------------- Acciones de producto ---------------- */
@@ -600,34 +609,37 @@
     }
   }
 
-  window.addEventListener('popstate', function () {
-    if (overlayDepth <= 0) return;
-    if (co.el && co.el.classList.contains('is-open')) {
-      closeCheckout(true);
-    } else {
-      closeCart(true);
-    }
-    overlayDepth -= 1;
-    if (overlayDepth <= 0) {
-      overlayDepth = 0;
-      try { history.replaceState(null, '', overlayBase || (location.pathname + location.search)); } catch (e) {}
-    }
-  });
+  /* Un único dueño del hash: aplicarHash() (ver abajo) abre/cierra según
+     location.hash. Antes había un popstate acá que competía con él y
+     hacía que cerrar el drawer lo volviera a abrir en el mismo tick. */
 
   function openCart() {
     var d = $('#cartDrawer'), o = $('#cartOverlay');
     if (d && d.classList.contains('is-open')) return;
+    /* Si venimos de otra página con #carrito en la URL, el hash ya está
+       puesto: no empujamos otro estado (evita el doble cierre). */
+    var yaTieneHash = location.hash === '#carrito';
     if (d) d.classList.add('is-open');
     if (o) o.classList.add('is-open');
     document.body.style.overflow = 'hidden';
-    pushOverlay('#carrito');
+    if (!yaTieneHash) pushOverlay('#carrito');
   }
   function closeCart(fromHistory) {
     var d = $('#cartDrawer'), o = $('#cartOverlay');
+    if (d && !d.classList.contains('is-open')) return;
     if (d) d.classList.remove('is-open');
     if (o) o.classList.remove('is-open');
     document.body.style.overflow = '';
-    if (!fromHistory) popOverlay();
+    if (!fromHistory) {
+      popOverlay();
+      /* replaceState no dispara hashchange, pero limpiamos de todas formas
+         para que el próximo click del header siempre cambie el hash. */
+      try {
+        if (location.hash === '#carrito') {
+          history.replaceState(null, '', location.pathname + location.search);
+        }
+      } catch (e) {}
+    }
   }
 
   /* ---------------- Checkout ---------------- */

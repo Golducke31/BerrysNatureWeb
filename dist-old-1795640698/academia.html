@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script src="/js/consent.js"></script>
+  <!-- Analítica: GA4 + Meta Pixel (un solo loader) -->
+  <script src="/js/analytics-config.js"></script>
+  <script src="/js/analytics.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Berry's Academy — Hub de aprendizaje de cosmética natural: guías por nivel, fórmulas descargables y una comunidad de formuladores.">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://berrysnature.com.ar/academia">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Berry's Academy | Aprendé a formular cosmética natural">
+  <meta property="og:description" content="De entusiasta a formulador profesional: rutas de aprendizaje, fórmulas y comunidad en un solo hub.">
+  <meta property="og:url" content="https://berrysnature.com.ar/academia">
+  <meta property="og:image" content="https://berrysnature.com.ar/assets/og-comercial.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:site_name" content="Berry's Nature">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Berry's Academy | Aprendé a formular cosmética natural">
+  <meta name="twitter:description" content="De entusiasta a formulador profesional: rutas de aprendizaje, fórmulas y comunidad en un solo hub.">
+  <meta name="twitter:image" content="https://berrysnature.com.ar/assets/og-comercial.jpg">
+
+  <title>Berry's Academy | Aprendé a formular cosmética natural</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!-- Stylesheets -->
+  <link rel="preload" href="assets/fonts/nunito-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/playfair-display-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css?v=5215dab">
+
+  <link rel="stylesheet" href="css/styles.css?v=5215dab">
+  <link rel="stylesheet" href="css/sections.css?v=5215dab">
+  <link rel="stylesheet" href="css/academia.css?v=5215dab">
+
+  <!-- JSON-LD: Organization -->
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Berry's Nature",
+  "url": "https://berrysnature.com.ar/",
+  "logo": "https://berrysnature.com.ar/assets/logo-512.jpg",
+  "sameAs": [
+    "https://www.instagram.com/berrys.nature/",
+    "https://www.facebook.com/share/1JjL83dtQu/"
+  ]
+}
+  </script>
+
+  <!-- JSON-LD: Breadcrumb -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://berrysnature.com.ar/" },
+      { "@type": "ListItem", "position": 2, "name": "Academia", "item": "https://berrysnature.com.ar/academia" }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD: Course (Academia) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Academia Berry's Nature — Cosmética Natural Artesanal",
+    "description": "Curso online gratuito de formulación y negocios de cosmética natural artesanal: cómo lograr una primera emulsión estable, ajustar el pH, calcular el costo real y el margen, elegir envases y packaging, y cumplir la normativa ANMAT en Argentina.",
+    "url": "https://berrysnature.com.ar/academia",
+    "inLanguage": "es-AR",
+    "educationalLevel": "Principiante a Avanzado",
+    "isAccessibleForFree": true,
+    "provider": {
+      "@type": "Organization",
+      "name": "Berry's Nature",
+      "url": "https://berrysnature.com.ar/"
+    },
+    "hasCourseInstance": {
+      "@type": "CourseInstance",
+      "courseMode": "https://schema.org/Online",
+      "courseWorkload": "PT2H"
+    }
+  }
+  </script>
+  <link rel="stylesheet" href="css/nav-shared.css?v=5215dab">
+  <meta property="og:image:alt" content="Berry's Academy | Aprendé a formular cosmética natural">
+  <meta name="twitter:image:alt" content="Berry's Academy | Aprendé a formular cosmética natural">
+  <script type="application/ld+json" data-schema-global="website">
+  {"@context":"https://schema.org","@type":"WebSite","@id":"https://berrysnature.com.ar/#website","name":"Berry's Nature","url":"https://berrysnature.com.ar/","inLanguage":"es-AR","publisher":{"@id":"https://berrysnature.com.ar/#organization"}}
+  </script>
+  <script type="application/ld+json" data-schema-global="webpage">
+  {"@context":"https://schema.org","@type":"WebPage","@id":"https://berrysnature.com.ar/academia#webpage","url":"https://berrysnature.com.ar/academia","name":"Berry's Academy | Aprendé a formular cosmética natural","description":"Berry","isPartOf":{"@id":"https://berrysnature.com.ar/#website"},"about":{"@id":"https://berrysnature.com.ar/#organization"},"inLanguage":"es-AR","primaryImageOfPage":{"@type":"ImageObject","url":"https://berrysnature.com.ar/assets/og-comercial.jpg"}}
+  </script>
+  <script type="application/ld+json" id="guiasJsonLd">
+{"@context":"https://schema.org","@type":"ItemList","name":"Guías de Berry's Academy","itemListElement":[{"@type":"ListItem","position":1,"name":"Cómo calcular el costo real de tu crema (y por qué perdés plata sin saberlo)","url":"https://berrysnature.com.ar/academia/costo-real-crema-margen"},{"@type":"ListItem","position":2,"name":"Conservantes: qué funciona de verdad y qué es puro marketing","url":"https://berrysnature.com.ar/academia/conservantes-cosmetica-natural"},{"@type":"ListItem","position":3,"name":"Checklist legal para vender cosmética en Argentina","url":"https://berrysnature.com.ar/academia/checklist-legal-anmat-cosmetica-argentina"},{"@type":"ListItem","position":4,"name":"Envases y packaging: cómo elegir sin destruir tu margen","url":"https://berrysnature.com.ar/academia/envases-packaging-margen"},{"@type":"ListItem","position":5,"name":"pH, viscosidad y estabilidad: los 3 controles básicos de toda fórmula","url":"https://berrysnature.com.ar/academia/controles-ph-viscosidad-estabilidad"},{"@type":"ListItem","position":6,"name":"De la cocina al primer lote de 100 unidades","url":"https://berrysnature.com.ar/academia/primer-lote-100-unidades"},{"@type":"ListItem","position":7,"name":"Cómo armar tu primera emulsión estable (aceite en agua)","url":"https://berrysnature.com.ar/academia/primera-emulsion-estable-aceite-en-agua"},{"@type":"ListItem","position":8,"name":"Activos botánicos patagónicos: qué usan y por qué","url":"https://berrysnature.com.ar/academia/activos-botanicos-patagonicos"},{"@type":"ListItem","position":9,"name":"Ajuste de pH paso a paso (y por qué tu crema pica)","url":"https://berrysnature.com.ar/academia/ajuste-de-ph-cosmetica"},{"@type":"ListItem","position":10,"name":"Packaging eco: biopolímeros y vidrio de bajo peso","url":"https://berrysnature.com.ar/academia/packaging-eco-biopolimeros"},{"@type":"ListItem","position":11,"name":"Vida útil y challenge test: cómo lo evaluás en serio","url":"https://berrysnature.com.ar/academia/vida-util-challenge-test"},{"@type":"ListItem","position":12,"name":"De fórmula a marca: identidad, precio y canal","url":"https://berrysnature.com.ar/academia/de-formula-a-marca"}]}
+  </script>
+</head>
+<body class="page-academy">
+
+  <!-- ============================
+       STICKY HEADER (mismo de index)
+  ============================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+      <a href="/" class="logo-area" aria-label="Berry's Nature — Inicio">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" decoding="async" fetchpriority="high">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <ul class="nav-menu-desktop main-menu">
+          <li class="nav-item nav-item--store">
+            <a href="/tienda" class="nav-link nav-link--store">Tienda <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Categorías de la tienda">
+              <li><a href="/tienda">Todos los productos</a></li>
+              <li><a class="nav-submenu__link" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/facial">Facial</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/corporal">Corporal</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="/academia" class="nav-link">Aprendé <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Aprendé">
+              <li><a href="/academia">Academia</a></li>
+              <li><a href="/glosario">Glosario de ingredientes</a></li>
+              <li><a href="/ebooks">Ebooks</a></li>
+              <li class="nav-submenu__section" aria-hidden="true">Cómo usar</li>
+              <li><a href="/como-usar">Todas las guías</a></li>
+              <li><a href="/como-usar/shampoo-y-acondicionador">Shampoo y acondicionador</a></li>
+              <li><a href="/como-usar/rutina-facial">Rutina facial</a></li>
+              <li><a href="/como-usar/jabones-artesanales">Jabones artesanales</a></li>
+              <li><a href="/como-usar/exfoliante-corporal">Exfoliante corporal</a></li>
+              <li><a href="/como-usar/balsamo-labial">Bálsamo labial</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a href="/foro" class="nav-link">Comunidad</a></li>
+          <li class="nav-item"><a href="/berrys-lab" class="nav-link">Berry's Lab</a></li>
+          <li class="nav-item"><a href="/#sobre-nosotros" class="nav-link">Sobre nosotros</a></li>
+          <li class="nav-item">
+            <a href="/#contacto" class="nav-link">Contacto <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Contacto">
+              <li><a href="/#contacto">Consultas generales</a></li>
+              <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+      </button>
+
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
+      <div class="header-actions">
+        <a href="/tienda#carrito" class="nav-cart-btn" data-cart-link aria-label="Ver el carrito">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <circle cx="9" cy="20" r="1.4"></circle><circle cx="18" cy="20" r="1.4"></circle>
+          <path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.2"></path>
+        </svg>
+          <span class="nav-cart-count" data-cart-count hidden>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrito de compras">
+    <div class="cart-drawer__head">
+      <h2>Tu carrito</h2>
+      <button class="cart-drawer__close" id="cartClose" type="button" aria-label="Cerrar carrito">
+        <i data-icon="close"></i>
+      </button>
+    </div>
+    <div class="cart-drawer__body">
+      <div class="cart-drawer__items" id="cartBody"></div>
+      <div class="cart-cross" id="cartCrossSell" hidden></div>
+    </div>
+    <div class="cart-drawer__foot">
+      <div class="cart-freeship" id="cartFreeShip" hidden></div>
+      <div class="cart-total">
+        <span class="cart-total__label">Total</span>
+        <span class="cart-total__value" id="cartTotalValue">$ 0</span>
+      </div>
+      <p class="cart-note" id="cartNote"></p>
+      <button class="cta-button cta-mp" id="cartCheckout" type="button">
+        <img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" width="60" height="24" loading="lazy">
+        Finalizar compra
+      </button>
+      <div class="cart-trust">
+        <span><i data-icon="lock"></i> Pago seguro con MercadoPago</span>
+        <span><i data-icon="leaf"></i> Hecho a mano</span>
+        <span><i data-icon="box"></i> Envío a todo el país</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile Drawer Menu -->
+  <nav id="navMenuMobileContainer" class="mobile-nav" aria-label="Menú móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="/tienda" class="mobile-nav-link mobile-nav-link--store">Tienda</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileCategorias">
+          Categorías <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileCategorias">
+          <li><a class="mobile-nav-link" href="/tienda">Todos los productos</a></li>
+          <li><a class="mobile-nav-link" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/facial">Facial</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/corporal">Corporal</a></li>
+        </ul>
+      </li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileAprende">
+          Aprendé <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileAprende">
+          <li><a class="mobile-nav-link" href="/academia">Academia</a></li>
+          <li><a class="mobile-nav-link" href="/glosario">Glosario de ingredientes</a></li>
+          <li><a class="mobile-nav-link" href="/ebooks">Ebooks</a></li>
+          <li class="mobile-nav-sub__section" aria-hidden="true">Cómo usar</li>
+          <li><a class="mobile-nav-link" href="/como-usar">Todas las guías</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/shampoo-y-acondicionador">Shampoo y acondicionador</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/rutina-facial">Rutina facial</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/jabones-artesanales">Jabones artesanales</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/exfoliante-corporal">Exfoliante corporal</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/balsamo-labial">Bálsamo labial</a></li>
+        </ul>
+      </li>
+      <li><a href="/foro" class="mobile-nav-link">Comunidad</a></li>
+      <li><a href="/berrys-lab" class="mobile-nav-link">Berry's Lab</a></li>
+      <li><a href="/#sobre-nosotros" class="mobile-nav-link">Sobre nosotros</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileContacto">
+          Contacto <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileContacto">
+          <li><a class="mobile-nav-link" href="/#contacto">Consultas generales</a></li>
+          <li><a class="mobile-nav-link" href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+        </ul>
+      </li>
+      <!-- Cuenta dentro del menú en móvil/tablet. En escritorio se oculta
+           este bloque y se muestra el slot del header (ver CSS). -->
+      <li class="mobile-nav-account" id="authNavSlotMobile"></li>
+    </ul>
+  </nav>
+
+  <!-- ============================
+       MAIN CONTENT
+  ============================== -->
+  <main>
+
+    <!-- HERO DE ACADEMIA -->
+    <section class="academy-hero" id="academia-top" tabindex="-1">
+      <div class="academy-hero__bg" aria-hidden="true"></div>
+      <div class="academy-hero__overlay" aria-hidden="true"></div>
+      <h1 class="sr-only">Berry's Academy — Guías de cosmética natural para emprendedores</h1>
+    </section>
+
+    <!-- CARRUSEL DE RUTAS -->
+    <section id="rutas" class="rutas-section" tabindex="-1">
+      <div class="rutas-head">
+        <span class="section-label-tag">Tu camino</span>
+        <h2>Elegí tu ruta de aprendizaje</h2>
+        <p>Cada ruta filtra las guías según tu nivel. Hacé clic en una para empezar.</p>
+      </div>
+      <div class="rutas-carousel" id="rutasCarousel"></div>
+    </section>
+
+    <!-- GUÍAS + SIDEBAR -->
+    <section id="guias-acad" class="academy-content" tabindex="-1">
+      <div class="academy-layout">
+
+        <div class="academy-main">
+          <div class="section-header-wrapper" style="margin-bottom:18px">
+            <span class="section-label-tag">Hub de aprendizaje</span>
+            <h2 class="section-title">Guías para emprendedores</h2>
+            <p class="section-subtitle">Contenido práctico para formular, producir y vender cosmética natural</p>
+          </div>
+
+          <div class="guias-toolbar" id="catFilters"></div>
+
+          <!-- Las tarjetas se prerenderizan en el build (scripts/prerender.cjs)
+               desde BLOG_POSTS: así el listado y los enlaces a cada guía
+               existen en el HTML inicial y no dependen de JavaScript. -->
+          <div class="guias-grid-acad" id="guiasGridAcad">
+        <!-- Tarjetas de guías generadas en el build (scripts/prerender.cjs) -->
+        <article class="guide-card" data-id="post-costo-real">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-costo-real.webp')">
+            <span class="guide-card__cat">Finanzas</span>
+            <span class="guide-card__ruta">Intermedio</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/costo-real-crema-margen">Cómo calcular el costo real de tu crema (y por qué perdés plata sin saberlo)</a></h3>
+            <p class="guide-card__excerpt">El costo del frasco no es el costo del producto. Aprendé a sumar materia prima, envase, etiqueta, mermas, y el costo de tu hora de trabajo para fijar un precio que deje margen de verdad.</p>
+            <div class="guide-card__meta"><span>8 min de lectura · 1.840 lecturas</span></div>
+            <a href="/academia/costo-real-crema-margen" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-conservantes">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-conservantes.webp')">
+            <span class="guide-card__cat">Formulación</span>
+            <span class="guide-card__ruta">Intermedio</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/conservantes-cosmetica-natural">Conservantes: qué funciona de verdad y qué es puro marketing</a></h3>
+            <p class="guide-card__excerpt">Un producto con agua necesita conservante, sin excepción. Repasamos los sistemas permitidos, los rangos de uso y los errores más comunes que terminan en hongos en el frasco.</p>
+            <div class="guide-card__meta"><span>11 min de lectura · 2.210 lecturas</span></div>
+            <a href="/academia/conservantes-cosmetica-natural" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-anmat">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-anmat.webp')">
+            <span class="guide-card__cat">Legal</span>
+            <span class="guide-card__ruta">Principiante</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/checklist-legal-anmat-cosmetica-argentina">Checklist legal para vender cosmética en Argentina</a></h3>
+            <p class="guide-card__excerpt">Qué es un cosmético según la normativa, qué necesitás para producir, cómo rotular correctamente y qué datos son obligatorios en la etiqueta antes de salir a vender.</p>
+            <div class="guide-card__meta"><span>9 min de lectura · 3.120 lecturas</span></div>
+            <a href="/academia/checklist-legal-anmat-cosmetica-argentina" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-envases">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-envases.webp')">
+            <span class="guide-card__cat">Negocio</span>
+            <span class="guide-card__ruta">Principiante</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/envases-packaging-margen">Envases y packaging: cómo elegir sin destruir tu margen</a></h3>
+            <p class="guide-card__excerpt">Comprar de a 12 unidades es cómodo pero carísimo. Cuándo conviene escalar a caja cerrada, qué materiales se llevan bien con tu fórmula y cómo evitar el sobre-packaging.</p>
+            <div class="guide-card__meta"><span>6 min de lectura · 1.560 lecturas</span></div>
+            <a href="/academia/envases-packaging-margen" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-controles">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-controles.webp')">
+            <span class="guide-card__cat">Laboratorio</span>
+            <span class="guide-card__ruta">Avanzado</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/controles-ph-viscosidad-estabilidad">pH, viscosidad y estabilidad: los 3 controles básicos de toda fórmula</a></h3>
+            <p class="guide-card__excerpt">No hace falta un laboratorio certificado para hacer controles serios. Te mostramos cómo medir pH, evaluar textura y armar un test de estabilidad casero confiable.</p>
+            <div class="guide-card__meta"><span>10 min de lectura · 1.180 lecturas</span></div>
+            <a href="/academia/controles-ph-viscosidad-estabilidad" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-primer-lote">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-primer-lote.webp')">
+            <span class="guide-card__cat">Escalado</span>
+            <span class="guide-card__ruta">Avanzado</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/primer-lote-100-unidades">De la cocina al primer lote de 100 unidades</a></h3>
+            <p class="guide-card__excerpt">Pasar de hacer 5 frascos para amigas a producir 100 para vender cambia todo: pesadas, orden de incorporación, tiempos de enfriado y documentación de lote.</p>
+            <div class="guide-card__meta"><span>7 min de lectura · 940 lecturas</span></div>
+            <a href="/academia/primer-lote-100-unidades" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-emulsion-base">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-emulsion-base.webp')">
+            <span class="guide-card__cat">Emulsiones</span>
+            <span class="guide-card__ruta">Principiante</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/primera-emulsion-estable-aceite-en-agua">Cómo armar tu primera emulsión estable (aceite en agua)</a></h3>
+            <p class="guide-card__excerpt">La emulsión es el corazón de la cosmética. Te explicamos la fase acuosa, la fase oleosa y el emulsionante, con una receta base que no se corta.</p>
+            <div class="guide-card__meta"><span>12 min de lectura · 2.680 lecturas</span></div>
+            <a href="/academia/primera-emulsion-estable-aceite-en-agua" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-eco-natural">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-eco-natural.webp')">
+            <span class="guide-card__cat">Botánica</span>
+            <span class="guide-card__ruta">Principiante</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/activos-botanicos-patagonicos">Activos botánicos patagónicos: qué usan y por qué</a></h3>
+            <p class="guide-card__excerpt">Del calafate a la Rosa mosqueta: repasamos los activos locales con evidencia y cómo incorporarlos sin prometer milagros en la etiqueta.</p>
+            <div class="guide-card__meta"><span>9 min de lectura · 1.320 lecturas</span></div>
+            <a href="/academia/activos-botanicos-patagonicos" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-ph-ajuste">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-ph-ajuste.webp')">
+            <span class="guide-card__cat">Formulación</span>
+            <span class="guide-card__ruta">Intermedio</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/ajuste-de-ph-cosmetica">Ajuste de pH paso a paso (y por qué tu crema pica)</a></h3>
+            <p class="guide-card__excerpt">Si tu crema irrita o se siente rara, el pH suele ser el culpable. Te mostramos cómo medirlo y corregirlo sin romper la emulsión.</p>
+            <div class="guide-card__meta"><span>8 min de lectura · 1.490 lecturas</span></div>
+            <a href="/academia/ajuste-de-ph-cosmetica" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-packaging-eco">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-packaging-eco.webp')">
+            <span class="guide-card__cat">Packaging</span>
+            <span class="guide-card__ruta">Intermedio</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/packaging-eco-biopolimeros">Packaging eco: biopolímeros y vidrio de bajo peso</a></h3>
+            <p class="guide-card__excerpt">Ser &quot;natural&quot; también es el envase. Comparamos vidrio liviano, bioplásticos y aluminio, y cómo comunicarlo sin greenwashing.</p>
+            <div class="guide-card__meta"><span>7 min de lectura · 870 lecturas</span></div>
+            <a href="/academia/packaging-eco-biopolimeros" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-shelf-life">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-shelf-life.webp')">
+            <span class="guide-card__cat">Conservantes</span>
+            <span class="guide-card__ruta">Avanzado</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/vida-util-challenge-test">Vida útil y challenge test: cómo lo evaluás en serio</a></h3>
+            <p class="guide-card__excerpt">La fecha de vencimiento no se inventa. Te mostramos cómo diseñar un challenge test casero y cuándo derivarlo a un laboratorio.</p>
+            <div class="guide-card__meta"><span>13 min de lectura · 760 lecturas</span></div>
+            <a href="/academia/vida-util-challenge-test" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+        <article class="guide-card" data-id="post-marca-blanca">
+          <div class="guide-card__media" style="background-image:url('/assets/academia/academia-marca-blanca.webp')">
+            <span class="guide-card__cat">Negocio</span>
+            <span class="guide-card__ruta">Avanzado</span>
+          </div>
+          <div class="guide-card__body">
+            <h3 class="guide-card__title"><a href="/academia/de-formula-a-marca">De fórmula a marca: identidad, precio y canal</a></h3>
+            <p class="guide-card__excerpt">Tener una buena crema no es tener una marca. Te ayudamos a pensar posicionamiento, arquitectura de precios y canales de venta reales.</p>
+            <div class="guide-card__meta"><span>10 min de lectura · 1.020 lecturas</span></div>
+            <a href="/academia/de-formula-a-marca" class="cta-button cta-outline guide-card__btn">Leer guía completa</a>
+          </div>
+        </article>
+          </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside class="acad-sidebar">
+
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="chart"></i> Tu progreso</h3>
+            <div class="progress-ring-wrap">
+              <div class="progress-ring" id="progressRing"><span id="progressPct">0%</span></div>
+              <div class="progress-stats" id="progressStat"></div>
+            </div>
+            <div class="progress-bar"><i id="progressBarFill"></i></div>
+          </div>
+
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="flame"></i> Más populares</h3>
+            <ul class="popular-list" id="popularList"></ul>
+          </div>
+
+          <div class="side-panel">
+            <h3 class="side-panel__title"><i data-icon="book"></i> Guía recomendada</h3>
+            <p style="margin:0 0 10px;font-size:13px;line-height:1.5">
+              ¿Se te corta la crema? Empezá por
+              <a href="/academia/primera-emulsion-estable-aceite-en-agua">cómo armar tu primera emulsión estable</a>.
+            </p>
+          </div>
+
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- FÓRMULAS DESCARGABLES -->
+    <section id="formulas-acad" class="academy-section" tabindex="-1">
+      <div class="academy-section__head">
+        <span class="section-label-tag">Paso a paso</span>
+        <h2>Fórmulas descargables</h2>
+        <p>Cada fórmula incluye ingredientes y porcentajes listos para usar.</p>
+      </div>
+      <div class="formulas-grid-acad" id="formulasGridAcad"></div>
+    </section>
+
+    <!-- EBOOK DESTACADO: recurso pago, integrado editorialmente en Aprendé -->
+    <section id="ebook" class="academy-section ebook-section" tabindex="-1">
+      <div class="ebook-card">
+        <div class="ebook-card__eyebrow">Recurso especial · Berry's Nature</div>
+        <div class="ebook-card__content">
+          <div>
+            <h2>El ebook de Berry's Nature</h2>
+            <p class="ebook-card__lead">Una edición para volver a lo esencial: aprender, formular y crear una rutina de cosmética natural con criterio.</p>
+            <ul class="ebook-card__benefits">
+              <li>Edición digital en PDF</li>
+              <li>Acceso para leer desde celular o computadora</li>
+              <li>Entrega coordinada después del pago</li>
+            </ul>
+          </div>
+          <div class="ebook-card__buy">
+            <span class="ebook-card__label">Precio de lanzamiento</span>
+            <strong>$ 14.999 <small>ARS</small></strong>
+            <a class="cta-button ebook-card__cta" href="/ebooks/manual-cosmetica-solida-jabones-artesanales">Conocé el ebook</a>
+            <span class="ebook-card__note">Comprá online con MercadoPago y recibís el acceso al PDF por email apenas se aprueba el pago.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================
+       MODAL "LEER MÁS"
+  ============================== -->
+  <div class="guide-modal-overlay" id="guideModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="guide-modal">
+      <button class="guide-modal__close" id="guideModalClose" aria-label="Cerrar"><i data-icon="close"></i></button>
+      <div class="guide-modal__media" id="guideModalMedia"></div>
+      <div class="guide-modal__body">
+        <div class="guide-modal__cat" id="guideModalCat"></div>
+        <h2 class="guide-modal__title" id="guideModalTitle"></h2>
+        <div class="guide-modal__meta" id="guideModalMeta"></div>
+        <div class="guide-modal__text" id="guideModalText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================
+       AUTH MODAL (login / registro) — replicado de index
+  ============================== -->
+  <div class="auth-modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" aria-hidden="true">
+    <div class="auth-modal">
+      <button class="auth-close-btn" id="authCloseBtn" aria-label="Cerrar"><i data-icon="close"></i></button>
+
+      <div class="auth-tabs">
+        <button class="auth-tab is-active" type="button" data-tab="login">Ingresar</button>
+        <button class="auth-tab" type="button" data-tab="register">Crear cuenta</button>
+      </div>
+
+      <h2 class="auth-title" id="authModalTitle">Entrá a la comunidad</h2>
+      <p class="auth-sub">Guardá tus fórmulas y participá del foro.</p>
+
+      <button class="google-btn" id="googleSignInBtn" type="button">
+        <svg class="google-g" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/>
+          <path fill="#FBBC05" d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84Z"/>
+          <path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 6.68 9.14 4.75 12 4.75Z"/>
+        </svg>
+        Continuar con Google
+      </button>
+
+      <div class="auth-divider"><span>o</span></div>
+
+      <form class="auth-form" id="authForm" novalidate>
+        <div class="form-group" id="authNameField" hidden>
+          <label for="authName">Nombre</label>
+          <input type="text" id="authName" placeholder="¿Cómo te llamás?" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="authEmail">Email</label>
+          <input type="email" id="authEmail" placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="authPass">Contraseña</label>
+          <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button class="cta-button auth-submit" id="authSubmit" type="submit">Ingresar</button>
+        <a class="auth-forgot" href="recuperar.html">¿Olvidaste tu contraseña?</a>
+      </form>
+
+      <p class="auth-legal">
+        Tus datos se guardan de forma segura en nuestro servidor. Al crear una cuenta aceptás los
+        <a href="/terminos">términos de uso</a> y la
+        <a href="/privacidad">política de privacidad</a>.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================
+       TOAST NOTIFICATION
+  ============================== -->
+  <div id="toastNotification" role="status" aria-live="polite"></div>
+
+  <!-- ============================
+       FOOTER
+  ============================== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy" decoding="async">
+        <p class="footer-text">
+          &copy; 2026 Berry's Nature&reg;. Todos los derechos reservados. <br>
+          Hecho con amor y rigor artesanal en Buenos Aires, Argentina.
+        </p>
+      </div>
+
+      <div class="footer-cols" data-footer-nav>
+        <div class="footer-col">
+          <h2>Tienda</h2>
+          <ul>
+            <li><a href="/tienda">Todos los productos</a></li>
+            <li><a class="" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="" href="/tienda/facial">Facial</a></li>
+            <li><a class="" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="" href="/tienda/corporal">Corporal</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Aprendé</h2>
+          <ul>
+            <li><a href="/academia">Academia</a></li>
+            <li><a href="/glosario">Glosario de ingredientes</a></li>
+            <li><a href="/ebooks">Ebooks</a></li>
+            <li><a href="/como-usar">Cómo usar tus productos</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Comunidad</h2>
+          <ul>
+            <li><a href="/foro">Foro</a></li>
+            <li><a href="/normas">Normas de la comunidad</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Información</h2>
+          <ul>
+            <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+            <li><a href="/envios">Envíos</a></li>
+            <li><a href="/devoluciones">Devoluciones</a></li>
+            <li><a href="/privacidad">Privacidad</a></li>
+            <li><a href="/terminos">Términos de uso</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Contacto</h2>
+          <ul>
+            <li><a href="/#contacto">Escribinos</a></li>
+            <li><a href="mailto:berrysnatureok@gmail.com">berrysnatureok@gmail.com</a></li>
+            <li><a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-social">
+        <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://www.facebook.com/share/1JjL83dtQu/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="22" height="22"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.43-4.94 8.43-9.94Z"/></svg>
+        </a>
+        <a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================
+       JAVASCRIPT MODULES
+  ============================== -->
+  <script src="js/config.js?v=5215dab"></script>
+  <script src="js/icons.js?v=5215dab"></script>
+  <script src="js/content-data.js?v=5215dab"></script>
+  <script src="js/api-client.js?v=5215dab"></script>
+  <script src="js/app.js?v=5215dab"></script>
+  <script src="js/cart-drawer.js?v=5215dab"></script>
+
+  <script src="js/auth.js?v=5215dab"></script>
+  <script src="js/community.js?v=5215dab"></script>
+  <script src="js/mod-panel.js?v=5215dab"></script>
+  <script src="js/academia.js?v=5215dab"></script>
+
+
+
+  <!-- Insignia de Google Merchant Center (carga no bloqueante) -->
+  <script>
+    (function () {
+      function cargar() {
+        var tag = document.createElement('script');
+        tag.id = 'merchantWidgetScript';
+        tag.src = 'https://www.gstatic.com/shopping/merchant/merchantwidget.js';
+        tag.async = true;
+        tag.addEventListener('load', function () {
+          try {
+            if (!window.merchantwidget || !window.merchantwidget.start) return;
+            window.merchantwidget.start({
+              merchant_id: 5896319322,
+              position: 'BOTTOM_RIGHT',
+              region: 'AR'
+            });
+          } catch (e) {
+            /* Un tercero que cambia su API no puede romper la página. */
+            if (window.console) console.warn('[google] insignia no disponible:', e && e.message);
+          }
+        });
+        document.head.appendChild(tag);
+      }
+      if (document.readyState === 'complete') cargar();
+      else window.addEventListener('load', cargar, { once: true });
+    })();
+  </script>
+    <div id="mz-consent" class="mz-consent" hidden role="dialog" aria-modal="true" aria-label="Preferencias de privacidad">
+    <div class="mz-consent__box">
+      <div>
+        <strong>Utilizamos cookies</strong>
+        <p>Para mejorar el rendimiento de la página.</p>
+      </div>
+      <div class="mz-consent__actions">
+        <button type="button" class="mz-consent__btn mz-consent__btn--ghost" id="mz-consent-reject">Rechazar</button>
+        <button type="button" class="mz-consent__btn mz-consent__btn--primary" id="mz-consent-accept">Aceptar</button>
+      </div>
+    </div>
+  </div>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+# Berry's Nature
+
+> Cosmética natural artesanal de Buenos Aires, Argentina. Jabones, shampoo y acondicionador sólidos, serums y cuidado facial y corporal.
+
+## Fuentes de datos estructurados
+
+- [Catálogo completo en JSON](https://berrysnature.com.ar/productos.json): nombre, categoría, descripción, precio en ARS, precio de oferta, stock, disponibilidad, URL canónica e imágenes de todos los productos disponibles.
+- [Feed de Google Merchant Center](https://berrysnature.com.ar/feed.xml): XML con atributos de producto para Shopping.
+- [Sitemap](https://berrysnature.com.ar/sitemap.xml): todas las páginas indexables.
+
+## Páginas principales
+
+- [Tienda](https://berrysnature.com.ar/tienda): catálogo con filtros por categoría.
+- [Productos destacados](https://berrysnature.com.ar/): home con las fichas destacadas.
+- [Academia](https://berrysnature.com.ar/academia): guías de formulación y cosmética natural.
+- [Glosario de ingredientes](https://berrysnature.com.ar/glosario): definiciones de ingredientes cosméticos.
+- [Ebooks](https://berrysnature.com.ar/ebooks): biblioteca digital.
+
+## Notas
+
+Los precios están expresados en pesos argentinos (ARS) e incluyen IVA. El stock y la disponibilidad se actualizan desde la base de datos en cada consulta (caché de 5 minutos).

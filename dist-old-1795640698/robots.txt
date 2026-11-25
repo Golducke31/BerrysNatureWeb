@@ -1,0 +1,62 @@
+# Imágenes de producto subidas desde el panel se sirven en /api/img/...
+# Merchant Center necesita que Googlebot-Image pueda bajarlas para las
+# comprobaciones de calidad de las fichas ("No se pueden hacer
+# comprobaciones"). El Allow de /api/img/ es MAS ESPECIFICO que el
+# Disallow: /api/, asi que gana para esa ruta y el resto de /api/ sigue
+# bloqueado.
+#
+# IMPORTANTE: Google usa SOLO el grupo de user-agent mas especifico que
+# coincide e IGNORA los demas. Por eso los grupos de Googlebot y
+# Googlebot-Image repiten TODAS las reglas del grupo "*": si no, al crear
+# un grupo especifico se perderian los Disallow de paginas privadas.
+
+User-agent: Googlebot
+Allow: /api/img/
+Disallow: /api/
+Disallow: /cuenta.html
+Disallow: /recuperar.html
+Disallow: /verificar.html
+Disallow: /perfil.html
+Disallow: /hilo.html
+
+User-agent: Googlebot-Image
+Allow: /api/img/
+Disallow: /api/
+Disallow: /cuenta.html
+Disallow: /recuperar.html
+Disallow: /verificar.html
+Disallow: /perfil.html
+Disallow: /hilo.html
+
+# Bing comparte el mismo contenido publico que Google. El grupo explicito
+# evita depender del comodin 'User-agent: *' y documenta que las imagenes
+# del panel (/api/img/) deben seguir siendo rastreables para Bing Images.
+User-agent: bingbot
+Allow: /api/img/
+Disallow: /api/
+Disallow: /cuenta.html
+Disallow: /recuperar.html
+Disallow: /verificar.html
+Disallow: /perfil.html
+Disallow: /hilo.html
+
+User-agent: msnbot
+Allow: /api/img/
+Disallow: /api/
+Disallow: /cuenta.html
+Disallow: /recuperar.html
+Disallow: /verificar.html
+Disallow: /perfil.html
+Disallow: /hilo.html
+
+User-agent: *
+Allow: /api/img/
+Allow: /
+Disallow: /api/
+Disallow: /cuenta.html
+Disallow: /recuperar.html
+Disallow: /verificar.html
+Disallow: /perfil.html
+Disallow: /hilo.html
+
+Sitemap: https://berrysnature.com.ar/sitemap.xml

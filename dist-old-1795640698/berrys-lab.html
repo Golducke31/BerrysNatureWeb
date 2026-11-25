@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script src="/js/consent.js"></script>
+  <!-- Analítica: GA4 + Meta Pixel (un solo loader) -->
+  <script src="/js/analytics-config.js"></script>
+  <script src="/js/analytics.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Berry's Lab: software de formulación cosmética para Windows. Fórmulas, INCI automático, stock, producción por lote y precio de venta sugerido. Descarga inmediata.">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://berrysnature.com.ar/berrys-lab">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="Berry's Lab — Software de formulación cosmética artesanal">
+  <meta property="og:description" content="Formulá, producí y costeá tus cosméticos en un solo lugar. Lista INCI automática, control de stock y precio de venta sugerido. Para Windows, con descarga inmediata.">
+  <meta property="og:url" content="https://berrysnature.com.ar/berrys-lab">
+  <meta property="og:image" content="https://berrysnature.com.ar/assets/lab/og-berrys-lab.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:site_name" content="Berry's Nature">
+  <meta property="product:price:amount" content="175500">
+  <meta property="product:price:currency" content="ARS">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Berry's Lab — Software de formulación cosmética artesanal">
+  <meta name="twitter:description" content="Formulá, producí y costeá tus cosméticos en un solo lugar. Lista INCI automática, control de stock y precio de venta sugerido. Para Windows, con descarga inmediata.">
+  <meta name="twitter:image" content="https://berrysnature.com.ar/assets/lab/og-berrys-lab.jpg">
+
+  <title>Berry's Lab · Software de formulación cosmética artesanal | Berry's Nature</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/lab/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/lab/icon-192.png">
+
+  <!-- Stylesheets -->
+  <link rel="preload" href="assets/fonts/nunito-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/playfair-display-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css?v=5215dab">
+  <link rel="stylesheet" href="css/styles.css?v=5215dab">
+  <link rel="stylesheet" href="css/sections.css?v=5215dab">
+  <link rel="stylesheet" href="css/academia.css?v=5215dab">
+  <link rel="stylesheet" href="css/catalog.css?v=5215dab">
+  <link rel="stylesheet" href="css/lab.css?v=5215dab">
+
+  <!-- JSON-LD: Organization -->
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Berry's Nature",
+  "url": "https://berrysnature.com.ar/",
+  "logo": "https://berrysnature.com.ar/assets/logo-512.jpg",
+  "sameAs": [
+    "https://www.instagram.com/berrys.nature",
+    "https://www.instagram.com/berrys.nature/",
+    "https://www.facebook.com/share/1JjL83dtQu/"
+  ]
+}
+  </script>
+
+  <!-- JSON-LD: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Berry's Lab",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "Formulación y costeo de cosmética artesanal",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.1.0",
+    "inLanguage": ["es", "en"],
+    "description": "Software de escritorio para formular, producir y costear cosmética natural artesanal: fórmulas con porcentajes y costos automáticos, lista INCI, control de stock con vencimientos, escalado de producción por lote, precio de venta sugerido, clientes y proveedores.",
+    "url": "https://berrysnature.com.ar/berrys-lab",
+    "image": "https://berrysnature.com.ar/assets/lab/og-berrys-lab.jpg",
+    "screenshot": [
+      "https://berrysnature.com.ar/assets/lab/01-inicio.jpg",
+      "https://berrysnature.com.ar/assets/lab/02-ingredientes.jpg",
+      "https://berrysnature.com.ar/assets/lab/03-formulas.jpg"
+    ],
+    "featureList": [
+      "Lista INCI automática ordenada por porcentaje",
+      "Escalado de producción con descuento de stock",
+      "Precio de venta sugerido con desglose de costos",
+      "Trazabilidad por lote de fórmula y de producción",
+      "Alertas de vencimiento y stock bajo",
+      "Exportación a Excel y PDF"
+    ],
+    "offers": {
+      "@type": "Offer",
+      "price": 175500,
+      "priceCurrency": "ARS",
+      "availability": "https://schema.org/InStock",
+      "url": "https://berrysnature.com.ar/berrys-lab#licencia",
+      "priceValidUntil": "2027-12-31",
+      "seller": { "@type": "Organization", "name": "Berry's Nature", "url": "https://berrysnature.com.ar/" }
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Berry's Nature",
+      "url": "https://berrysnature.com.ar/"
+    }
+  }
+  </script>
+
+  <!-- JSON-LD: BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://berrysnature.com.ar/" },
+      { "@type": "ListItem", "position": 2, "name": "Tienda", "item": "https://berrysnature.com.ar/tienda" },
+      { "@type": "ListItem", "position": 3, "name": "Berry's Lab", "item": "https://berrysnature.com.ar/berrys-lab" }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "inLanguage": "es-AR",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "¿Cómo se paga y cuánto dura la licencia?",
+        "acceptedAnswer": { "@type": "Answer", "text": "La licencia anual de Berry's Lab cuesta $ 175.500 y dura 12 meses desde la compra. Incluye las actualizaciones de la versión 1.x. Al vencer se renueva por el mismo valor y el programa sigue funcionando con todos tus datos." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cómo recibo el programa?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Al instante. Después del pago, la misma página te muestra el botón de descarga y además te llega por email el enlace y tu clave de licencia." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Funciona en Mac o en el celular?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Berry's Lab es una aplicación de escritorio para Windows 10 y Windows 11 de 64 bits. No hay versión para Mac, Linux ni celular." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Qué pasa si formateo la computadora?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Tus datos viven en tu equipo y podés respaldarlos con un botón que genera un ZIP. Después de formatear volvés a instalar el programa y reactivás la misma clave de licencia." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Necesito internet para usarlo?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Solo para comprar o renovar. El programa funciona sin conexión: la licencia se valida en tu equipo y los datos se guardan localmente." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Puedo instalarlo en dos computadoras?",
+        "acceptedAnswer": { "@type": "Answer", "text": "La licencia es de uso personal para un equipo. Si necesitás usarlo en más de una computadora, escribinos y lo vemos caso por caso." }
+      }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="css/nav-shared.css?v=5215dab">
+  <meta property="og:image:alt" content="Berry's Lab · Software de formulación cosmética artesanal | Berry's Nature">
+  <meta name="twitter:image:alt" content="Berry's Lab · Software de formulación cosmética artesanal | Berry's Nature">
+  <script type="application/ld+json" data-schema-global="website">
+  {"@context":"https://schema.org","@type":"WebSite","@id":"https://berrysnature.com.ar/#website","name":"Berry's Nature","url":"https://berrysnature.com.ar/","inLanguage":"es-AR","publisher":{"@id":"https://berrysnature.com.ar/#organization"}}
+  </script>
+  <script type="application/ld+json" data-schema-global="webpage">
+  {"@context":"https://schema.org","@type":"WebPage","@id":"https://berrysnature.com.ar/berrys-lab#webpage","url":"https://berrysnature.com.ar/berrys-lab","name":"Berry's Lab · Software de formulación cosmética artesanal | Berry's Nature","description":"Berry","isPartOf":{"@id":"https://berrysnature.com.ar/#website"},"about":{"@id":"https://berrysnature.com.ar/#organization"},"inLanguage":"es-AR","primaryImageOfPage":{"@type":"ImageObject","url":"https://berrysnature.com.ar/assets/lab/og-berrys-lab.jpg"}}
+  </script>
+</head>
+
+<body class="page-store page-lab">
+
+  <!-- ============================
+       STICKY HEADER
+  ============================== -->
+  <header class="sticky-header">
+    <div class="header-container">
+      <a href="/" class="logo-area" aria-label="Berry's Nature — Inicio">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Logo de Berry's Nature" class="header-logo" loading="eager" decoding="async" fetchpriority="high">
+        <div class="logo-text-wrapper">
+          <span class="brand-text">Berry's <span class="brand-sub">Nature</span></span>
+        </div>
+      </a>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <ul class="nav-menu-desktop main-menu">
+          <li class="nav-item nav-item--store">
+            <a href="/tienda" class="nav-link nav-link--store">Tienda <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Categorías de la tienda">
+              <li><a href="/tienda">Todos los productos</a></li>
+              <li><a class="nav-submenu__link" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/facial">Facial</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="nav-submenu__link" href="/tienda/corporal">Corporal</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="/academia" class="nav-link">Aprendé <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Aprendé">
+              <li><a href="/academia">Academia</a></li>
+              <li><a href="/glosario">Glosario de ingredientes</a></li>
+              <li><a href="/ebooks">Ebooks</a></li>
+              <li class="nav-submenu__section" aria-hidden="true">Cómo usar</li>
+              <li><a href="/como-usar">Todas las guías</a></li>
+              <li><a href="/como-usar/shampoo-y-acondicionador">Shampoo y acondicionador</a></li>
+              <li><a href="/como-usar/rutina-facial">Rutina facial</a></li>
+              <li><a href="/como-usar/jabones-artesanales">Jabones artesanales</a></li>
+              <li><a href="/como-usar/exfoliante-corporal">Exfoliante corporal</a></li>
+              <li><a href="/como-usar/balsamo-labial">Bálsamo labial</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a href="/foro" class="nav-link">Comunidad</a></li>
+          <li class="nav-item"><a href="/berrys-lab" class="nav-link">Berry's Lab</a></li>
+          <li class="nav-item"><a href="/#sobre-nosotros" class="nav-link">Sobre nosotros</a></li>
+          <li class="nav-item">
+            <a href="/#contacto" class="nav-link">Contacto <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
+            <ul class="nav-submenu" aria-label="Contacto">
+              <li><a href="/#contacto">Consultas generales</a></li>
+              <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6"  x2="21" y2="6"  class="line-top"></line>
+            <line x1="3" y1="12" x2="21" y2="12" class="line-mid"></line>
+            <line x1="3" y1="18" x2="21" y2="18" class="line-bot"></line>
+          </svg>
+      </button>
+
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
+      <div class="header-actions">
+        <a href="/tienda#carrito" class="nav-cart-btn" data-cart-link aria-label="Ver el carrito">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <circle cx="9" cy="20" r="1.4"></circle><circle cx="18" cy="20" r="1.4"></circle>
+          <path d="M2 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.2"></path>
+        </svg>
+          <span class="nav-cart-count" data-cart-count hidden>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrito de compras">
+    <div class="cart-drawer__head">
+      <h2>Tu carrito</h2>
+      <button class="cart-drawer__close" id="cartClose" type="button" aria-label="Cerrar carrito">
+        <i data-icon="close"></i>
+      </button>
+    </div>
+    <div class="cart-drawer__body">
+      <div class="cart-drawer__items" id="cartBody"></div>
+      <div class="cart-cross" id="cartCrossSell" hidden></div>
+    </div>
+    <div class="cart-drawer__foot">
+      <div class="cart-freeship" id="cartFreeShip" hidden></div>
+      <div class="cart-total">
+        <span class="cart-total__label">Total</span>
+        <span class="cart-total__value" id="cartTotalValue">$ 0</span>
+      </div>
+      <p class="cart-note" id="cartNote"></p>
+      <button class="cta-button cta-mp" id="cartCheckout" type="button">
+        <img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" width="60" height="24" loading="lazy">
+        Finalizar compra
+      </button>
+      <div class="cart-trust">
+        <span><i data-icon="lock"></i> Pago seguro con MercadoPago</span>
+        <span><i data-icon="leaf"></i> Hecho a mano</span>
+        <span><i data-icon="box"></i> Envío a todo el país</span>
+      </div>
+    </div>
+  </aside>
+
+  <nav id="navMenuMobileContainer" class="mobile-nav" aria-label="Menú móvil" inert>
+    <ul class="nav-menu-mobile" id="navMenuMobile">
+      <li><a href="/tienda" class="mobile-nav-link mobile-nav-link--store">Tienda</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileCategorias">
+          Categorías <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileCategorias">
+          <li><a class="mobile-nav-link" href="/tienda">Todos los productos</a></li>
+          <li><a class="mobile-nav-link" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/facial">Facial</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="mobile-nav-link" href="/tienda/corporal">Corporal</a></li>
+        </ul>
+      </li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileAprende">
+          Aprendé <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileAprende">
+          <li><a class="mobile-nav-link" href="/academia">Academia</a></li>
+          <li><a class="mobile-nav-link" href="/glosario">Glosario de ingredientes</a></li>
+          <li><a class="mobile-nav-link" href="/ebooks">Ebooks</a></li>
+          <li class="mobile-nav-sub__section" aria-hidden="true">Cómo usar</li>
+          <li><a class="mobile-nav-link" href="/como-usar">Todas las guías</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/shampoo-y-acondicionador">Shampoo y acondicionador</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/rutina-facial">Rutina facial</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/jabones-artesanales">Jabones artesanales</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/exfoliante-corporal">Exfoliante corporal</a></li>
+          <li><a class="mobile-nav-link" href="/como-usar/balsamo-labial">Bálsamo labial</a></li>
+        </ul>
+      </li>
+      <li><a href="/foro" class="mobile-nav-link">Comunidad</a></li>
+      <li><a href="/berrys-lab" class="mobile-nav-link">Berry's Lab</a></li>
+      <li><a href="/#sobre-nosotros" class="mobile-nav-link">Sobre nosotros</a></li>
+      <li class="mobile-nav-group">
+        <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="mobileContacto">
+          Contacto <i data-icon="chevronDown" class="mobile-nav-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="mobile-nav-sub" id="mobileContacto">
+          <li><a class="mobile-nav-link" href="/#contacto">Consultas generales</a></li>
+          <li><a class="mobile-nav-link" href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+        </ul>
+      </li>
+      <!-- Cuenta dentro del menú en móvil/tablet. En escritorio se oculta
+           este bloque y se muestra el slot del header (ver CSS). -->
+      <li class="mobile-nav-account" id="authNavSlotMobile"></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <!-- ============================
+         HERO
+    ============================== -->
+    <section class="lab-hero" id="top">
+      <div class="lab-hero__inner">
+        <div class="lab-hero__text">
+          <span class="section-label-tag">Software Berry's Nature</span>
+          <h1 class="lab-hero__title">Berry's Lab<br><span>Software de formulación cosmética</span></h1>
+          <p class="lab-hero__sub">
+            Formulá, producí y costeá tus cosméticos naturales en un solo lugar.
+            Fórmulas con porcentajes y costos automáticos, lista INCI, control de stock
+            y precio de venta sugerido. <strong>Para Windows, sin instalación.</strong>
+          </p>
+
+          <div class="lab-hero__price">
+            <span class="lab-price" data-lab-price>$ 175.500</span>
+            <span class="lab-price__period">por año</span>
+            <span class="lab-price__note">Licencia anual renovable · Descarga inmediata · Hasta 6 cuotas · Versión <span data-lab-version>1.x</span></span>
+          </div>
+
+          <div class="lab-hero__actions">
+            <a href="#licencia" class="cta-button" data-magnetic="5">
+              <i data-icon="cart"></i> Comprar y descargar
+            </a>
+            <a href="#modulos" class="cta-button cta-outline">Ver los 9 módulos</a>
+          </div>
+
+          <ul class="lab-trust">
+            <li><i data-icon="check"></i> Descarga al instante</li>
+            <li><i data-icon="check"></i> Tus datos en tu PC</li>
+            <li><i data-icon="check"></i> Funciona sin internet</li>
+            <li><i data-icon="check"></i> Excel y PDF</li>
+          </ul>
+        </div>
+
+        <figure class="lab-hero__shot">
+          <img src="assets/lab/01-inicio.webp" width="1600" height="1006"
+               alt="Pantalla de inicio de Berry's Lab con el último lote, las producciones recientes y las alertas de stock"
+               loading="eager" decoding="async">
+          <figcaption>Panel de inicio: último lote, producciones y alertas de stock.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============================
+         VIDEO PROMOCIONAL
+    ============================== -->
+    <section class="lab-video" id="video">
+      <div class="section-header-wrapper">
+        <span class="section-label-tag">Mirá cómo funciona</span>
+        <h2 class="section-title">Berry's Lab en acción</h2>
+        <p class="section-subtitle">De la fórmula al precio, en 30 segundos.</p>
+      </div>
+
+      <figure class="lab-video__frame">
+        <video class="lab-video__player" controls playsinline preload="metadata"
+               poster="assets/lab/01-inicio.webp" width="1920" height="1080">
+          <source src="assets/lab/berryslab.mp4" type="video/mp4">
+          Tu navegador no soporta la reproducción de video.
+        </video>
+        <figcaption>Un recorrido real por el programa: fórmulas, producción y precio de venta.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============================
+         QUÉ ES
+    ============================== -->
+    <section class="academy-section lab-intro" id="que-es">
+      <div class="section-header-wrapper">
+        <span class="section-label-tag">Qué es</span>
+        <h2 class="section-title">El cuaderno de fórmulas, hecho programa</h2>
+        <p class="section-subtitle">
+          Berry's Lab nació en el taller: es la herramienta que usamos para formular,
+          producir y poner precio a cada lote sin depender de planillas sueltas.
+        </p>
+      </div>
+
+      <div class="lab-pillars">
+        <article class="lab-pillar">
+          <span class="lab-pillar__num" aria-hidden="true">01</span>
+          <h3>Del cuaderno a la fórmula</h3>
+          <p>
+            Si hoy llevás tus fórmulas en un cuaderno y tus costos en una planilla de Excel,
+            Berry's Lab junta las dos cosas. Escribís los gramos de cada ingrediente y el
+            programa calcula los porcentajes, el costo real y —con un clic— la lista INCI
+            ordenada para pegar en el rótulo.
+          </p>
+        </article>
+        <article class="lab-pillar">
+          <span class="lab-pillar__num" aria-hidden="true">02</span>
+          <h3>Producir y costear sin planillas</h3>
+          <p>
+            Cuando producís, escalás a los gramos que necesites y el stock se descuenta solo,
+            con el número de lote que queda registrado para siempre. Y antes de vender, el
+            módulo de precios te dice cuánto te cuesta cada unidad y a qué precio conviene
+            venderla para el margen que buscás.
+          </p>
+        </article>
+        <article class="lab-pillar">
+          <span class="lab-pillar__num" aria-hidden="true">03</span>
+          <h3>Todo en tu computadora</h3>
+          <p>
+            Sin cuentas en la nube, sin depender de una conexión y sin que tus fórmulas
+            salgan de tu taller. Los datos quedan en tu equipo y sobreviven a las
+            actualizaciones del programa.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================
+         ¿PARA QUIÉN SIRVE?
+    ============================== -->
+    <section class="academy-section lab-audience" id="para-quien">
+      <div class="section-header-wrapper">
+        <span class="section-label-tag">¿Para quién sirve?</span>
+        <h2 class="section-title">Pensado para quien hace cosmética de verdad</h2>
+        <p class="section-subtitle">No importa si recién arrancás o si ya vendés por mayor: Berry's Lab te saca del papel y el Excel.</p>
+      </div>
+
+      <div class="lab-audience__grid">
+        <article class="lab-audience__card">
+          <span class="lab-audience__icon">🌱</span>
+          <h3>Emprendedores que arrancan</h3>
+          <p>Si hacés tus primeras cremas en casa y querés dejar de anotar en un cuaderno, Berry's Lab te da el formato y los cálculos desde el día uno.</p>
+        </article>
+        <article class="lab-audience__card">
+          <span class="lab-audience__icon">🧪</span>
+          <h3>Formuladores y talleres</h3>
+          <p>Catalogá cada ingrediente, repetí fórmulas con un clic y escalalas a cualquier tamaño de lote sin volver a cuenta a mano.</p>
+        </article>
+        <article class="lab-audience__card">
+          <span class="lab-audience__icon">🏷️</span>
+          <h3>Marcas que ya venden</h3>
+          <p>Obtené el precio de venta sugerido con margen real, la lista INCI lista para el rótulo y el historial de cada cliente.</p>
+        </article>
+        <article class="lab-audience__card">
+          <span class="lab-audience__icon">📦</span>
+          <h3>Quienes producen por lote</h3>
+          <p>Controlá stock, vencimientos y trazabilidad por lote para cumplir con ANMAT y responderle a cualquier cliente qué llevó su producto.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================
+         MÓDULOS
+    ============================== -->
+    <section class="academy-section lab-modules" id="modulos">
+      <div class="section-header-wrapper">
+        <span class="section-label-tag">Qué incluye</span>
+        <h2 class="section-title">Nueve módulos, un solo flujo</h2>
+        <p class="section-subtitle">Desde el ingrediente que comprás hasta el precio que cobrás.</p>
+      </div>
+
+      <div class="lab-grid">
+        <article class="lab-module">
+          <span class="lab-module__icon">🏠</span>
+          <h3>Inicio</h3>
+          <p>Último lote, producciones recientes, costo total del stock y alertas de vencimiento y stock bajo.</p>
+        </article>
+        <article class="lab-module">
+          <span class="lab-module__icon">🧪</span>
+          <h3>Ingredientes y stock</h3>
+          <p>Precio por kilo, stock en gramos, lote del proveedor, vencimiento, ficha técnica en PDF y semáforo de estados.</p>
+        </article>
+        <article class="lab-module">
+          <span class="lab-module__icon">📋</span>
+          <h3>Fórmulas</h3>
+          <p>Cargás gramos y fases; el porcentaje y el costo se calculan solos. Cada fórmula recibe su número de lote.</p>
+        </article>
+        <article class="lab-module">
+          <span class="lab-module__icon">⚗️</span>
+          <h3>Producción</h3>
+          <p>Elegís los gramos a producir, se escala la fórmula y se descuenta el stock de cada ingrediente.</p>
+        </article>
+        <article class="lab-module">
+          <span class="lab-module__icon">📦</span>
+          <h3>Historial</h3>
+          <p>Cada lote producido queda con su detalle: qué se usó, cuánto y con qué notas. Exportable a Excel y PDF.</p>
+        </article>
+        <article class="lab-module">
+          <span class="lab-module__icon">💰</span>
+          <h3>Precios y márgenes</h3>
+          <p>Costo de ingredientes + envase + etiqueta + mano de obra + impuestos y margen = precio de venta sugerido.</p>
+        </article>
+        <article class="lab-module">
+          <span class="lab-module__icon">👥</span>
+          <h3>Clientes</h3>
+          <p>Ficha de cada cliente con su historial de compras y el total acumulado. Ideal para mayoristas.</p>
+        </article>
+        <article class="lab-module">
+          <span class="lab-module__icon">🏭</span>
+          <h3>Proveedores</h3>
+          <p>Quién te provee qué, con el stock actual de cada ingrediente a la vista.</p>
+        </article>
+        <article class="lab-module">
+          <span class="lab-module__icon">🔧</span>
+          <h3>Usuarios</h3>
+          <p>Perfiles de administrador y operador: el operador carga producción pero no edita fórmulas ni usuarios.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================
+         FUNCIONES DESTACADAS
+    ============================== -->
+    <section class="lab-features" id="funciones">
+      <div class="section-header-wrapper">
+        <span class="section-label-tag">Lo que más se usa</span>
+        <h2 class="section-title">Cinco cosas que te ahorran el día</h2>
+      </div>
+
+      <div class="lab-features__grid">
+        <article class="lab-feature">
+          <h3>🏷️ Lista INCI automática</h3>
+          <p>
+            Un botón y tenés la lista de nombres INCI ordenada por porcentaje descendente,
+            lista para pegar en el rótulo. Si falta el INCI de algún ingrediente, te avisa cuál.
+          </p>
+        </article>
+        <article class="lab-feature">
+          <h3>⚖️ Escalado de producción</h3>
+          <p>
+            Pasás de una fórmula de 100 g a un lote de 5 kg y todos los ingredientes se
+            recalculan. Al confirmar, el stock se descuenta y queda el número de lote.
+          </p>
+        </article>
+        <article class="lab-feature">
+          <h3>💵 Precio con margen real</h3>
+          <p>
+            No adivines: el programa suma ingredientes, envase, etiqueta, mano de obra e
+            impuestos, aplica tu margen y te devuelve el precio de venta y la ganancia.
+          </p>
+        </article>
+        <article class="lab-feature">
+          <h3>🔎 Trazabilidad por lote</h3>
+          <p>
+            Cada fórmula lleva un código <code>BF-AAAA-NNNN</code> y cada producción un
+            <code>BP-AAAA-NNNN</code>. Si un cliente pregunta, sabés exactamente qué llevó.
+          </p>
+        </article>
+        <article class="lab-feature">
+          <h3>⏰ Alertas de vencimiento</h3>
+          <p>
+            El inicio te muestra los ingredientes vencidos, los que están por vencer y los
+            que están por debajo del stock mínimo. Con semáforo de colores en la tabla.
+          </p>
+        </article>
+        <article class="lab-feature">
+          <h3>📄 Excel y PDF</h3>
+          <p>
+            Ocho documentos listos para imprimir o archivar: hoja de fórmula, hoja de
+            producción, stock, precios, cuenta del cliente y más.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================
+         GALERÍA
+    ============================== -->
+    <section class="academy-section lab-gallery" id="capturas">
+      <div class="section-header-wrapper">
+        <span class="section-label-tag">Capturas</span>
+        <h2 class="section-title">Así se ve por dentro</h2>
+        <p class="section-subtitle">Capturas reales del programa, sin retoques.</p>
+      </div>
+
+      <div class="lab-gallery__grid">
+        <figure class="lab-shot">
+          <img src="assets/lab/02-ingredientes.webp" width="1600" height="1006" alt="Tabla de ingredientes con INCI, stock, vencimientos y semáforo de colores" loading="lazy" decoding="async">
+          <figcaption><strong>Ingredientes y stock.</strong> INCI, lote, vencimiento y semáforo por estado.</figcaption>
+        </figure>
+        <figure class="lab-shot">
+          <img src="assets/lab/03-formulas.webp" width="1600" height="1006" alt="Editor de fórmulas con ingredientes, fases, porcentajes y costo estimado" loading="lazy" decoding="async">
+          <figcaption><strong>Fórmulas.</strong> Porcentajes y costo estimado en vivo, con lista INCI.</figcaption>
+        </figure>
+        <figure class="lab-shot">
+          <img src="assets/lab/04-produccion.webp" width="1600" height="1006" alt="Vista previa de producción escalada con el stock disponible de cada ingrediente" loading="lazy" decoding="async">
+          <figcaption><strong>Producción.</strong> Escalado a los gramos que necesites, con control de stock.</figcaption>
+        </figure>
+        <figure class="lab-shot">
+          <img src="assets/lab/06-precios.webp" width="1600" height="1006" alt="Desglose de costos y precio de venta sugerido con margen y ganancia" loading="lazy" decoding="async">
+          <figcaption><strong>Precios.</strong> Desglose completo y precio de venta sugerido.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============================
+         LICENCIA / COMPRA
+    ============================== -->
+    <section class="lab-license" id="licencia">
+
+      <div class="lab-license__card">
+        <div class="lab-license__head">
+          <span class="section-label-tag">Licencia anual</span>
+          <h2 class="lab-license__title">Berry's Lab completo</h2>
+          <p class="lab-license__price">
+            <span data-lab-price>$ 175.500</span>
+            <small>por año</small>
+          </p>
+          <p class="lab-license__hint">
+            Pago único anual por MercadoPago. Incluye las actualizaciones de la versión 1.x.
+          </p>
+        </div>
+
+        <ul class="lab-license__list">
+          <li><i data-icon="check"></i> Los 9 módulos, sin límites de fórmulas ni de lotes</li>
+          <li><i data-icon="check"></i> Descarga inmediata después del pago</li>
+          <li><i data-icon="check"></i> Clave de licencia por 12 meses, renovable al mismo precio</li>
+          <li><i data-icon="check"></i> Tus datos siempre en tu computadora</li>
+          <li><i data-icon="check"></i> Soporte por WhatsApp</li>
+        </ul>
+
+        <!-- Estado de la compra / descarga -->
+        <div class="lab-panel" id="labPanel" hidden>
+          <h3 class="lab-panel__title" id="labPanelTitle"></h3>
+          <p class="lab-panel__text" id="labPanelText"></p>
+          <a class="cta-button lab-panel__download" id="labDownload" href="#" hidden>
+            ⬇ Descargar Berry's Lab
+          </a>
+          <div class="lab-panel__license" id="labPanelLicense" hidden>
+            <span>Tu clave de licencia</span>
+            <code id="labKeyValue"></code>
+            <button type="button" class="lab-copy" id="labCopy">Copiar</button>
+          </div>
+        </div>
+
+        <form class="lab-buy" id="labBuyForm" novalidate>
+          <div class="lab-buy__row">
+            <div class="form-group">
+              <label for="labNombre">Tu nombre</label>
+              <input type="text" id="labNombre" name="nombre" placeholder="¿Cómo te llamás?" autocomplete="name" required>
+            </div>
+            <div class="form-group">
+              <label for="labEmail">Email</label>
+              <input type="email" id="labEmail" name="email" placeholder="tu@email.com" autocomplete="email" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="labCoupon">Cupón (opcional)</label>
+            <input type="text" id="labCoupon" name="coupon" placeholder="Ej. LANZAMIENTO" autocomplete="off">
+          </div>
+          <button class="cta-button lab-buy__btn cta-mp" id="labBuyBtn" type="submit">
+            <img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" width="42" height="17" loading="lazy">
+            Comprar · <span data-lab-price>$ 175.500</span>
+          </button>
+          <p class="lab-buy__legal">
+            Hasta 6 cuotas con MercadoPago. El email es donde te enviamos la clave de licencia.
+            Al comprar aceptás los <a href="/terminos">términos de uso</a>.
+          </p>
+          <p class="lab-buy__error" id="labError" role="alert" hidden></p>
+        </form>
+
+        <details class="lab-eula">
+          <summary>Términos de la licencia (EULA)</summary>
+          <div class="lab-eula__text" data-lab-eula>Cargando…</div>
+        </details>
+
+        <!-- Renovación -->
+        <details class="lab-renew" id="renovar">
+          <summary>¿Ya tenés Berry's Lab? Renová tu licencia</summary>
+          <p>
+            Pegá tu clave actual y te llevamos al pago de la renovación. La licencia se
+            extiende 12 meses desde su vencimiento (o desde hoy si ya venció).
+          </p>
+          <form id="labRenewForm" novalidate>
+            <div class="form-group">
+              <label for="labRenewKey">Tu clave de licencia</label>
+              <input type="text" id="labRenewKey" name="clave" placeholder="BL1-..." autocomplete="off" required>
+            </div>
+            <button class="cta-button cta-outline" type="submit">Renovar · <span data-lab-renew-price>$ 175.500</span></button>
+          </form>
+          <p class="lab-buy__error" id="labRenewError" role="alert" hidden></p>
+        </details>
+      </div>
+
+      <div class="lab-license__aside">
+        <div class="lab-guarantee" id="garantia" role="note">
+          <div class="lab-guarantee__seal" aria-hidden="true">
+            <svg viewBox="0 0 120 120" class="lab-seal">
+              <defs>
+                <path id="labSealPath" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
+              </defs>
+              <circle cx="60" cy="60" r="57" class="lab-seal__ring" />
+              <circle cx="60" cy="60" r="34" class="lab-seal__core" />
+              <text class="lab-seal__text">
+                <textPath href="#labSealPath" startOffset="0">SOPORTE GARANTIZADO · BERRY'S LAB · </textPath>
+              </text>
+              <path class="lab-seal__check" d="M45,61 l11,11 l20,-25" />
+            </svg>
+          </div>
+          <div class="lab-guarantee__body">
+            <h3 class="lab-guarantee__title">Soporte garantizado, cuando lo necesites</h3>
+            <p class="lab-guarantee__text">
+              No quedás solo después de comprar: mientras tu licencia esté activa, tenés
+              <strong>soporte por WhatsApp</strong> para instalar, activar y sacarte cualquier duda.
+              Si algo no funciona como esperás, lo resolvemos. Porque el software de verdad ayuda
+              cuando alguien te acompaña para sacarle provecho.
+            </p>
+          </div>
+        </div>
+
+        <aside class="lab-req">
+          <h3>Requisitos</h3>
+          <ul>
+            <li><strong>Sistema:</strong> Windows 10 u 11, 64 bits</li>
+            <li><strong>Espacio:</strong> ~300 MB</li>
+            <li><strong>Instalación:</strong> no hace falta; se descomprime y se ejecuta</li>
+            <li><strong>Internet:</strong> solo para comprar o renovar</li>
+            <li><strong>Idioma:</strong> español e inglés</li>
+            <li><strong>Datos:</strong> en tu equipo, con backup en un clic</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============================
+         FAQ
+    ============================== -->
+    <section class="academy-section lab-faq" id="faq">
+      <div class="section-header-wrapper">
+        <span class="section-label-tag">Preguntas</span>
+        <h2 class="section-title">Lo que suelen preguntar</h2>
+      </div>
+
+      <div class="lab-faq__list">
+        <details class="faq-item">
+          <summary>¿Cómo se paga y cuánto dura la licencia?</summary>
+          <p>
+            La licencia anual cuesta <strong data-lab-price>$ 175.500</strong> y dura 12 meses
+            desde la compra, con las actualizaciones de la versión 1.x incluidas. Al vencer se
+            renueva por el mismo valor y el programa sigue funcionando con todos tus datos.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Cómo recibo el programa?</summary>
+          <p>
+            Al instante. Después del pago, la misma página te muestra el botón de descarga y
+            además te llega por email el enlace y tu clave de licencia.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Funciona en Mac o en el celular?</summary>
+          <p>
+            Berry's Lab es una aplicación de escritorio para Windows 10 y 11 de 64 bits.
+            No hay versión para Mac, Linux ni celular.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Qué pasa si formateo la computadora?</summary>
+          <p>
+            Tus datos viven en tu equipo y podés respaldarlos con un botón que genera un ZIP.
+            Después de formatear volvés a instalar el programa y reactivás la misma clave.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Necesito internet para usarlo?</summary>
+          <p>
+            Solo para comprar o renovar. El programa funciona sin conexión: la licencia se
+            valida en tu equipo y los datos se guardan localmente.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>¿Puedo instalarlo en dos computadoras?</summary>
+          <p>
+            La licencia es de uso personal para un equipo. Si necesitás usarlo en más de una
+            computadora, escribinos y lo vemos caso por caso.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============================
+         CTA FINAL
+    ============================== -->
+    <section class="lab-cta">
+      <h2>Empezá a formular con orden</h2>
+      <p>Berry's Lab completo, con descarga inmediata y 12 meses de licencia.</p>
+      <a href="#licencia" class="cta-button" data-magnetic="5">Comprar Berry's Lab · <span data-lab-price>$ 175.500</span></a>
+      <p class="lab-cta__note">¿Dudas antes de comprar? Escribinos por WhatsApp y te respondemos.</p>
+    </section>
+
+  </main>
+
+  <!-- ============================
+       FOOTER
+  ============================== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <img src="assets/logo_berrys_nature-112.jpg" srcset="assets/logo_berrys_nature-112.webp 1x, assets/logo_berrys_nature-224.webp 2x" width="112" height="112" alt="Berry's Nature" class="footer-logo" loading="lazy" decoding="async">
+        <p class="footer-text">
+          &copy; 2026 Berry's Nature&reg;. Todos los derechos reservados. <br>
+          Hecho con amor y rigor artesanal en Buenos Aires, Argentina.
+        </p>
+      </div>
+
+      <div class="footer-cols" data-footer-nav>
+        <div class="footer-col">
+          <h2>Tienda</h2>
+          <ul>
+            <li><a href="/tienda">Todos los productos</a></li>
+            <li><a class="" href="/tienda/cabello">Cabello</a></li>
+            <li><a class="" href="/tienda/facial">Facial</a></li>
+            <li><a class="" href="/tienda/jabones">Jabones</a></li>
+            <li><a class="" href="/tienda/corporal">Corporal</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Aprendé</h2>
+          <ul>
+            <li><a href="/academia">Academia</a></li>
+            <li><a href="/glosario">Glosario de ingredientes</a></li>
+            <li><a href="/ebooks">Ebooks</a></li>
+            <li><a href="/como-usar">Cómo usar tus productos</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Comunidad</h2>
+          <ul>
+            <li><a href="/foro">Foro</a></li>
+            <li><a href="/normas">Normas de la comunidad</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Información</h2>
+          <ul>
+            <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
+            <li><a href="/envios">Envíos</a></li>
+            <li><a href="/devoluciones">Devoluciones</a></li>
+            <li><a href="/privacidad">Privacidad</a></li>
+            <li><a href="/terminos">Términos de uso</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Contacto</h2>
+          <ul>
+            <li><a href="/#contacto">Escribinos</a></li>
+            <li><a href="mailto:berrysnatureok@gmail.com">berrysnatureok@gmail.com</a></li>
+            <li><a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-social">
+        <a href="https://www.instagram.com/berrys.nature/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-icon="instagram"></i>
+        </a>
+        <a href="https://www.facebook.com/share/1JjL83dtQu/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" width="22" height="22"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.43-4.94 8.43-9.94Z"/></svg>
+        </a>
+        <a href="https://wa.me/5491156090265" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <i data-icon="whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config.js?v=5215dab"></script>
+  <script src="js/icons.js?v=5215dab"></script>
+  <script src="js/app.js?v=5215dab"></script>
+  <script src="js/cart-drawer.js?v=5215dab"></script>
+
+  <script src="js/motion.js?v=5215dab"></script>
+  <script src="js/lab.js?v=5215dab"></script>
+
+
+  <!-- Insignia de Google Merchant Center (carga no bloqueante) -->
+  <script>
+    (function () {
+      function cargar() {
+        var tag = document.createElement('script');
+        tag.id = 'merchantWidgetScript';
+        tag.src = 'https://www.gstatic.com/shopping/merchant/merchantwidget.js';
+        tag.async = true;
+        tag.addEventListener('load', function () {
+          try {
+            if (!window.merchantwidget || !window.merchantwidget.start) return;
+            window.merchantwidget.start({
+              merchant_id: 5896319322,
+              position: 'BOTTOM_RIGHT',
+              region: 'AR'
+            });
+          } catch (e) {
+            /* Un tercero que cambia su API no puede romper la página. */
+            if (window.console) console.warn('[google] insignia no disponible:', e && e.message);
+          }
+        });
+        document.head.appendChild(tag);
+      }
+      if (document.readyState === 'complete') cargar();
+      else window.addEventListener('load', cargar, { once: true });
+    })();
+  </script>
+    <div id="mz-consent" class="mz-consent" hidden role="dialog" aria-modal="true" aria-label="Preferencias de privacidad">
+    <div class="mz-consent__box">
+      <div>
+        <strong>Utilizamos cookies</strong>
+        <p>Para mejorar el rendimiento de la página.</p>
+      </div>
+      <div class="mz-consent__actions">
+        <button type="button" class="mz-consent__btn mz-consent__btn--ghost" id="mz-consent-reject">Rechazar</button>
+        <button type="button" class="mz-consent__btn mz-consent__btn--primary" id="mz-consent-accept">Aceptar</button>
+      </div>
+    </div>
+  </div>
+  </body>
+</html>

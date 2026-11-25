@@ -33,7 +33,7 @@ test.describe('Layout del header por breakpoint', () => {
     const css = leer('css/styles.css');
     const i = css.indexOf('@media (max-width: 1023px)');
     expect(i).toBeGreaterThan(-1);
-    const bloque = css.slice(i, i + 700);
+    const bloque = css.slice(i, i + 1400);
     expect(bloque).toContain('grid-template-columns: 1fr auto 1fr');
     expect(bloque).toContain('.header-container > .auth-nav-slot  { display: none; }');
     expect(bloque).toContain('.header-container > .main-nav,');

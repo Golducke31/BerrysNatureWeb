@@ -94,14 +94,14 @@ function headerHtml(base) {
       <nav class="main-nav" aria-label="Navegación principal">
         <ul class="nav-menu-desktop main-menu">
           <li class="nav-item nav-item--store">
-            <a href="/tienda" class="nav-link nav-link--store">Tienda</a>
+            <a href="/tienda" class="nav-link nav-link--store">Tienda <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
             <ul class="nav-submenu" aria-label="Categorías de la tienda">
               <li><a href="/tienda">Todos los productos</a></li>
               ${itemsCategorias('nav-submenu__link')}
             </ul>
           </li>
           <li class="nav-item">
-            <a href="/academia" class="nav-link">Aprendé</a>
+            <a href="/academia" class="nav-link">Aprendé <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
             <ul class="nav-submenu" aria-label="Aprendé">
               <li><a href="/academia">Academia</a></li>
               <li><a href="/glosario">Glosario de ingredientes</a></li>
@@ -115,7 +115,7 @@ function headerHtml(base) {
           <li class="nav-item"><a href="/berrys-lab" class="nav-link">Berry's Lab</a></li>
           <li class="nav-item"><a href="/#sobre-nosotros" class="nav-link">Sobre nosotros</a></li>
           <li class="nav-item">
-            <a href="/#contacto" class="nav-link">Contacto</a>
+            <a href="/#contacto" class="nav-link">Contacto <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
             <ul class="nav-submenu" aria-label="Contacto">
               <li><a href="/#contacto">Consultas generales</a></li>
               <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
@@ -293,7 +293,62 @@ function aplicarNav(html, opts) {
   if (tieneHeader && !out.includes('nav-shared.css')) {
     out = out.replace(/<\/head\s*>/i, `  <link rel="stylesheet" href="${hoja}">\n$&`);
   }
+
+  /* Drawer del carrito compartido: antes vivía solo en tienda.html, así
+     que el ícono del header en cualquier otra página sacaba al visitante
+     de la ficha y lo mandaba a /tienda#carrito. Al inyectarlo en TODAS
+     las páginas, el carrito abre en sitio. tienda.html conserva el suyo
+     (con checkout completo): si ya existe, no se duplica. */
+  if (tieneHeader && !/<aside class="cart-drawer"/i.test(out)) {
+    out = out.replace(/(<\/header\s*>)/i, `$1\n\n${cartDrawerHtml()}`);
+  }
+  /* El módulo compartido se carga DESPUÉS de app.js (que actualiza el
+     badge) y antes de los scripts de cada página. En /tienda detecta
+     que catalog.js es el dueño del drawer y no interfiere. */
+  if (tieneHeader && !out.includes('js/cart-drawer.js')) {
+    var scriptTag = '  <script src="' + base + 'js/cart-drawer.js"></script>\n';
+    if (/<script[^>]+src=["'](?:[^"']*\/)?js\/app\.js/i.test(out)) {
+      out = out.replace(/(<script[^>]+src=["'][^"']*js\/app\.js[^"']*["'][^>]*>\s*<\/script>)/i,
+        `$1\n${scriptTag}`);
+    } else {
+      out = out.replace(/<\/body\s*>/i, `${scriptTag}</body>`);
+    }
+  }
   return out;
+}
+
+/** Drawer mínimo compartido (visible en todas las páginas). */
+function cartDrawerHtml() {
+  return `  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrito de compras">
+    <div class="cart-drawer__head">
+      <h2>Tu carrito</h2>
+      <button class="cart-drawer__close" id="cartClose" type="button" aria-label="Cerrar carrito">
+        <i data-icon="close"></i>
+      </button>
+    </div>
+    <div class="cart-drawer__body">
+      <div class="cart-drawer__items" id="cartBody"></div>
+      <div class="cart-cross" id="cartCrossSell" hidden></div>
+    </div>
+    <div class="cart-drawer__foot">
+      <div class="cart-freeship" id="cartFreeShip" hidden></div>
+      <div class="cart-total">
+        <span class="cart-total__label">Total</span>
+        <span class="cart-total__value" id="cartTotalValue">$ 0</span>
+      </div>
+      <p class="cart-note" id="cartNote"></p>
+      <button class="cta-button cta-mp" id="cartCheckout" type="button">
+        <img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" width="60" height="24" loading="lazy">
+        Finalizar compra
+      </button>
+      <div class="cart-trust">
+        <span><i data-icon="lock"></i> Pago seguro con MercadoPago</span>
+        <span><i data-icon="leaf"></i> Hecho a mano</span>
+        <span><i data-icon="box"></i> Envío a todo el país</span>
+      </div>
+    </div>
+  </aside>`;
 }
 
 module.exports = {
@@ -301,5 +356,6 @@ module.exports = {
   headerHtml,
   mobileNavHtml,
   footerHtml,
+  cartDrawerHtml,
   aplicarNav
 };

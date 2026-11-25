@@ -1,0 +1,201 @@
+# GENERADO POR scripts/build.cjs — no editar a mano.
+# Política de URLs: server/lib/urls.js
+
+# La versión con .html no es una URL pública: redirige a la limpia.
+# El "!" fuerza la regla aunque el archivo exista.
+/academia.html    /academia    301!
+/tienda.html    /tienda    301!
+/berrys-lab.html    /berrys-lab    301!
+/emprende-con-nosotros.html    /emprende-con-nosotros    301!
+/foro.html    /foro    301!
+/glosario.html    /glosario    301!
+/como-usar.html    /como-usar    301!
+/normas.html    /normas    301!
+/envios.html    /envios    301!
+/devoluciones.html    /devoluciones    301!
+/privacidad.html    /privacidad    301!
+/terminos.html    /terminos    301!
+/index.html    /    301!
+
+# Mismo 301 pero entrando por www: un solo salto hasta la URL final.
+https://www.berrysnature.com.ar/academia.html    https://berrysnature.com.ar/academia    301!
+https://www.berrysnature.com.ar/tienda.html    https://berrysnature.com.ar/tienda    301!
+https://www.berrysnature.com.ar/berrys-lab.html    https://berrysnature.com.ar/berrys-lab    301!
+https://www.berrysnature.com.ar/emprende-con-nosotros.html    https://berrysnature.com.ar/emprende-con-nosotros    301!
+https://www.berrysnature.com.ar/foro.html    https://berrysnature.com.ar/foro    301!
+https://www.berrysnature.com.ar/glosario.html    https://berrysnature.com.ar/glosario    301!
+https://www.berrysnature.com.ar/como-usar.html    https://berrysnature.com.ar/como-usar    301!
+https://www.berrysnature.com.ar/normas.html    https://berrysnature.com.ar/normas    301!
+https://www.berrysnature.com.ar/envios.html    https://berrysnature.com.ar/envios    301!
+https://www.berrysnature.com.ar/devoluciones.html    https://berrysnature.com.ar/devoluciones    301!
+https://www.berrysnature.com.ar/privacidad.html    https://berrysnature.com.ar/privacidad    301!
+https://www.berrysnature.com.ar/terminos.html    https://berrysnature.com.ar/terminos    301!
+https://www.berrysnature.com.ar/index.html    https://berrysnature.com.ar/    301!
+
+# La barra final la normaliza Netlify (Pretty URLs): /glosario/ → /glosario.
+# NO escribir acá reglas tipo "/glosario/  /glosario  301!": Netlify
+# compara el `from` con y sin barra, así que también matchean /glosario
+# y arman un bucle 301 (ERR_TOO_MANY_REDIRECTS en todo el sitio).
+# Ver reglasAutoreferentes() en server/lib/urls.js.
+
+# La URL limpia sirve el archivo (la barra de direcciones no cambia).
+/academia    /academia.html    200
+/berrys-lab    /berrys-lab.html    200
+/emprende-con-nosotros    /emprende-con-nosotros.html    200
+/glosario    /glosario.html    200
+/como-usar    /como-usar.html    200
+/normas    /normas.html    200
+/envios    /envios.html    200
+/devoluciones    /devoluciones.html    200
+/privacidad    /privacidad.html    200
+/terminos    /terminos.html    200
+
+# Guías de la Academia (una regla por archivo publicado).
+/academia/activos-botanicos-patagonicos    /academia/activos-botanicos-patagonicos.html    200
+/academia/activos-botanicos-patagonicos.html    /academia/activos-botanicos-patagonicos    301!
+https://www.berrysnature.com.ar/academia/activos-botanicos-patagonicos.html    https://berrysnature.com.ar/academia/activos-botanicos-patagonicos    301!
+/academia/ajuste-de-ph-cosmetica    /academia/ajuste-de-ph-cosmetica.html    200
+/academia/ajuste-de-ph-cosmetica.html    /academia/ajuste-de-ph-cosmetica    301!
+https://www.berrysnature.com.ar/academia/ajuste-de-ph-cosmetica.html    https://berrysnature.com.ar/academia/ajuste-de-ph-cosmetica    301!
+/academia/checklist-legal-anmat-cosmetica-argentina    /academia/checklist-legal-anmat-cosmetica-argentina.html    200
+/academia/checklist-legal-anmat-cosmetica-argentina.html    /academia/checklist-legal-anmat-cosmetica-argentina    301!
+https://www.berrysnature.com.ar/academia/checklist-legal-anmat-cosmetica-argentina.html    https://berrysnature.com.ar/academia/checklist-legal-anmat-cosmetica-argentina    301!
+/academia/conservantes-cosmetica-natural    /academia/conservantes-cosmetica-natural.html    200
+/academia/conservantes-cosmetica-natural.html    /academia/conservantes-cosmetica-natural    301!
+https://www.berrysnature.com.ar/academia/conservantes-cosmetica-natural.html    https://berrysnature.com.ar/academia/conservantes-cosmetica-natural    301!
+/academia/controles-ph-viscosidad-estabilidad    /academia/controles-ph-viscosidad-estabilidad.html    200
+/academia/controles-ph-viscosidad-estabilidad.html    /academia/controles-ph-viscosidad-estabilidad    301!
+https://www.berrysnature.com.ar/academia/controles-ph-viscosidad-estabilidad.html    https://berrysnature.com.ar/academia/controles-ph-viscosidad-estabilidad    301!
+/academia/costo-real-crema-margen    /academia/costo-real-crema-margen.html    200
+/academia/costo-real-crema-margen.html    /academia/costo-real-crema-margen    301!
+https://www.berrysnature.com.ar/academia/costo-real-crema-margen.html    https://berrysnature.com.ar/academia/costo-real-crema-margen    301!
+/academia/de-formula-a-marca    /academia/de-formula-a-marca.html    200
+/academia/de-formula-a-marca.html    /academia/de-formula-a-marca    301!
+https://www.berrysnature.com.ar/academia/de-formula-a-marca.html    https://berrysnature.com.ar/academia/de-formula-a-marca    301!
+/academia/envases-packaging-margen    /academia/envases-packaging-margen.html    200
+/academia/envases-packaging-margen.html    /academia/envases-packaging-margen    301!
+https://www.berrysnature.com.ar/academia/envases-packaging-margen.html    https://berrysnature.com.ar/academia/envases-packaging-margen    301!
+/academia/packaging-eco-biopolimeros    /academia/packaging-eco-biopolimeros.html    200
+/academia/packaging-eco-biopolimeros.html    /academia/packaging-eco-biopolimeros    301!
+https://www.berrysnature.com.ar/academia/packaging-eco-biopolimeros.html    https://berrysnature.com.ar/academia/packaging-eco-biopolimeros    301!
+/academia/primer-lote-100-unidades    /academia/primer-lote-100-unidades.html    200
+/academia/primer-lote-100-unidades.html    /academia/primer-lote-100-unidades    301!
+https://www.berrysnature.com.ar/academia/primer-lote-100-unidades.html    https://berrysnature.com.ar/academia/primer-lote-100-unidades    301!
+/academia/primera-emulsion-estable-aceite-en-agua    /academia/primera-emulsion-estable-aceite-en-agua.html    200
+/academia/primera-emulsion-estable-aceite-en-agua.html    /academia/primera-emulsion-estable-aceite-en-agua    301!
+https://www.berrysnature.com.ar/academia/primera-emulsion-estable-aceite-en-agua.html    https://berrysnature.com.ar/academia/primera-emulsion-estable-aceite-en-agua    301!
+/academia/vida-util-challenge-test    /academia/vida-util-challenge-test.html    200
+/academia/vida-util-challenge-test.html    /academia/vida-util-challenge-test    301!
+https://www.berrysnature.com.ar/academia/vida-util-challenge-test.html    https://berrysnature.com.ar/academia/vida-util-challenge-test    301!
+
+# Fichas individuales del glosario (una regla por ingrediente).
+/glosario/acido-citrico    /glosario/acido-citrico.html    200
+/glosario/acido-citrico.html    /glosario/acido-citrico    301!
+https://www.berrysnature.com.ar/glosario/acido-citrico.html    https://berrysnature.com.ar/glosario/acido-citrico    301!
+/glosario/acido-estearico    /glosario/acido-estearico.html    200
+/glosario/acido-estearico.html    /glosario/acido-estearico    301!
+https://www.berrysnature.com.ar/glosario/acido-estearico.html    https://berrysnature.com.ar/glosario/acido-estearico    301!
+/glosario/acido-hialuronico    /glosario/acido-hialuronico.html    200
+/glosario/acido-hialuronico.html    /glosario/acido-hialuronico    301!
+https://www.berrysnature.com.ar/glosario/acido-hialuronico.html    https://berrysnature.com.ar/glosario/acido-hialuronico    301!
+/glosario/alcohol-cetilico    /glosario/alcohol-cetilico.html    200
+/glosario/alcohol-cetilico.html    /glosario/alcohol-cetilico    301!
+https://www.berrysnature.com.ar/glosario/alcohol-cetilico.html    https://berrysnature.com.ar/glosario/alcohol-cetilico    301!
+/glosario/alcohol-cetoestearilico    /glosario/alcohol-cetoestearilico.html    200
+/glosario/alcohol-cetoestearilico.html    /glosario/alcohol-cetoestearilico    301!
+https://www.berrysnature.com.ar/glosario/alcohol-cetoestearilico.html    https://berrysnature.com.ar/glosario/alcohol-cetoestearilico    301!
+/glosario/amodimeticona    /glosario/amodimeticona.html    200
+/glosario/amodimeticona.html    /glosario/amodimeticona    301!
+https://www.berrysnature.com.ar/glosario/amodimeticona.html    https://berrysnature.com.ar/glosario/amodimeticona    301!
+/glosario/benzoato-sodio-sorbato-potasio    /glosario/benzoato-sodio-sorbato-potasio.html    200
+/glosario/benzoato-sodio-sorbato-potasio.html    /glosario/benzoato-sodio-sorbato-potasio    301!
+https://www.berrysnature.com.ar/glosario/benzoato-sodio-sorbato-potasio.html    https://berrysnature.com.ar/glosario/benzoato-sodio-sorbato-potasio    301!
+/glosario/btms50    /glosario/btms50.html    200
+/glosario/btms50.html    /glosario/btms50    301!
+https://www.berrysnature.com.ar/glosario/btms50.html    https://berrysnature.com.ar/glosario/btms50    301!
+/glosario/carbomer    /glosario/carbomer.html    200
+/glosario/carbomer.html    /glosario/carbomer    301!
+https://www.berrysnature.com.ar/glosario/carbomer.html    https://berrysnature.com.ar/glosario/carbomer    301!
+/glosario/cera-abeja    /glosario/cera-abeja.html    200
+/glosario/cera-abeja.html    /glosario/cera-abeja    301!
+https://www.berrysnature.com.ar/glosario/cera-abeja.html    https://berrysnature.com.ar/glosario/cera-abeja    301!
+/glosario/cloruro-benzalconio    /glosario/cloruro-benzalconio.html    200
+/glosario/cloruro-benzalconio.html    /glosario/cloruro-benzalconio    301!
+https://www.berrysnature.com.ar/glosario/cloruro-benzalconio.html    https://berrysnature.com.ar/glosario/cloruro-benzalconio    301!
+/glosario/cloruro-cetrimonio    /glosario/cloruro-cetrimonio.html    200
+/glosario/cloruro-cetrimonio.html    /glosario/cloruro-cetrimonio    301!
+https://www.berrysnature.com.ar/glosario/cloruro-cetrimonio.html    https://berrysnature.com.ar/glosario/cloruro-cetrimonio    301!
+/glosario/coco-fraccionado    /glosario/coco-fraccionado.html    200
+/glosario/coco-fraccionado.html    /glosario/coco-fraccionado    301!
+https://www.berrysnature.com.ar/glosario/coco-fraccionado.html    https://berrysnature.com.ar/glosario/coco-fraccionado    301!
+/glosario/cocoamidopropil-betaina    /glosario/cocoamidopropil-betaina.html    200
+/glosario/cocoamidopropil-betaina.html    /glosario/cocoamidopropil-betaina    301!
+https://www.berrysnature.com.ar/glosario/cocoamidopropil-betaina.html    https://berrysnature.com.ar/glosario/cocoamidopropil-betaina    301!
+/glosario/dimeticona    /glosario/dimeticona.html    200
+/glosario/dimeticona.html    /glosario/dimeticona    301!
+https://www.berrysnature.com.ar/glosario/dimeticona.html    https://berrysnature.com.ar/glosario/dimeticona    301!
+/glosario/dioxido-titanio    /glosario/dioxido-titanio.html    200
+/glosario/dioxido-titanio.html    /glosario/dioxido-titanio    301!
+https://www.berrysnature.com.ar/glosario/dioxido-titanio.html    https://berrysnature.com.ar/glosario/dioxido-titanio    301!
+/glosario/extracto-sauce-blanco    /glosario/extracto-sauce-blanco.html    200
+/glosario/extracto-sauce-blanco.html    /glosario/extracto-sauce-blanco    301!
+https://www.berrysnature.com.ar/glosario/extracto-sauce-blanco.html    https://berrysnature.com.ar/glosario/extracto-sauce-blanco    301!
+/glosario/geogard-ect    /glosario/geogard-ect.html    200
+/glosario/geogard-ect.html    /glosario/geogard-ect    301!
+https://www.berrysnature.com.ar/glosario/geogard-ect.html    https://berrysnature.com.ar/glosario/geogard-ect    301!
+/glosario/glicerina    /glosario/glicerina.html    200
+/glosario/glicerina.html    /glosario/glicerina    301!
+https://www.berrysnature.com.ar/glosario/glicerina.html    https://berrysnature.com.ar/glosario/glicerina    301!
+/glosario/glycol-distearate    /glosario/glycol-distearate.html    200
+/glosario/glycol-distearate.html    /glosario/glycol-distearate    301!
+https://www.berrysnature.com.ar/glosario/glycol-distearate.html    https://berrysnature.com.ar/glosario/glycol-distearate    301!
+/glosario/goma-xantana    /glosario/goma-xantana.html    200
+/glosario/goma-xantana.html    /glosario/goma-xantana    301!
+https://www.berrysnature.com.ar/glosario/goma-xantana.html    https://berrysnature.com.ar/glosario/goma-xantana    301!
+/glosario/karite    /glosario/karite.html    200
+/glosario/karite.html    /glosario/karite    301!
+https://www.berrysnature.com.ar/glosario/karite.html    https://berrysnature.com.ar/glosario/karite    301!
+/glosario/lauril-eter-sulfato-sodio    /glosario/lauril-eter-sulfato-sodio.html    200
+/glosario/lauril-eter-sulfato-sodio.html    /glosario/lauril-eter-sulfato-sodio    301!
+https://www.berrysnature.com.ar/glosario/lauril-eter-sulfato-sodio.html    https://berrysnature.com.ar/glosario/lauril-eter-sulfato-sodio    301!
+/glosario/niacinamida    /glosario/niacinamida.html    200
+/glosario/niacinamida.html    /glosario/niacinamida    301!
+https://www.berrysnature.com.ar/glosario/niacinamida.html    https://berrysnature.com.ar/glosario/niacinamida    301!
+/glosario/oxido-lauramina    /glosario/oxido-lauramina.html    200
+/glosario/oxido-lauramina.html    /glosario/oxido-lauramina    301!
+https://www.berrysnature.com.ar/glosario/oxido-lauramina.html    https://berrysnature.com.ar/glosario/oxido-lauramina    301!
+/glosario/pantenol    /glosario/pantenol.html    200
+/glosario/pantenol.html    /glosario/pantenol    301!
+https://www.berrysnature.com.ar/glosario/pantenol.html    https://berrysnature.com.ar/glosario/pantenol    301!
+/glosario/parabenos    /glosario/parabenos.html    200
+/glosario/parabenos.html    /glosario/parabenos    301!
+https://www.berrysnature.com.ar/glosario/parabenos.html    https://berrysnature.com.ar/glosario/parabenos    301!
+/glosario/propilenglicol    /glosario/propilenglicol.html    200
+/glosario/propilenglicol.html    /glosario/propilenglicol    301!
+https://www.berrysnature.com.ar/glosario/propilenglicol.html    https://berrysnature.com.ar/glosario/propilenglicol    301!
+/glosario/rosa-mosqueta    /glosario/rosa-mosqueta.html    200
+/glosario/rosa-mosqueta.html    /glosario/rosa-mosqueta    301!
+https://www.berrysnature.com.ar/glosario/rosa-mosqueta.html    https://berrysnature.com.ar/glosario/rosa-mosqueta    301!
+/glosario/sci    /glosario/sci.html    200
+/glosario/sci.html    /glosario/sci    301!
+https://www.berrysnature.com.ar/glosario/sci.html    https://berrysnature.com.ar/glosario/sci    301!
+/glosario/sorbitol    /glosario/sorbitol.html    200
+/glosario/sorbitol.html    /glosario/sorbitol    301!
+https://www.berrysnature.com.ar/glosario/sorbitol.html    https://berrysnature.com.ar/glosario/sorbitol    301!
+
+# Guías de uso para compradores (una regla por página).
+/como-usar/balsamo-labial    /como-usar/balsamo-labial.html    200
+/como-usar/balsamo-labial.html    /como-usar/balsamo-labial    301!
+https://www.berrysnature.com.ar/como-usar/balsamo-labial.html    https://berrysnature.com.ar/como-usar/balsamo-labial    301!
+/como-usar/exfoliante-corporal    /como-usar/exfoliante-corporal.html    200
+/como-usar/exfoliante-corporal.html    /como-usar/exfoliante-corporal    301!
+https://www.berrysnature.com.ar/como-usar/exfoliante-corporal.html    https://berrysnature.com.ar/como-usar/exfoliante-corporal    301!
+/como-usar/jabones-artesanales    /como-usar/jabones-artesanales.html    200
+/como-usar/jabones-artesanales.html    /como-usar/jabones-artesanales    301!
+https://www.berrysnature.com.ar/como-usar/jabones-artesanales.html    https://berrysnature.com.ar/como-usar/jabones-artesanales    301!
+/como-usar/rutina-facial    /como-usar/rutina-facial.html    200
+/como-usar/rutina-facial.html    /como-usar/rutina-facial    301!
+https://www.berrysnature.com.ar/como-usar/rutina-facial.html    https://berrysnature.com.ar/como-usar/rutina-facial    301!
+/como-usar/shampoo-y-acondicionador    /como-usar/shampoo-y-acondicionador.html    200
+/como-usar/shampoo-y-acondicionador.html    /como-usar/shampoo-y-acondicionador    301!
+https://www.berrysnature.com.ar/como-usar/shampoo-y-acondicionador.html    https://berrysnature.com.ar/como-usar/shampoo-y-acondicionador    301!

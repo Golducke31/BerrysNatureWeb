@@ -26,6 +26,8 @@
   <script src="js/icons.js" defer></script>
   <script src="js/api-client.js" defer></script>
   <script src="js/app.js" defer></script>
+  <script src="js/cart-drawer.js"></script>
+
   <script src="js/auth.js" defer></script>
   <script src="js/community.js" defer></script>
   <script src="js/ebook.js" defer></script>
@@ -68,7 +70,7 @@
       <nav class="main-nav" aria-label="Navegación principal">
         <ul class="nav-menu-desktop main-menu">
           <li class="nav-item nav-item--store">
-            <a href="/tienda" class="nav-link nav-link--store">Tienda</a>
+            <a href="/tienda" class="nav-link nav-link--store">Tienda <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
             <ul class="nav-submenu" aria-label="Categorías de la tienda">
               <li><a href="/tienda">Todos los productos</a></li>
               <li><a class="nav-submenu__link" href="/tienda/cabello">Cabello</a></li>
@@ -78,7 +80,7 @@
             </ul>
           </li>
           <li class="nav-item">
-            <a href="/academia" class="nav-link">Aprendé</a>
+            <a href="/academia" class="nav-link">Aprendé <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
             <ul class="nav-submenu" aria-label="Aprendé">
               <li><a href="/academia">Academia</a></li>
               <li><a href="/glosario">Glosario de ingredientes</a></li>
@@ -96,7 +98,7 @@
           <li class="nav-item"><a href="/berrys-lab" class="nav-link">Berry's Lab</a></li>
           <li class="nav-item"><a href="/#sobre-nosotros" class="nav-link">Sobre nosotros</a></li>
           <li class="nav-item">
-            <a href="/#contacto" class="nav-link">Contacto</a>
+            <a href="/#contacto" class="nav-link">Contacto <i data-icon="chevronDown" class="nav-caret" aria-hidden="true"></i></a>
             <ul class="nav-submenu" aria-label="Contacto">
               <li><a href="/#contacto">Consultas generales</a></li>
               <li><a href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
@@ -126,6 +128,37 @@
       </div>
     </div>
   </header>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrito de compras">
+    <div class="cart-drawer__head">
+      <h2>Tu carrito</h2>
+      <button class="cart-drawer__close" id="cartClose" type="button" aria-label="Cerrar carrito">
+        <i data-icon="close"></i>
+      </button>
+    </div>
+    <div class="cart-drawer__body">
+      <div class="cart-drawer__items" id="cartBody"></div>
+      <div class="cart-cross" id="cartCrossSell" hidden></div>
+    </div>
+    <div class="cart-drawer__foot">
+      <div class="cart-freeship" id="cartFreeShip" hidden></div>
+      <div class="cart-total">
+        <span class="cart-total__label">Total</span>
+        <span class="cart-total__value" id="cartTotalValue">$ 0</span>
+      </div>
+      <p class="cart-note" id="cartNote"></p>
+      <button class="cta-button cta-mp" id="cartCheckout" type="button">
+        <img class="mp-logo" src="assets/pagos/mercadopago-color.svg" alt="MercadoPago" width="60" height="24" loading="lazy">
+        Finalizar compra
+      </button>
+      <div class="cart-trust">
+        <span><i data-icon="lock"></i> Pago seguro con MercadoPago</span>
+        <span><i data-icon="leaf"></i> Hecho a mano</span>
+        <span><i data-icon="box"></i> Envío a todo el país</span>
+      </div>
+    </div>
+  </aside>
 
   <nav id="navMenuMobileContainer" class="mobile-nav" aria-label="Menú móvil" inert>
     <ul class="nav-menu-mobile" id="navMenuMobile">

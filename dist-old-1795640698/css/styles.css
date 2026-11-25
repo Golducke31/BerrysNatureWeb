@@ -1,0 +1,1899 @@
+/* css/styles.css */
+
+/* 1. Typography & Import */
+/* 2. Custom Properties (Neumorphic Design Tokens) */
+:root {
+  /* Colors — "Tierra Cremosa": beige-rosado cálido en lugar del gris-azulado frío */
+  --bg-main: #F7F0EB;
+  --bg-card: #FFFCF9;
+  --color-cta: #EAB8A3;
+  --color-cta-hover: #dfa993;
+  --color-text: #4A3F35;
+  --color-text-muted: #6e5d4f;
+  --color-white: #FFFFFF;
+  --color-accent-terracota: #b9705a;
+
+  /* Colores promovidos — antes hardcodeados y repetidos en 4 archivos.
+     Los valores son idénticos a los originales: promoverlos no cambia nada visualmente. */
+  --color-accent-dark: #B05B3A;      /* títulos de acento, iconos destacados, tagline */
+  --color-muted-warm: #9e8b7e;       /* metadatos, placeholders, texto terciario */
+  --color-terracota-deep: #8c4a2f;   /* hover de enlaces y chips */
+  --color-surface-alt: #efe4db;      /* superficies alternas y fallback del hero */
+  --color-line-warm: #E6D6C9;        /* bordes y separadores cálidos */
+
+  /* Acento botánico — el Glosario lo usaba vía fallbacks (var(--color-primary, #82966b)),
+     es decir dependía de una variable que nunca estuvo definida. Se declara explícito
+     para que el color sea intencional y no un accidente de fallback. */
+  --color-accent-botanical: #82966b;
+
+  /* Typography */
+  --font-title: 'Playfair Display', Georgia, serif;
+  --font-body: 'Nunito', Helvetica, Arial, sans-serif;
+
+  /* Type scale — antes cada tamaño se escribía suelto en cada archivo */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.8125rem;  /* 13px */
+  --text-base: 0.875rem; /* 14px */
+  --text-md: 1rem;       /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.375rem;   /* 22px */
+  --text-2xl: 1.75rem;   /* 28px */
+  --text-3xl: 2.25rem;   /* 36px */
+  --text-4xl: 3rem;      /* 48px */
+  --leading-tight: 1.16;
+  --leading-snug: 1.35;
+  --leading-body: 1.6;
+
+  /* Shadows for Main BG (#F7F0EB) — luz cálida */
+  --shadow-flat: 8px 8px 16px #e0d6cf, -8px -8px 16px #ffffff;
+  --shadow-sunken: inset 8px 8px 16px #e0d6cf, inset -8px -8px 16px #ffffff;
+  --shadow-soft: 4px 4px 8px #e0d6cf, -4px -4px 8px #ffffff;
+  --shadow-soft-sunken: inset 4px 4px 8px #e0d6cf, inset -4px -4px 8px #ffffff;
+
+  /* Shadows for Card BG (#FFFCF9) — luz cálida */
+  --shadow-card-flat: 6px 6px 12px #ece5df, -6px -6px 12px #ffffff;
+  --shadow-card-sunken: inset 6px 6px 12px #ece5df, inset -6px -6px 12px #ffffff;
+
+  /* Shadows for CTA Button (#EAB8A3) */
+  --shadow-cta-flat: 4px 4px 10px #c89682, -4px -4px 10px #ffdacf;
+  --shadow-cta-sunken: inset 4px 4px 10px #c89682, inset -4px -4px 10px #ffdacf;
+
+  /* Spacing scale — antes cada padding/gap se escribía a mano */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  /* Radius scale */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Anillo de foco único (accesibilidad) — reemplaza reglas :focus-visible dispersas */
+  --focus-ring: 0 0 0 3px rgba(185, 112, 90, 0.45);
+
+  /* Dimensions */
+  --header-height: 80px;
+  --max-width: 1200px;
+}
+
+/* ------------------------------------------------------------------
+   Breakpoints canónicos del proyecto
+   Los 13 valores que había dispersos se consolidan en estos cuatro:
+     560 -> 520   (móvil grande / fin del layout de una columna)
+     640 -> 767   (móvil -> tablet)
+     900, 980 -> 1023
+     1080, 1180 -> 1279
+   Convención: mobile <=520 | tablet 521-767 | laptop 768-1023 | desktop >=1024
+   Al agregar media queries nuevas, usar SOLO estos valores.
+   ------------------------------------------------------------------ */
+
+/* 3. Global Resets & Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* El atributo [hidden] debe ganarle a los display:flex/grid de los componentes
+   (ej.: #authNameField en el modal de acceso mostraba el campo Nombre en modo Ingresar). */
+[hidden] { display: none !important; }
+
+/* Utilidad: visible para lectores de pantalla y buscadores, oculto visualmente.
+   Se usa para <h1> requeridos por SEO/accesibilidad en secciones hero
+   donde el diseño no lleva un título visible (ej. academia.html). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-height);
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  color: var(--color-text);
+  font-weight: 700;
+  line-height: var(--leading-snug);
+}
+
+/* Los títulos grandes leen más elegantes con interlínea ajustada */
+h1, h2 { line-height: var(--leading-tight); }
+
+/* Evita que quede una sola palabra huérfana en la última línea.
+   Los navegadores que no lo soportan simplemente lo ignoran. */
+h1, h2, h3 { text-wrap: balance; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Anillo de foco unificado para navegación por teclado.
+   Antes cada archivo definía su propio :focus-visible (o ninguno). */
+:focus-visible {
+  outline: 3px solid var(--color-accent-terracota);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   ENCABEZADO DE SECCIÓN (compartido por las 3 páginas)
+   Antes vivía en catalog-calc.css, que NO se carga en academia.html
+   ni en glosario.html: en esas páginas .section-title y
+   .section-subtitle quedaban sin estilo alguno. Al vivir en
+   styles.css —que sí carga en todas— el ritmo es idéntico en las 3.
+   ============================================================ */
+.section-header-wrapper {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.section-label-tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--color-accent-dark);
+  background: var(--bg-card);
+  padding: 5px var(--space-md);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card-flat);
+  margin-bottom: var(--space-md);
+}
+
+.section-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.section-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   Berry's Lab — band destacado en la home (producto top)
+   Producto de mayor ticket y rentabilidad: se promociona justo
+   debajo del hero con jerarquía alta y captura del programa.
+============================================================ */
+.lab-featured {
+  background: linear-gradient(135deg, #fef6ef 0%, #eef4ec 100%);
+  padding: clamp(48px, 7vw, 88px) var(--space-lg);
+}
+.lab-featured__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(28px, 5vw, 56px);
+  align-items: center;
+}
+.lab-featured__lead {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+  margin: var(--space-md) 0 var(--space-lg);
+}
+.lab-featured__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-lg);
+  display: grid;
+  gap: var(--space-sm);
+}
+.lab-featured__list li {
+  position: relative;
+  padding-left: 30px;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+  color: var(--color-text);
+}
+.lab-featured__list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 800;
+  color: var(--color-accent-botanical);
+}
+.lab-featured__media img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: 0 22px 48px rgba(74, 63, 53, 0.18);
+  border: 6px solid var(--color-white);
+}
+@media (max-width: 860px) {
+  .lab-featured__inner { grid-template-columns: 1fr; }
+  .lab-featured__media { order: -1; max-width: 460px; margin: 0 auto var(--space-lg); }
+}
+
+/* 4. Sticky Header with Glassmorphism */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  height: var(--header-height);
+  background: rgba(247, 240, 235, 0.72); /* Semi-transparent base background — tono crema cálido */
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 4px 20px rgba(74, 63, 53, 0.04);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.sticky-header.scrolled {
+  background: rgba(247, 240, 235, 0.92);
+  box-shadow: 0 8px 30px rgba(74, 63, 53, 0.09);
+}
+
+/* Barra de anuncio superior (envío gratis) */
+.topbar-announce {
+  position: relative;
+  z-index: 1001;
+  background: #4A3F35;
+  color: #F7F0EB;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.topbar-announce__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 9px 44px 9px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+.topbar-announce__viewport {
+  min-height: 1.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+/* Marquesina: los mensajes viajan en un track continuo hacia la izquierda.
+   Se duplica el contenido en el JS para que el loop no tenga salto. */
+.topbar-announce__viewport {
+  width: 100%;
+}
+.topbar-announce__track {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  width: max-content;
+  animation: topbar-marquee 26s linear infinite;
+  will-change: transform;
+}
+.topbar-announce:hover .topbar-announce__track { animation-play-state: paused; }
+.topbar-announce__message {
+  display: block;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+@keyframes topbar-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.topbar-announce strong {
+  color: var(--color-cta);
+  font-weight: 800;
+}
+.topbar-announce__close {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 6px;
+}
+.topbar-announce__close:hover,
+.topbar-announce__close:focus-visible {
+  opacity: 1;
+}
+@media (max-width: 600px) {
+  .topbar-announce__inner {
+    font-size: 12px;
+    padding: 8px 40px 8px 12px;
+  }
+  .topbar-announce__viewport { min-height: 2.8em; }
+  .topbar-announce__message { max-width: none; line-height: 1.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .topbar-announce__track { animation: none; transform: none; }
+}
+
+.header-container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo Area */
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.header-logo {
+  height: 54px;
+  width: 54px;
+  border-radius: 50%;
+  border: 2px solid var(--color-white);
+  box-shadow: 0 2px 10px rgba(74, 63, 53, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.logo-area:hover .header-logo {
+  transform: rotate(6deg) scale(1.06);
+}
+
+.brand-text {
+  font-family: var(--font-title);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.brand-sub {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* Desktop Navigation */
+.nav-menu-desktop {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+}
+
+.nav-link {
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* Acceso de cuenta compacto: sus acciones viven en un desplegable. */
+.auth-nav-slot {
+  display: flex;
+  align-items: center;
+  margin-left: 6px;
+}
+
+.account-menu { position: relative; }
+.account-menu__toggle { min-height: 44px; }
+.account-menu__chevron {
+  width: 8px;
+  height: 8px;
+  margin-left: 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.account-menu__toggle[aria-expanded="true"] .account-menu__chevron {
+  transform: translateY(2px) rotate(225deg);
+}
+.account-menu__panel {
+  position: absolute;
+  z-index: 1300;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 176px;
+  padding: 6px;
+  border: 1px solid var(--color-line-warm);
+  border-radius: 14px;
+  background: var(--bg-card);
+  box-shadow: 0 12px 32px rgba(74, 63, 53, 0.18);
+}
+.account-menu__panel[hidden] { display: none; }
+.account-menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--color-text);
+  font: 600 14px var(--font-body);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.account-menu__item:hover,
+.account-menu__item:focus-visible {
+  outline: none;
+  background: rgba(234, 184, 163, 0.2);
+  color: var(--color-terracota-deep);
+}
+
+.nav-ghost-btn {
+  background: transparent;
+  border: 1.5px solid rgba(74, 63, 53, 0.18);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.nav-ghost-btn:hover {
+  border-color: var(--color-cta);
+  color: var(--color-terracota-deep);
+  background: rgba(234, 184, 163, 0.14);
+}
+
+/* El mismo estilo, pero como enlace (ej. "Mi cuenta" en el header).
+   Sin esto el <a> queda subrayado y como texto en línea. */
+a.nav-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* Botón destacado → tienda externa de la marca personal */
+.nav-store-btn {
+  background: linear-gradient(135deg, #EAB8A3 0%, #dfa993 100%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #4A3F35;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(234, 184, 163, 0.45);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  white-space: nowrap;
+}
+
+.nav-store-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(234, 184, 163, 0.55);
+}
+
+/* Chip de usuario logueado */
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 252, 249, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  padding: 5px 14px 5px 5px;
+  cursor: pointer;
+  box-shadow: var(--shadow-card-flat);
+  transition: transform 0.25s ease;
+}
+
+.account-menu__toggle:focus-visible,
+#loginBtn:focus-visible {
+  outline: 3px solid rgba(185, 112, 90, 0.45);
+  outline-offset: 2px;
+}
+
+.user-chip:hover { transform: translateY(-1px); }
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-cta);
+  color: #4A3F35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.account-menu__guest-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-cta);
+  color: #4A3F35;
+}
+.account-menu__guest-icon svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: var(--color-terracota-deep);
+  background: rgba(234, 184, 163, 0.22);
+}
+
+.nav-link.active {
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft-sunken);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Action Icons */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Hamburger button */
+.hamburger-btn {
+  display: none;
+  background: var(--bg-main);
+  border: none;
+  outline: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: var(--color-text);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  z-index: 1100;
+  transition: all 0.2s ease;
+}
+
+.hamburger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 12px #e0d6cf, -6px -6px 12px #ffffff;
+}
+
+.hamburger-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-soft-sunken);
+}
+
+/* Las tres líneas del hamburguesa. `transform-box: fill-box` es imprescindible:
+   sin él, `transform-origin: center` se resuelve contra la caja del viewBox
+   (24×24) y no contra la línea real, que tiene altura 0. Al rotar, cada línea
+   giraba sobre un pivote que no era su centro y la X salía desalineada. */
+.hamburger-btn svg line {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Las líneas están en y=6, 12, 18 (separación 6px). Para que ambas converjan
+   en el centro la de arriba baja 6 y la de abajo sube 6. El pivote ya es el
+   centro real de cada línea, así que el aspa queda simétrica. */
+.hamburger-btn.open .line-top {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger-btn.open .line-mid {
+  opacity: 0;
+}
+
+.hamburger-btn.open .line-bot {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Mobile Drawer Overlay */
+.nav-menu-mobile {
+  display: none;
+}
+
+/* 5. Hero Section (Split Layout) */
+.hero-section {
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
+  align-items: center;
+  padding: 60px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Capa de video de fondo (más alta que el hero para que el parallax no descubra bordes) */
+.hero-video-layer {
+  position: absolute;
+  top: -12%;
+  left: 0;
+  width: 100%;
+  height: 124%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: transform;
+  /* Respaldo: si el video no carga, queda la imagen local como fondo.
+     Antes apuntaba a una URL de Unsplash: dependía de internet y rompía
+     el funcionamiento offline / con file://. Ahora usa el mismo asset
+     que ya sirve de poster del video. */
+  background: var(--color-surface-alt);
+}
+
+/* Póster del hero (LCP): mismo encuadre que el video */
+.hero-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.08);
+  z-index: 0;
+}
+
+.hero-video {
+  z-index: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  transform: translate(-50%, -50%)
+             translate3d(var(--hero-mx-inv, 0px), var(--hero-my-inv, 0px), 0)
+             scale(1.08);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 1;
+  filter: saturate(1.06) contrast(1.03);
+}
+
+/* Overlay cálido: velo más sólido sobre la columna de texto (izquierda)
+   para que el título y la descripción no se pierdan con el video. */
+.hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg,
+      rgba(247, 240, 235, 0.96) 0%,
+      rgba(247, 240, 235, 0.93) 18%,
+      rgba(247, 240, 235, 0.78) 40%,
+      rgba(247, 240, 235, 0.46) 58%,
+      rgba(247, 240, 235, 0.16) 76%,
+      rgba(247, 240, 235, 0.04) 100%),
+    radial-gradient(circle at 78% 28%, rgba(234, 184, 163, 0.14) 0%, transparent 62%);
+}
+
+/* Botón flotante de play: solo aparece si el autoplay fue bloqueado.
+   Mientras el video reproduce, queda oculto. */
+.hero-play-btn {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  z-index: 3;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 252, 249, 0.78);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: 0 8px 20px rgba(74, 63, 53, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease, background 0.25s ease;
+}
+.hero-play-btn.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.hero-play-btn:hover {
+  background: rgba(255, 252, 249, 0.95);
+  transform: translateY(0) scale(1.06);
+}
+.hero-play-btn:focus-visible {
+  outline: 2px solid var(--color-accent-terracota, #b9705a);
+  outline-offset: 3px;
+}
+.hero-play-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  margin-left: 3px; /* centrado óptico del triángulo */
+}
+
+/* Aureola organica — fondo sensorial (por encima del video) */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(234, 184, 163, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Segundo halo mas frio para equilibrar la composicion */
+.hero-section::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -15%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(176, 91, 58, 0.07) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  max-width: 720px;
+}
+
+.hero-tagline {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: var(--color-accent-dark);
+  background-color: var(--bg-card);
+  padding: 6px 18px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-card-flat);
+  margin-bottom: 24px;
+  display: inline-block;
+}
+
+.hero-title {
+  font-size: 52px;
+  font-weight: 300; /* "Lujo silencioso": el peso fino es el que lee elegante */
+  line-height: 1.16;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+  /* Sombra cálida sutil para mantener legibilidad sobre el video. */
+  text-shadow: 0 1px 2px rgba(247, 240, 235, 0.85), 0 2px 12px rgba(247, 240, 235, 0.55);
+}
+
+.hero-title .accent-text {
+  color: var(--color-accent-dark);
+  font-style: italic;
+  text-shadow: 0 1px 2px rgba(247, 240, 235, 0.85), 0 2px 12px rgba(247, 240, 235, 0.45);
+}
+
+.hero-description {
+  font-size: 18px;
+  color: var(--color-text);
+  font-weight: 500;
+  margin-bottom: 40px;
+  max-width: 520px;
+  text-shadow: 0 1px 3px rgba(247, 240, 235, 0.95);
+}
+
+/* CTA Buttons — pildora perfecta + uppercase con tracking amplio */
+.cta-button {
+  background-color: var(--color-cta);
+  color: #4A3F35;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 16px 34px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: var(--shadow-cta-flat);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Logo de MercadoPago dentro de los botones de pago */
+.cta-mp .mp-logo {
+  height: 24px;
+  width: auto;
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 6px 6px 16px #c89682, -6px -6px 16px #ffdacf;
+  background-color: var(--color-cta-hover);
+}
+
+.cta-button:active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-cta-sunken);
+}
+
+/* CTA secundario en outline */
+.cta-button.cta-outline {
+  background: rgba(255, 252, 249, 0.5);
+  color: var(--color-text);
+  border: 1.5px solid var(--color-cta);
+  box-shadow: var(--shadow-card-flat);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.cta-button.cta-outline:hover {
+  background: rgba(234, 184, 163, 0.22);
+  color: var(--color-terracota-deep);
+  box-shadow: 0 10px 24px rgba(234, 184, 163, 0.35);
+}
+
+/* Fila de CTAs del hero */
+.hero-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+/* CTA del hero: grilla de botones (Tienda / Academia / Comunidad) */
+.hero-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 690px;
+  margin-top: 4px;
+}
+.hero-actions-grid .cta-button {
+  width: 100%;
+  padding: 15px 18px;
+  letter-spacing: 1.6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.hero-text-link {
+  margin-top: 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-cta);
+  padding-bottom: 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.hero-text-link:hover { color: var(--color-accent-dark); border-color: var(--color-accent-dark); }
+
+/* Envoltorio animado: separa el flotado del tilt 3D del mouse */
+.hero-float-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Prueba social / datos rápidos */
+.hero-trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin-top: 30px;
+  list-style: none;
+  font-size: 13px;
+}
+
+/* Sobre la foto del hero el texto suelto se perdía: cada ítem va en una
+   píldora clara con texto oscuro, igual que los badges del hero de la tienda.
+   Es lo único que garantiza contraste sobre cualquier zona de la imagen. */
+.hero-trust-row li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #4A3F35;
+  font-weight: 600;
+  background: rgba(255, 252, 249, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  padding: 7px 14px;
+  box-shadow: 0 1px 2px rgba(74, 63, 53, 0.08);
+  backdrop-filter: blur(4px);
+}
+
+.hero-trust-row .icon {
+  width: 1em;
+  height: 1em;
+  color: var(--color-accent-botanical);
+}
+
+/* Hero Visual Showcase */
+.hero-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Panel flotante de vidrio: deja ver el video a través (desenfoque) en
+   lugar de taparlo con una foto opaca. */
+.hero-card-showcase {
+  background: rgba(255, 252, 249, 0.42);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  padding: 26px 28px;
+  border-radius: 28px;
+  box-shadow: 0 18px 40px rgba(74, 63, 53, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 340px;
+  transition: transform 0.5s ease-out;
+}
+
+.hero-card-showcase:hover {
+  transform: translateY(-8px) rotate(1deg);
+}
+
+.inner-circle {
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: var(--bg-main);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+.visual-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid var(--color-white);
+  box-shadow: var(--shadow-flat);
+}
+
+.card-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-accent-terracota, #b9705a);
+  opacity: 0.9;
+}
+
+.card-title {
+  font-size: 22px;
+  color: var(--color-text);
+  font-family: var(--font-title);
+}
+
+.card-text {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.badge-organic {
+  background-color: var(--bg-main);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-soft);
+  margin-top: 10px;
+}
+
+/* Floating Animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* 6. (Eliminado) Secciones placeholder de hitos futuros
+   Aquí vivían .placeholder-section, .placeholder-container,
+   .section-icon-wrapper y .section-icon (≈70 líneas). Eran del modelo
+   original de catálogo por hitos, que ya no existe: ninguna de esas
+   clases se usa en el HTML ni en el JS. */
+
+/* 7. Footer */
+.main-footer {
+  background-color: var(--bg-card);
+  border-top: 1px solid rgba(74, 63, 53, 0.05);
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.footer-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  object-fit: cover;
+}
+
+@media (max-width: 480px) {
+  .footer-logo {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.footer-text {
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--color-text-muted);
+  max-width: 560px;
+}
+
+/* Enlaces sociales del footer.
+   Vivían solo en glosario.html, donde no tenían ningún estilo porque
+   glossary.css nunca definió .footer-social. Ahora son compartidos. */
+.footer-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-top: var(--space-xs);
+}
+
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-main);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.footer-social a:hover {
+  transform: translateY(-2px);
+  color: var(--color-accent-terracota);
+}
+
+.footer-social a .icon {
+  width: 1.2em;
+  height: 1.2em;
+}
+
+/* ============================================================
+   TOAST — aviso flotante global
+   Estaba definido DOS veces con criterios opuestos:
+     catalog-calc.css usaba .toast-visible (pill oscuro)
+     academia.css    usaba .show + .toast-icon (tarjeta clara)
+   El JS siempre agrega .show. Como index.html carga catalog-calc.css
+   pero NO academia.css, allí el toast no tenía estilo ni forma de
+   mostrarse. Encima window.toast() no estaba definido en ningún lado,
+   así que los avisos de contacto y Google Sign-In nunca se disparaban.
+   Ahora vive en styles.css (carga en las 3 páginas) y app.js expone
+   window.toast().
+   ============================================================ */
+#toastNotification {
+  position: fixed;
+  bottom: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-card);
+  color: var(--color-text);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 40px rgba(74, 63, 53, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  z-index: 3000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  max-width: 90vw;
+}
+
+#toastNotification.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast-icon { display: inline-flex; color: var(--color-accent-dark); }
+.toast-icon .icon { width: 1.3em; height: 1.3em; }
+
+/* ============================================================
+   REVEAL — animación de entrada al hacer scroll
+   Vivía en catalog-calc.css, que glosario.html NO carga: allí los
+   elementos con .reveal nunca se animaban. Ahora está acá, que sí
+   carga en las 3 páginas.
+
+   Se unificó en .reveal + .is-visible (antes había dos sistemas:
+   .reveal/.revealed en catalog-calc.css y [data-reveal]/.is-visible
+   en academia.css). El observador que agrega .is-visible vive en
+   js/motion.js.
+   ============================================================ */
+/* El estado oculto solo se aplica si el navegador ejecuta JavaScript.
+   `scripting: enabled` es una media query: si el motor no la soporta (o
+   el usuario tiene JS apagado, o es un rastreador que solo pide HTML),
+   el bloque no se aplica y el contenido se ve tal cual.
+
+   Antes, `.reveal` arrancaba en opacity 0 siempre y dependía de que
+   motion.js lo revelara. Sin JS eso no pasa nunca: medido en /glosario,
+   3 bloques quedaban invisibles de forma permanente. Preferimos perder
+   la animación a perder el texto. */
+@media (scripting: enabled) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+.reveal {
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* Con movimiento reducido el contenido se muestra ya visible: si no,
+   quedaría en opacity 0 esperando una animación que no va a correr. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* 8. Mobile-First Responsive Breakpoints */
+
+/* Mobile view (< 768px) */
+@media (max-width: 767px) {
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .nav-menu-desktop {
+    display: none;
+  }
+
+  /* Slide-down Mobile Menu Overlay */
+  .nav-menu-mobile {
+    display: flex;
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    width: 100%;
+    height: calc(100vh - var(--header-height));
+    background: var(--bg-main);
+    flex-direction: column;
+    padding: 32px 24px;
+    gap: 16px;
+    z-index: 999;
+    list-style: none;
+    box-shadow: inset 0 8px 16px rgba(74, 63, 53, 0.03);
+    transform: translateY(-110%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.3s;
+  }
+
+  .nav-menu-mobile.open {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .nav-menu-mobile li {
+    width: 100%;
+  }
+
+  .mobile-nav-link {
+    display: block;
+    width: 100%;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid transparent;
+  }
+
+  .mobile-nav-link:active {
+    box-shadow: var(--shadow-soft-sunken);
+    color: var(--color-accent-terracota);
+  }
+
+  .mobile-nav-link.active {
+    box-shadow: var(--shadow-soft-sunken);
+    color: var(--color-accent-terracota);
+  }
+
+  /* Grupo desplegable "Academia" en el menú móvil */
+  .mobile-nav-group { width: 100%; }
+  .mobile-nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: var(--bg-main);
+    color: var(--color-text);
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, color 0.2s ease;
+  }
+  .mobile-nav-toggle:active { box-shadow: var(--shadow-soft-sunken); color: var(--color-accent-terracota); }
+  .mobile-nav-group.is-open .mobile-nav-toggle { color: var(--color-accent-terracota); }
+  .mobile-nav-caret {
+    width: 0.9em; height: 0.9em;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .mobile-nav-group.is-open .mobile-nav-caret { transform: rotate(90deg); }
+
+  .mobile-nav-sub {
+    list-style: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    padding-left: 14px;
+    margin-top: 0;
+  }
+  .mobile-nav-group.is-open .mobile-nav-sub { max-height: 70vh; margin-top: 10px; overflow-y: auto; overscroll-behavior: contain; }
+  .mobile-nav-sub .mobile-nav-link { font-size: 16px; box-shadow: none; background: transparent; }
+  .mobile-nav-sub .mobile-nav-link:active,
+  .mobile-nav-sub .mobile-nav-link.active { box-shadow: none; color: var(--color-accent-terracota); }
+
+  /* Adjust Hero for Mobile stack */
+  .hero-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .hero-content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-actions-row {
+    justify-content: center;
+  }
+  .hero-actions-grid {
+    grid-template-columns: 1fr;
+    max-width: 340px;
+  }
+  .hero-text-link { align-self: center; }
+
+  .cta-button {
+    padding: 14px 26px;
+    font-size: 13px;
+    letter-spacing: 1.6px;
+  }
+
+  .auth-nav-slot { gap: 6px; margin-left: 0; }
+  .user-name { display: none; }
+  .user-chip { padding: 4px; }
+  .nav-store-btn { font-size: 10.5px; padding: 8px 12px; letter-spacing: 1px; }
+  .nav-ghost-btn { font-size: 12px; padding: 8px 13px; }
+  .hero-trust-row { gap: 6px 14px; font-size: 12px; margin-top: 22px; }
+
+  /* Video del hero en móvil: centrado, sin zoom extra y a opacidad plena
+     (antes quedaba lavado por el overlay y descentrado por el scale). */
+  .hero-video {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.02);
+    object-position: 50% 50%;
+  }
+
+  /* En mobile el texto ocupa todo el ancho: velo vertical más sólido para
+     mantener la legibilidad sobre el video. */
+  .hero-video-overlay {
+    background:
+      linear-gradient(180deg,
+        rgba(247, 240, 235, 0.86) 0%,
+        rgba(247, 240, 235, 0.76) 42%,
+        rgba(247, 240, 235, 0.54) 72%,
+        rgba(247, 240, 235, 0.32) 100%),
+      radial-gradient(circle at 50% 18%, rgba(234, 184, 163, 0.12) 0%, transparent 62%);
+  }
+
+  .hero-title {
+    font-size: 34px;
+  }
+
+  .hero-description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-visual {
+    order: 2; /* Move image below content */
+  }
+
+  .hero-card-showcase {
+    max-width: 320px;
+    padding: 24px;
+  }
+
+  .inner-circle {
+    padding: 16px;
+  }
+}
+
+/* Móvil chico (<= 520px): el header no entra con logo + texto de marca +
+   los dos botones de acción. A 320px desbordaba 67px y a 375px 12px, lo que
+   generaba scroll horizontal en toda la página.
+   Se oculta el texto de marca: el logo circular ya contiene el nombre. */
+@media (max-width: 520px) {
+  .header-container { padding: 0 14px; }
+  .logo-text-wrapper { display: none; }
+  .header-logo { height: 46px; width: 46px; }
+  .auth-nav-slot { gap: 5px; margin-left: 0; }
+  .nav-store-btn { letter-spacing: 0.6px; padding: 8px 11px; }
+}
+
+/* ============================================================
+   Objetivo táctil en mobile (44×44 px)
+   En celular varios controles quedaban por debajo del mínimo cómodo
+   (chips ~35 px, filtros del glosario ~24 px, botones del nav ~33 px).
+   Acá se sube el piso a 44 px. `min-*` gana sobre `width`/`height`
+   explícitos, así que aplica aunque el control tenga tamaño fijo.
+
+   Además, en mobile el botón de la tienda sale del header (queda más
+   limpio) y se agrega al menú lateral — ver `js/community.js`.
+   ============================================================ */
+@media (max-width: 640px) {
+  .chip-filter,
+  .glossary-filter-btn,
+  .nav-ghost-btn,
+  .nav-store-btn,
+  .auth-tab,
+  .thread-action,
+  .remove-ingredient-btn,
+  .hamburger-btn,
+  .guide-modal__close,
+  .glossary-main-nav,
+  .foro-cat-list button,
+  .mod-btn {
+    min-height: 44px;
+  }
+
+  .glossary-filter-btn,
+  .nav-ghost-btn,
+  .nav-store-btn,
+  .remove-ingredient-btn,
+  .hamburger-btn,
+  .guide-modal__close,
+  .glossary-main-nav,
+  .mod-icon-btn {
+    min-width: 44px;
+  }
+
+  /* Controles de ícono en las esquinas: cuadrado de 44. */
+  .auth-close-btn,
+  .guide-modal__close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Los dots del glosario se ajustan en `css/glossary.css` (ese archivo carga
+     después y su `padding` tiene la misma especificidad que este bloque). */
+
+  /* Header más liviano: la tienda se accede desde el menú lateral. */
+  .nav-store-btn { display: none; }
+
+  /* Centrar la hamburguesa en el hueco entre el logo y "Ingresar".
+     Con `justify-content: space-between` la X no quedaba pareja: la distancia
+     al logo y a "Ingresar" dependía del ancho de cada uno (el botón es más
+     ancho que el logo, así que el hueco de la izquierda salía mayor).
+     Los dos pseudo-elementos son espaciadores flexibles idénticos a cada lado
+     de la X, así que absorben el espacio sobrante en partes iguales y la X
+     cae en el medio exacto del hueco libre. El orden en el DOM es:
+     logo · espaciador · X · espaciador · login, con `order` para intercalarlos. */
+  .header-container > .logo-area        { order: 1; }
+  .header-container > .header-actions   { order: 3; flex: 0 0 auto; }
+  .header-container > .auth-nav-slot    { order: 5; justify-content: flex-end; }
+
+  .header-container::before,
+  .header-container::after {
+    content: "";
+    flex: 1 1 0;
+    align-self: stretch;
+    min-width: 0;
+  }
+  .header-container::before { order: 2; }
+  .header-container::after  { order: 4; }
+}
+
+/* Tablet View (768px - 1279px) */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hero-title {
+    font-size: 42px;
+  }
+
+  .hero-container {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 24px;
+  }
+}
+
+/* Pantallas medianas: la barra no entra completa, ocultamos enlaces secundarios */
+@media (max-width: 1180px) {
+  .nav-menu-desktop li:nth-child(3),
+  .nav-menu-desktop li:nth-child(4) { display: none; }
+}
+
+@media (max-width: 980px) {
+  .nav-menu-desktop li:nth-child(2) { display: none; }
+}
+
+/* Desktop View (>= 1280px) */
+@media (min-width: 1280px) {
+  .hero-title {
+    font-size: 54px;
+  }
+}
+
+/* ============================================================
+   SISTEMA DE ICONOS SVG (línea, profesional)
+   Los iconos reemplazan los emojis. Heredan el color del texto
+   y se dimensionan con em para escalar con la tipografía.
+   ============================================================ */
+.icon {
+  width: 1.15em;
+  height: 1.15em;
+  display: inline-block;
+  vertical-align: -0.18em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+.icon-sm { width: 1em; height: 1em; vertical-align: -0.12em; }
+.icon-lg { width: 1.6em; height: 1.6em; vertical-align: -0.28em; }
+.value-card .icon,
+.channel-icon .icon { width: 1.4em; height: 1.4em; margin-right: 4px; }
+.coming-soon-badge .icon,
+.payment-preview-item .icon { margin-right: 6px; }
+
+/* ============================================================
+   ACCESIBILIDAD DE ICONOS — fallback si js/icons.js falla
+   Si el <svg> no se inyectó, reservamos el espacio y mostramos
+   un círculo punteado en lugar de dejar el hueco vacío.
+   ============================================================ */
+i[data-icon] { display: inline-block; position: relative; }
+i[data-icon]:not(:has(svg)) {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.18em;
+}
+i[data-icon]:not(:has(svg))::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px dashed currentColor;
+  opacity: 0.45;
+}
+i[data-icon].icon-sm:not(:has(svg)) { width: 1em; height: 1em; }
+i[data-icon].icon-lg:not(:has(svg)) { width: 1.6em; height: 1.6em; }
+
+
+/* La tarjeta flotante del hero ahora es un enlace a la tienda */
+a.hero-card-showcase {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+a.hero-card-showcase:focus-visible {
+  outline: 2px solid var(--color-cta);
+  outline-offset: 4px;
+}
+
+/* Botón de Google: el botón OFICIAL (renderButton) se monta transparente
+   encima del botón propio (js/auth.js) para que el clic abra el selector de
+   cuenta de forma confiable en escritorio, manteniendo el diseño propio. */
+.google-btn-wrap { position: relative; }
+.google-btn-slot { display: flex; justify-content: center; min-height: 44px; }
+.google-btn-slot > div,
+.google-btn-slot iframe { width: 100% !important; max-width: 400px; }
+
+/* ============================================================
+   Botón flotante de WhatsApp — global (todas las páginas)
+   Se inyecta por JS (js/app.js) y se estila aquí para que viva en
+   la misma paleta neumórfica de la marca. Verde WhatsApp para
+   reconocimiento inmediato.
+   ============================================================ */
+.wa-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  width: 58px;
+  height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #25D366;
+  color: #ffffff;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.wa-float:hover,
+.wa-float:focus-visible {
+  transform: scale(1.06);
+  box-shadow: 0 8px 22px rgba(37, 211, 102, 0.55);
+  outline: none;
+}
+
+.wa-float svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.wa-float__label {
+  position: absolute;
+  right: 70px;
+  background: var(--bg-card, #FFFCF9);
+  color: var(--color-text, #4A3F35);
+  font-family: var(--font-body, 'Nunito', sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 13px;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-card-flat, 0 4px 12px rgba(0,0,0,.12));
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.wa-float:hover .wa-float__label,
+.wa-float:focus-visible .wa-float__label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (max-width: 520px) {
+  .wa-float {
+    right: 16px;
+    bottom: 20px;
+    width: 48px;
+    height: 48px;
+  }
+  .wa-float svg { width: 25px; height: 25px; }
+  .wa-float__label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+}
+
+/* Consentimiento de analítica (GA4 + Meta Pixel) */
+.mz-consent {
+  position: fixed;
+  inset: auto 16px 16px auto;
+  z-index: 1100;
+  max-width: 420px;
+}
+.mz-consent[hidden] { display: none; }
+.mz-consent__box {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e6e2da);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.18);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mz-consent__box strong { display: block; margin-bottom: 4px; font-size: 14px; }
+.mz-consent__box p { margin: 0; color: var(--muted, #6b6862); }
+.mz-consent__actions { display: flex; gap: 8px; flex: 0 0 auto; }
+@media (max-width: 600px) {
+  .mz-consent { inset: auto 10px 10px 10px; max-width: none; }
+  .mz-consent__box { flex-direction: column; align-items: stretch; gap: 12px; }
+  .mz-consent__actions { justify-content: flex-end; }
+}
+
+.mz-consent__btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line, #e6e2da);
+  background: transparent;
+  color: var(--text, #2b2723);
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.mz-consent__btn:hover { transform: translateY(-1px); }
+.mz-consent__btn--primary {
+  background: #b85c3c;
+  border-color: #b85c3c;
+  color: #fff;
+}
+.mz-consent__btn--primary:hover { background: #a44f32; }
+.mz-consent__btn--ghost:hover { background: rgba(0,0,0,.04); }
+.mz-consent__btn:focus-visible { outline: 3px solid rgba(184,92,60,.35); outline-offset: 2px; }
+.mz-consent__box a { color: #b85c3c; text-decoration: underline; }
+
+.mz-consent__btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line, #e6e2da);
+  background: transparent;
+  color: var(--text, #2b2723);
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.mz-consent__btn:hover { transform: translateY(-1px); }
+.mz-consent__btn--primary {
+  background: #b85c3c;
+  border-color: #b85c3c;
+  color: #fff;
+}
+.mz-consent__btn--primary:hover { background: #a44f32; }
+.mz-consent__btn--ghost:hover { background: rgba(0,0,0,.04); }
+.mz-consent__btn:focus-visible { outline: 3px solid rgba(184,92,60,.35); outline-offset: 2px; }
+.mz-consent__box a { color: #b85c3c; text-decoration: underline; }
+
+/* Menú móvil: nace DEBAJO del header + barra de envío, y por encima
+   del banner de cookies (1100) para que nunca se superpongan. */
+@media (max-width: 980px) {
+  .nav-menu-mobile {
+    top: calc(var(--header-height) + var(--topbar-h, 0px));
+    height: calc(100vh - var(--header-height) - var(--topbar-h, 0px));
+    z-index: 1300;
+  }
+}
+
+/* WhatsApp vs banner de cookies: mientras el aviso está activo, el widget
+   se oculta. Al moverlo arriba terminaba tapando el CTA principal; ocultarlo
+   deja los botones libres y evita cargar un widget externo antes del opt-in. */
+body.consent-visible .wa-float { display: none; }
+
+/* ============================================================
+   Header móvil / tablet (<= 1023px)
+   Desktop (>= 1024px) conserva su header actual: logo + menú +
+   carrito + cuenta. Acá el layout pasa a:
+     [hamburguesa] ...... [logo centrado] ...... [carrito]
+   y la cuenta se mueve dentro del menú hamburguesa, para no
+   competir con el carrito en pantallas chicas.
+   ============================================================ */
+@media (max-width: 1023px) {
+  /* El drawer puede superar la altura de la pantalla (submenús + cuenta
+     con "Salir"). Debe poder scrollear siempre, no solo bajo 767px. */
+  .nav-menu-mobile {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
+  }
+  .header-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+  }
+  .header-container::before,
+  .header-container::after { display: none; }
+  .header-container > .hamburger-btn  { order: 1; justify-self: start; display: flex; }
+  .header-container > .logo-area      { order: 2; justify-self: center; }
+  .header-container > .header-actions { order: 3; justify-self: end; }
+  .header-container > .auth-nav-slot  { display: none; }
+  /* El contenedor del menú desktop también es hijo del grid: ocultarlo
+     evita que robe la primera columna. El menú real es el hamburguesa. */
+  .header-container > .main-nav,
+  .nav-menu-desktop { display: none; }
+
+  .mobile-nav-account {
+    list-style: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin-top: auto; /* se queda al final, pero empuja el scroll si hace falta */
+    padding: 12px 0 4px;
+    flex: 0 0 auto;
+  }
+  .mobile-nav-account .account-menu,
+  .mobile-nav-account .account-menu__panel {
+    position: static;
+    box-shadow: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    width: 100%;
+  }
+  .mobile-nav-account .account-menu__panel {
+    display: grid;
+    gap: 2px;
+    margin-top: 6px;
+  }
+  .mobile-nav-account .user-chip {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .mobile-nav-account .account-menu__item {
+    min-height: 48px;
+  }
+}
