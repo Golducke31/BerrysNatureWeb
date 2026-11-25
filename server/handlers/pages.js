@@ -1740,32 +1740,31 @@ function homeTarjetasHtml(filas) {
   }).join('\n');
 }
 
-/** JSON-LD Product por cada destacada (lo que los bots de IA leen). */
+/* JSON-LD de la home como ItemList, no como productos sueltos.
+   La home es un LISTADO de destacadas: declarar `@type: Product` sin
+   aggregateRating/review generaba advertencias en Search Console
+   ("Falta el campo aggregateRating"/"review"). Un ItemList describe
+   mejor la página y no exige campos de reseñas. Las fichas individuales
+   siguen emitiendo Product + AggregateRating + Review donde corresponde. */
 function homeJsonLd(filas) {
   const base = siteUrl();
-  const productos = filas.map((r) => {
+  const items = filas.map((r, i) => {
     const p = productoParaLd(r);
-    const datos = {
-      '@type': 'Product',
+    const url = `${base}/productos/${encodeURIComponent(p.id)}`;
+    const item = {
+      '@type': 'ListItem',
+      position: i + 1,
       name: p.nombre,
-      url: `${base}/productos/${encodeURIComponent(p.id)}`,
-      image: p.imagen ? absAsset(p.imagen) : undefined
+      url
     };
-    if (typeof p.precio === 'number' && p.precio > 0) {
-      datos.offers = {
-        '@type': 'Offer',
-        priceCurrency: 'ARS',
-        price: Number(p.oferta > 0 && p.oferta < p.precio ? p.oferta : p.precio).toFixed(2),
-        availability: (p.stock === null || p.stock === undefined || Number(p.stock) > 0)
-          ? 'https://schema.org/InStock'
-          : 'https://schema.org/OutOfStock',
-        url: datos.url
-      };
-    }
-    return datos;
+    if (p.imagen) item.image = absAsset(p.imagen);
+    return item;
   });
   return `<script type="application/ld+json" id="homeProductJsonLd">${jsonLd({
-    '@context': 'https://schema.org', '@graph': productos
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Productos destacados de Berry',
+    itemListElement: items
   })}</script>`;
 }
 
@@ -2120,7 +2119,10 @@ async function renderEbooks(req, res, params = {}) {
   const title = e.seo_title || `${e.title} | Berry's Nature`;
   const description = e.seo_description || e.description || `Comprá ${e.title} de Berry's Nature.`;
   const breadcrumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Inicio', item: `${siteUrl()}/` }, { '@type': 'ListItem', position: 2, name: 'Ebooks', item: `${siteUrl()}/ebooks` }, { '@type': 'ListItem', position: 3, name: e.title, item: canonical }] };
-  const book = { '@context': 'https://schema.org', '@type': ['Book', 'Product'], name: e.title, description, image, url: canonical, author: { '@type': 'Organization', name: e.author || "Berry's Nature" }, publisher: { '@type': 'Organization', name: e.publisher || "Berry's Nature" }, inLanguage: e.language || 'es-AR', numberOfPages: e.page_count || undefined, brand: { '@type': 'Brand', name: "Berry's Nature" }, offers: { '@type': 'Offer', priceCurrency: 'ARS', price: String(e.price), availability: 'https://schema.org/InStock', url: canonical } };
+  /* Solo `Book`: declarar también `Product` hacía que Search Console
+     exigiera aggregateRating/review en una ficha que no tiene reseñas.
+     El `offers` con precio se mantiene para mostrar el precio en resultados. */
+  const book = { '@context': 'https://schema.org', '@type': 'Book', name: e.title, description, image, url: canonical, author: { '@type': 'Organization', name: e.author || "Berry's Nature" }, publisher: { '@type': 'Organization', name: e.publisher || "Berry's Nature" }, inLanguage: e.language || 'es-AR', numberOfPages: e.page_count || undefined, brand: { '@type': 'Brand', name: "Berry's Nature" }, offers: { '@type': 'Offer', priceCurrency: 'ARS', price: String(e.price), availability: 'https://schema.org/InStock', url: canonical } };
   const body = `<main class="page-ebook"><nav class="ebook-breadcrumbs" aria-label="Migas de pan"><a href="/">Inicio</a><span>›</span><a href="/ebooks">Ebooks</a><span>›</span><span>${esc(e.title)}</span></nav><section class="ebook-hero"><div class="ebook-hero__copy"><span class="section-label-tag">Ebook digital · Berry's Nature</span><h1>${esc(e.title)}</h1><p class="ebook-hero__intro">${esc(e.excerpt || e.description || 'Una guía práctica para aprender y crear con una mirada natural y artesanal.')}</p><div class="ebook-hero__actions"><a class="cta-button" href="#comprar">Quiero mi ebook</a><a class="ebook-text-link" href="/ebooks">Ver todos los ebooks</a></div><div class="ebook-trust"><span>PDF digital</span><span>Acceso desde cualquier dispositivo</span><span>Entrega por email</span></div></div><div class="ebook-hero__visual"><figure class="ebook-cover"><img src="${esc(image)}" alt="Portada de ${esc(e.title)}" width="2380" height="3368" loading="eager" decoding="async"><figcaption>${esc(e.title)}</figcaption></figure></div></section><section class="ebook-content-grid"><article class="ebook-content-section"><h2>Sobre este ebook</h2><p>${esc(e.long_description || e.description || 'Una guía práctica de Berry\'s Nature.')}</p>${e.audience ? `<h3>¿Para quién es?</h3><p>${esc(e.audience)}</p>` : ''}${e.level ? `<p><strong>Nivel:</strong> ${esc(e.level)}</p>` : ''}${e.page_count ? `<p><strong>Extensión:</strong> ${esc(e.page_count)} páginas</p>` : ''}</article><aside class="ebook-content-section"><h2>Qué vas a encontrar</h2>${ebookList(benefits, 'ebook-benefits')}${topics.length ? `<h3>Temas incluidos</h3>${ebookList(topics, 'ebook-topics')}` : ''}</aside></section>${ebookFaqHtml(e.faq)}<section id="comprar" class="ebook-buy-section"><div class="ebook-buy-card"><div><span class="section-label-tag">Edición digital</span><h2>Empezá hoy</h2><p>Después del pago aprobado recibís automáticamente el acceso en tu email.</p></div><div class="ebook-price"><span>Precio</span><strong>$ ${esc(Number(e.price).toLocaleString('es-AR'))} <small>ARS</small></strong><form data-ebook-checkout novalidate><input type="hidden" name="slug" value="${esc(e.slug)}"><label for="ebookNombre">Nombre</label><input id="ebookNombre" name="nombre" autocomplete="name" required placeholder="Tu nombre"><label for="ebookEmail">Email de entrega</label><input id="ebookEmail" name="email" type="email" autocomplete="email" required placeholder="tu@email.com"><button class="cta-button ebook-buy-card__cta" type="submit">Ir a pagar</button><p class="ebook-feedback" data-ebook-feedback role="status" aria-live="polite"></p></form><small class="ebook-price__note">Pago seguro con Mercado Pago. Recibís el acceso por email después de la acreditación.</small></div></div></section></main>`;
   const jsonLdBlocks = [breadcrumb, book];
   if (Array.isArray(e.faq) && e.faq.length) jsonLdBlocks.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: e.faq.filter((item) => item && item.q && item.a).map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) });

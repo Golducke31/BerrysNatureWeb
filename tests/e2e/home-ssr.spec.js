@@ -76,6 +76,23 @@ test.describe('Home SSR y datos para rastreadores', () => {
     expect(server).toContain('EMOJIS_PERMITIDOS');
   });
 
+  test('HS-10: home usa ItemList (no Product suelto) y ebook solo Book', () => {
+    const js = leer('server/handlers/pages.js');
+    const bloqueHome = js.slice(js.indexOf('function homeJsonLd('), js.indexOf('async function renderHome('));
+    expect(bloqueHome).toContain("'@type': 'ItemList'");
+    expect(bloqueHome).toContain("'@type': 'ListItem'");
+    expect(bloqueHome).not.toContain("'@type': 'Product'");
+    expect(bloqueHome).toContain('itemListElement: items');
+    /* Sin aggregateRating/review en tarjetas: evita las advertencias de GSC. */
+    expect(bloqueHome).not.toContain('aggregateRating');
+
+    const bloqueEbook = js.slice(js.indexOf('const book = '), js.indexOf('const body = ', js.indexOf('const book = ')));
+    expect(bloqueEbook).toContain("'@type': 'Book'");
+    expect(bloqueEbook).not.toContain("['Book', 'Product']");
+    /* El precio se conserva. */
+    expect(bloqueEbook).toContain("offers: { '@type': 'Offer', priceCurrency: 'ARS'");
+  });
+
   test('HS-08: enlace del ebook apunta al slug vigente', () => {
     const h = leer('academia.html');
     expect(h).toContain('/ebooks/manual-cosmetica-solida-jabones-artesanales');
