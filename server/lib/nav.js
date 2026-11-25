@@ -124,17 +124,18 @@ function headerHtml(base) {
         </ul>
       </nav>
 
+      <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
+        ${HAMBURGER}
+      </button>
+
+      <div class="auth-nav-slot" id="authNavSlot"></div>
+
       <div class="header-actions">
         <a href="/tienda#carrito" class="nav-cart-btn" data-cart-link aria-label="Ver el carrito">
           ${CART_ICON}
           <span class="nav-cart-count" data-cart-count hidden>0</span>
         </a>
-        <button class="hamburger-btn" aria-label="Abrir menú" id="hamburgerBtn" aria-expanded="false" aria-controls="navMenuMobile">
-          ${HAMBURGER}
-        </button>
       </div>
-
-      <div class="auth-nav-slot" id="authNavSlot"></div>
     </div>
   </header>`;
 }
@@ -177,6 +178,9 @@ function mobileNavHtml() {
           <li><a class="mobile-nav-link" href="/emprende-con-nosotros">Emprendé con nosotros</a></li>
         </ul>
       </li>
+      <!-- Cuenta dentro del menú en móvil/tablet. En escritorio se oculta
+           este bloque y se muestra el slot del header (ver CSS). -->
+      <li class="mobile-nav-account" id="authNavSlotMobile"></li>
     </ul>
   </nav>`;
 }

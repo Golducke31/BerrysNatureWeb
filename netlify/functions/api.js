@@ -50,8 +50,10 @@ function resolvePath(event) {
   if (fnMatch) pathname = fnMatch[1] || '/';
 
   // 3) Si tras lo anterior no empieza con /api, lo prefijamos (URLs lindas).
+  //    La raíz "/" NO es una ruta API vacía: el rewrite de netlify.toml
+  //    la envía acá para servir la home con datos reales (renderHome).
   if (!pathname.startsWith('/api')) {
-    pathname = '/api' + (pathname === '/' ? '' : pathname);
+    pathname = pathname === '/' ? '/api/home' : '/api' + pathname;
   }
 
   return pathname + (search || queryOf(event));

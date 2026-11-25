@@ -128,6 +128,39 @@
         openAuthModal('login');
       });
     }
+
+    /* Espejo en el menú hamburguesa (móvil/tablet). Se clona el markup ya
+       pintado y se reindexan los IDs para no duplicarlos en el DOM. */
+    var mobileSlot = $('#authNavSlotMobile');
+    if (mobileSlot && nav.innerHTML) {
+      var clon = nav.cloneNode(true);
+      clon.removeAttribute('id');
+      clon.querySelectorAll('[id]').forEach(function (el) {
+        el.id = el.id + 'Mobile';
+      });
+      mobileSlot.innerHTML = '';
+      mobileSlot.appendChild(clon);
+
+      var chipM = mobileSlot.querySelector('[id$="userChipBtnMobile"]');
+      var menuM = mobileSlot.querySelector('[id$="accountMenuMobile"]');
+      if (chipM && menuM) chipM.addEventListener('click', function () {
+        var open = chipM.getAttribute('aria-expanded') !== 'true';
+        chipM.setAttribute('aria-expanded', String(open));
+        menuM.hidden = !open;
+      });
+      var modM = mobileSlot.querySelector('[id$="modPanelBtnMobile"]');
+      if (modM) modM.addEventListener('click', function () {
+        menuM.hidden = true;
+        if (window.BerrysModPanel && window.BerrysModPanel.open) window.BerrysModPanel.open();
+      });
+      var outM = mobileSlot.querySelector('[id$="logoutBtnMobile"]');
+      if (outM) outM.addEventListener('click', function () { doLogout(); });
+      var loginM = mobileSlot.querySelector('[id$="loginBtnMobile"]');
+      if (loginM) loginM.addEventListener('click', function () {
+        menuM.hidden = true;
+        openAuthModal('login');
+      });
+    }
   }
 
   function closeAccountMenu() {

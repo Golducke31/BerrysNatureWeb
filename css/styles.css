@@ -1691,7 +1691,6 @@ a.hero-card-showcase:focus-visible {
   text-decoration: none;
   box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
   transition: transform .2s ease, box-shadow .2s ease;
-  animation: wa-pulse 2.6s infinite;
 }
 
 .wa-float:hover,
@@ -1731,12 +1730,6 @@ a.hero-card-showcase:focus-visible {
   transform: translateX(0);
 }
 
-@keyframes wa-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.50); }
-  70%  { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-}
-
 @media (max-width: 520px) {
   .wa-float {
     right: 16px;
@@ -1749,7 +1742,6 @@ a.hero-card-showcase:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wa-float { animation: none; }
 }
 
 /* Consentimiento de analítica (GA4 + Meta Pixel) */
@@ -1842,3 +1834,47 @@ a.hero-card-showcase:focus-visible {
    se oculta. Al moverlo arriba terminaba tapando el CTA principal; ocultarlo
    deja los botones libres y evita cargar un widget externo antes del opt-in. */
 body.consent-visible .wa-float { display: none; }
+
+/* ============================================================
+   Header móvil / tablet (<= 1023px)
+   Desktop (>= 1024px) conserva su header actual: logo + menú +
+   carrito + cuenta. Acá el layout pasa a:
+     [hamburguesa] ...... [logo centrado] ...... [carrito]
+   y la cuenta se mueve dentro del menú hamburguesa, para no
+   competir con el carrito en pantallas chicas.
+   ============================================================ */
+@media (max-width: 1023px) {
+  .header-container {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+  }
+  .header-container::before,
+  .header-container::after { display: none; }
+  .header-container > .hamburger-btn  { order: 1; justify-self: start; display: flex; }
+  .header-container > .logo-area      { order: 2; justify-self: center; }
+  .header-container > .header-actions { order: 3; justify-self: end; }
+  .header-container > .auth-nav-slot  { display: none; }
+  /* El contenedor del menú desktop también es hijo del grid: ocultarlo
+     evita que robe la primera columna. El menú real es el hamburguesa. */
+  .header-container > .main-nav,
+  .nav-menu-desktop { display: none; }
+
+  .mobile-nav-account {
+    list-style: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin-top: 10px;
+    padding-top: 12px;
+  }
+  .mobile-nav-account .account-menu__panel {
+    position: static;
+    box-shadow: none;
+    background: transparent;
+    border: 0;
+    padding: 4px 0 0;
+  }
+  .mobile-nav-account .user-chip {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
