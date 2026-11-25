@@ -141,7 +141,22 @@ test.describe('Feed de Google Merchant Center', () => {
       'p16-shampoo-solido.webp', 'p18-agua-micelar.webp', 'p02-jabon-calendula.webp'
     ];
     for (const f of archivos) expect(fs.existsSync(path.join(root, 'assets/productos', f))).toBe(true);
-    const salida = execFileSync('python', ['-c', codigo, ...archivos], { cwd: root, encoding: 'utf8' }).trim();
+    /* El `python` del PATH puede no tener Pillow. Buscamos el entorno del
+       proyecto antes de caer al genérico, para que el test no dependa de
+       qué intérprete esté primero en el PATH. */
+    const candidatos = [
+      'C:/Users/emanu/.workbuddy-ai/binaries/python/envs/default/Scripts/python.exe',
+      'python', 'python3'
+    ];
+    let salida = '';
+    let ultimoError = null;
+    for (const py of candidatos) {
+      try {
+        salida = execFileSync(py, ['-c', codigo, ...archivos], { cwd: root, encoding: 'utf8' }).trim();
+        break;
+      } catch (err) { ultimoError = err; }
+    }
+    if (!salida) throw ultimoError;
     expect(salida).toBe('OK');
   });
 

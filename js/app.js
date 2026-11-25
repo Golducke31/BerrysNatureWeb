@@ -492,22 +492,30 @@ document.addEventListener('DOMContentLoaded', () => {
   var header = document.querySelector('.sticky-header');
   if (!header || document.querySelector('.topbar-announce')) return;
 
-  var mensajes = [];
-  var indiceMensaje = 0;
-  var rotacion = null;
+  /* Marquesina: los mensajes se desplazan horizontalmente en un track
+     continuo. Siempre hay al menos uno, aunque el panel no tenga umbral
+     de envío ni código de descuento cargados. */
+  var mensajes = [{ emoji: '🌿', html: 'Cosmética natural artesanal · <strong>Hecha en Argentina</strong>' }];
+  var track = null;
+  function escBanner(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
   var bar = document.createElement('div');
   bar.className = 'topbar-announce';
   bar.setAttribute('role', 'region');
   bar.setAttribute('aria-label', 'Promociones y envío');
   bar.innerHTML =
     '<div class="topbar-announce__inner">' +
-      '<div class="topbar-announce__viewport" aria-live="polite" aria-atomic="true"><span class="topbar-announce__message is-visible" id="topbarMessage">Envío gratis desde <strong>$ 30.000</strong> a todo el país</span></div>' +
+      '<div class="topbar-announce__viewport"><div class="topbar-announce__track" id="topbarTrack">' +
+        '<span class="topbar-announce__message" id="topbarMessage">🚚 Envío gratis desde <strong>$ 30.000</strong> a todo el país</span>' +
+      '</div></div>' +
       '<button type="button" class="topbar-announce__close" aria-label="Cerrar anuncio">×</button>' +
     '</div>';
   header.parentNode.insertBefore(bar, header);
 
     bar.querySelector('.topbar-announce__close').addEventListener('click', function () {
-    if (rotacion) window.clearInterval(rotacion);
     bar.remove();
     syncTopbarHeight();
     try {
@@ -523,15 +531,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   syncTopbarHeight();
 
-  function mostrarMensaje() {
-    var el = document.getElementById('topbarMessage');
-    if (!el || !mensajes.length) return;
-    el.classList.remove('is-visible');
-    setTimeout(function () {
-      el.innerHTML = mensajes[indiceMensaje];
-      el.classList.add('is-visible');
-      syncTopbarHeight();
-    }, 180);
+  /* Pinta los mensajes en el track y duplica el grupo para que la
+     animación -50% sea un loop sin salto. Cada mensaje lleva emoji
+     distinto para que el desplazamiento se lea mejor. */
+  function pintarTrack() {
+    track = document.getElementById('topbarTrack');
+    if (!track || !mensajes.length) return;
+    function renderGrupo() {
+      return mensajes.map(function (m) {
+        return '<span class="topbar-announce__message">' +
+          escBanner(m.emoji || '🌿') + ' ' + m.html + '</span>';
+      }).join('');
+    }
+    /* Se duplica el grupo: la animación a -50% vuelve al inicio sin salto. */
+    var grupo = renderGrupo();
+    track.innerHTML = grupo + grupo;
+    syncTopbarHeight();
   }
 
   fetch('/api/content/shipping')
@@ -542,21 +557,21 @@ document.addEventListener('DOMContentLoaded', () => {
       var percent = Number(d.discountPercent);
       var code = String(d.discountCode || '').toUpperCase().replace(/[^A-Z0-9_-]/g, '').slice(0, 24);
       if (Number.isFinite(threshold) && threshold > 0) {
-        mensajes.push('Envío gratis desde <strong>$ ' + Math.trunc(threshold).toLocaleString('es-AR') + '</strong> a todo el país');
+        mensajes.push({
+          emoji: d.emojiEnvio || '🚚',
+          html: 'Envío gratis desde <strong>$ ' + Math.trunc(threshold).toLocaleString('es-AR') + '</strong> a todo el país'
+        });
       }
       if (Number.isInteger(percent) && percent > 0 && percent <= 90 && code) {
-        mensajes.push('<strong>' + percent + '% OFF</strong> usando el código <strong>' + code + '</strong>');
+        mensajes.push({
+          emoji: d.emojiDescuento || '🎁',
+          html: '<strong>' + percent + '% OFF</strong> usando el código <strong>' + escBanner(code) + '</strong>'
+        });
       }
-      if (!mensajes.length) { bar.remove(); return; }
-      indiceMensaje = 0;
-      mostrarMensaje();
+      if (d.emojiMarca) mensajes[0].emoji = d.emojiMarca;
+      pintarTrack();
       var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (mensajes.length > 1 && !reduceMotion) {
-        rotacion = window.setInterval(function () {
-          indiceMensaje = (indiceMensaje + 1) % mensajes.length;
-          mostrarMensaje();
-        }, 4500);
-      }
+      if (reduceMotion && track) track.style.animation = 'none';
     })
     .catch(function () { /* queda el valor por defecto */ });
 })();

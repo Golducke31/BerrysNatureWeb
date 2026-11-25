@@ -21,6 +21,14 @@ const { json, fail, notFound, getClientIp } = require('../lib/http');
    "about" = Sobre Nosotros; "shipping" = configuración de envíos. */
 const PUBLIC_KEYS = new Set(['about', 'shipping', 'lab']);
 
+/* Emojis permitidos en la marquesina del banner: se recortan a 1-2
+   caracteres para no romper el layout ni inyectar markdown/HTML. */
+const EMOJIS_PERMITIDOS = /^[\p{Emoji}\u200D\uFE0F]{1,6}$/u;
+function emojiBanner(valor, porDefecto) {
+  const s = typeof valor === 'string' ? valor.trim().slice(0, 8) : '';
+  return EMOJIS_PERMITIDOS.test(s) ? s : porDefecto;
+}
+
 function shippingSettings(value) {
   const v = value && typeof value === 'object' ? value : {};
   const threshold = Number(v.freeThreshold);
@@ -29,7 +37,10 @@ function shippingSettings(value) {
   return {
     freeThreshold: Number.isFinite(threshold) && threshold >= 0 ? Math.trunc(threshold) : 30000,
     discountCode: /^[A-Z0-9_-]{2,24}$/.test(rawCode) ? rawCode : '',
-    discountPercent: Number.isInteger(percent) && percent >= 0 && percent <= 90 ? percent : 10
+    discountPercent: Number.isInteger(percent) && percent >= 0 && percent <= 90 ? percent : 10,
+    emojiMarca: emojiBanner(v.emojiMarca, '🌿'),
+    emojiEnvio: emojiBanner(v.emojiEnvio, '🚚'),
+    emojiDescuento: emojiBanner(v.emojiDescuento, '🎁')
   };
 }
 
@@ -94,7 +105,13 @@ async function update(req, res, params, body) {
     const value = Object.assign({}, (row && row.value) || {}, {
       freeThreshold,
       discountCode,
-      discountPercent
+      discountPercent,
+      emojiMarca: body.emojiMarca === undefined
+        ? currentValue.emojiMarca : emojiBanner(body.emojiMarca, currentValue.emojiMarca),
+      emojiEnvio: body.emojiEnvio === undefined
+        ? currentValue.emojiEnvio : emojiBanner(body.emojiEnvio, currentValue.emojiEnvio),
+      emojiDescuento: body.emojiDescuento === undefined
+        ? currentValue.emojiDescuento : emojiBanner(body.emojiDescuento, currentValue.emojiDescuento)
     });
     await db.query(
       `INSERT INTO site_content (key, value) VALUES ($1, $2::jsonb)

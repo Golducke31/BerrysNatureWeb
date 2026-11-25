@@ -30,7 +30,7 @@ const indexability = require('../lib/indexability');
 const urls = require('../lib/urls');
 const features = require('../lib/features');
 const reputation = require('../lib/reputation');
-const { html, xml, redirect } = require('../lib/http');
+const { html, xml, redirect, json, notFound } = require('../lib/http');
 const { esc } = require('../admin-ui');
 const { BADGE_SCRIPT, asegurarFooter, asegurarSameAs } = require('../lib/html-extras');
 const nav = require('../lib/nav');
@@ -1695,6 +1695,148 @@ function buildCatalogoJsonLd(productos, nombreLista, pageUrl) {
   };
 }
 
+/* ============================================================
+   Home con datos reales (SSR ligero)
+   La home es un HTML estático servido por Netlify: los rastreadores
+   que no ejecutan JS veían "Consultar precio" y tamaños viejos. Esta
+   función le inyecta nombre/precio/stock/imágenes desde la BD antes
+   de servir, y agrega JSON-LD Product por tarjeta. El JS actual se
+   mantiene intacto para carrito, carruseles y swipe.
+   ============================================================ */
+const RE_GRID_HOME = /(<div class="home-product-grid">)[\s\S]*?(<\/div>\s*<p class="home-actions">)/;
+
+/** Tarjetas de la home renderizadas en servidor, con datos de la BD. */
+function homeTarjetasHtml(filas) {
+  return filas.map((r) => {
+    const p = productoParaLd(r);
+    const url = `/productos/${encodeURIComponent(p.id)}`;
+    const imagen = p.imagen ? absAsset(p.imagen) : '';
+    const conPrecio = typeof p.precio === 'number';
+    const ofertaValido = conPrecio && typeof p.oferta === 'number' && p.oferta > 0 && p.oferta < p.precio;
+    const stock = (p.stock === null || p.stock === undefined) ? null : Number(p.stock);
+    const meta = (Array.isArray(r.meta) ? r.meta.filter(Boolean) : [])
+      .map((m) => `<span>${esc(m)}</span>`)
+      .join('');
+    const precioHtml = !conPrecio
+      ? 'Consultar precio'
+      : (ofertaValido
+        ? `<del>${precioArs(p.precio)}</del> <span class="home-product__oferta">${precioArs(p.oferta)}</span>`
+        : precioArs(p.precio));
+    const chipStock = stock === 0
+      ? '<span class="product-card__stockout">Sin stock</span>'
+      : (stock > 0 ? `<span class="product-card__stock">${stock} disponibles</span>` : '');
+    return `<article class="home-product">
+      <a class="home-product__media" href="${esc(url)}">
+        ${imagen ? `<img src="${esc(imagen)}" width="512" height="512" alt="${esc(p.nombre)}" loading="lazy" decoding="async">` : ''}
+      </a>
+      <div class="home-product__body">
+        <p class="home-product__meta">${esc(p.categoria || '')}${meta ? ' · ' + meta : ''}</p>
+        <h3><a href="${esc(url)}">${esc(p.nombre)}</a></h3>
+        <p class="home-product__price" data-precio-producto>${precioHtml}</p>
+        ${chipStock}
+        <a class="home-product__btn" href="${esc(url)}">Ver producto</a>
+      </div>
+    </article>`;
+  }).join('\n');
+}
+
+/** JSON-LD Product por cada destacada (lo que los bots de IA leen). */
+function homeJsonLd(filas) {
+  const base = siteUrl();
+  const productos = filas.map((r) => {
+    const p = productoParaLd(r);
+    const datos = {
+      '@type': 'Product',
+      name: p.nombre,
+      url: `${base}/productos/${encodeURIComponent(p.id)}`,
+      image: p.imagen ? absAsset(p.imagen) : undefined
+    };
+    if (typeof p.precio === 'number' && p.precio > 0) {
+      datos.offers = {
+        '@type': 'Offer',
+        priceCurrency: 'ARS',
+        price: Number(p.oferta > 0 && p.oferta < p.precio ? p.oferta : p.precio).toFixed(2),
+        availability: (p.stock === null || p.stock === undefined || Number(p.stock) > 0)
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        url: datos.url
+      };
+    }
+    return datos;
+  });
+  return `<script type="application/ld+json" id="homeProductJsonLd">${jsonLd({
+    '@context': 'https://schema.org', '@graph': productos
+  })}</script>`;
+}
+
+/** GET / — home con datos reales; si falla la BD, sirve el HTML estático. */
+async function renderHome(req, res) {
+  const leido = leerHtmlEstatico('index.html');
+  if (!leido) return notFound(res);
+
+  let markup = leido.html;
+  let filas = [];
+  try {
+    filas = await db.query(
+      'SELECT * FROM products WHERE disponible = true AND destacado = true ORDER BY orden ASC, nombre ASC LIMIT 4'
+    );
+  } catch (err) {
+    console.error('[home] no se pudo leer el catálogo:', err && err.message);
+  }
+
+  if (filas.length) {
+    markup = markup.replace(RE_GRID_HOME, (match, apertura, cierre) =>
+      `${apertura}\n${homeTarjetasHtml(filas)}\n        ${cierre}`);
+    markup = markup.replace('</head>', `${homeJsonLd(filas)}\n  </head>`);
+  }
+
+  /* TTL corto (60s): los cambios del panel se ven casi al instante sin
+     necesidad de build hook ni deploy. El JS sigue manejando carrito/swipe. */
+  return html(res, 200, markup, {
+    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=3600'
+  });
+}
+
+/** GET /productos.json — catálogo legible por rastreadores de IA. */
+async function renderProductosJson(req, res) {
+  let filas = [];
+  try {
+    filas = await db.query(
+      'SELECT * FROM products WHERE disponible = true AND precio IS NOT NULL ORDER BY orden ASC, nombre ASC'
+    );
+  } catch (err) {
+    console.error('[productos.json] no se pudo leer el catálogo:', err && err.message);
+  }
+  const base = siteUrl();
+  const productos = filas.map((r) => {
+    const p = productoParaLd(r);
+    const ofertaValido = typeof p.oferta === 'number' && p.oferta > 0 && p.oferta < p.precio;
+    return {
+      id: p.id,
+      nombre: p.nombre,
+      categoria: p.categoria || '',
+      descripcion: p.descripcion || '',
+      precio_ars: ofertaValido ? p.oferta : p.precio,
+      precio_original_ars: ofertaValido ? p.precio : null,
+      moneda: 'ARS',
+      disponible: (p.stock === null || p.stock === undefined) ? true : Number(p.stock) > 0,
+      stock: p.stock,
+      url: `${base}/productos/${encodeURIComponent(p.id)}`,
+      imagen: p.imagen ? absAsset(p.imagen) : null,
+      imagenes: (p.imagenes || []).map((u) => absAsset(u)).slice(0, 10)
+    };
+  });
+  return json(res, 200, {
+    sitio: "Berry's Nature",
+    descripcion: 'Cosmética natural artesanal de Buenos Aires, Argentina.',
+    moneda: 'ARS',
+    actualizado: new Date().toISOString(),
+    productos
+  }, {
+    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=3600'
+  });
+}
+
 const RE_JSONLD_CATALOGO = /<script type="application\/ld\+json" id="catalogoJsonLd">[\s\S]*?<\/script>/;
 
 /** Marcador del grid de productos dentro de tienda.html. */
@@ -2288,4 +2430,4 @@ ${items}
   });
 }
 
-module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderEbooks, renderTienda, renderForo, renderFeed, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };
+module.exports = { renderThread, renderGuide, renderProfile, renderProduct, renderEbooks, renderTienda, renderHome, renderProductosJson, renderForo, renderFeed, renderSitemap, threadUrl, guiaUrl, perfilUrl, productoUrl, siteUrl, setLegalesPublicadas, PAGINAS_LEGALES };

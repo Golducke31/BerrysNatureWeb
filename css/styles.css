@@ -323,15 +323,28 @@ img {
   justify-content: center;
   overflow: hidden;
 }
+/* Marquesina: los mensajes viajan en un track continuo hacia la izquierda.
+   Se duplica el contenido en el JS para que el loop no tenga salto. */
+.topbar-announce__viewport {
+  width: 100%;
+}
+.topbar-announce__track {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  width: max-content;
+  animation: topbar-marquee 26s linear infinite;
+  will-change: transform;
+}
+.topbar-announce:hover .topbar-announce__track { animation-play-state: paused; }
 .topbar-announce__message {
   display: block;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity .22s ease, transform .22s ease;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
-.topbar-announce__message.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+@keyframes topbar-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 .topbar-announce strong {
   color: var(--color-cta);
@@ -361,10 +374,10 @@ img {
     padding: 8px 40px 8px 12px;
   }
   .topbar-announce__viewport { min-height: 2.8em; }
-  .topbar-announce__message { max-width: 100%; line-height: 1.4; }
+  .topbar-announce__message { max-width: none; line-height: 1.4; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .topbar-announce__message { transition: none; transform: none; }
+  .topbar-announce__track { animation: none; transform: none; }
 }
 
 .header-container {

@@ -236,6 +236,18 @@ async function handleAdmin(req, res, method, seg) {
 async function handlePublic(req, res, method, seg) {
   const [a, b, c] = seg;
 
+  /* Home con datos reales (SSR). Rewrite: / → /api/home.
+     El JS de la página sigue manejando carrito/carruseles; acá solo
+     se inyectan precio, stock, imágenes y JSON-LD para los rastreadores. */
+  if ((a === 'home' || a === 'index') && method === 'GET' && !b) {
+    return pages.renderHome(req, res);
+  }
+
+  /* Catálogo público en JSON para rastreadores de IA (llms.txt). */
+  if (a === 'productos.json' && method === 'GET' && !b) {
+    return pages.renderProductosJson(req, res);
+  }
+
   /* Sitemap dinámico. Rewrite: /sitemap.xml → función. resolvePath() mapea la
      URL original a /api/sitemap.xml, que al dividir por "/" queda como un solo
      segmento (a === "sitemap.xml"); también aceptamos /api/sitemap directo. */

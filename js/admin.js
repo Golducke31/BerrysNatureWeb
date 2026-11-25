@@ -2315,6 +2315,9 @@
       var freeThreshold = typeof config.freeThreshold === 'number' ? config.freeThreshold : 30000;
       var discountCode = typeof config.discountCode === 'string' ? config.discountCode : 'BERRYS';
       var discountPercent = Number.isInteger(config.discountPercent) ? config.discountPercent : 10;
+      var emojiMarca = config.emojiMarca || '🌿';
+      var emojiEnvio = config.emojiEnvio || '🚚';
+      var emojiDescuento = config.emojiDescuento || '🎁';
       var zones = (data && data.zones) || [];
 
       $('#adminMain').innerHTML =
@@ -2326,6 +2329,9 @@
           '<div class="admin-field"><label for="shipFreeThreshold">Envío gratis desde (ARS)</label>' +
             '<input type="number" id="shipFreeThreshold" class="admin-input" min="0" step="1000" value="' + freeThreshold + '">' +
             '<small class="admin-help">Si el subtotal de productos llega a este monto, el envío es sin cargo. 0 = desactivado.</small>' +
+          '</div>' +
+          '<div class="admin-field"><label for="shipEmojiMarca">Emoji de la marca</label>' +
+            '<input type="text" id="shipEmojiMarca" class="admin-input" maxlength="8" value="' + escapeHtml(emojiMarca) + '">' +
           '</div>' +
           '<div class="admin-field" style="align-self:end"><button class="admin-btn admin-btn--primary" id="saveShipConfig">Guardar envío gratis</button></div>' +
         '</div></div>' +
@@ -2339,6 +2345,12 @@
             '<div class="admin-field"><label for="shipDiscountPercent">Descuento (%)</label>' +
               '<input type="number" id="shipDiscountPercent" class="admin-input" min="0" max="90" step="1" value="' + discountPercent + '">' +
               '<small class="admin-help">0% o un código vacío desactiva la promoción. Máximo 90%.</small>' +
+            '</div>' +
+            '<div class="admin-field"><label for="shipEmojiEnvio">Emoji de envío</label>' +
+              '<input type="text" id="shipEmojiEnvio" class="admin-input" maxlength="8" value="' + escapeHtml(emojiEnvio) + '">' +
+            '</div>' +
+            '<div class="admin-field"><label for="shipEmojiDescuento">Emoji de descuento</label>' +
+              '<input type="text" id="shipEmojiDescuento" class="admin-input" maxlength="8" value="' + escapeHtml(emojiDescuento) + '">' +
             '</div>' +
             '<div class="admin-field" style="align-self:end"><button class="admin-btn admin-btn--primary" id="saveDiscountConfig">Guardar código</button></div>' +
           '</div>' +
@@ -2375,9 +2387,15 @@
         if (saveDiscount) {
           var codeInput = document.getElementById('shipDiscountCode');
           var percentInput = document.getElementById('shipDiscountPercent');
+          var emojiMarcaInput = document.getElementById('shipEmojiMarca');
+          var emojiEnvioInput = document.getElementById('shipEmojiEnvio');
+          var emojiDescuentoInput = document.getElementById('shipEmojiDescuento');
           req('PATCH', '/content/shipping', {
             discountCode: codeInput ? codeInput.value.trim().toUpperCase() : '',
-            discountPercent: percentInput ? Number(percentInput.value) : 0
+            discountPercent: percentInput ? Number(percentInput.value) : 0,
+            emojiMarca: emojiMarcaInput ? emojiMarcaInput.value.trim() : emojiMarca,
+            emojiEnvio: emojiEnvioInput ? emojiEnvioInput.value.trim() : emojiEnvio,
+            emojiDescuento: emojiDescuentoInput ? emojiDescuentoInput.value.trim() : emojiDescuento
           })
             .then(function () { toast('Código de descuento actualizado.'); renderShipping(); })
             .catch(guard);

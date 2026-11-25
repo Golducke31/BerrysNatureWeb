@@ -53,7 +53,7 @@
   # El panel admin lee estos dos archivos desde la Function (ruta secreta).
   # tienda.html y foro.html se leen desde la Function para inyectarles el
   # contenido que viene de la base (catálogo / hilos) antes de servir.
-  included_files = ["css/admin.css", "js/admin.js", "tienda.html", "foro.html"]
+  included_files = ["css/admin.css", "js/admin.js", "index.html", "tienda.html", "foro.html"]
 
 # ---- La landing del ebook cambió de URL ----
 # Todas las variantes antiguas terminan en la landing SSR canónica.
@@ -91,8 +91,22 @@
 # /pagina.html). Se genera y no se escribe a mano para que no se
 # desincronice cuando se agrega una página o una guía nueva.
 #
-# Acá quedan solo las reglas que NO son de páginas estáticas: la tienda
-# (la sirve la Function para inyectarle el catálogo) y la API.
+# Acá quedan solo las reglas que NO son de páginas estáticas: la home y la
+# tienda (las sirve la Function para inyectarles datos reales de la BD) y la API.
+# La home se reescribe a la Function para TODOS: así personas y rastreadores
+# ven los mismos precios/stock reales. El JS sigue manejando carrito y swipe.
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/api/home"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/productos.json"
+  to = "/.netlify/functions/api/productos.json"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/tienda"
   to = "/.netlify/functions/api/tienda"
