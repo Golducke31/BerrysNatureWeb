@@ -1,5 +1,18 @@
 /* Checkout del Ebook Berry's Nature */
 (() => {
+  /* El layout SSR declara <base href="/">, así que un href="#comprar"
+     se resuelve contra la raíz y te lleva a la home. Interceptamos el
+     CTA y hacemos scroll al bloque de compra de ESTA página. */
+  document.querySelectorAll('a[href="#comprar"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const destino = document.getElementById('comprar');
+      if (!destino) return;
+      event.preventDefault();
+      destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (history.replaceState) history.replaceState(null, '', location.pathname + location.search + '#comprar');
+    });
+  });
+
   const form = document.querySelector('[data-ebook-checkout]');
   const feedback = document.querySelector('[data-ebook-feedback]');
   const button = form && form.querySelector('button[type="submit"]');
