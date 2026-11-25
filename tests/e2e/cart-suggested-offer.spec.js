@@ -68,6 +68,7 @@ test.describe('Precios en sugeridos del carrito', () => {
     const cross = codigo.slice(codigo.indexOf('// Cross-sell'), codigo.indexOf('// Eventos del drawer'));
     expect(cross).not.toContain("ars(p.precio)");
     expect(cross).toContain('cart-cross__sale');
-    expect(leer('css/catalog.css')).toContain('.cart-cross__sale');
+    /* Estilos movidos a nav-shared.css: el carrito se abre en todas las páginas. */
+    expect(leer('css/nav-shared.css')).toContain('.cart-cross__sale');
   });
 });
