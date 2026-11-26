@@ -548,3 +548,146 @@
   cursor: pointer;
   flex: 0 0 auto;
 }
+
+/* Envio gratis del carrito compartido. */
+.cart-freeship { margin: 0 0 12px; }
+.cart-freeship__text {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+.cart-freeship__text strong { color: var(--color-accent-dark); }
+.cart-freeship__text.is-ok { color: #5f7a4a; }
+.cart-freeship__bar {
+  height: 7px;
+  border-radius: 999px;
+  background: #efe4db;
+  overflow: hidden;
+}
+.cart-freeship__bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #b9705a, #eab8a3);
+  transition: width 0.35s ease;
+}
+
+/* ---- Acordeón de la ficha (descripción / INCI / envíos) ---- */
+.product-accordion {
+  margin: 18px 0 22px;
+  border-top: 1px solid rgba(74, 63, 53, 0.12);
+}
+.product-accordion__item {
+  border-bottom: 1px solid rgba(74, 63, 53, 0.12);
+}
+.product-accordion__item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 14px 0;
+  font-family: var(--font-title);
+  font-size: 17px;
+  color: var(--color-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.product-accordion__item summary::-webkit-details-marker { display: none; }
+.product-accordion__item summary::after {
+  content: '+';
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-accent-terracota);
+}
+.product-accordion__item[open] summary::after { content: '−'; }
+.product-accordion__body { padding: 0 0 16px; }
+.product-accordion__body p {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+.product-inci {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+  letter-spacing: 0.01em;
+  background: rgba(234, 184, 163, 0.10);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.product-inci__note {
+  font-size: 12px !important;
+  color: var(--color-text-muted);
+}
+
+/* Cross-sell: estilos en nav-shared.css (componente compartido). */
+.cart-trust {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin-top: 10px;
+}
+.cart-trust span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
+.cart-trust i { color: var(--color-accent-terracota); }
+
+/* ---- "Qué incluye" del kit ---- */
+.kit-includes {
+  max-width: 1100px;
+  margin: 0 auto 48px;
+  padding: 0 20px;
+}
+.kit-includes__title {
+  font-family: var(--font-title);
+  font-size: 26px;
+  color: var(--color-text);
+  margin: 0 0 16px;
+}
+.kit-includes__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+}
+.kit-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 252, 249, 0.7);
+  border: 1px solid rgba(74, 63, 53, 0.08);
+}
+.kit-item__img {
+  width: 84px;
+  height: 84px;
+  border-radius: 12px;
+  object-fit: contain;
+  background: var(--bg-card);
+  flex: 0 0 auto;
+}
+.kit-item__body { min-width: 0; }
+.kit-item__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 6px;
+}
+.kit-item__name span { color: var(--color-text-muted); font-weight: 600; }
+.kit-item__inci {
+  border-top: 1px solid rgba(74, 63, 53, 0.10);
+  border-bottom: 0;
+  margin-top: 6px;
+}
+.kit-item__inci summary { font-size: 13px; padding: 8px 0; }
+.kit-item__inci .product-accordion__body { padding-bottom: 8px; }
+.kit-item__inci .product-inci { font-size: 11.5px !important; padding: 10px; }
+

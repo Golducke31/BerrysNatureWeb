@@ -39,3 +39,37 @@ test.describe('Estilos del carrito compartidos por todas las secciones', () => {
     expect(css).toContain('.cart-cross__add {');
   });
 });
+
+test.describe('Footer del carrito idéntico en todas las secciones', () => {
+  test('CC-05: las 4 clases del pie ya no quedan en catalog.css', () => {
+    const catalog = leer('css/catalog.css');
+    const shared = leer('css/nav-shared.css');
+    for (const sel of ['.cart-trust {', '.cart-trust span {', '.cart-freeship {', '.cart-freeship__bar {']) {
+      expect(catalog, sel).not.toContain(sel);
+      expect(shared, sel).toContain(sel);
+    }
+  });
+
+  test('CC-06: todos los cart-* del drawer tienen estilo compartido', () => {
+    const nav = leer('server/lib/nav.js');
+    const shared = leer('css/nav-shared.css');
+    const i = nav.indexOf('function cartDrawerHtml()');
+    const j = nav.indexOf('\n}', i);
+    const drawer = nav.slice(i, j);
+    const usadas = new Set((drawer.match(/class="[a-z0-9_ -]+"/g) || [])
+      .join(' ').match(/\bcart[a-z0-9_-]*/g) || []);
+    const definidas = new Set((shared.match(/\.cart[a-z0-9_-]+/g) || []).map((s) => s.slice(1)));
+    const faltan = [...usadas].filter((c) => !definidas.has(c));
+    expect(faltan, 'clases sin estilo: ' + faltan.join(', ')).toEqual([]);
+  });
+
+  test('CC-07: los textos de confianza son los mismos en tienda y compartido', () => {
+    const tienda = leer('tienda.html');
+    const shared = leer('server/lib/nav.js');
+    const textos = ['Pago seguro con MercadoPago', 'Hecho a mano', 'Envío a todo el país'];
+    for (const t of textos) {
+      expect(tienda, t).toContain(t);
+      expect(shared, t).toContain(t);
+    }
+  });
+});

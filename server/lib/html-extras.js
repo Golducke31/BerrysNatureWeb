@@ -104,34 +104,12 @@ const FB_ANCHOR = `
    corporativa, modo offline, navegador de test) la página parece no
    terminar de cargar. Creado dinámicamente luego de load, el sitio nunca
    depende de Google para estar usable. */
+/* La insignia se carga desde un archivo externo: un <script> inline
+   violaba la CSP (script-src 'self') y Lighthouse marcaba error de
+   consola ademas de que la insignia nunca llegaba a mostrarse. */
 const BADGE_SCRIPT = `
   <!-- Insignia de Google Merchant Center (carga no bloqueante) -->
-  <script>
-    (function () {
-      function cargar() {
-        var tag = document.createElement('script');
-        tag.id = 'merchantWidgetScript';
-        tag.src = 'https://www.gstatic.com/shopping/merchant/merchantwidget.js';
-        tag.async = true;
-        tag.addEventListener('load', function () {
-          try {
-            if (!window.merchantwidget || !window.merchantwidget.start) return;
-            window.merchantwidget.start({
-              merchant_id: ${MERCHANT_ID},
-              position: 'BOTTOM_RIGHT',
-              region: 'AR'
-            });
-          } catch (e) {
-            /* Un tercero que cambia su API no puede romper la página. */
-            if (window.console) console.warn('[google] insignia no disponible:', e && e.message);
-          }
-        });
-        document.head.appendChild(tag);
-      }
-      if (document.readyState === 'complete') cargar();
-      else window.addEventListener('load', cargar, { once: true });
-    })();
-  </script>`;
+  <script src="/js/merchant-badge.js" defer></script>`;
 
 /** Inserta el nav de hubs antes de los iconos sociales, una sola vez. */
 function asegurarNavFooter(html) {
