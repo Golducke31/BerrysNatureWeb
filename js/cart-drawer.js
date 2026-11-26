@@ -194,12 +194,19 @@
   }
 
   /* El link del header navega a /tienda#carrito. Si el drawer existe
-     acá, interceptamos para no salir de la ficha del producto. */
+     acá, interceptamos para no salir de la ficha del producto.
+     Con el carrito VACÍO no tiene sentido abrir un drawer vacío:
+     redirigimos a /tienda sin hash. Con 1+ productos se mantiene el
+     comportamiento actual (abre en sitio, sin cambiar de página). */
   document.addEventListener('click', function (e) {
     var link = e.target.closest && e.target.closest('[data-cart-link]');
     if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return;
     if (!esTienda) {
       e.preventDefault();
+      if (cant(leer()) === 0) {
+        location.assign('/tienda');
+        return;
+      }
       abrir();
     }
   });

@@ -104,3 +104,26 @@ test.describe('Cross-sell y navegación compartida', () => {
   });
 });
 
+
+test.describe('Carrito vacío desde otras páginas', () => {
+  test('CS-12: con 0 productos redirige a /tienda sin hash', async ({ page }) => {
+    await page.goto('http://localhost:8870/productos/jabon-avena-miel', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => localStorage.setItem('berrys_cart_v1', '[]'));
+    await page.locator('.nav-cart-btn').first().click();
+    await page.waitForURL('**/tienda', { timeout: 10000 });
+    expect(new URL(page.url()).hash).toBe('');
+    expect((await page.evaluate(() => localStorage.getItem('berrys_cart_v1')))).toBe('[]');
+  });
+
+  test('CS-13: con 1+ productos abre el drawer en sitio (sin navegar)', async ({ page }) => {
+    await page.goto('http://localhost:8870/productos/jabon-avena-miel', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => localStorage.setItem('berrys_cart_v1', JSON.stringify([{ id: 'jabon-avena-miel', qty: 2 }])));
+    const antes = page.url();
+    await page.locator('.nav-cart-btn').first().click();
+    await page.waitForTimeout(500);
+    expect(page.url()).toBe(antes);
+    expect(await page.locator('#cartDrawer.is-open').count()).toBe(1);
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('berrys_cart_v1'))[0].qty)).toBe(2);
+  });
+});
+
